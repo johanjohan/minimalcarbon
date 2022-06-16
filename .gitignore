@@ -4,6 +4,9 @@ folderhighlight*
 *.lnk
 *.URL
 data/
+scraped_pywebcopy/
+wget/
+scraped/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
