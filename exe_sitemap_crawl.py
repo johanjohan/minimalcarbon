@@ -192,8 +192,8 @@ if __name__ == "__main__":
 
     # args defaults
     def_url = "https://1001suns.com/sitemap_post/" # for args
-    def_url = "https://1001suns.com/universe_bochum21/" # for args
-    def_url = "https://karlsruhe.digital/"
+    # def_url = "https://1001suns.com/universe_bochum21/" # for args
+    # def_url = "https://karlsruhe.digital/"
     
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
@@ -220,10 +220,10 @@ if __name__ == "__main__":
     if args.crawl:
         crawl(args.url, max_urls=args.max_urls)
 
-        print("[+] Total Internal links:", len(internal_urls))
-        print("[+] Total External links:", len(external_urls))
-        print("[+] Total URLs:", len(external_urls) + len(internal_urls))
-        print("[+] Total crawled URLs:", args.max_urls)
+        # print("[+] Total Internal links:", len(internal_urls))
+        # print("[+] Total External links:", len(external_urls))
+        # print("[+] Total URLs:", len(external_urls) + len(internal_urls))
+        # print("[+] Total crawled URLs:", args.max_urls)
 
         # skip http
         print("before http replace:", len(internal_urls))
