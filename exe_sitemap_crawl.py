@@ -137,7 +137,10 @@ def get_all_website_links(url, max_urls):
         if domain_name not in href_netloc:  #  in href
             # external link
             if href not in external_urls:
-                print(f"{GRAY}[!] External: {href}{RESET}")
+                print(
+                    f"{total_urls_visited}/{max_urls}", 
+                    f"{GRAY}[!] External: {href}{RESET}"
+                )
                 external_urls.add(href)
             continue
         
@@ -176,6 +179,7 @@ def crawl(url, max_urls):
             break
         
         if total_urls_visited > max_urls:
+            print(f"{RED}[*] max_urls: {max_urls} {RESET}")
             break
         
         crawl(link, max_urls=max_urls)
@@ -194,7 +198,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
-    parser.add_argument("--max-urls",   default=30,       type=int,   help="Number of max URLs to crawl.")
+    parser.add_argument("--max-urls",   default=5000,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
     parser.add_argument("--timeout",    default=-1,         type=float, help="timeout. -1 means no timeout")
     
