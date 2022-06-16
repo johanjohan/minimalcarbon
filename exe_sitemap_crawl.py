@@ -39,12 +39,6 @@ headers  = {
     }
 data_folder="data"
 mime_types_allowed = ["text/html", "text/plain"]
-
-# args defaults
-def_url = "https://1001suns.com/sitemap_post/" # for args
-def_url = "https://1001suns.com/universe_bochum21/" # for args
-def_url = "https://karlsruhe.digital/"
-
 start_secs = time.time()
 args    = None
 
@@ -192,10 +186,15 @@ def crawl(url, max_urls):
 #-----------------------------------------
 if __name__ == "__main__":
 
+    # args defaults
+    def_url = "https://1001suns.com/sitemap_post/" # for args
+    def_url = "https://1001suns.com/universe_bochum21/" # for args
+    def_url = "https://karlsruhe.digital/"
+    
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
-    parser.add_argument("--max-urls",   default=3000,       type=int,   help="Number of max URLs to crawl.")
+    parser.add_argument("--max-urls",   default=30,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
     parser.add_argument("--timeout",    default=-1,         type=float, help="timeout. -1 means no timeout")
     
@@ -225,10 +224,9 @@ if __name__ == "__main__":
         # skip http
         print("before http replace:", len(internal_urls))
         internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
-        print("after http replace:", len(internal_urls))
-        
         internal_urls = sorted(set(internal_urls))
         external_urls = sorted(set(external_urls))
+        print("after http replace :", len(internal_urls))
         
         # save the internal links to a file
         print("save the internal links to a file...")
