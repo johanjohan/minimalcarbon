@@ -27,7 +27,6 @@ RED = colorama.Fore.RED
 #-----------------------------------------
 # 
 #-----------------------------------------
-
 # initialize the set of links (unique links)
 internal_urls = set()
 external_urls = set()
@@ -45,8 +44,8 @@ mime_types_allowed = ["text/html", "text/plain"]
 def_url = "https://1001suns.com/sitemap_post/" # for args
 def_url = "https://1001suns.com/universe_bochum21/" # for args
 def_url = "https://karlsruhe.digital/"
-def_max_urls = 1000
 
+start_secs = time.time()
 args    = None
 
 date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -54,7 +53,6 @@ date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 #-----------------------------------------
 # 
 #-----------------------------------------
-
 def is_valid(url):
     """
     Checks whether `url` is a valid URL.
@@ -178,8 +176,14 @@ def crawl(url, max_urls):
     print(f"{YELLOW}[*] Crawling: {url}{RESET}")
     links = get_all_website_links(url, max_urls)
     for link in links:
+        
+        if (args.timeout > 0) and (time.time() - start_secs > args.timeout): # timeout
+            print(f"{RED}[*] TIMEOUT: {args.timeout}s {RESET}")
+            break
+        
         if total_urls_visited > max_urls:
             break
+        
         crawl(link, max_urls=max_urls)
 
 
@@ -190,21 +194,19 @@ if __name__ == "__main__":
 
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
-    parser.add_argument("--url",        default=def_url,        type=str,   help="The URL to extract links from.")
-    parser.add_argument("--max-urls",   default=def_max_urls,   type=int,   help="Number of max URLs to crawl.")
-    parser.add_argument("--crawl",      default=True,           type=bool,  help="crawl True or False")
+    parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
+    parser.add_argument("--max-urls",   default=3000,       type=int,   help="Number of max URLs to crawl.")
+    parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
+    parser.add_argument("--timeout",    default=-1,         type=float, help="timeout. -1 means no timeout")
     
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
-    print("url     :", args.url)
-    print("max_urls:", args.max_urls)
+    for arg in vars(args):
+        print(str(arg).rjust(15) + ':', getattr(args, arg))
             
-    
     #-----------------------------------------
     # crawl
     #-----------------------------------------
-    start_secs = time.time()
-
     domain_name = urlparse(args.url).netloc
     file_internal_path = f"{data_folder}/{domain_name}_{date_time}_internal_links.csv"
     file_external_path = f"{data_folder}/{domain_name}_{date_time}_external_links.csv"
@@ -234,18 +236,23 @@ if __name__ == "__main__":
             for internal_link in internal_urls:
                 #check response
                 status = get_status_code(internal_link)
-                print(status, internal_link)
                 if status in [200, 301]:
+                    #print(status, internal_link)
                     f.write(internal_link.strip() + "\n")
                 else:
-                    print(f"{RED}[*] status: {status}{RESET}")
+                    print(f"{RED}[*] status: {status} {internal_link} {RESET}")
 
         # save the external links to a file
         print("save the external links to a file...")
         with open(file_external_path, "w", encoding="utf-8") as f:
             for external_link in external_urls:
                 f.write(external_link.strip() + "\n")
-                
+
+        print("[+] Total Internal links:", len(internal_urls))
+        print("[+] Total External links:", len(external_urls))
+        print("[+] Total URLs:", len(external_urls) + len(internal_urls))
+        print("[+] Total crawled URLs:", args.max_urls)
+                        
         print("all done:", "duration:", round(time.time() - start_secs, 1), "s")
     
     exit(0)
@@ -253,7 +260,7 @@ if __name__ == "__main__":
     # pywebcopy
     #-----------------------------------------
     from pywebcopy import save_webpage
-    
+
     with open(file_internal_path, "r") as f:
         internal_urls = f.readlines()
         
