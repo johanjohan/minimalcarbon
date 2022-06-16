@@ -39,6 +39,7 @@ headers  = {
     }
 data_folder="data"
 mime_types_allowed = ["text/html", "text/plain"]
+excludes = [] # ["/category/", "/author/"]
 start_secs = time.time()
 args    = None
 
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
     parser.add_argument("--max-urls",   default=5000,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
-    parser.add_argument("--timeout",    default=-1,         type=float, help="timeout. -1 means no timeout")
+    parser.add_argument("--timeout",    default=60*60,      type=float, help="timeout. -1 means no timeout")
     
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
@@ -220,11 +221,6 @@ if __name__ == "__main__":
     if args.crawl:
         crawl(args.url, max_urls=args.max_urls)
 
-        # print("[+] Total Internal links:", len(internal_urls))
-        # print("[+] Total External links:", len(external_urls))
-        # print("[+] Total URLs:", len(external_urls) + len(internal_urls))
-        # print("[+] Total crawled URLs:", args.max_urls)
-
         # skip http
         print("before http replace:", len(internal_urls))
         internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
@@ -236,13 +232,19 @@ if __name__ == "__main__":
         print("save the internal links to a file...")
         with open(file_internal_path, "w", encoding="utf-8") as f:
             for internal_link in internal_urls:
-                #check response
-                status = get_status_code(internal_link)
-                if status in [200, 301]:
-                    #print(status, internal_link)
-                    f.write(internal_link.strip() + "\n")
+                if True:
+                    if not any(exclude in internal_link for exclude in excludes):
+                        f.write(internal_link.strip() + "\n")
+                    else:
+                        print(f"{RED}[*] exclude: {internal_link} {RESET}")
                 else:
-                    print(f"{RED}[*] status: {status} {internal_link} {RESET}")
+                    #check response
+                    status = get_status_code(internal_link)
+                    if status in [200, 301]:
+                        #print(status, internal_link)
+                        f.write(internal_link.strip() + "\n")
+                    else:
+                        print(f"{RED}[*] status: {status} {internal_link} {RESET}")
 
         # save the external links to a file
         print("save the external links to a file...")
@@ -252,10 +254,12 @@ if __name__ == "__main__":
 
         print("[+] Total Internal links:", len(internal_urls))
         print("[+] Total External links:", len(external_urls))
-        print("[+] Total URLs:", len(external_urls) + len(internal_urls))
-        print("[+] Total crawled URLs:", args.max_urls)
+        print("[+] Total URLs          :", len(external_urls) + len(internal_urls))
+        print("[+] Total crawled URLs  :", total_urls_visited)
+        print("[+] args.max_urls       :", args.max_urls)
                         
-        print("all done:", "duration:", round(time.time() - start_secs, 1), "s")
+        secs = time.time() - start_secs
+        print("all done:", "duration:", round(secs/60.0, 1), "m")
     
     exit(0)
     #-----------------------------------------
