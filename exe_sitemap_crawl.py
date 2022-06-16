@@ -14,6 +14,7 @@ import magic
 import time
 import urllib.request
 import ssl
+import datetime
         
 # init the colorama module
 colorama.init()
@@ -44,9 +45,11 @@ mime_types_allowed = ["text/html", "text/plain"]
 def_url = "https://1001suns.com/sitemap_post/" # for args
 def_url = "https://1001suns.com/universe_bochum21/" # for args
 def_url = "https://karlsruhe.digital/"
-def_max_urls = 1
+def_max_urls = 1000
 
 args    = None
+
+date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 #-----------------------------------------
 # 
@@ -105,7 +108,8 @@ def get_status_code(url, fast=True, timeout=5):
             context = ssl._create_unverified_context()
             with urllib.request.urlopen(req, context=context) as response:
                 return response.getcode()
-    except:
+    except Exception as e:
+        print(f"{RED}[!] {url} Exception: {e}{RESET}")
         return -1
 
 def get_all_website_links(url, max_urls):
@@ -202,10 +206,12 @@ if __name__ == "__main__":
     start_secs = time.time()
 
     domain_name = urlparse(args.url).netloc
-    print("domain_name:", domain_name)
-    file_internal_path = f"{data_folder}/{domain_name}_internal_links.csv"
-    file_external_path = f"{data_folder}/{domain_name}_external_links.csv"
-
+    file_internal_path = f"{data_folder}/{domain_name}_{date_time}_internal_links.csv"
+    file_external_path = f"{data_folder}/{domain_name}_{date_time}_external_links.csv"
+    print("domain_name       :", domain_name)
+    print("file_internal_path:", file_internal_path)
+    print("file_external_path:", file_external_path)
+ 
     if args.crawl:
         crawl(args.url, max_urls=args.max_urls)
 
