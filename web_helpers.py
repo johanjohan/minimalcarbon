@@ -39,9 +39,14 @@ urlparse("scheme://netloc/path;parameters?query#fragment")
 ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
             query='query', fragment='fragment')
 urlparse("http://docs.python.org:80/3/library/urllib.parse.html?highlight=params#url-parsing")
-ParseResult(scheme='http', netloc='docs.python.org:80',
-            path='/3/library/urllib.parse.html', params='',
-            query='highlight=params', fragment='url-parsing')
+ParseResult(
+    scheme  = 'http', 
+    netloc  = 'docs.python.org:80',
+    path    = '/3/library/urllib.parse.html', 
+    params  = '',
+    query   = 'highlight=params', 
+    fragment= 'url-parsing'
+)
 """    
 def has_same_netloc(url, base):
     url_loc  = urlparse(url.strip() ).netloc
@@ -49,12 +54,19 @@ def has_same_netloc(url, base):
     return url_loc == base_loc
     return url.strip().startswith(base.strip())
 
-def url_path(url):
-    return urlparse(url.strip()).path
+def url_path(url, char_lstrip=''): # '/'
+    p = urlparse(url.strip()).path # '/3/library/urllib.parse.html'
+    if char_lstrip:
+        p = p.lstrip(char_lstrip)
+    return p
+
+def url_path_lstrip_slash(url): # '/'
+    return url_path(url, char_lstrip='/')
 
 def try_make_local(url, base):
     if has_same_netloc(url, base):
-        ret = url.replace(base, "").lstrip('/')
+        #ret = url.replace(base, "").lstrip('/')
+        ret = url_path_lstrip_slash(url)
         #print("try_make_local:", url, "->", ret)
         return ret
     else:
@@ -87,12 +99,19 @@ def strip_tail(url, delim):
 
 def strip_query_and_fragment(url):
     return strip_tail(url, '?')
+
+def add_trailing(url, to_add):
+    return url.rstrip(to_add) + to_add
+
+def add_trailing_slash(url):
+    return add_trailing(url, '/')
+
 #-----------------------------------------
 # 
 #-----------------------------------------
 
-def make_dirs(local_path):
-    dirs = os.path.dirname(local_path)
+def make_dirs(the_path):
+    dirs = os.path.dirname(the_path)
     if not os.path.exists(dirs):
         print("make_dirs:", dirs)
         os.makedirs(dirs)
