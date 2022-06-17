@@ -8,7 +8,8 @@ import chromedriver_binary # pip install chromedriver-binary-auto
 from lxml import html
 import requests
 import os
-from urllib.parse import urlparse, urljoin
+import web_helpers as wh
+
 
 driver = webdriver.Chrome()
 base = 'https://karlsruhe.digital/'
@@ -25,12 +26,6 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 CYAN = colorama.Fore.CYAN
 
-
-def is_remote(url):
-    return url.strip().startswith('http')
-
-def is_local(url):
-    return not is_remote(url)
 
 
 """
@@ -124,26 +119,26 @@ for hr in h.xpath('head//@href'):
         
     print(f"{YELLOW}\t hr: {hr}{RESET}")
         
-    if is_local(hr):
+    if wh.is_local(hr):
         local_path = FOLDER + hr
-        local_path = strip_query_and_fragment(local_path)
+        local_path = wh.strip_query_and_fragment(local_path)
         hr = base + hr
     else:
-        local_path = FOLDER + url_path(hr).lstrip('/')
+        local_path = FOLDER + wh.url_path(hr).lstrip('/')
         
     print("hr        :", hr)
     print("local_path:", local_path)
     
     res = sess.get(hr)    
     if res.status_code == 200:
-        if has_no_trailing_slash(local_path): # is a file
+        if wh.has_no_trailing_slash(local_path): # is a file
             
-            make_dirs(local_path)         
+            wh.make_dirs(local_path)         
             with open(local_path, 'wb') as fp:
                 fp.write(res.content)
             print("saved:", local_path)
             
-            content = content.replace(hr, url_path(hr).lstrip('/'))
+            content = content.replace(hr, wh.url_path(hr).lstrip('/'))
         else:
             print(f"{RED}\t not a file: {local_path}{RESET}")
     else:
@@ -153,8 +148,8 @@ for hr in h.xpath('head//@href'):
 # get image/js files from the body.  skip anything loaded from outside sources
 for src in h.xpath('//@src'):
     
-    if has_same_netloc(src, base):
-        src = try_make_local(src, base)
+    if wh.has_same_netloc(src, base):
+        src = wh.try_make_local(src, base)
     
     print(f"{GREEN}\t src: {src}{RESET}")
     
@@ -164,16 +159,16 @@ for src in h.xpath('//@src'):
     
     local_path = FOLDER + src
     print(local_path)
-    local_path = strip_query_and_fragment(local_path)
+    local_path = wh.strip_query_and_fragment(local_path)
             
     src = base + src
     res = sess.get(src)
     
-    make_dirs(local_path)       
+    wh.make_dirs(local_path)       
     with open(local_path, 'wb') as fp:
         fp.write(res.content)  
         
-    content = content.replace(src, url_path(src).lstrip('/'))
+    content = content.replace(src, wh.url_path(src).lstrip('/'))
     
 with open(FOLDER + 'page_local.html', 'w', encoding="utf-8") as fp:
     fp.write(content)
