@@ -8,6 +8,7 @@ import chromedriver_binary # pip install chromedriver-binary-auto
 from lxml import html
 import requests
 import os
+from urllib.parse import urlparse, urljoin
 
 driver = webdriver.Chrome()
 base = 'https://karlsruhe.digital/'
@@ -54,16 +55,6 @@ def is_remote(url):
 def is_local(url):
     return not is_remote(url)
 
-def is_in_base(url, base):
-    return url.strip().startswith(base.strip())
-
-def try_make_local(url, base):
-    if is_in_base(url, base):
-        ret = url.replace(base, "").lstrip('/')
-        print("try_make_local:", url, "->", ret)
-        return ret
-    else:
-        return url
 
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
@@ -74,9 +65,24 @@ ParseResult(scheme='http', netloc='docs.python.org:80',
             path='/3/library/urllib.parse.html', params='',
             query='highlight=params', fragment='url-parsing')
 """    
+def has_same_netloc(url, base):
+    url_loc  = urlparse(url.strip() ).netloc
+    base_loc = urlparse(base.strip()).netloc
+    return url_loc == base_loc
+    
+    return url.strip().startswith(base.strip())
+
 def url_path(url):
-    from urllib.parse import urlparse, urljoin
     return urlparse(url.strip()).path
+
+def try_make_local(url, base):
+    if has_same_netloc(url, base):
+        ret = url.replace(base, "").lstrip('/')
+        print("try_make_local:", url, "->", ret)
+        return ret
+    else:
+        return url
+
 
 def has_trailing(url, s):
     return url.endswith(s)
@@ -101,6 +107,12 @@ def strip_tail(url, delim):
 
 def strip_query_and_fragment(url):
     return strip_tail(url, '?')
+
+def make_dirs(local_path):
+    dirs = os.path.dirname(local_path)
+    if not os.path.exists(dirs):
+        print("make_dirs:", dirs)
+        os.makedirs(dirs)
         
 # parse html
 h = html.fromstring(content)
@@ -123,11 +135,7 @@ for hr in h.xpath('head//@href'):
     if res.status_code == 200:
         if has_no_trailing_slash(local_path): # is a file
             
-            if not os.path.exists(os.path.dirname(local_path)):
-                if os.path.dirname(local_path):
-                    print("makedirs:", os.path.dirname(local_path))
-                    os.makedirs(os.path.dirname(local_path))            
-            
+            make_dirs(local_path)         
             with open(local_path, 'wb') as fp:
                 fp.write(res.content)
             print("saved:", local_path)
@@ -140,14 +148,13 @@ for hr in h.xpath('head//@href'):
 # get image/js files from the body.  skip anything loaded from outside sources
 for src in h.xpath('//@src'):
     
-    ###src = try_make_local(src, base)
-    if is_in_base(src, base):
+    if has_same_netloc(src, base):
         src = try_make_local(src, base)
     
     print(f"{GREEN}\t src: {src}{RESET}")
     
     if not src or src.startswith('http'): # skip anything loaded from outside sources
-        print(f"{RED}\t skipping: {src}{RESET}")
+        print(f"{RED}\t skipping external: {src}{RESET}")
         continue
     
     local_path = FOLDER + src
@@ -157,8 +164,6 @@ for src in h.xpath('//@src'):
     src = base + src
     res = sess.get(src)
     
-    if not os.path.exists(os.path.dirname(local_path)):
-        os.makedirs(os.path.dirname(local_path))
-        
+    make_dirs(local_path)       
     with open(local_path, 'wb') as fp:
         fp.write(res.content)  
