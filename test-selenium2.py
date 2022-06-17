@@ -26,8 +26,6 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 CYAN = colorama.Fore.CYAN
 
-
-
 print(f"{CYAN}\t URL: {URL}{RESET}")
 
 driver.get(URL)
