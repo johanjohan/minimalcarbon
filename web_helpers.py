@@ -4,6 +4,7 @@ import os
 import urllib.request
 import ssl
 import requests
+import time
 
 #-----------------------------------------
 # 
@@ -46,7 +47,6 @@ def has_same_netloc(url, base):
     url_loc  = urlparse(url.strip() ).netloc
     base_loc = urlparse(base.strip()).netloc
     return url_loc == base_loc
-    
     return url.strip().startswith(base.strip())
 
 def url_path(url):
@@ -55,7 +55,7 @@ def url_path(url):
 def try_make_local(url, base):
     if has_same_netloc(url, base):
         ret = url.replace(base, "").lstrip('/')
-        print("try_make_local:", url, "->", ret)
+        #print("try_make_local:", url, "->", ret)
         return ret
     else:
         return url
@@ -82,7 +82,7 @@ def has_leading_slash(url):
 def strip_tail(url, delim):
     if delim in url:
         url = url.split(delim)[0]
-        print("--> strip_tail:", url)
+        #print("--> strip_tail:", url)
     return url
 
 def strip_query_and_fragment(url):
@@ -157,8 +157,88 @@ def get_status_code(url, fast=True, timeout=5):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def wait_for(condition_function, timeout):
+    start_time = time.time()
+    while time.time() < (start_time + timeout):
+        if condition_function():
+            return True
+        else:
+            time.sleep(0.1)
+    raise Exception(
+        'Timeout waiting for {}'.format(condition_function.__name__)
+    )
+#-----------------------------------------
+# selenium
+#-----------------------------------------
+from selenium import webdriver # pip install selenium
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.expected_conditions import visibility_of_element_located
+from selenium.common.exceptions import TimeoutException
+
+# https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
+def _scroll_down(driver, value):
+    driver.execute_script("window.scrollBy(0,"+str(value)+")")
+
+# Scroll down the page
+def scroll_down_all_the_way(driver, sleep_secs=1, npixels=500):
+    old_page = driver.page_source
+    while True:
+        print("scroll_down_all_the_way:", sleep_secs, driver.current_url)
+        for i in range(2):
+            _scroll_down(driver, npixels)
+            time.sleep(sleep_secs)
+        new_page = driver.page_source
+        if new_page != old_page:
+            old_page = new_page
+        else:
+            break
+    return True
 
 #-----------------------------------------
 # 
 #-----------------------------------------
+# # http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
+def wait_for_page_load(driver, by, item_to_find, timeout=60): # driver, By.TAG_NAME, 'footer', 60
+    try:
+        print("wait_for_page_load:", driver.current_url, "by:", by, "item_to_find:", item_to_find, "timeout:", timeout)
+        WebDriverWait(driver, timeout).until(visibility_of_element_located((by, item_to_find)))
+    except TimeoutException:
+        print(f"{RED}Timed out {timeout}s waiting for page to load: {driver.current_url}{RESET}")
+# wait_for_page_load(driver, By.TAG_NAME, 'footer', 60)
 
+# https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
+def page_has_loaded(driver):
+    print("page_has_loaded: {}".format(driver.current_url))
+    page_state = driver.execute_script('return document.readyState;')
+    return page_state == 'complete'
+# while not page_has_loaded(driver):
+#     time.sleep(0.1)
+    
+# https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
+def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
+    '''
+    Waits for page to completely load by comparing current page hash values.
+    '''
+
+    def get_page_hash(driver):
+        '''
+        Returns html dom hash
+        '''
+        # can find element by either 'html' tag or by the html 'root' id
+        dom = driver.find_element_by_tag_name('html').get_attribute('innerHTML')
+        # dom = driver.find_element_by_id('root').get_attribute('innerHTML')
+        dom_hash = hash(dom.encode('utf-8'))
+        return dom_hash
+
+    page_hash = 'empty'
+    page_hash_new = ''
+    
+    # comparing old and new page DOM hash together to verify the page is fully loaded
+    while page_hash != page_hash_new: 
+        page_hash = get_page_hash(driver)
+        time.sleep(sleep_secs)
+        page_hash_new = get_page_hash(driver)
+        print('<page_has_loaded> - page not loaded')
+
+    print('<page_has_loaded> - page loaded: {}'.format(driver.current_url))

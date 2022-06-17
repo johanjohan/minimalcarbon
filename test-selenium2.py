@@ -4,14 +4,18 @@ from selenium import webdriver # pip install selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import visibility_of_element_located
+from selenium.common.exceptions import TimeoutException
 import chromedriver_binary # pip install chromedriver-binary-auto
 from lxml import html
 import requests
 import os
 import web_helpers as wh
+import time
 
 
 driver = webdriver.Chrome()
+driver.implicitly_wait(10)
+
 base = 'https://karlsruhe.digital/'
 URL  = base
 FOLDER = "page/_kd/"
@@ -29,14 +33,13 @@ CYAN = colorama.Fore.CYAN
 print(f"{CYAN}\t URL: {URL}{RESET}")
 
 driver.get(URL)
+wh.scroll_down_all_the_way(driver, sleep_secs=0.25, npixels=1000)
+wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
+
 # seq_query_field = driver.find_element(By.ID, "seq") # find_element_by_id("seq")
 # seq_query_field.send_keys(SEQUENCE)
 # blast_button = driver.find_element(By.ID, "blastButton1")
 # blast_button.click()
-
-# wait until results are loaded
-WebDriverWait(driver, 60).until(visibility_of_element_located((By.CLASS_NAME, 'owl-next')))
-
 
 content = driver.page_source
 # write the page content
