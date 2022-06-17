@@ -6,7 +6,6 @@
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
-import colorama
 #import mimetypes
 # pip install python-magic
 # pip install python-magic-bin # win
@@ -17,6 +16,7 @@ import ssl
 import datetime
         
 # init the colorama module
+import colorama
 colorama.init()
 GREEN = colorama.Fore.GREEN
 GRAY = colorama.Fore.LIGHTBLACK_EX
@@ -33,15 +33,14 @@ external_urls = set()
 
 total_urls_visited = 0
 
-headers  = {
+headers             = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
-    #'X-Mashape-Key': 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    }
-data_folder="data"
-mime_types_allowed = ["text/html", "text/plain"]
-excludes = [] # ["/category/", "/author/"]
-start_secs = time.time()
-args    = None
+}
+data_folder         = "data"
+mime_types_allowed  = ["text/html", "text/plain"]
+excludes            = [] # ["/category/", "/author/"]
+start_secs          = time.time()
+args                = None
 
 date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
