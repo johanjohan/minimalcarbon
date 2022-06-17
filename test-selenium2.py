@@ -25,29 +25,6 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 CYAN = colorama.Fore.CYAN
 
-print(f"{CYAN}\t URL: {URL}{RESET}")
-
-driver.get(URL)
-# seq_query_field = driver.find_element(By.ID, "seq") # find_element_by_id("seq")
-# seq_query_field.send_keys(SEQUENCE)
-# blast_button = driver.find_element(By.ID, "blastButton1")
-# blast_button.click()
-
-# wait until results are loaded
-WebDriverWait(driver, 60).until(visibility_of_element_located((By.CLASS_NAME, 'owl-next')))
-
-
-content = driver.page_source
-# write the page content
-if not os.path.isdir(FOLDER):
-    os.makedirs(FOLDER)
-    
-with open(FOLDER + 'page.html', 'w', encoding="utf-8") as fp:
-    fp.write(content)
-
-# download the referenced files to the same path as in the html
-sess = requests.Session()
-sess.get(base)            # sets cookies
 
 def is_remote(url):
     return url.strip().startswith('http')
@@ -113,6 +90,32 @@ def make_dirs(local_path):
     if not os.path.exists(dirs):
         print("make_dirs:", dirs)
         os.makedirs(dirs)
+
+
+
+print(f"{CYAN}\t URL: {URL}{RESET}")
+
+driver.get(URL)
+# seq_query_field = driver.find_element(By.ID, "seq") # find_element_by_id("seq")
+# seq_query_field.send_keys(SEQUENCE)
+# blast_button = driver.find_element(By.ID, "blastButton1")
+# blast_button.click()
+
+# wait until results are loaded
+WebDriverWait(driver, 60).until(visibility_of_element_located((By.CLASS_NAME, 'owl-next')))
+
+
+content = driver.page_source
+# write the page content
+if not os.path.isdir(FOLDER):
+    os.makedirs(FOLDER)
+    
+with open(FOLDER + 'page.html', 'w', encoding="utf-8") as fp:
+    fp.write(content)
+
+# download the referenced files to the same path as in the html
+sess = requests.Session()
+sess.get(base)            # sets cookies
         
 # parse html
 h = html.fromstring(content)
@@ -139,6 +142,8 @@ for hr in h.xpath('head//@href'):
             with open(local_path, 'wb') as fp:
                 fp.write(res.content)
             print("saved:", local_path)
+            
+            content = content.replace(hr, local_path)
         else:
             print(f"{RED}\t not a file: {local_path}{RESET}")
     else:
@@ -167,3 +172,8 @@ for src in h.xpath('//@src'):
     make_dirs(local_path)       
     with open(local_path, 'wb') as fp:
         fp.write(res.content)  
+        
+    content = content.replace(src, local_path)
+    
+with open(FOLDER + 'page_local.html', 'w', encoding="utf-8") as fp:
+    fp.write(content)
