@@ -8,7 +8,6 @@ def is_remote(url):
 def is_local(url):
     return not is_remote(url)
 
-
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
 ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
