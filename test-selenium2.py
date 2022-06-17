@@ -143,7 +143,7 @@ for hr in h.xpath('head//@href'):
                 fp.write(res.content)
             print("saved:", local_path)
             
-            content = content.replace(hr, local_path)
+            content = content.replace(hr, url_path(hr).lstrip('/'))
         else:
             print(f"{RED}\t not a file: {local_path}{RESET}")
     else:
@@ -173,7 +173,7 @@ for src in h.xpath('//@src'):
     with open(local_path, 'wb') as fp:
         fp.write(res.content)  
         
-    content = content.replace(src, local_path)
+    content = content.replace(src, url_path(src).lstrip('/'))
     
 with open(FOLDER + 'page_local.html', 'w', encoding="utf-8") as fp:
     fp.write(content)
