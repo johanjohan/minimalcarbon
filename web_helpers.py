@@ -28,11 +28,17 @@ def is_valid(url):
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
-def is_remote(url):
+# # def is_remote(url):
+# #     return url.strip().startswith('http')
+
+# # def is_local(url):
+# #     return not is_remote(url)
+
+def is_absolute(url):
     return url.strip().startswith('http')
 
-def is_local(url):
-    return not is_remote(url)
+def is_relative(url):
+    return not is_absolute(url)
 
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
@@ -53,6 +59,40 @@ def has_same_netloc(url, base):
     base_loc = urlparse(base.strip()).netloc
     return url_loc == base_loc
     return url.strip().startswith(base.strip())
+
+def link_make_absolute(link, base):
+    if is_relative(link):
+        link = add_trailing_slash(base) + strip_leading_slash(link)
+    return link
+
+def links_make_absolute(links, base):
+    ret = []
+    for link in links:
+        ret.append(link_make_absolute(link, base))
+    return ret
+        
+def links_remove_externals(links, base):
+    return [u for u in links if (has_same_netloc(u, base) or is_relative(u))]
+
+def links_remove_folders(links):
+    return [u for u in links if u.strip().endswith('/')]
+
+def links_strip_query_and_fragment(links):
+    return [strip_query_and_fragment(u) for u in links]
+
+def links_make_relative(links, base):
+    return [try_make_local(u, base) for u in links]
+
+def links_make_unique(links):
+    return list(set(links))
+
+# def links_make_absolute_internals_only(links, base):
+#     links = links_make_absolute(links, base)
+#     links = links_remove_externals(links, base)
+#     links = links_make_unique(links)
+#     ####links = links_strip_query_and_fragment(links)
+#     links = sorted(links)
+#     return links
 
 def url_path(url, char_lstrip=''): # '/'
     p = urlparse(url.strip()).path # '/3/library/urllib.parse.html'
@@ -90,6 +130,9 @@ def has_no_trailing_slash(url):
 
 def has_leading_slash(url):
     return has_leading(url.strip(), '/')
+
+def strip_leading_slash(url):
+    return url.strip().lstrip('/')
 
 def strip_tail(url, delim):
     if delim in url:
@@ -214,25 +257,39 @@ def scroll_down_all_the_way(driver, sleep_secs=1, npixels=500):
             break
     return True
 
+def wait_for_page_has_loaded_scrolling(driver, sleep_secs=1, npixels=500):
+    return scroll_down_all_the_way(driver, sleep_secs=1, npixels=500)
+    
 #-----------------------------------------
 # 
 #-----------------------------------------
 # # http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
-def wait_for_page_load(driver, by, item_to_find, timeout=60): # driver, By.TAG_NAME, 'footer', 60
+def wait_for_page_has_loaded_by_item(driver, by, item_to_find, timeout=60): # driver, By.TAG_NAME, 'footer', 60
     try:
         print("wait_for_page_load:", driver.current_url, "by:", by, "item_to_find:", item_to_find, "timeout:", timeout)
         WebDriverWait(driver, timeout).until(visibility_of_element_located((by, item_to_find)))
+        return True
     except TimeoutException:
         print(f"{RED}Timed out {timeout}s waiting for page to load: {driver.current_url}{RESET}")
+        return False
 # wait_for_page_load(driver, By.TAG_NAME, 'footer', 60)
 
-# https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
-def page_has_loaded(driver):
-    print("page_has_loaded: {}".format(driver.current_url))
-    page_state = driver.execute_script('return document.readyState;')
-    return page_state == 'complete'
-# while not page_has_loaded(driver):
-#     time.sleep(0.1)
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+def wait_for_page_has_loaded_readyState(driver, sleep_secs=0.1):
+    
+    # https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
+    def _page_has_loaded_readyState(driver):
+        print("page_has_loaded: {}".format(driver.current_url))
+        page_state = driver.execute_script('return document.readyState;')
+        return page_state == 'complete'
+
+    while not _page_has_loaded_readyState(driver):
+        time.sleep(sleep_secs)
+        
+    return True
     
 # https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
 def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
@@ -261,7 +318,13 @@ def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
         print('<page_has_loaded> - page not loaded')
 
     print('<page_has_loaded> - page loaded: {}'.format(driver.current_url))
+    return True
     
+#-----------------------------------------
+# surrogate
+#-----------------------------------------
+def wait_for_page_has_loaded(driver):
+    return wait_for_page_has_loaded_readyState(driver, sleep_secs=0.1)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -290,7 +353,7 @@ def get_style_background_images(driver):
         #print(f"{GRAY}\t style: {style} {RESET}")
         link = _parse_style_attribute(style)
         if not link in links:
-            print(f"{GREEN}\t background-image: {link} {RESET}")
+            #print(f"{GREEN}\t background-image: {link} {RESET}")
             links.append(link)
     links = [link for link in links if link is not None]
    
@@ -298,11 +361,80 @@ def get_style_background_images(driver):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def save_html(content, path, pretty=False):
+    
+    if pretty:
+        from bs4 import BeautifulSoup, Comment
+        soup = BeautifulSoup(content, 'html.parser')    
+        content = soup.prettify()
+        
+    make_dirs(path)
+    with open(path, 'w', encoding="utf-8") as fp:
+        fp.write(content)
+    print("save_html:", path)
+    return path
 
+def load_html(driver, path):
+    driver.get(path)
+    return path
+        
+    import tempfile
+    with tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix='.html') as tmp:
+        tmp.close() # already open
+        print("tmp.name:", tmp.name)
+        save_html(content, tmp.name)
+        driver.get(tmp.name)
+        #wait_for_page_has_loaded(driver)
+        return tmp.name
+        
+
+def load_html_from_string(driver, content, dir='.'):
+    import tempfile
+    with tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix='.html') as tmp:
+        tmp.close() # already opened --> permission err
+        save_html(content, tmp.name)        
+        return load_html(driver, tmp.name)
+        
 #-----------------------------------------
 # 
 #-----------------------------------------
+def html_minify(content):
+    
+    length_orig = len(content)
 
+    # fix html
+    print("html_minify: length_orig:", length_orig)
+    if length_orig == 0:
+        return content
+    
+    if True:
+        content = replace_all(content, "\n", " ")
+        content = replace_all(content, "\t", " ")
+        content = replace_all(content, "\r", " ")
+        print("len(content)", len(content))
+        content = replace_all(content, "  ", " ")
+        print("len(content)", len(content))
+
+    # pip install htmlmin
+    # pip install slimmer 
+    import htmlmin
+    try:
+        content = htmlmin.minify(
+            content, 
+            remove_comments=True, 
+            remove_empty_space=True,
+            remove_all_empty_space=True,
+            reduce_boolean_attributes=True,
+            reduce_empty_attributes=True,
+            remove_optional_attribute_quotes=True,
+            convert_charrefs=True,
+            )
+    except:
+        print(f"{RED}could not htmlmin.minify!{RESET}")
+        
+    print("html_minify: final len(content)", len(content), "|", GREEN, round(len(content) / length_orig * 100, 1), "%", RESET)
+    
+    return content
 #-----------------------------------------
 # 
 #-----------------------------------------

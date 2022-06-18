@@ -28,21 +28,8 @@ CYAN = colorama.Fore.CYAN
 # 
 #-----------------------------------------
 
-driver = webdriver.Chrome()
-driver.implicitly_wait(10)
-
-project_folder  = "page/_kd/"
-base            = 'https://karlsruhe.digital/'
-url             = 'https://karlsruhe.digital/en/about-karlsruhe-digital/'
-url             = 'https://karlsruhe.digital/'
-
-# trailing slash
-base            = wh.add_trailing_slash(base)
-url             = wh.add_trailing_slash(url)
-project_folder  = wh.add_trailing_slash(project_folder)
-
-def get_page_name():
-    return "index.html"
+def get_page_name(ext = ".html", basename="index"):
+    return basename + ext
 
 def get_page_folder(url, base):
     if wh.has_same_netloc(url, base):
@@ -51,15 +38,21 @@ def get_page_folder(url, base):
             wh.url_path_lstrip_slash(url)
         return page_folder
     else:
-        print(f"{RED}\t url: {url} has not same netloc {RESET}")
-        exit(0)     
+        print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
+        return ''     
 
-def get_relative_path(url, base):
-    return "../" * get_page_folder(url, base).count('/')
+def get_relative_dots(url, base):
+    ret = "../" * get_page_folder(url, base).count('/')
+    
+    # if not ret:
+    #     ret = './'
+        
+    #print("get_relative_dots: -->", ret)
+    return ret
 
-def get_path_for_file(url, base, project_folder):
+def get_path_for_file(url, base, project_folder, ext = ".html"):
     page_folder     = get_page_folder(url, base)
-    page_name       = get_page_name() 
+    page_name       = get_page_name(ext=ext, basename="index") 
     #relative_path   = get_relative_path(url, base)
     
     # print("page_folder:", page_folder)
@@ -70,17 +63,29 @@ def get_path_for_file(url, base, project_folder):
     ret = os.path.realpath(ret)
 
     return ret
-    
-# page_folder     = get_page_folder(url, base)
-# page_name       = get_page_name() 
-relative_path   = get_relative_path(url, base)
+ 
+#-----------------------------------------
+# 
+#-----------------------------------------
+   
+driver = webdriver.Chrome()
+driver.implicitly_wait(10)
+
+project_folder  = "page/_kd/"
+base            = 'https://karlsruhe.digital/'
+url             = 'https://karlsruhe.digital/en/about-karlsruhe-digital/'
+#url             = 'https://karlsruhe.digital/'
+
+# trailing slash
+base            = wh.add_trailing_slash(base)
+url             = wh.add_trailing_slash(url)
+project_folder  = wh.add_trailing_slash(project_folder)
+relative_path   = get_relative_dots(url, base)
 
 print("base          :", base)
 print("url           :", url)
 print("project_folder:", project_folder)
-# print("page_folder   :", page_folder)
-# print("page_name     :", page_name)
-print("relative_path :", relative_path)
+print("relative_path :", '\'' + relative_path + '\'')
 
     
 ### project_folder + page_folder                 + page_name
@@ -91,7 +96,7 @@ print("relative_path :", relative_path)
 # 
 #-----------------------------------------
 
-print(f"{CYAN}\t URL: {url}{RESET}")
+print(f"{CYAN}url: {url}{RESET}")
 
 driver.get(url)
 #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
@@ -103,23 +108,110 @@ driver.get(url)
 # blast_button.click()
 
 content = driver.page_source
+h = lxml.html.fromstring(content)
 
-# fix
-print("len(content)", len(content))
-content = wh.replace_all(content, "\n", " ")
-content = wh.replace_all(content, "\t", " ")
-print("len(content)", len(content))
-content = wh.replace_all(content, "  ", " ")
-print("len(content)", len(content))
 
+#-----------------------------------------
+# 
+#-----------------------------------------
+path_base   = get_path_for_file(url, base, project_folder, ext="")
+path_index  = path_base + ".html"
+
+#-----------------------------------------
+# make all links absolute with base
+#-----------------------------------------
+# collect internal files: skip externals
+# make them all absolute urls
+
+def assets_save_internals_locally(content, url, base, links, project_folder):
+    
+    #links = wh.links_make_absolute(links, base)
+    links = wh.links_remove_externals(links, base)
+    #links = wh.links_remove_folders(links)
+    links = wh.links_make_unique(links)
+    links = sorted(links)
+    print("assets_save_internals_locally:", *links, sep='\n\t')
+    
+    for src in links:    
+        print(f"{GREEN}\t src: {src}{RESET}")
+        
+        local_path  = project_folder + wh.try_make_local(src, base)  
+        abs_src     = wh.link_make_absolute(src, base)             
+        rel_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
+        if not os.path.isfile(local_path):
+        
+            # download the referenced files to the same path as in the html
+            sess = requests.Session()
+            sess.get(base) # sets cookies
+            res = sess.get(abs_src)
+            
+            wh.make_dirs(local_path)   
+            with open(local_path, 'wb') as fp:
+                fp.write(res.content)  
+                print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")  
+        else:
+            print(f"{RED}\t\t already exists: {local_path}{RESET}")  
+            
+        # dots rel to url of this url, not to the image itself
+        print(f"{GRAY}\t\t\t abs_src: {abs_src}{RESET}")  
+        print(f"{GRAY}\t\t\t rel_src: {rel_src}{RESET}")  
+        content = content.replace(src, rel_src)
+            
+    return content   
+
+####content = wh.html_minify(content)    
+
+list_img     = h.xpath('//img/@src')
+list_img    += h.xpath('//link[contains(@rel, "icon")]/@href') # favicon
+list_img    += wh.get_style_background_images(driver)
+print(GRAY, *list_img, RESET, sep='\n')      
+content     = assets_save_internals_locally(content, url, base, list_img, project_folder)   
+path_images = wh.save_html(content, path_base + "_images.html", pretty=True)
+
+
+list_head_href  = h.xpath('head//@href')
+
+list_body_href  = h.xpath('body//@href')
+
+
+list_scripts    = h.xpath('//script/@src')
+list_scripts    = wh.links_make_absolute_internals_only(list_scripts, base)
+#print(*list_scripts, sep='\n')
+
+exit(0)
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+
+path_original   = wh.save_html(content, path_base + "_original.html")
+path_temp       = wh.load_html_from_string(driver, content)
+os.remove(path_temp)
+time.sleep(10)
+
+content = wh.html_minify(content)
+
+# write the raw page
+path_minified = wh.save_html(content, path_base + "_minified.html")
+path_temp     = wh.load_html_from_string(driver, content)
+os.remove(path_temp)
+time.sleep(10)
+
+
+driver.refresh()
+driver.close()
+driver.quit()
+exit(0)
+    
 # remove comments
 import re
 content = re.sub("<!--.*?-->", "", content)
 print("len(content)", len(content))
 
 # write the raw page
-wh.make_dirs(get_path_for_file(url, base, project_folder))
-with open(get_path_for_file(url, base, project_folder) + "_orig.html", 'w', encoding="utf-8") as fp:
+wh.make_dirs(path_index)
+with open(path_index + "_orig.html", 'w', encoding="utf-8") as fp:
     fp.write(content)
 
 # download the referenced files to the same path as in the html
@@ -130,8 +222,7 @@ sess.get(base) # sets cookies
 # 
 #-----------------------------------------
    
-# parse html
-h = lxml.html.fromstring(content)
+
 
 """
 #-----------------------------------------
@@ -238,7 +329,7 @@ if True:
             
         print(f"{YELLOW}\t hr: {hr}{RESET}")
             
-        if wh.is_local(hr):
+        if wh.is_relative(hr):
             local_path = project_folder + hr
             local_path = wh.strip_query_and_fragment(local_path)
             hr = base + hr
@@ -306,20 +397,20 @@ for src in h.xpath('//@src'):
         print(f"{RED}\t already exists: {local_path}{RESET}")        
 
 # always write index.html    
-with open(get_path_for_file(url, base, project_folder), 'w', encoding="utf-8") as fp:
+with open(path_index, 'w', encoding="utf-8") as fp:
     fp.write(content)
  
 #-----------------------------------------
 # webbrowser
 #-----------------------------------------
 if True:
-    print("open:", get_path_for_file(url, base, project_folder))
+    print("open:", path_index)
 
     if False:
-        os.system("start " + get_path_for_file(url, base, project_folder))
+        os.system("start " + path_index)
     else:
         import webbrowser
-        assert os.path.isfile(get_path_for_file(url, base, project_folder))
+        assert os.path.isfile(path_index)
         
         # MacOS
         # chrome_path = 'open -a /Applications/Google\ Chrome.app %s'
@@ -327,4 +418,4 @@ if True:
         chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
         # Linux
         # chrome_path = '/usr/bin/google-chrome %s'
-        webbrowser.get(chrome_path).open('file://' + get_path_for_file(url, base, project_folder))
+        webbrowser.get(chrome_path).open('file://' + path_index)
