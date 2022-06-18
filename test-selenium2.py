@@ -69,12 +69,12 @@ def get_path_for_file(url, base, project_folder, ext = ".html"):
 driver = webdriver.Chrome()
 driver.implicitly_wait(10)
 
-project_folder  = "page/_kd/"
+project_folder  = "page/__KD__/"
 base            = 'https://karlsruhe.digital/'
 url             = 'https://karlsruhe.digital/en/about-karlsruhe-digital/'
 #url             = 'https://karlsruhe.digital/'
 
-# trailing slash
+# ensure trailing slash
 base            = wh.add_trailing_slash(base)
 url             = wh.add_trailing_slash(url)
 project_folder  = wh.add_trailing_slash(project_folder)
@@ -128,7 +128,7 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
     links = wh.links_remove_externals(links, base)
     ####links = wh.links_remove_folders(links)
     links = wh.links_make_unique(links)
-    links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:"])
+    links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:","javascript:"])
     links = sorted(links)    
 
     print("assets_save_internals_locally:", *links, sep='\n\t')
@@ -188,30 +188,21 @@ for asset, suffix in zip(assets, suffixes):
     content = assets_save_internals_locally(content, url, base, asset, project_folder)
     wh.save_html(content, path_base + "_" + suffix + ".html", pretty=True)
 
-exit(0)
-
 #-----------------------------------------
 # 
 #-----------------------------------------
 
 
-path_original   = wh.save_html(content, path_base + "_original.html")
-path_temp       = wh.load_html_from_string(driver, content)
-os.remove(path_temp)
-time.sleep(10)
-
 content = wh.html_minify(content)
-
-# write the raw page
-path_minified = wh.save_html(content, path_base + "_minified.html")
-path_temp     = wh.load_html_from_string(driver, content)
-os.remove(path_temp)
-time.sleep(10)
+path_minified = wh.save_html(content, path_index)
+# # path_temp     = wh.load_html_from_string(driver, content)
+# # os.remove(path_temp)
+# # time.sleep(10)
 
 
-driver.refresh()
-driver.close()
-driver.quit()
+# driver.refresh()
+# driver.close()
+# driver.quit()
 exit(0)
     
 # remove comments

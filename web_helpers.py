@@ -424,38 +424,33 @@ def load_html_from_string(driver, content, dir='.'):
 def html_minify(content):
     
     length_orig = len(content)
-
-    # fix html
     print("html_minify: length_orig:", length_orig)
-    if length_orig == 0:
-        return content
-    
-    if True:
-        content = replace_all(content, "\n", " ")
-        content = replace_all(content, "\t", " ")
-        content = replace_all(content, "\r", " ")
-        print("len(content)", len(content))
-        content = replace_all(content, "  ", " ")
-        print("len(content)", len(content))
+    if length_orig > 0:
+        if True:
+            content = replace_all(content, "\n", " ")
+            content = replace_all(content, "\t", " ")
+            content = replace_all(content, "\r", " ")
+            #print("len(content)", len(content))
+            content = replace_all(content, "  ", " ")
+            #print("len(content)", len(content))
 
-    # pip install htmlmin
-    # pip install slimmer 
-    import htmlmin
-    try:
-        content = htmlmin.minify(
-            content, 
-            remove_comments=True, 
-            remove_empty_space=True,
-            remove_all_empty_space=True,
-            reduce_boolean_attributes=True,
-            reduce_empty_attributes=True,
-            remove_optional_attribute_quotes=True,
-            convert_charrefs=True,
-            )
-    except:
-        print(f"{RED}could not htmlmin.minify!{RESET}")
-        
-    print("html_minify: final len(content)", len(content), "|", GREEN, round(len(content) / length_orig * 100, 1), "%", RESET)
+        # pip install htmlmin
+        import htmlmin
+        try:
+            content = htmlmin.minify(
+                content, 
+                remove_comments=True, 
+                remove_empty_space=True,
+                remove_all_empty_space=True,
+                reduce_boolean_attributes=True,
+                reduce_empty_attributes=True,
+                remove_optional_attribute_quotes=True,
+                convert_charrefs=True,
+                )
+        except:
+            print(f"{RED}could not htmlmin.minify!{RESET}")
+            
+        print("html_minify: final len(content)", len(content), "|", GREEN, round(len(content) / length_orig * 100, 1), "%", RESET)
     
     return content
 #-----------------------------------------
