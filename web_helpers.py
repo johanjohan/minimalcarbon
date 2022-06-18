@@ -63,6 +63,60 @@ def has_same_netloc(url, base):
     return url_loc == base_loc
     return url.strip().startswith(base.strip())
 
+#https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
+from difflib import SequenceMatcher
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio() #+ 0..1
+
+# may just be a missing / for a folder
+# https://stackoverflow.com/questions/16603282/how-to-compare-each-item-in-a-list-with-the-rest-only-once
+def links_remove_similar(links):
+    
+    links = links_make_unique(links)
+    
+    # those have just a forgotten trailing slash
+    def is_similar(a,b):
+        
+        a = a.strip()
+        b = b.strip()
+
+        ret = None
+        if len(a)+1 == len(b):
+            if a + '/' == b:
+                ret = a
+        elif len(b)+1 == len(a):
+            if b + '/' == a:
+                ret = b
+            
+        if ret:
+            print("\t", RED, "is_similar:", ret, "a,b:", a, b, RESET)
+        
+        return ret
+        
+    excludes = []
+    import itertools
+    for a, b in itertools.combinations(links, 2):
+        res = is_similar(a, b)
+        if res:
+            excludes.append(res) # the smaller one to be deleted
+ 
+    excludes = sorted(links_make_unique(excludes))
+    if excludes:
+        print("links_remove_similar:", YELLOW, "excludes:", *excludes, RESET, sep="\n\t")    
+         
+    new_links = [link for link in links if link not in excludes]  
+    new_links = sorted(links_make_unique(new_links))
+            
+    #print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
+    #time.sleep(5) 
+    
+    return new_links
+            
+    
+    
+# def links_remove_similar(links, base, thresh=0.8):
+#     pass
+
 def link_make_absolute(link, base):
     if is_relative(link):
         link = add_trailing_slash(base) + strip_leading_slash(link)
@@ -395,9 +449,13 @@ def save_html(content, path, pretty=False):
         content = soup.prettify()
         
     make_dirs(path)
-    with open(path, 'w', encoding="utf-8") as fp:
-        fp.write(content)
-    print("save_html:", path)
+    try:
+        with open(path, 'w', encoding="utf-8") as fp:
+            fp.write(content)
+        print("save_html:", path)
+    except Exception as e:
+        print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
+        
     return path
 
 def load_html(driver, path):
@@ -453,7 +511,9 @@ def html_minify(content):
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
             
-        print("html_minify: final len(content)", len(content), "|", GREEN, round(len(content) / length_orig * 100, 1), "%", RESET)
+        percent = round(len(content) / length_orig * 100, 1)
+        percent_saved = round(100 - percent, 1)
+        print("html_minify: final len(content)", len(content), "|", GREEN, "percent_saved:", percent_saved, "%", RESET)
     
     return content
 #-----------------------------------------
@@ -471,3 +531,5 @@ def html_minify(content):
 #-----------------------------------------
 # 
 #-----------------------------------------
+if __name__ == "__main__":
+    print("\n"*3 + "you started the wrong file..." + "\n"*3)

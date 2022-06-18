@@ -111,9 +111,9 @@ def get_path_local_relative(url, base, src):
 #-----------------------------------------
 # 
 #-----------------------------------------
+
+#def make_static(url, base, project_folder):
    
-driver = webdriver.Chrome()
-driver.implicitly_wait(10)
 
 project_folder  = "page/__KD__/"
 base            = 'https://karlsruhe.digital/'
@@ -140,7 +140,12 @@ print("relative_path :", '\'' + relative_path + '\'')
 #-----------------------------------------
 # 
 #-----------------------------------------
+driver = webdriver.Chrome()
+driver.implicitly_wait(10)
 
+#-----------------------------------------
+# 
+#-----------------------------------------
 print(f"{CYAN}url: {url}{RESET}")
 
 driver.get(url)
@@ -176,7 +181,8 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
     ####links = wh.links_remove_folders(links)
     links = wh.links_make_unique(links)
     links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:","javascript:"])
-    links = sorted(links)    
+    links = wh.links_remove_similar(links)
+    links = sorted(links)   
 
     print("assets_save_internals_locally:", *links, sep='\n\t')
     
