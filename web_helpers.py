@@ -123,6 +123,9 @@ def url_path(url, char_lstrip=''): # '/'
         p = p.lstrip(char_lstrip)
     return p
 
+def url_scheme(url): # '/'
+    return urlparse(url.strip()).scheme
+
 def url_path_lstrip_slash(url): # '/'
     return url_path(url, char_lstrip='/')
 

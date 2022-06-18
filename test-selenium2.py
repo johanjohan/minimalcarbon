@@ -41,13 +41,6 @@ def get_page_folder(url, base):
         print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
         return ''     
 
-def get_relative_dots(url, base):
-    ret = "../" * get_page_folder(url, base).count('/')
-    if not ret:
-        ret = './'
-    #print("get_relative_dots: -->", ret)
-    return ret
-
 def get_path_for_file(url, base, project_folder, ext = ".html"):
     page_folder     = get_page_folder(url, base)
     page_name       = get_page_name(ext=ext, basename="index") 
@@ -61,6 +54,59 @@ def get_path_for_file(url, base, project_folder, ext = ".html"):
     ret = os.path.realpath(ret)
 
     return ret
+
+def get_relative_dots(url, base):
+    ret = "../" * get_page_folder(url, base).count('/')
+    if not ret:
+        ret = './'
+    #print("get_relative_dots: -->", ret)
+    return ret
+
+def strip_protocols(url):
+    url = url.replace("https://", "")
+    url = url.replace("http://", "")
+    url = url.replace("://", "")
+    url = url.lstrip('/')
+    return url
+
+# # def get_path_local_root(url, base):
+# #     print("get_path_local_root:", "base:", base)
+# #     print("get_path_local_root:", "url :", url)
+# #     #scheme = wh.url_scheme(url) # http
+# #     url  = strip_protocols(url)
+# #     base = strip_protocols(base)
+# #     diff = "/" + url.replace(base, "")
+# #     dots = "../" * get_page_folder(url, base).count('/')
+# #     print("get_path_local_root:", "diff:", diff)
+# #     print("get_path_local_root:", "dots:", dots)
+# #     ret = ""
+# #      #print("get_path_local_root:", url,"-->", ret)
+# #     return ret
+
+# https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
+# https://karlsruhe.digital/
+#                          /en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
+def get_path_local_relative(url, base, src):
+    
+    url = wh.link_make_absolute(url, base)
+    src = wh.link_make_absolute(src, base)
+    # print("get_path_local_relative:", "url :", url)
+    # print("get_path_local_relative:", "base:", base)
+    # print("get_path_local_relative:", "src :", src)
+    
+    #scheme = wh.url_scheme(url) # http
+
+    dots = get_relative_dots(url, base)
+    # print("get_path_local_relative:", "dots:", dots)
+    
+    ret = dots + src.replace(base,"")
+    if ret.endswith('/'): 
+        ret += get_page_name() # index.html
+        
+    # print("get_path_local_root:", src, "-->", ret)
+    return ret
+
+
  
 #-----------------------------------------
 # 
@@ -72,6 +118,7 @@ driver.implicitly_wait(10)
 project_folder  = "page/__KD__/"
 base            = 'https://karlsruhe.digital/'
 url             = 'https://karlsruhe.digital/en/about-karlsruhe-digital/'
+url             = 'https://karlsruhe.digital/en/home/'
 #url             = 'https://karlsruhe.digital/'
 
 # ensure trailing slash
@@ -138,7 +185,9 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
         
         local_path  = project_folder + wh.try_make_local(src, base)  
         abs_src     = wh.link_make_absolute(src, base)             
-        rel_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
+        #rel_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
+        #rel_src     = get_path_local_root(src, base)
+        rel_src     = get_path_local_relative(url, base, src)
         if not os.path.isfile(local_path):
         
             # download the referenced files to the same path as in the html
@@ -195,6 +244,7 @@ for asset, suffix in zip(assets, suffixes):
 
 content = wh.html_minify(content)
 path_minified = wh.save_html(content, path_index)
+path_pretty   = wh.save_html(content, path_base + "_pretty.html", pretty=True)
 # # path_temp     = wh.load_html_from_string(driver, content)
 # # os.remove(path_temp)
 # # time.sleep(10)
