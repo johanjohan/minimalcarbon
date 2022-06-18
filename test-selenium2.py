@@ -43,10 +43,8 @@ def get_page_folder(url, base):
 
 def get_relative_dots(url, base):
     ret = "../" * get_page_folder(url, base).count('/')
-    
-    # if not ret:
-    #     ret = './'
-        
+    if not ret:
+        ret = './'
     #print("get_relative_dots: -->", ret)
     return ret
 
@@ -114,8 +112,9 @@ h = lxml.html.fromstring(content)
 #-----------------------------------------
 # 
 #-----------------------------------------
-path_base   = get_path_for_file(url, base, project_folder, ext="")
-path_index  = path_base + ".html"
+path_base       = get_path_for_file(url, base, project_folder, ext="")
+path_index      = path_base + ".html"
+path_original   = wh.save_html(content, path_base + "_original.html")
 
 #-----------------------------------------
 # make all links absolute with base
@@ -127,9 +126,11 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
     
     #links = wh.links_make_absolute(links, base)
     links = wh.links_remove_externals(links, base)
-    #links = wh.links_remove_folders(links)
+    ####links = wh.links_remove_folders(links)
     links = wh.links_make_unique(links)
-    links = sorted(links)
+    links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:"])
+    links = sorted(links)    
+
     print("assets_save_internals_locally:", *links, sep='\n\t')
     
     for src in links:    
@@ -161,22 +162,28 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
 
 ####content = wh.html_minify(content)    
 
-list_img     = h.xpath('//img/@src')
-list_img    += h.xpath('//link[contains(@rel, "icon")]/@href') # favicon
-list_img    += wh.get_style_background_images(driver)
-print(GRAY, *list_img, RESET, sep='\n')      
-content     = assets_save_internals_locally(content, url, base, list_img, project_folder)   
-path_images = wh.save_html(content, path_base + "_images.html", pretty=True)
-
 
 list_head_href  = h.xpath('head//@href')
 
 list_body_href  = h.xpath('body//@href')
 
+list_link_href  = h.xpath('//link/@href') # //link[not contains(@rel, "icon")]/@href
+
+list_img     = h.xpath('//img/@src')
+list_img    += h.xpath('//link[contains(@rel, "icon")]/@href') # favicon
+list_img    += wh.get_style_background_images(driver)
 
 list_scripts    = h.xpath('//script/@src')
-list_scripts    = wh.links_make_absolute_internals_only(list_scripts, base)
-#print(*list_scripts, sep='\n')
+
+# https://realpython.com/python-zip-function/
+assets      = [list_head_href, list_body_href, list_link_href, list_img, list_scripts]
+suffixes    = ["list_head_href", "list_body_href", "list_link_href", "list_img", "list_scripts"]
+for asset, suffix in zip(assets, suffixes):
+    print("/"* 80)
+    print(suffix)
+    print(GRAY, *asset, RESET, sep='\n\t')      
+    content = assets_save_internals_locally(content, url, base, asset, project_folder)
+    wh.save_html(content, path_base + "_" + suffix + ".html", pretty=True)
 
 exit(0)
 

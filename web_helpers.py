@@ -71,11 +71,31 @@ def links_make_absolute(links, base):
         ret.append(link_make_absolute(link, base))
     return ret
         
+def links_remove_invalids(links, base, invalids):
+    #print(YELLOW, *links, RESET, sep="\n\t")
+    ret = []
+    
+    for link in links:
+        
+        b_is_valid = True
+        
+        for invalid in invalids:
+            if invalid in link:
+                b_is_valid = False
+                print("\t", RED, "invalid:", link, RESET, sep="\n\t")
+                break
+            
+        if b_is_valid:
+            ret.append(link)
+            
+    #print(GREEN, *ret, RESET, sep="\n\t")
+    return ret
+        
 def links_remove_externals(links, base):
     return [u for u in links if (has_same_netloc(u, base) or is_relative(u))]
 
 def links_remove_folders(links):
-    return [u for u in links if u.strip().endswith('/')]
+    return [u for u in links if not u.strip().endswith('/')]
 
 def links_strip_query_and_fragment(links):
     return [strip_query_and_fragment(u) for u in links]
