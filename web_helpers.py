@@ -261,3 +261,60 @@ def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
         print('<page_has_loaded> - page not loaded')
 
     print('<page_has_loaded> - page loaded: {}'.format(driver.current_url))
+    
+#-----------------------------------------
+# 
+#-----------------------------------------
+    
+def replace_all(content, oldvalue, newvalue):
+    while oldvalue in content:
+        content = content.replace(oldvalue, newvalue)
+    return content
+
+#-----------------------------------------
+# background_images
+#-----------------------------------------
+def get_style_background_images(driver):
+
+    def _parse_style_attribute(style_string):
+        if 'background-image' in style_string:
+            style_string = style_string.split(' url("')[1].replace('");', '')
+            #print(f"{GRAY}\t background-image: {style_string} {RESET}")
+            return style_string
+        return None
+
+    links = []
+    for div in driver.find_elements(By.XPATH, "//*[@style]"): #  '//div[@style]'
+        #print(f"{YELLOW}\t div: {div} {RESET}")
+        style = div.get_attribute('style')
+        #print(f"{GRAY}\t style: {style} {RESET}")
+        link = _parse_style_attribute(style)
+        if not link in links:
+            print(f"{GREEN}\t background-image: {link} {RESET}")
+            links.append(link)
+    links = [link for link in links if link is not None]
+   
+    return links
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------

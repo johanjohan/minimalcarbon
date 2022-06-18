@@ -12,6 +12,7 @@ import requests
 import os
 import web_helpers as wh
 import time
+from bs4 import BeautifulSoup, Comment
 
 # init the colorama module
 import colorama
@@ -33,7 +34,7 @@ driver.implicitly_wait(10)
 project_folder  = "page/_kd/"
 base            = 'https://karlsruhe.digital/'
 url             = 'https://karlsruhe.digital/en/about-karlsruhe-digital/'
-#url             = 'https://karlsruhe.digital/'
+url             = 'https://karlsruhe.digital/'
 
 # trailing slash
 base            = wh.add_trailing_slash(base)
@@ -66,7 +67,7 @@ def get_path_for_file(url, base, project_folder):
     # # print("relative_path:", relative_path)
     
     ret = project_folder + page_folder + page_name
-    #ret = os.path.realpath(ret)
+    ret = os.path.realpath(ret)
 
     return ret
     
@@ -93,8 +94,8 @@ print("relative_path :", relative_path)
 print(f"{CYAN}\t URL: {url}{RESET}")
 
 driver.get(url)
-wh.scroll_down_all_the_way(driver, sleep_secs=0.25, npixels=1000)
-wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
+#wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
+#wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
 
 # seq_query_field = driver.find_element(By.ID, "seq") # find_element_by_id("seq")
 # seq_query_field.send_keys(SEQUENCE)
@@ -102,6 +103,19 @@ wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
 # blast_button.click()
 
 content = driver.page_source
+
+# fix
+print("len(content)", len(content))
+content = wh.replace_all(content, "\n", " ")
+content = wh.replace_all(content, "\t", " ")
+print("len(content)", len(content))
+content = wh.replace_all(content, "  ", " ")
+print("len(content)", len(content))
+
+# remove comments
+import re
+content = re.sub("<!--.*?-->", "", content)
+print("len(content)", len(content))
 
 # write the raw page
 wh.make_dirs(get_path_for_file(url, base, project_folder))
@@ -119,11 +133,101 @@ sess.get(base) # sets cookies
 # parse html
 h = lxml.html.fromstring(content)
 
+"""
 #-----------------------------------------
 # TODO need to change all local links to absolute with domain...
 # need to change links to other
+# <section style="background-image: url('https://karlsruhe.digital/wp-content/uploads/2019/09/ÜberKadigi.jpg')">
+
+could scan all images on disk
+    convert to webp
+    replace old image links as text in all files with new ones
+    
+same with links to other index.html
+
+
+https://stackoverflow.com/questions/27688606/how-to-fetch-style-background-image-url-using-selenium-webdrive
+<div class="body" style="background-image: url('http://d1oiazdc2hzjcz.cloudfront.net/promotions/precious/2x/p_619_o_6042_precious_image_1419849753.png');">
+ WebElement img = driver.findElement(By.className('body'));
+ String imgpath = img.getCssValue("background-image");
+ 
+some_variable=self.driver.find_element_by_xpath("//div[@class='body' and contains(@style,'url')]")
+some_variable2=some_variable.get_attribute('style')
+
+<div class="d-flex align-items-center bg-cover h-100" style="background-image: url('wp-content/uploads/2019/08/Header-1.jpg')">
+                            <div class="container content">
+                                <div class="row">
+                                    <div class="col-xl-7 col-lg-8 color-white">
+                                        <h2 class="slide-heading">Karlsruhe<br><span class="heading-light">Motor of Digitization</span></h2>
+                                                                                                                            <a href="/en/about-karlsruhe-digital/" class="button button-full">Read more</a>
+                                                                            </div>
+                                </div>
+                            </div>
+                        </div>
+                        
 #-----------------------------------------
 
+element = driver.find_element_by_xpath("//div[@class='Header']/div[@class='Header-jpeg']")
+element.value_of_css_property("background-image")
+
+background-image.*?url\((.*?)\)
+
+IWebElement abc = driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(http://test.com/images/abc.png);')]"));
+
+substring-before(substring-after(.//*[@class='card-image']/@style, "url('"), ");")
+
+"""
+
+# import re
+# x = re.search('/background-image.*?url\((.*?)\)/mi', content) 
+# print(x)
+# exit(0)
+
+# '//div[@style]'
+# '//*[contains(@style,"background") and contains(@style,"url(")]'
+# //*[contains(@style,'background-image')]
+
+# for e in h.xpath('//div[@style]'):
+#     print(f"{YELLOW}\t e: {e.values} {RESET}")
+
+# div = driver.find_element(By.XPATH, "//div")
+# print(div)
+   
+# bg_url = div.value_of_css_property('background-image') # 'url("https://i.xxxx.com/img.jpg")'
+# # strip the string to leave just the URL part
+# bg_url = bg_url.lstrip('url("').rstrip('")')
+# # https://i.xxxx.com/img.jpg 
+# print("bg_url",bg_url)
+
+# for div in h.xpath("//div"):
+#     print(f"{YELLOW}\t div: {div} {div.tag} {div.text} {RESET}")
+
+# import cssutils
+# soup = BeautifulSoup(content, 'html.parser')
+# div  = soup.find('div', attrs={'style': True})
+# print(div)
+# if div:
+#     print(re.search(r'url\("(.+)"\)', div['style']).group(1))
+
+# # urls = []
+# # soup = BeautifulSoup(content, 'html.parser')
+# # for ele in soup.find_all('div', attrs={'style': True}):
+# #     print(ele)
+# #     pattern = re.compile('.*background-image:\s*url\((.*)\);')
+# #     match = pattern.match(ele.div['style'])
+# #     if match:
+# #         urls.append(match.group(1))
+# # print("urls", urls)
+    
+# div_style = soup.find('div')['style']
+# style = cssutils.parseStyle(div_style)
+# url = style['background-image']
+# print("url", url)
+
+links = wh.get_style_background_images(driver)
+print(links)    
+ 
+exit(0)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -210,8 +314,17 @@ with open(get_path_for_file(url, base, project_folder), 'w', encoding="utf-8") a
 #-----------------------------------------
 if True:
     print("open:", get_path_for_file(url, base, project_folder))
-    if True:
-        import webbrowser
-        webbrowser.open('file://' + get_path_for_file(url, base, project_folder))
-    else:
+
+    if False:
         os.system("start " + get_path_for_file(url, base, project_folder))
+    else:
+        import webbrowser
+        assert os.path.isfile(get_path_for_file(url, base, project_folder))
+        
+        # MacOS
+        # chrome_path = 'open -a /Applications/Google\ Chrome.app %s'
+        # Windows
+        chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        # Linux
+        # chrome_path = '/usr/bin/google-chrome %s'
+        webbrowser.get(chrome_path).open('file://' + get_path_for_file(url, base, project_folder))
