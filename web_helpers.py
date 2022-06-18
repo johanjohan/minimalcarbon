@@ -40,6 +40,9 @@ def is_absolute(url):
 def is_relative(url):
     return not is_absolute(url)
 
+# https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
+
+
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
 ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',

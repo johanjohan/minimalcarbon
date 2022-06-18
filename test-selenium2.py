@@ -147,9 +147,12 @@ def assets_save_internals_locally(content, url, base, links, project_folder):
             res = sess.get(abs_src)
             
             wh.make_dirs(local_path)   
-            with open(local_path, 'wb') as fp:
-                fp.write(res.content)  
-                print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")  
+            try:
+                with open(local_path, 'wb') as fp:
+                    fp.write(res.content)  
+                    print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")  
+            except:
+                print(f"{RED}\t\t may be a directory: {local_path}{RESET}")  
         else:
             print(f"{RED}\t\t already exists: {local_path}{RESET}")  
             
