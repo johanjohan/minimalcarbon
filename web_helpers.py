@@ -100,15 +100,12 @@ def links_remove_similar(links):
         if res:
             excludes.append(res) # the smaller one to be deleted
  
-    excludes = sorted(links_make_unique(excludes))
+    excludes = links_make_unique(excludes)
     if excludes:
         print("links_remove_similar:", YELLOW, "excludes:", *excludes, RESET, sep="\n\t")    
          
     new_links = [link for link in links if link not in excludes]  
-    new_links = sorted(links_make_unique(new_links))
-            
     #print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
-    #time.sleep(5) 
     
     return new_links
             
@@ -299,6 +296,15 @@ def get_status_code(url, fast=True, timeout=5):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def html_remove_comments(content):
+    import re
+    content = re.sub("<!--.*?-->", "", content)
+    return  content
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
 def wait_for(condition_function, timeout):
     start_time = time.time()
     while time.time() < (start_time + timeout):
@@ -421,9 +427,16 @@ def get_style_background_images(driver):
 
     def _parse_style_attribute(style_string):
         if 'background-image' in style_string:
-            style_string = style_string.split(' url("')[1].replace('");', '')
-            #print(f"{GRAY}\t background-image: {style_string} {RESET}")
-            return style_string
+            
+            try:
+                url_string = style_string.split(' url("')[1].replace('");', '')
+            except:
+                # may be a gradient
+                print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
+                url_string = None
+            
+            #print(f"{GRAY}\t background-image: {url_string} {RESET}")
+            return url_string
         return None
 
     links = []
