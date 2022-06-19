@@ -23,7 +23,22 @@ must scan style.css for bg images
 
 https://pypi.org/project/cssutils/
 
-
+/* Background images */
+.blog-hero {
+  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg");
+}
+.programm-hero {
+  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/programm_hero.jpg");
+}
+.blog-overview-hero {
+  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg");
+}
+.searchpage-hero {
+  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg");
+}
+.search-hero {
+  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg");
+}
 
 """
 
@@ -133,9 +148,10 @@ def get_path_local_relative(url, base, src):
     # print("get_path_local_relative:", "dots:", dots)
     
     ret = dots + src.replace(base,"")
-    if ret.endswith('/'): # is a folder
-        ret += get_page_name() # index.html
-        #print(f"{CYAN}/ --> ret: {ret}{RESET}")  
+    # # # if ret.endswith('/'): # is a folder
+    # # #     ret += get_page_name() # index.html
+    # # #     #print(f"{CYAN}/ --> ret: {ret}{RESET}")  
+    # TODO check above, should still load online
 
     # print("get_path_local_root:", src, "-->", ret)
     return ret
@@ -187,7 +203,13 @@ def make_static(url, base, project_folder, style_path):
 
     content = driver.page_source
     h = lxml.html.fromstring(content)
-
+    
+    #-----------------------------------------
+    # TODO manual replace instead links_remove_similar
+    #-----------------------------------------
+     # TODO manual replace instead links_remove_similar
+    # FORCE HAPPY HOMIE
+    content = content.replace("\"https://karlsruhe.digital/en/home\"", "\"https://karlsruhe.digital/en/home/\"")
 
     #-----------------------------------------
     # 
@@ -208,19 +230,22 @@ def make_static(url, base, project_folder, style_path):
         links = wh.links_remove_externals(links, base)
         ####links = wh.links_remove_folders(links) NO!!!
         links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:","javascript:"])
-        links = wh.links_remove_similar(links)
+        ###links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
         links = wh.links_make_unique(links)
         links = sorted(links)   
+        
 
         print("assets_save_internals_locally:", *links, sep='\n\t')
         
-        for src in links:    
+        for src in links:  
             
-            # avoid replacing base only....YAK
-            if src == base:
-                print(f"{RED}src == base: {base}{RESET}")
-                time.sleep(10)
-                continue
+            src = src.strip()  
+            
+            # # # avoid replacing base only....YAK
+            # # if src == base:
+            # #     print(f"{RED}src == base: {base}{RESET}")
+            # #     time.sleep(10)
+            # #     continue
             
             print(f"{GREEN}\t src: {src}{RESET}")
             
@@ -253,7 +278,10 @@ def make_static(url, base, project_folder, style_path):
             
             # TODO would be better to set tags or change tags or rename tags
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            content = content.replace(src, rel_src)
+            dq = "\""
+            sq = "\'"
+            content = content.replace(dq + src + dq, dq + rel_src + dq)
+            content = content.replace(sq + src + sq, sq + rel_src + sq)
                 
         return content   
 
