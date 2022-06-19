@@ -463,22 +463,25 @@ def get_style_background_images(driver):
 #-----------------------------------------
 def get_stylesheet_background_images(style_path):
     import cssutils
-    assert os.path.isfile(style_path)
     urls  = []
-    try:
-        sheet = cssutils.parseFile(style_path)
-    except:
-        pass
-    #print (sheet.cssText)
-    for rule in sheet:
-        if rule.type == rule.STYLE_RULE:
-            for property in rule.style:
-                if property.name == 'background-image':
-                    if "url" in property.value:
-                        url = property.value.replace("(", "").replace(")", "")
-                        url = url.strip().lstrip("url")
-                        print("\t\t\t", CYAN, url, RESET)
-                        urls.append(url)
+    if os.path.isfile(style_path):
+        try:
+            sheet = cssutils.parseFile(style_path)
+        except:
+            pass
+        #print (sheet.cssText)
+        for rule in sheet:
+            if rule.type == rule.STYLE_RULE:
+                for property in rule.style:
+                    if property.name == 'background-image':
+                        if "url" in property.value:
+                            url = property.value.replace("(", "").replace(")", "")
+                            url = url.strip().lstrip("url")
+                            print("\t\t\t", CYAN, url, RESET)
+                            urls.append(url)
+    else:
+        # TODO
+        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}")
                     
     return urls
 
@@ -563,7 +566,18 @@ def html_minify(content):
 #-----------------------------------------
 # 
 #-----------------------------------------
-
+def replace_in_file(filename, string_from, string_to):
+    
+    fp = open(filename, "rt")
+    data = fp.read()
+    data = data.replace(string_from, string_to)
+    fp.close()
+    
+    #open the input file in write mode
+    fp = open(filename, "wt")
+    fp.write(data)
+    fp.close()
+      
 #-----------------------------------------
 # 
 #-----------------------------------------

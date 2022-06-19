@@ -117,19 +117,16 @@ def strip_protocols(url):
     url = url.lstrip('/')
     return url
 
-# # def get_path_local_root(url, base):
-# #     print("get_path_local_root:", "base:", base)
-# #     print("get_path_local_root:", "url :", url)
-# #     #scheme = wh.url_scheme(url) # http
-# #     url  = strip_protocols(url)
-# #     base = strip_protocols(base)
-# #     diff = "/" + url.replace(base, "")
-# #     dots = "../" * get_page_folder(url, base).count('/')
-# #     print("get_path_local_root:", "diff:", diff)
-# #     print("get_path_local_root:", "dots:", dots)
-# #     ret = ""
-# #      #print("get_path_local_root:", url,"-->", ret)
-# #     return ret
+def get_path_local_root(url, base):
+    print("get_path_local_root:", "base:", base)
+    print("get_path_local_root:", "url :", url)
+    #scheme = wh.url_scheme(url) # http
+    url = wh.link_make_absolute(url, base)
+    url  = strip_protocols(url)
+    base = strip_protocols(base)
+    rooted = "/" + url.replace(base, "")
+    print("get_path_local_root:", "--> rooted:", rooted)
+    return rooted
 
 # https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
 # https://karlsruhe.digital/
@@ -160,7 +157,7 @@ def get_path_local_relative(url, base, src):
 # 
 #-----------------------------------------
 
-def make_static(url, base, project_folder, style_path):
+def make_static(url, base, project_folder, style_path, replacements=None):
     
     # ensure trailing slash
     base            = wh.add_trailing_slash(base)
@@ -209,6 +206,7 @@ def make_static(url, base, project_folder, style_path):
     #-----------------------------------------
      # TODO manual replace instead links_remove_similar
     # FORCE HAPPY HOMIE
+    # list of tuples
     content = content.replace("\"https://karlsruhe.digital/en/home\"", "\"https://karlsruhe.digital/en/home/\"")
 
     #-----------------------------------------
@@ -252,8 +250,8 @@ def make_static(url, base, project_folder, style_path):
             local_path  = project_folder + wh.try_make_local(src, base)  
             abs_src     = wh.link_make_absolute(src, base)             
             #rel_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
-            #rel_src     = get_path_local_root(src, base)
-            rel_src     = get_path_local_relative(url, base, src)
+            rel_src     = get_path_local_root(src, base)
+            #rel_src     = get_path_local_relative(url, base, src) # works
             if not os.path.isfile(local_path):
             
                 # download the referenced files to the same path as in the html
@@ -358,6 +356,14 @@ if __name__ == "__main__":
         print(f"{CYAN}url: {url}{RESET}" + "\n"*5)
         
         make_static(url, base, project_folder, style_path)
+        
+
+    # todo this should work if in root of domain
+    # # wh.replace_in_file(
+    # #   style_path, 
+    # #   "background-image: url(\"/wp-content/", 
+    # #   "background-image: url(\"../../../../wp-content/" # rel to css/
+    # # )
         
     exit(0)
     
