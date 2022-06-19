@@ -1,3 +1,35 @@
+"""
+TODO
+
+/* Background images */
+.blog-hero {
+  background-image: url("/wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg");
+}
+.programm-hero {
+  background-image: url("/wp-content/themes/karlsruhe-digital/images/programm_hero.jpg");
+}
+.blog-overview-hero {
+  background-image: url("/wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg");
+}
+.searchpage-hero {
+  background-image: url("/wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg");
+}
+.search-hero {
+  background-image: url("/wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg");
+}
+
+
+must scan style.css for bg images
+
+https://pypi.org/project/cssutils/
+
+
+
+"""
+
+
+
+
 # https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
 from selenium import webdriver # pip install selenium
@@ -23,6 +55,7 @@ RESET = colorama.Fore.RESET
 YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 CYAN = colorama.Fore.CYAN
+MAGENTA = colorama.Fore.MAGENTA
 
 #-----------------------------------------
 # 
@@ -100,30 +133,32 @@ def get_path_local_relative(url, base, src):
     # print("get_path_local_relative:", "dots:", dots)
     
     ret = dots + src.replace(base,"")
-    if ret.endswith('/'): 
+    if ret.endswith('/'): # is a folder
         ret += get_page_name() # index.html
-        
+        #print(f"{CYAN}/ --> ret: {ret}{RESET}")  
+
     # print("get_path_local_root:", src, "-->", ret)
     return ret
 
-
- 
 #-----------------------------------------
 # 
 #-----------------------------------------
 
-def make_static(url, base, project_folder):
+def make_static(url, base, project_folder, style_path):
     
     # ensure trailing slash
     base            = wh.add_trailing_slash(base)
     url             = wh.add_trailing_slash(url)
     project_folder  = wh.add_trailing_slash(project_folder)
-    relative_path   = get_relative_dots(url, base)
+    ###relative_path   = get_relative_dots(url, base)
 
     print("base          :", base)
     print("url           :", url)
     print("project_folder:", project_folder)
-    print("relative_path :", '\'' + relative_path + '\'')
+    ####print("relative_path :", '\'' + relative_path + '\'')
+    print("style_path    :", '\'' + style_path + '\'')
+    
+    # TODO must replace locl links in stylesheet
 
         
     ### project_folder + page_folder                 + page_name
@@ -180,6 +215,13 @@ def make_static(url, base, project_folder):
         print("assets_save_internals_locally:", *links, sep='\n\t')
         
         for src in links:    
+            
+            # avoid replacing base only....YAK
+            if src == base:
+                print(f"{RED}src == base: {base}{RESET}")
+                time.sleep(10)
+                continue
+            
             print(f"{GREEN}\t src: {src}{RESET}")
             
             local_path  = project_folder + wh.try_make_local(src, base)  
@@ -207,6 +249,10 @@ def make_static(url, base, project_folder):
             # dots rel to url of this url, not to the image itself
             print(f"{GRAY}\t\t\t abs_src: {abs_src}{RESET}")  
             print(f"{GRAY}\t\t\t rel_src: {rel_src}{RESET}")  
+            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {rel_src}{RESET}")  
+            
+            # TODO would be better to set tags or change tags or rename tags
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             content = content.replace(src, rel_src)
                 
         return content   
@@ -223,6 +269,7 @@ def make_static(url, base, project_folder):
     list_img     = h.xpath('//img/@src')
     list_img    += h.xpath('//link[contains(@rel, "icon")]/@href') # favicon
     list_img    += wh.get_style_background_images(driver)
+    list_img    += wh.get_stylesheet_background_images(style_path)
 
     list_scripts    = h.xpath('//script/@src')
 
@@ -258,22 +305,31 @@ def make_static(url, base, project_folder):
 #-----------------------------------------
     
 if __name__ == "__main__":
+    
+
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    
+    # TODO style_path must be downloaded first....immediately change links to local......
+    
     project_folder  = "page/__KD__/"
     base            = 'https://karlsruhe.digital/'
+    style_path      = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
     urls            = [
-        # 'https://karlsruhe.digital/en/about-karlsruhe-digital/',
-        # 'https://karlsruhe.digital/en/home/',
-        # 'https://karlsruhe.digital/',
+        #'https://karlsruhe.digital/',
+        'https://karlsruhe.digital/en/about-karlsruhe-digital/',
+        'https://karlsruhe.digital/en/home/',
         'https://karlsruhe.digital/en/it-hotspot-karlsruhe/',
         'https://karlsruhe.digital/en/blog-2/',
         'https://karlsruhe.digital/en/search/',
     ]
 
     for url in urls:
-        print("\n"*5 + "#"*88 + "\n"*5)
-        print(f"{CYAN}url: {url}{RESET}")
+        print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
+        print(f"{CYAN}url: {url}{RESET}" + "\n"*5)
         
-        make_static(url, base, project_folder)
+        make_static(url, base, project_folder, style_path)
         
     exit(0)
     

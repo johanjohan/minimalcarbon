@@ -17,6 +17,8 @@ GRAY = colorama.Fore.LIGHTBLACK_EX
 RESET = colorama.Fore.RESET
 YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
+CYAN = colorama.Fore.CYAN
+MAGENTA = colorama.Fore.MAGENTA
 
 #-----------------------------------------
 # 
@@ -451,9 +453,38 @@ def get_style_background_images(driver):
     links = [link for link in links if link is not None]
    
     return links
+
+#-----------------------------------------
+# https://pypi.org/project/cssutils/
+# https://pythonhosted.org/cssutils/docs/scripts.html
+# https://github.com/jaraco/cssutils
+# https://pythonhosted.org/cssutils/docs/parse.html#parsefile
+# https://pythonhosted.org/cssutils/docs/css.html
+#-----------------------------------------
+def get_stylesheet_background_images(style_path):
+    import cssutils
+    assert os.path.isfile(style_path)
+    urls  = []
+    try:
+        sheet = cssutils.parseFile(style_path)
+    except:
+        pass
+    #print (sheet.cssText)
+    for rule in sheet:
+        if rule.type == rule.STYLE_RULE:
+            for property in rule.style:
+                if property.name == 'background-image':
+                    if "url" in property.value:
+                        url = property.value.replace("(", "").replace(")", "")
+                        url = url.strip().lstrip("url")
+                        print("\t\t\t", CYAN, url, RESET)
+                        urls.append(url)
+                    
+    return urls
+
 #-----------------------------------------
 # 
-#-----------------------------------------
+#-----------------------------------------   
 def save_html(content, path, pretty=False):
     
     if pretty:
