@@ -168,12 +168,14 @@ def get_path_local_relative(url, base, src):
 #-----------------------------------------
 def progress(perc, verbose_string="", VT=YELLOW, n=40):
   import math
-  if perc == 0.0:
-      print(VT + '.'*n + " " + verbose_string + RESET,  end ='\r')
-  elif perc >= 1.0:
-      print(VT + '|'*n + RESET, end ='\n')
+  #if perc <= 0.0:
+  print("{}[{}] [{:.1f}%] {}{}".format(VT, '.'*n, perc*100, verbose_string, RESET),  end ='\r')
+  if perc >= 1.0:
+      end ='\n'
   else:
-      print(VT + "|" * math.ceil(n * perc) + RESET, end ='\r')
+      n =  min(n, math.ceil(n * perc))
+      end ='\r'
+  print("{}[{}{}".format(VT, '|'*n, RESET),  end =end)
   
 def sleep_random(wait_secs = (1,2), verbose_string="", verbose_interval = 0.5, VT=YELLOW, n=40):
   if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
@@ -181,13 +183,11 @@ def sleep_random(wait_secs = (1,2), verbose_string="", verbose_interval = 0.5, V
     s = random.uniform(wait_secs[0], wait_secs[1])
     print("sleep_random: {:.1f}...{:.1f} --> {:.1f}s".format(wait_secs[0], wait_secs[1], s))
     start_secs = time.time()
-    verbose_secs = start_secs
     progress(0, verbose_string=verbose_string, VT=VT, n=n)
     while time.time() - start_secs < s:
-        if time.time() - verbose_secs > verbose_interval:
-            perc = (time.time() - start_secs) / float(s)
-            progress(perc, verbose_string=verbose_string, VT=VT, n=n)
-        time.sleep(0.001)
+        perc = (time.time() - start_secs) / float(s)
+        progress(perc, verbose_string=verbose_string, VT=VT, n=n)
+        time.sleep(0.01)
     progress(1, verbose_string=verbose_string, VT=VT, n=n)
     
 def make_static(url, base, project_folder, style_path, replacements_pre, wait_secs = (1,2)):
@@ -386,10 +386,9 @@ if __name__ == "__main__":
     
     for count, url in enumerate(urls):
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
-        print(f"{CYAN}url: {url}{RESET}" + "\n"*5)
-        
+        print(f"{CYAN}url: {url}{RESET}")
         progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=88)
-        print()
+        print("\n"*5)
         
         if not (url in config.sitemap_links_ignore):
             make_static(
