@@ -39,15 +39,24 @@ print("sitemap_links_ignore", sitemap_links_ignore)
 # replace later with both qotes so we dont replace substrings
 replacements_pre = [
     (
+        'https://karlsruhe.digital'     , 
+        'https://karlsruhe.digital/'
+    ),
+ 
+    (
         'https://karlsruhe.digital/en/home'     , 
         'https://karlsruhe.digital/en/home/'
     ),
-]
+    
+   
+    ]
 print("replacements_pre", replacements_pre)
 
 # prebuild some dirs, en/home would otherwise be built as a file...
 dirs = [
-    ats(project_folder + "en/home")
+    ats(project_folder + 'en/home/'),
+    ats(project_folder + 'wp-json/'),
+    ats(project_folder + 'sitemap/')
 ]
 print("make_dirs:")
 for d in dirs:

@@ -279,14 +279,15 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
             
             local_path  = project_folder + wh.try_make_local(src, base)  
             abs_src     = wh.link_make_absolute(src, base)             
-            #rel_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
-            rel_src     = get_path_local_root(src, base)
-            #rel_src     = get_path_local_relative(url, base, src) # works
-            if not os.path.isfile(local_path):
+            #new_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
+            new_src     = get_path_local_root(src, base)
+            #new_src     = get_path_local_relative(url, base, src) # works
+            if not os.path.exists(local_path): # was isfile ERR new!!!!
             
                 # download the referenced files to the same path as in the html
-                if not abs_src.endswith('/'):
+                if not abs_src.endswith('/'): # folders may get exception below?
                     sleep_random(wait_secs, abs_src)
+                    
                 sess = requests.Session()
                 sess.get(base) # sets cookies
                 res = sess.get(abs_src)
@@ -297,20 +298,20 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
                         fp.write(res.content)  
                         print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")  
                 except:
-                    print(f"{RED}\t\t may be a directory: {local_path}{RESET}")  
+                    print(f"{RED}\t\t may be a directory?: {local_path}{RESET}")  
             else:
                 print(f"{RED}\t\t already exists: {local_path}{RESET}")  
                 
             # dots rel to url of this url, not to the image itself
             print(f"{GRAY}\t\t\t abs_src: {abs_src}{RESET}")  
-            print(f"{GRAY}\t\t\t rel_src: {rel_src}{RESET}")  
-            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {rel_src}{RESET}")  
+            print(f"{GRAY}\t\t\t new_src: {new_src}{RESET}")  
+            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")  
             
             # post replace
             # TODO would be better to set tags or change tags or rename tags
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            content = content.replace(dq(src), dq(rel_src))
-            content = content.replace(sq(src), sq(rel_src))
+            content = content.replace(dq(src), dq(new_src)) # try both
+            content = content.replace(sq(src), sq(new_src)) # try both
                 
         return content   
 
@@ -362,7 +363,16 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
 #-----------------------------------------
     
 if __name__ == "__main__":
+  
+    # assert os.path.exists("page/__KD__/")
+    # assert os.path.exists("page/__KD__/index.html")
+      
+    # assert os.path.isdir("page/__KD__/")
+    # #assert os.path.isdir("page/__KD__/index.html") # err
     
+    # assert os.path.isfile("page/__KD__/") # err
+    # assert os.path.isfile("page/__KD__/index.html")
+    # exit(0)
 
     #-----------------------------------------
     # 

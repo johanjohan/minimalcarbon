@@ -1,0 +1,85 @@
+url: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021
+[||||||||||||||||||||||..................................................................] [24.2%] TOTAL
+
+sleep_random: 0.1...1.2 --> 0.5s
+[||||||||||||||||||||||||||||||||||||||||] [100.0%] https://karlsruhe.digital
+                 may be a directory: page/__KD__/
+                         abs_src: https://karlsruhe.digital
+                         rel_src: /karlsruhe.digital
+         src: https://karlsruhe.digital/
+                 may be a directory: page/__KD__/
+                         abs_src: https://karlsruhe.digital/
+                         rel_src: /
+         src: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/       
+                 may be a directory: page/__KD__/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
+                         abs_src: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
+                         rel_src: /2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
+         src: https://karlsruhe.digital/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/   
+                 may be a directory: page/__KD__/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/
+                         abs_src: https://karlsruhe.digital/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/
+                         rel_src: /2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/        
+         src: https://karlsruhe.digital/2022/06/events-termine-in-karlsruhe-kw-24-2022/
+Traceback (most recent call last):
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 449, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 444, in _make_request
+    httplib_response = conn.getresponse()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 1368, in getresponse
+    response.begin()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 317, in begin
+    version, status, reason = self._read_status()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 286, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 489, in send
+    resp = conn.urlopen(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 785, in urlopen
+    retries = retries.increment(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\util\retry.py", line 550, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\packages\six.py", line 769, in reraise
+    raise value.with_traceback(tb)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 449, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 444, in _make_request
+    httplib_response = conn.getresponse()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 1368, in getresponse
+    response.begin()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 317, in begin
+    version, status, reason = self._read_status()
+  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 286, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 394, 
+in <module>
+    make_static(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 340, 
+in make_static
+    content = assets_save_internals_locally(content, url, base, asset, project_folder)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 292, 
+in assets_save_internals_locally
+    res = sess.get(abs_src)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 547, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+(venv) PS D:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap>  
