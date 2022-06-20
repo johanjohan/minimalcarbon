@@ -75,6 +75,11 @@ MAGENTA = colorama.Fore.MAGENTA
 #-----------------------------------------
 # 
 #-----------------------------------------
+dq = wh.dq
+sq = wh.sq
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 def get_page_name(ext = ".html", basename="index"):
     return basename + ext
@@ -118,14 +123,14 @@ def strip_protocols(url):
     return url
 
 def get_path_local_root(url, base):
-    print("get_path_local_root:", "base:", base)
-    print("get_path_local_root:", "url :", url)
+    #print("get_path_local_root:", "base:", base)
+    #print("get_path_local_root:", "url :", url)
     #scheme = wh.url_scheme(url) # http
     url = wh.link_make_absolute(url, base)
     url  = strip_protocols(url)
     base = strip_protocols(base)
     rooted = "/" + url.replace(base, "")
-    print("get_path_local_root:", "--> rooted:", rooted)
+    #print("get_path_local_root:", "--> rooted:", rooted)
     return rooted
 
 # https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
@@ -157,21 +162,23 @@ def get_path_local_relative(url, base, src):
 # 
 #-----------------------------------------
 
-def make_static(url, base, project_folder, style_path, replacements=None):
+def make_static(url, base, project_folder, style_path, replacements_pre):
     
     # ensure trailing slash
-    base            = wh.add_trailing_slash(base)
     url             = wh.add_trailing_slash(url)
-    project_folder  = wh.add_trailing_slash(project_folder)
-    ###relative_path   = get_relative_dots(url, base)
-
-    print("base          :", base)
     print("url           :", url)
-    print("project_folder:", project_folder)
-    ####print("relative_path :", '\'' + relative_path + '\'')
-    print("style_path    :", '\'' + style_path + '\'')
+
+
+    # base            = wh.add_trailing_slash(base)
+    # project_folder  = wh.add_trailing_slash(project_folder)
+    # ###relative_path   = get_relative_dots(url, base)
+
+    # print("base          :", base)
+    # print("project_folder:", project_folder)
+    # ####print("relative_path :", '\'' + relative_path + '\'')
+    # print("style_path    :", '\'' + style_path + '\'')
     
-    # TODO must replace locl links in stylesheet
+    # TODO must replace local links in stylesheet !!!!!!!!!!!!!!!!!!!!!
 
         
     ### project_folder + page_folder                 + page_name
@@ -207,7 +214,11 @@ def make_static(url, base, project_folder, style_path, replacements=None):
      # TODO manual replace instead links_remove_similar
     # FORCE HAPPY HOMIE
     # list of tuples
-    content = content.replace("\"https://karlsruhe.digital/en/home\"", "\"https://karlsruhe.digital/en/home/\"")
+    # try replace both string options
+    for fr, to in replacements_pre:
+      print(YELLOW, "\t replace:", sq(fr), sq(to), RESET)
+      content = content.replace(dq(fr), dq(to))
+      content = content.replace(sq(fr), sq(to))
 
     #-----------------------------------------
     # 
@@ -274,12 +285,11 @@ def make_static(url, base, project_folder, style_path, replacements=None):
             print(f"{GRAY}\t\t\t rel_src: {rel_src}{RESET}")  
             #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {rel_src}{RESET}")  
             
+            # post replace
             # TODO would be better to set tags or change tags or rename tags
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            dq = "\""
-            sq = "\'"
-            content = content.replace(dq + src + dq, dq + rel_src + dq)
-            content = content.replace(sq + src + sq, sq + rel_src + sq)
+            content = content.replace(dq(src), dq(rel_src))
+            content = content.replace(sq(src), sq(rel_src))
                 
         return content   
 
@@ -331,7 +341,7 @@ def make_static(url, base, project_folder, style_path, replacements=None):
 #-----------------------------------------
     
 if __name__ == "__main__":
-    
+    import config
 
     #-----------------------------------------
     # 
@@ -339,9 +349,6 @@ if __name__ == "__main__":
     
     # TODO style_path must be downloaded first....immediately change links to local......
     
-    project_folder  = "page/__KD__/"
-    base            = 'https://karlsruhe.digital/'
-    style_path      = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
     urls            = [
         #'https://karlsruhe.digital/',
         'https://karlsruhe.digital/en/about-karlsruhe-digital/',
@@ -355,7 +362,13 @@ if __name__ == "__main__":
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}" + "\n"*5)
         
-        make_static(url, base, project_folder, style_path)
+        make_static(
+          url, 
+          config.base, 
+          config.project_folder, 
+          config.style_path,
+          config.replacements_pre
+          )
         
 
     # todo this should work if in root of domain

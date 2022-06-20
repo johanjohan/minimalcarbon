@@ -1,4 +1,3 @@
-
 from urllib.parse import urlparse, urljoin
 import os
 import urllib.request
@@ -21,6 +20,15 @@ CYAN = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
 
 #-----------------------------------------
+# dq
+#-----------------------------------------
+_wrap = lambda s, delim : delim if not s else delim + str(s) + delim
+def dq(s=""):
+    return _wrap(s, delim="\"")
+def sq(s=""):
+    return _wrap(s, delim="\'")
+
+#-----------------------------------------
 # 
 #-----------------------------------------
 def is_valid(url):
@@ -40,6 +48,9 @@ def is_absolute(url):
     return url.strip().startswith('http')
 
 def is_relative(url):
+    return not is_absolute(url)
+
+def is_relative_to_base(url, base):
     return not is_absolute(url)
 
 # https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
