@@ -166,13 +166,36 @@ def get_path_local_relative(url, base, src):
 #-----------------------------------------
 # 
 #-----------------------------------------
-
-def make_static(url, base, project_folder, style_path, replacements_pre):
+def progress(perc, verbose_string="", VT=YELLOW, n=40):
+  import math
+  if perc == 0.0:
+      print(VT + '.'*n + " " + verbose_string + RESET,  end ='\r')
+  elif perc >= 1.0:
+      print(VT + '|'*n + RESET, end ='\n')
+  else:
+      print(VT + "|" * math.ceil(n * perc) + RESET, end ='\r')
+  
+def sleep_random(wait_secs = (1,2), verbose_string="", verbose_interval = 0.5, VT=YELLOW, n=40):
+  if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
+    import random, math
+    s = random.uniform(wait_secs[0], wait_secs[1])
+    print("sleep_random: {:.1f}...{:.1f} --> {:.1f}s".format(wait_secs[0], wait_secs[1], s))
+    start_secs = time.time()
+    verbose_secs = start_secs
+    progress(0, verbose_string=verbose_string, VT=VT, n=n)
+    while time.time() - start_secs < s:
+        if time.time() - verbose_secs > verbose_interval:
+            perc = (time.time() - start_secs) / float(s)
+            progress(perc, verbose_string=verbose_string, VT=VT, n=n)
+        time.sleep(0.001)
+    progress(1, verbose_string=verbose_string, VT=VT, n=n)
+    
+def make_static(url, base, project_folder, style_path, replacements_pre, wait_secs = (1,2)):
     
     # ensure trailing slash
     url             = wh.add_trailing_slash(url)
     print("url           :", url)
-
+    print("wait_secs     :", wait_secs)
 
     # base            = wh.add_trailing_slash(base)
     # project_folder  = wh.add_trailing_slash(project_folder)
@@ -182,13 +205,6 @@ def make_static(url, base, project_folder, style_path, replacements_pre):
     # print("project_folder:", project_folder)
     # ####print("relative_path :", '\'' + relative_path + '\'')
     # print("style_path    :", '\'' + style_path + '\'')
-    
-    # TODO must replace local links in stylesheet !!!!!!!!!!!!!!!!!!!!!
-
-        
-    ### project_folder + page_folder                 + page_name
-    ### page/_kd/        en/about-karlsruhe-digital/   index.html
-    #exit(0)
 
     #-----------------------------------------
     # 
@@ -200,7 +216,8 @@ def make_static(url, base, project_folder, style_path, replacements_pre):
     # 
     #-----------------------------------------
     print(f"{CYAN}url: {url}{RESET}")
-
+    
+    sleep_random(wait_secs, url)
     driver.get(url)
     #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
     #wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
@@ -268,6 +285,8 @@ def make_static(url, base, project_folder, style_path, replacements_pre):
             if not os.path.isfile(local_path):
             
                 # download the referenced files to the same path as in the html
+                if not abs_src.endswith('/'):
+                    sleep_random(wait_secs, abs_src)
                 sess = requests.Session()
                 sess.get(base) # sets cookies
                 res = sess.get(abs_src)
@@ -351,30 +370,38 @@ if __name__ == "__main__":
     
     # TODO style_path must be downloaded first....immediately change links to local......
     
-    # urls            = [
-    #     #'https://karlsruhe.digital/',
-    #     'https://karlsruhe.digital/en/about-karlsruhe-digital/',
-    #     'https://karlsruhe.digital/en/home/',
-    #     'https://karlsruhe.digital/en/it-hotspot-karlsruhe/',
-    #     'https://karlsruhe.digital/en/blog-2/',
-    #     'https://karlsruhe.digital/en/search/',
-    # ]
+    if False:
+      urls            = [
+          #'https://karlsruhe.digital/',
+          'https://karlsruhe.digital/en/about-karlsruhe-digital/',
+          'https://karlsruhe.digital/en/home/',
+          'https://karlsruhe.digital/en/it-hotspot-karlsruhe/',
+          'https://karlsruhe.digital/en/blog-2/',
+          'https://karlsruhe.digital/en/search/',
+      ]
+    else:
+      with open(config.sitemap_links_path) as file:
+          lines = file.readlines()
+          urls = [line.rstrip() for line in lines]
     
-    with open(config.sitemap_links) as file:
-        lines = file.readlines()
-        urls = [line.rstrip() for line in lines]
-    
-    for url in urls:
+    for count, url in enumerate(urls):
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}" + "\n"*5)
         
-        make_static(
-          url, 
-          config.base, 
-          config.project_folder, 
-          config.style_path,
-          config.replacements_pre
-          )
+        progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=88)
+        print()
+        
+        if not (url in config.sitemap_links_ignore):
+            make_static(
+              url, 
+              config.base, 
+              config.project_folder, 
+              config.style_path,
+              config.replacements_pre,
+              wait_secs=config.wait_secs
+              )
+        else:
+            print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)  
         
 
     # todo this should work if in root of domain

@@ -25,10 +25,17 @@ from web_helpers import add_trailing_slash as ats
 #-----------------------------------------
 # 
 #-----------------------------------------
-project_folder  = ats("page/__KD__/")
-base            = ats('https://karlsruhe.digital/')
-style_path      = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
-sitemap_links   = project_folder + "data/karlsruhe.digital_20220616_222903_internal_links.csv"
+wait_secs           = (0.1, 1.2345)
+project_folder      = ats("page/__KD__/")
+base                = ats('https://karlsruhe.digital/')
+style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
+
+sitemap_links_path  = "data/karlsruhe.digital_20220616_222903_internal_links.csv"
+sitemap_links_ignore = [
+    base + 'wp-json/', # is a file not a dir
+    base + 'sitemap/', # is a file not a dir
+]
+print("sitemap_links_ignore", sitemap_links_ignore)
 # replace later with both qotes so we dont replace substrings
 replacements_pre = [
     (
@@ -36,6 +43,7 @@ replacements_pre = [
         'https://karlsruhe.digital/en/home/'
     ),
 ]
+print("replacements_pre", replacements_pre)
 
 # prebuild some dirs, en/home would otherwise be built as a file...
 dirs = [
