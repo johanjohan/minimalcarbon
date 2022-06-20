@@ -44,6 +44,18 @@ https://pypi.org/project/cssutils/
 
 
 
+#-----------------------------------------
+# init the colorama module
+#-----------------------------------------
+import config
+GREEN = config.GREEN
+GRAY = config.GRAY
+RESET = config.RESET
+YELLOW = config.YELLOW
+RED = config.RED
+CYAN = config.CYAN
+MAGENTA = config.MAGENTA
+
 
 # https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
@@ -61,22 +73,15 @@ import web_helpers as wh
 import time
 from bs4 import BeautifulSoup, Comment
 
-# init the colorama module
-import colorama
-colorama.init()
-GREEN = colorama.Fore.GREEN
-GRAY = colorama.Fore.LIGHTBLACK_EX
-RESET = colorama.Fore.RESET
-YELLOW = colorama.Fore.YELLOW
-RED = colorama.Fore.RED
-CYAN = colorama.Fore.CYAN
-MAGENTA = colorama.Fore.MAGENTA
+
 
 #-----------------------------------------
 # 
 #-----------------------------------------
-dq = wh.dq
-sq = wh.sq
+# dq = wh.dq
+# sq = wh.sq
+from web_helpers import dq as dq
+from web_helpers import sq as sq
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -211,10 +216,7 @@ def make_static(url, base, project_folder, style_path, replacements_pre):
     #-----------------------------------------
     # TODO manual replace instead links_remove_similar
     #-----------------------------------------
-     # TODO manual replace instead links_remove_similar
-    # FORCE HAPPY HOMIE
-    # list of tuples
-    # try replace both string options
+    # TODO manual replace instead links_remove_similar
     for fr, to in replacements_pre:
       print(YELLOW, "\t replace:", sq(fr), sq(to), RESET)
       content = content.replace(dq(fr), dq(to))
@@ -341,7 +343,7 @@ def make_static(url, base, project_folder, style_path, replacements_pre):
 #-----------------------------------------
     
 if __name__ == "__main__":
-    import config
+    
 
     #-----------------------------------------
     # 
@@ -349,15 +351,19 @@ if __name__ == "__main__":
     
     # TODO style_path must be downloaded first....immediately change links to local......
     
-    urls            = [
-        #'https://karlsruhe.digital/',
-        'https://karlsruhe.digital/en/about-karlsruhe-digital/',
-        'https://karlsruhe.digital/en/home/',
-        'https://karlsruhe.digital/en/it-hotspot-karlsruhe/',
-        'https://karlsruhe.digital/en/blog-2/',
-        'https://karlsruhe.digital/en/search/',
-    ]
-
+    # urls            = [
+    #     #'https://karlsruhe.digital/',
+    #     'https://karlsruhe.digital/en/about-karlsruhe-digital/',
+    #     'https://karlsruhe.digital/en/home/',
+    #     'https://karlsruhe.digital/en/it-hotspot-karlsruhe/',
+    #     'https://karlsruhe.digital/en/blog-2/',
+    #     'https://karlsruhe.digital/en/search/',
+    # ]
+    
+    with open(config.sitemap_links) as file:
+        lines = file.readlines()
+        urls = [line.rstrip() for line in lines]
+    
     for url in urls:
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}" + "\n"*5)

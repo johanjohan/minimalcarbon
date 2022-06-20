@@ -513,6 +513,7 @@ def save_html(content, path, pretty=False):
         print("save_html:", path)
     except Exception as e:
         print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
+        exit(1) # TODO!!!!!!!!!!!!!!!!!!!!
         
     return path
 
