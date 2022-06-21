@@ -292,7 +292,6 @@ def check_site_exist(url):
     print("check_site_exist:", ret)
     return ret
 
-          
 def is_online_file_and_exists(url):
     t = get_mime_type(url) # None on a folder or if not exists
     return t
