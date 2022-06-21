@@ -256,6 +256,8 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
     # make them all absolute urls
 
     def assets_save_internals_locally(content, url, base, links, project_folder):
+      
+      b_strip_ver = True
         
         #links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
@@ -281,10 +283,25 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
             print(f"{GREEN}\t src: {src}{RESET}")
             
             local_path  = project_folder + wh.try_make_local(src, base)  
-            abs_src     = wh.link_make_absolute(src, base)             
+            abs_src     = wh.link_make_absolute(src, base)    
+            ###abs_src_stripped = wh.strip_query_and_fragment(abs_src)         
             #new_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
             new_src     = get_path_local_root(src, base)
             #new_src     = get_path_local_relative(url, base, src) # works
+
+            # strip query ver=x.x.x
+            if b_strip_ver and wh.url_has_ver(new_src):
+                new_src = wh.strip_query_and_fragment(new_src)
+                print("stripped ?ver=:", new_src)
+                        
+            # add index.html???
+            if '.' in new_src: # is a file
+                print("file:", new_src)
+            else:
+                new_src = wh.add_trailing_slash(new_src)
+                new_src += get_page_name() # index.html
+                print("dir :", new_src, "[added index.html]")
+                
             if not os.path.exists(local_path): # was isfile ERR new!!!!
             
                 # download the referenced files to the same path as in the html
@@ -407,16 +424,21 @@ if __name__ == "__main__":
     # wh.get_response_link(wh.get_response("https://karlsruhe.digital"))
     # exit(0)
     
-    wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")
-    wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
-    wh.url_exists("https://1001suns.com/empty")
-    wh.url_exists("https://1001suns.com/empty/")
-    wh.url_exists("https://1001suns.com/empty/twitter.svg")
-    wh.url_exists("https://1001suns.com") # actually points to a file
-    wh.url_exists("https://1001suns.com/")
-    wh.url_exists("https://1001suns.com/index.php")
+    # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")
+    # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
+    # wh.url_exists("https://1001suns.com/empty")
+    # wh.url_exists("https://1001suns.com/empty/")
+    # wh.url_exists("https://1001suns.com/empty/twitter.svg")
+    # wh.url_exists("https://1001suns.com") # actually points to a file
+    # wh.url_exists("https://1001suns.com/")
+    # wh.url_exists("https://1001suns.com/index.php")
     
-    exit(0)
+    # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg"):
+    #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg")
+    # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4"):
+    #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4")
+    
+    # exit(0)
 
     #-----------------------------------------
     # 
@@ -439,6 +461,7 @@ if __name__ == "__main__":
           urls = [line.rstrip() for line in lines]
     
     for count, url in enumerate(urls):
+      
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}")
         progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=88)

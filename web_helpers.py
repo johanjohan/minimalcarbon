@@ -1,5 +1,5 @@
 from urllib import response
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, parse_qs
 import os
 import urllib.request
 import ssl
@@ -402,11 +402,36 @@ def get_status_code(url, timeout=10):
     print("get_status_code:", status, url)   
     return status
 
+#-----------------------------------------
+# 
+#-----------------------------------------
+
 def url_exists(url):
     code = get_status_code(url)
     exists = True if code and code < 400 else False
     print("url_exists:", exists, code, url)
     return exists
+
+# https://stackoverflow.com/questions/5074803/retrieving-parameters-from-a-url
+def url_has_ver(url):
+    try:
+        value = parse_qs(urlparse(url).query)['ver'][0]
+        ret = True
+    except:
+        #print(f"{RED}[!] url_has_ver: {url} {RESET}")
+        ret = False
+    print("url_has_ver:", GREEN if ret else RED, ret, RESET, url)
+    return ret
+
+def url_get_ver(url):
+    # ver= # ?ver=
+    try:
+        value = parse_qs(urlparse(url).query)['ver'][0]
+        print("url_get_ver:", value)
+        return value
+    except:
+        print(f"{RED}[!] url_get_ver: {url} {RESET}")
+        return ""
 
 #-----------------------------------------
 # 
