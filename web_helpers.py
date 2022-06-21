@@ -74,7 +74,10 @@ ParseResult(
 def has_same_netloc(url, base):
     url_loc  = urlparse(url.strip() ).netloc
     base_loc = urlparse(base.strip()).netloc
-    return url_loc == base_loc
+    #ret =  url_loc == base_loc
+    ret =  base_loc in url_loc
+    #print("has_same_netloc:", ret, base_loc, url_loc)
+    return ret
     return url.strip().startswith(base.strip())
 
 #https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
@@ -200,14 +203,18 @@ def url_scheme(url): # '/'
 def url_path_lstrip_slash(url): # '/'
     return url_path(url, char_lstrip='/')
 
+def url_path_lstrip_double_slash(url): # '/'
+    return url_path(url, char_lstrip='//')
+
 def try_make_local(url, base):
     if has_same_netloc(url, base):
-        #ret = url.replace(base, "").lstrip('/')
-        ret = url_path_lstrip_slash(url)
-        #print("try_make_local:", url, "->", ret)
-        return ret
+        ret = url
+        ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
+        ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
     else:
-        return url
+        ret = url
+    print("try_make_local:", url, "-->", ret)
+    return ret
 
 #-----------------------------------------
 # 
@@ -255,9 +262,10 @@ def add_trailing_slash(url):
 # 
 #-----------------------------------------
 def make_dirs(the_path):
+    #print("make_dirs:", the_path)
     dirs = os.path.dirname(the_path)
     if not os.path.exists(dirs):
-        print("make_dirs:", dirs)
+        print("make_dirs: did not exist:", dirs)
         os.makedirs(dirs)
         
 #-----------------------------------------
@@ -427,10 +435,15 @@ def get_content(url, timeout=10):
 #-----------------------------------------
 # file exists and is > 0
 #-----------------------------------------
-def file_exists_no_null(filepath):
+def file_exists_and_valid(filepath):
     
     if os.path.exists(filepath):
-        if os.path.getsize(filepath) > 0:
+        if os.path.isfile(filepath):
+            if os.path.getsize(filepath) > 0:
+                #print("file_exists_and_valid:", MAGENTA, "isfile", RESET, os.path.getsize(filepath), filepath)
+                return True
+        elif os.path.isdir(filepath):
+            #print("file_exists_and_valid:", MAGENTA, "isdir", RESET, filepath)
             return True
         
     return False
@@ -678,6 +691,8 @@ def get_stylesheet_background_images(style_path):
 #-----------------------------------------   
 def save_html(content, path, pretty=False):
     
+    print("save_html:", path)
+    
     if pretty:
         from bs4 import BeautifulSoup, Comment
         soup = BeautifulSoup(content, 'html.parser')    
@@ -688,7 +703,6 @@ def save_html(content, path, pretty=False):
         if not os.path.isfile(path):
             with open(path, 'w', encoding="utf-8") as fp:
                 fp.write(content)
-            print("save_html:", path)
         else:
             print(f"{MAGENTA}\t save_html: file already exists: {path} {RESET}")
     except Exception as e:

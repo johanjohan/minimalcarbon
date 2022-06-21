@@ -1,108 +1,28 @@
-////////////////////////////////////////////////////////////////////////////////
-list_head_href
-
-        https://karlsruhe.digital/wp-content/uploads/2019/09/favicon-96x96-1.png
-        https://karlsruhe.digital/blog/page/10/
-        https://karlsruhe.digital/blog/page/9/
-        https://karlsruhe.digital/blog/page/11/
-        //s.w.org
-        https://karlsruhe.digital/wp-includes/css/dist/block-library/style.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/plugins/feed-them-social/feeds/css/styles.css?ver=2.8.3.3
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/normalize.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/bootstrap.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/all.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/owl.carousel.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/style.css?ver=1.2
-        https://karlsruhe.digital/wp-json/
-        https://karlsruhe.digital/xmlrpc.php?rsd
-        https://karlsruhe.digital/wp-includes/wlwmanifest.xml
-
-
-
-        invalid:
         //s.w.org
 
 assets_save_internals_locally:
-        https://karlsruhe.digital/blog/page/10/
-        https://karlsruhe.digital/blog/page/11/
-        https://karlsruhe.digital/blog/page/9/
-        https://karlsruhe.digital/wp-content/plugins/feed-them-social/feeds/css/styles.css?ver=2.8.3.3
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/all.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/bootstrap.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/normalize.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/owl.carousel.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/style.css?ver=1.2
-        https://karlsruhe.digital/wp-content/uploads/2019/09/favicon-96x96-1.png
-        https://karlsruhe.digital/wp-includes/css/dist/block-library/style.min.css?ver=5.2.15
-        https://karlsruhe.digital/wp-includes/wlwmanifest.xml
-        https://karlsruhe.digital/wp-json/
-        https://karlsruhe.digital/xmlrpc.php?rsd
-         src: https://karlsruhe.digital/blog/page/10/
-url_has_ver:  False  /blog/page/10/
- dir :  /blog/page/10/index.html [added index.html]
-                 already exists: page/__KD__/blog/page/10/
-                         abs_src: https://karlsruhe.digital/blog/page/10/
-                         new_src: /blog/page/10/index.html
-         src: https://karlsruhe.digital/blog/page/11/
-url_has_ver:  False  /blog/page/11/
- dir :  /blog/page/11/index.html [added index.html]
-Traceback (most recent call last):
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
-    httplib_response = self._make_request(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 449, in _make_request
-    six.raise_from(e, None)
-  File "<string>", line 3, in raise_from
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 444, in _make_request
-    httplib_response = conn.getresponse()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 1368, in getresponse
-    response.begin()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 317, in begin
-    version, status, reason = self._read_status()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 286, in _read_status
-    raise RemoteDisconnected("Remote end closed connection without"
-http.client.RemoteDisconnected: Remote end closed connection without response
+        //media.karlsruhe.digital
+        //media.karlsruhe.digital/storage/assets/ec308f06.css
+        https://media.karlsruhe.digital/
+        https://media.karlsruhe.digital/feed/
+        https://media.karlsruhe.digital/wp-includes/wlwmanifest.xml
+        https://media.karlsruhe.digital/xmlrpc.php?rsd
+         src: //media.karlsruhe.digital
+has_same_netloc: True karlsruhe.digital media.karlsruhe.digital
+try_make_local: //media.karlsruhe.digital -->
+                 file:  /media.karlsruhe.digital
+                 already exists: page/__KD__/
+                         abs_src   : https://karlsruhe.digital/media.karlsruhe.digital
+                         new_src   : /media.karlsruhe.digital
+                         local_path: page/__KD__/
+         src: //media.karlsruhe.digital/storage/assets/ec308f06.css
+has_same_netloc: True karlsruhe.digital media.karlsruhe.digital
+try_make_local: //media.karlsruhe.digital/storage/assets/ec308f06.css --> storage/assets/ec308f06.css
+                 file:  /media.storage/assets/ec308f06.css
+                 already exists: page/__KD__/storage/assets/ec308f06.css
+                         abs_src   : https://karlsruhe.digital/media.karlsruhe.digital/storage/assets/ec308f06.css
+                         new_src   : /media.storage/assets/ec308f06.css
+                         local_path: page/__KD__/storage/assets/ec308f06.css
+						 
 
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 489, in send
-    resp = conn.urlopen(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 785, in urlopen  
-    retries = retries.increment(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\util\retry.py", line 550, in increment    
-    raise six.reraise(type(error), error, _stacktrace)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\packages\six.py", line 769, in reraise    
-    raise value.with_traceback(tb)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen  
-    httplib_response = self._make_request(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 449, in _make_request
-    six.raise_from(e, None)
-  File "<string>", line 3, in raise_from
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 444, in _make_request
-    httplib_response = conn.getresponse()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 1368, in getresponse
-    response.begin()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 317, in begin
-    version, status, reason = self._read_status()
-  File "V:\00shared\dev8\PY\Python310\lib\http\client.py", line 286, in _read_status
-    raise RemoteDisconnected("Remote end closed connection without"
-urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 497, in <module>
-    make_static(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 377, in make_static
-    content = assets_save_internals_locally(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 327, in assets_save_internals_locally
-    res = sess.get(abs_src)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 600, in get
-    return self.request("GET", url, **kwargs)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 587, in request       
-    resp = self.send(prep, **send_kwargs)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 701, in send
-    r = adapter.send(request, **kwargs)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 547, in send
-    raise ConnectionError(err, request=request)
-requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+>>> does not create that folder

@@ -25,7 +25,7 @@ from web_helpers import add_trailing_slash as ats
 #-----------------------------------------
 # 
 #-----------------------------------------
-wait_secs           = (0.01, 0.02)
+wait_secs           = (0.1, 0.2)
 project_folder      = ats("page/__KD__/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
@@ -37,28 +37,39 @@ sitemap_links_ignore = [
 ]
 print("sitemap_links_ignore", sitemap_links_ignore)
 # replace later with both qotes so we dont replace substrings
-replacements_pre = [
-    (
-        'https://karlsruhe.digital'     , 
-        'https://karlsruhe.digital/'
-    ),
- 
-    (
-        'https://karlsruhe.digital/en/home'     , 
-        'https://karlsruhe.digital/en/home/'
-    ),
-    
-   
-    ]
-print("replacements_pre", replacements_pre)
+
+# use all possible quotes
+replacements_pre = []
+for q in ['\"', '\'']:
+    print("\t", "using", q)
+    replacements_pre.append(
+        (
+            q + 'https://karlsruhe.digital'  + q   ,
+            q + 'https://karlsruhe.digital/' + q
+        )
+    )
+    replacements_pre.append(
+        (
+            q + 'https://karlsruhe.digital/en/home'  + q   ,
+            q + 'https://karlsruhe.digital/en/home/' + q
+        )
+    )
+    replacements_pre.append(
+        (
+            q + '//'         ,
+            q + 'https://'
+        )
+    )
+
+print("replacements_pre", *replacements_pre, sep="\n\t")
 
 # prebuild some dirs, en/home would otherwise be built as a file...
+print("make_dirs:")
 dirs = [
     ats(project_folder + 'en/home/'),
     ats(project_folder + 'wp-json/'),
     ats(project_folder + 'sitemap/')
 ]
-print("make_dirs:")
 for d in dirs:
     print("\t", d)
     wh.make_dirs(d)
@@ -67,14 +78,14 @@ print()
 #-----------------------------------------
 # verbose
 #-----------------------------------------
-print("base          :", q(base))
-print("project_folder:", q(project_folder))
-print("style_path    :", q(style_path))
+print("base          :", base)
+print("project_folder:", project_folder)
+print("style_path    :", style_path)
 print()
 
 print("replacements_pre:")
 for fr, to in replacements_pre:
-    print("\t", fr, "-->", to)
+    print("\t", fr, "\t", "-->", to)
 print(RESET)
 
 #-----------------------------------------
