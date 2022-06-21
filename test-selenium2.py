@@ -209,6 +209,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     url = wh.add_trailing_slash(url)
     print("url           :", url)
     print("wait_secs     :", wait_secs)
+    
+    main_url = url
 
     # base            = wh.add_trailing_slash(base)
     # project_folder  = wh.add_trailing_slash(project_folder)
@@ -230,8 +232,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     print(f"{CYAN}url: {url}{RESET}")
 
-    sleep_random(wait_secs, url)
-    driver.get(url)
+    sleep_random(wait_secs, main_url)
+    driver.get(main_url)
     #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
     wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
 
@@ -348,7 +350,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                         except Exception as e:
                             print(f"{RED}\t\t {cnt} sess.get: {abs_src} {RESET}")
                             time.sleep(5)
-
+                            # TODO may reload driver again or refresh.....
+                            print(f"{RED}\t\t {cnt} driver.get: {main_url} {RESET}")
+                            driver.get(main_url)
+                            #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
+                            wh.wait_for_page_has_loaded_hash(driver, sleep_secs=1)
                     try:
                         with open(local_path, 'wb') as fp:
                             fp.write(res.content)
