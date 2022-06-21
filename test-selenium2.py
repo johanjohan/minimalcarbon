@@ -146,8 +146,6 @@ def get_page_folder(url, base):
     # #     print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
     # #     return ''
 
-# url:  media.karlsruhe.digital/
-# base: karlsruhe.digital
 def get_path_local_root(url, base):
     
     if not wh.has_same_netloc(url, base):
