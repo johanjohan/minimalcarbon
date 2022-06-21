@@ -572,9 +572,12 @@ def save_html(content, path, pretty=False):
         
     make_dirs(path)
     try:
-        with open(path, 'w', encoding="utf-8") as fp:
-            fp.write(content)
-        print("save_html:", path)
+        if not os.path.isfile(path):
+            with open(path, 'w', encoding="utf-8") as fp:
+                fp.write(content)
+            print("save_html:", path)
+        else:
+            print(f"{YELLOW}\t save_html: file already exists: {path} {RESET}")
     except Exception as e:
         print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
         exit(1) # TODO!!!!!!!!!!!!!!!!!!!!

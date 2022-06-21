@@ -399,7 +399,7 @@ if __name__ == "__main__":
     wh.is_online_directory_or_not_exists("https://1001suns.com/")
     wh.is_online_directory_or_not_exists("https://1001suns.com/index.php")
     
-    exit(0)
+    #exit(0)
 
     #-----------------------------------------
     # 
