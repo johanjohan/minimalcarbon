@@ -25,7 +25,7 @@ from web_helpers import add_trailing_slash as ats
 #-----------------------------------------
 # 
 #-----------------------------------------
-wait_secs           = (0.1, 1.2345)
+wait_secs           = (0.01, 0.02)
 project_folder      = ats("page/__KD__/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"

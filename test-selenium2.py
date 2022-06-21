@@ -296,12 +296,12 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
                         
             # add index.html??? TODO may not do so wp_json/ and sitemap/
             if '.' in new_src: # is a file
-                print("file:", new_src)
+                print(MAGENTA, "file:", RESET, new_src)
             else:
                 new_src = wh.add_trailing_slash(new_src)
                 if not 'wp_json/' in new_src and not 'sitemap/' in new_src: ### TODO check WP_SPECIAL_DIRS
                     new_src += get_page_name() # index.html
-                    print("dir :", new_src, "[added index.html]")
+                    print(MAGENTA, "dir :", RESET, new_src, "[added index.html]")
                 else:
                     print(f"{MAGENTA}\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
                 
