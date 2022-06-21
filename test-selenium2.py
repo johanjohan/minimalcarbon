@@ -174,7 +174,7 @@ def get_path_local_relative(url, base, src):
 # -----------------------------------------
 
 
-def progress(perc, verbose_string="", VT=YELLOW, n=40):
+def progress(perc, verbose_string="", VT=YELLOW, n=26):
     import math
     # if perc <= 0.0:
     print("{}[{}] [{:.1f}%] {}{}".format(
@@ -187,7 +187,7 @@ def progress(perc, verbose_string="", VT=YELLOW, n=40):
     print("{}[{}{}".format(VT, '|'*n, RESET),  end=end)
 
 
-def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=YELLOW, n=40):
+def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=YELLOW, n=26):
     if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
         import random
         import math
@@ -202,42 +202,46 @@ def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=Y
             time.sleep(0.01)
         progress(1, verbose_string=verbose_string, VT=VT, n=n)
 
+def get_html_and_content(driver, url, b_use_driver):
+    print("get_html_and_content: b_use_driver:", b_use_driver, url)
+    if b_use_driver:
+        driver.get(url)
+        wh.wait_for_page_has_loaded(driver)
+        content = driver.page_source
+    else:
+        content = wh.get_content(url)
+    h = lxml.html.fromstring(content)
+    return h, content
 
+def may_be_a_folder(url):
+    url = wh.strip_query_and_fragment(url)
+    return url.endswith('/')   
+
+def has_a_dot(url):
+    return '.' in url
+    
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
     # ensure trailing slash
-    url = wh.add_trailing_slash(url)
-    print("url           :", url)
-    print("wait_secs     :", wait_secs)
+    url             = wh.add_trailing_slash(url)
+    main_url        = url
+    b_use_driver    = True
+
+
+    # -----------------------------------------
+    #
+    # -----------------------------------------
+    print(f"{CYAN}url: {url} {RESET}")
+    print(f"{CYAN}b_use_driver: {b_use_driver} wait_secs: {wait_secs} {RESET}")
     
-    main_url = url
-
-    # base            = wh.add_trailing_slash(base)
-    # project_folder  = wh.add_trailing_slash(project_folder)
-    # ###relative_path   = get_relative_dots(url, base)
-
-    # print("base          :", base)
-    # print("project_folder:", project_folder)
-    # ####print("relative_path :", '\'' + relative_path + '\'')
-    # print("style_path    :", '\'' + style_path + '\'')
-
     # # -----------------------------------------
     # #
     # # -----------------------------------------
     # driver = webdriver.Chrome()
     # driver.implicitly_wait(10)
 
-    # -----------------------------------------
-    #
-    # -----------------------------------------
-    print(f"{CYAN}url: {url}{RESET}")
-
     sleep_random(wait_secs, main_url)
-    driver.get(main_url)
-    #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
-    wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
-    content = driver.page_source
-    h = lxml.html.fromstring(content)
+    h, content = get_html_and_content(driver, main_url, b_use_driver)
 
     # -----------------------------------------
     # TODO manual replace instead links_remove_similar
@@ -262,7 +266,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # make them all absolute urls
 
     def assets_save_internals_locally(content, url, base, links, project_folder):
-
+        
         b_strip_ver = True
 
         # links = wh.links_make_absolute(links, base)  NO!!!
@@ -277,15 +281,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("assets_save_internals_locally:", *links, sep='\n\t')
 
         for src in links:
-
             src = src.strip()
-
-            # # # avoid replacing base only....YAK.... no replaces with quotes below line 306ff
-            # # if src == base:
-            # #     print(f"{RED}src == base: {base}{RESET}")
-            # #     time.sleep(10)
-            # #     continue
-
             print(f"{GREEN}\t src: {src}{RESET}")
 
             local_path = project_folder + wh.try_make_local(src, base)
@@ -296,13 +292,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             # new_src     = get_path_local_relative(url, base, src) # works
 
             # strip query ver=x.x.x
-            if b_strip_ver and wh.url_has_ver(new_src):
-                new_src = wh.strip_query_and_fragment(new_src)
-                print("\t\t stripped ?ver=:", new_src)
+            if b_strip_ver:
+                if wh.url_has_ver(new_src):
+                    new_src = wh.strip_query_and_fragment(new_src)
+                    print("\t\t stripped ?ver=:", new_src)
                 
-            # TODO NEW EXPERI    
-            # add index.html??? TODO may not do so wp_json/ and sitemap/
-            if '.' in new_src: # is a file
+            # is a file? add index.html/get_page_name() to folder-links
+            # TODO may not do so wp_json/ and sitemap/
+            if has_a_dot(new_src) : # is a file
                 print(MAGENTA, "\t\t file:", RESET, new_src)
             else:
                 new_src = wh.add_trailing_slash(new_src)
@@ -318,37 +315,30 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             #     local_path = wh.add_trailing_slash(local_path) + get_page_name() # TODO if not 'wp_json/' in new_src and not 'sitemap/'
             #     print(f"{MAGENTA}\t\t local_path: {local_path} {RESET}")
                 
-
-            if not wh.file_exists(local_path):  # was isfile ERR new!!!! file_exists(filepath) # path.exists(local_path)
+            # get and save link-asset to disk
+            if not wh.file_exists_no_null(local_path): 
 
                 wh.make_dirs(local_path)
                 
-                def may_be_a_folder(url):
-                    url = wh.strip_query_and_fragment(url)
-                    return url.endswith('/')
-
                 # only save files in this go, local_path
                 # download the referenced files to the same path as in the html
                 if not may_be_a_folder(abs_src):  # folders may get exception below?
+                    
                     sleep_random(wait_secs, abs_src)
 
                     # TODO >>> shifted right1
-                    # try loop with pause as needed
-                    for cnt in range(10):
+                    max_tries = 10
+                    for cnt in range(max_tries):
                         try:
                             print(f"{GREEN}\t\t [{cnt}] sess.get: {abs_src}{RESET}")
-                            sess = requests.Session()
-                            sess.get(base)  # sets cookies
-                            res = sess.get(abs_src)
+                            session = requests.Session()
+                            session.get(base)  # sets cookies
+                            res = session.get(abs_src)
                             break
                         except Exception as e:
-                            print(f"{RED}\t\t ERROR {cnt} sess.get: {abs_src} {RESET}")
-                            time.sleep(5)
-                            # TODO may reload driver again or refresh.....
-                            print(f"{RED}\t\t ERROR {cnt} driver.get: {main_url} {RESET}")
-                            driver.get(main_url)
-                            #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
-                            wh.wait_for_page_has_loaded_hash(driver, sleep_secs=1)
+                            print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
+                            time.sleep(3)
+                            
                     try:
                         with open(local_path, 'wb') as fp:
                             fp.write(res.content)
@@ -356,6 +346,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     except:
                         print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
                     ### END shifted <<<<<<<<<<<<<<
+                    
+                    
                 else:
                     print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
             else:
@@ -376,6 +368,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         return content
 
     ####content = wh.html_minify(content)
+
+    # -----------------------------------------
+    # make lists
+    # -----------------------------------------
 
     list_head_href = h.xpath('head//@href')
 
@@ -514,16 +510,14 @@ if __name__ == "__main__":
             lines = file.readlines()
             urls = [line.rstrip() for line in lines]
 
-
     driver = webdriver.Chrome()
-    driver.implicitly_wait(10)
-    
+    driver.implicitly_wait(30)
     
     for count, url in enumerate(urls):
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}")
-        progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=88)
+        progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
         print("\n"*5)
 
         if not (url in config.sitemap_links_ignore):
@@ -550,218 +544,3 @@ if __name__ == "__main__":
     driver.quit()
 
     exit(0)
-
-# # # # # # remove comments
-# # # # # import re
-# # # # # content = re.sub("<!--.*?-->", "", content)
-# # # # # print("len(content)", len(content))
-
-# # # # # # write the raw page
-# # # # # wh.make_dirs(path_index)
-# # # # # with open(path_index + "_orig.html", 'w', encoding="utf-8") as fp:
-# # # # #     fp.write(content)
-
-# # # # # # download the referenced files to the same path as in the html
-# # # # # sess = requests.Session()
-# # # # # sess.get(base) # sets cookies
-
-# # # # # #-----------------------------------------
-# # # # # #
-# # # # # #-----------------------------------------
-
-
-# # # # # """
-# # # # # #-----------------------------------------
-# # # # # # TODO need to change all local links to absolute with domain...
-# # # # # # need to change links to other
-# # # # # # <section style="background-image: url('https://karlsruhe.digital/wp-content/uploads/2019/09/ÜberKadigi.jpg')">
-
-# # # # # could scan all images on disk
-# # # # #     convert to webp
-# # # # #     replace old image links as text in all files with new ones
-
-# # # # # same with links to other index.html
-
-
-# # # # # https://stackoverflow.com/questions/27688606/how-to-fetch-style-background-image-url-using-selenium-webdrive
-# # # # # <div class="body" style="background-image: url('http://d1oiazdc2hzjcz.cloudfront.net/promotions/precious/2x/p_619_o_6042_precious_image_1419849753.png');">
-# # # # #  WebElement img = driver.findElement(By.className('body'));
-# # # # #  String imgpath = img.getCssValue("background-image");
-
-# # # # # some_variable=self.driver.find_element_by_xpath("//div[@class='body' and contains(@style,'url')]")
-# # # # # some_variable2=some_variable.get_attribute('style')
-
-# # # # # <div class="d-flex align-items-center bg-cover h-100" style="background-image: url('wp-content/uploads/2019/08/Header-1.jpg')">
-# # # # #                             <div class="container content">
-# # # # #                                 <div class="row">
-# # # # #                                     <div class="col-xl-7 col-lg-8 color-white">
-# # # # #                                         <h2 class="slide-heading">Karlsruhe<br><span class="heading-light">Motor of Digitization</span></h2>
-# # # # #                                                                                                                             <a href="/en/about-karlsruhe-digital/" class="button button-full">Read more</a>
-# # # # #                                                                             </div>
-# # # # #                                 </div>
-# # # # #                             </div>
-# # # # #                         </div>
-
-# # # # # #-----------------------------------------
-
-# # # # # element = driver.find_element_by_xpath("//div[@class='Header']/div[@class='Header-jpeg']")
-# # # # # element.value_of_css_property("background-image")
-
-# # # # # background-image.*?url\((.*?)\)
-
-# # # # # IWebElement abc = driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(http://test.com/images/abc.png);')]"));
-
-# # # # # substring-before(substring-after(.//*[@class='card-image']/@style, "url('"), ");")
-
-# # # # # """
-
-# # # # # # import re
-# # # # # # x = re.search('/background-image.*?url\((.*?)\)/mi', content)
-# # # # # # print(x)
-# # # # # # exit(0)
-
-# # # # # # '//div[@style]'
-# # # # # # '//*[contains(@style,"background") and contains(@style,"url(")]'
-# # # # # # //*[contains(@style,'background-image')]
-
-# # # # # # for e in h.xpath('//div[@style]'):
-# # # # # #     print(f"{YELLOW}\t e: {e.values} {RESET}")
-
-# # # # # # div = driver.find_element(By.XPATH, "//div")
-# # # # # # print(div)
-
-# # # # # # bg_url = div.value_of_css_property('background-image') # 'url("https://i.xxxx.com/img.jpg")'
-# # # # # # # strip the string to leave just the URL part
-# # # # # # bg_url = bg_url.lstrip('url("').rstrip('")')
-# # # # # # # https://i.xxxx.com/img.jpg
-# # # # # # print("bg_url",bg_url)
-
-# # # # # # for div in h.xpath("//div"):
-# # # # # #     print(f"{YELLOW}\t div: {div} {div.tag} {div.text} {RESET}")
-
-# # # # # # import cssutils
-# # # # # # soup = BeautifulSoup(content, 'html.parser')
-# # # # # # div  = soup.find('div', attrs={'style': True})
-# # # # # # print(div)
-# # # # # # if div:
-# # # # # #     print(re.search(r'url\("(.+)"\)', div['style']).group(1))
-
-# # # # # # # urls = []
-# # # # # # # soup = BeautifulSoup(content, 'html.parser')
-# # # # # # # for ele in soup.find_all('div', attrs={'style': True}):
-# # # # # # #     print(ele)
-# # # # # # #     pattern = re.compile('.*background-image:\s*url\((.*)\);')
-# # # # # # #     match = pattern.match(ele.div['style'])
-# # # # # # #     if match:
-# # # # # # #         urls.append(match.group(1))
-# # # # # # # print("urls", urls)
-
-# # # # # # div_style = soup.find('div')['style']
-# # # # # # style = cssutils.parseStyle(div_style)
-# # # # # # url = style['background-image']
-# # # # # # print("url", url)
-
-# # # # # links = wh.get_style_background_images(driver)
-# # # # # print(links)
-
-# # # # # exit(0)
-# # # # # #-----------------------------------------
-# # # # # #
-# # # # # #-----------------------------------------
-
-# # # # # # get css/js files loaded in the head
-# # # # # if True:
-# # # # #     for hr in h.xpath('head//@href'):
-
-# # # # #         print(f"{YELLOW}\t hr: {hr}{RESET}")
-
-# # # # #         if wh.is_relative(hr):
-# # # # #             local_path = project_folder + hr
-# # # # #             local_path = wh.strip_query_and_fragment(local_path)
-# # # # #             hr = base + hr
-# # # # #         else:
-# # # # #             local_path = project_folder + wh.url_path_lstrip_slash(hr)
-# # # # #             hr = hr
-
-# # # # #         # print("hr        :", hr)
-# # # # #         # print("local_path:", local_path)
-
-# # # # #         content = content.replace(
-# # # # #             hr,
-# # # # #             relative_path
-# # # # #             +
-# # # # #             wh.strip_query_and_fragment(
-# # # # #                 wh.url_path_lstrip_slash(hr)
-# # # # #             )
-# # # # #         )
-
-# # # # #         if not os.path.isfile(local_path):
-# # # # #             res = sess.get(hr)
-# # # # #             if res.status_code == 200:
-# # # # #                 if wh.has_no_trailing_slash(local_path): # is a file
-
-# # # # #                     wh.make_dirs(local_path)
-# # # # #                     with open(local_path, 'wb') as fp:
-# # # # #                         fp.write(res.content)
-# # # # #                     #print("saved:", local_path)
-# # # # #                 else:
-# # # # #                     print(f"{RED}\t not a file: {local_path}{RESET}")
-# # # # #             else:
-# # # # #                 print(f"{RED}\t bad status: {res.status_code}{RESET}")
-# # # # #         else:
-# # # # #             print(f"{RED}\t already exists: {local_path}{RESET}")
-
-# # # # # #-----------------------------------------
-# # # # # #
-# # # # # #-----------------------------------------
-# # # # # # get image/js files from the body.
-# # # # # for src in h.xpath('//@src'):
-
-# # # # #     src = wh.try_make_local(src, base)
-
-# # # # #     if not src or src.startswith('http'): # skip anything loaded from outside sources
-# # # # #         print(f"{RED}\t skipping external: {src}{RESET}")
-# # # # #         continue
-
-# # # # #     print(f"{GREEN}\t src: {src}{RESET}")
-
-
-# # # # #     local_path = project_folder + src
-# # # # #     local_path = wh.strip_query_and_fragment(local_path)
-# # # # #     #print(local_path)
-
-# # # # #     src = base + src
-
-# # # # #     content = content.replace(src, relative_path + wh.url_path_lstrip_slash(src))
-
-# # # # #     if not os.path.isfile(local_path):
-# # # # #         res = sess.get(src)
-# # # # #         wh.make_dirs(local_path)
-# # # # #         with open(local_path, 'wb') as fp:
-# # # # #             fp.write(res.content)
-# # # # #     else:
-# # # # #         print(f"{RED}\t already exists: {local_path}{RESET}")
-
-# # # # # # always write index.html
-# # # # # with open(path_index, 'w', encoding="utf-8") as fp:
-# # # # #     fp.write(content)
-
-# # # # # #-----------------------------------------
-# # # # # # webbrowser
-# # # # # #-----------------------------------------
-# # # # # if True:
-# # # # #     print("open:", path_index)
-
-# # # # #     if False:
-# # # # #         os.system("start " + path_index)
-# # # # #     else:
-# # # # #         import webbrowser
-# # # # #         assert os.path.isfile(path_index)
-
-# # # # #         # MacOS
-# # # # #         # chrome_path = 'open -a /Applications/Google\ Chrome.app %s'
-# # # # #         # Windows
-# # # # #         chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-# # # # #         # Linux
-# # # # #         # chrome_path = '/usr/bin/google-chrome %s'
-# # # # #         webbrowser.get(chrome_path).open('file://' + path_index)

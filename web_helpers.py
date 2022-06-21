@@ -343,7 +343,9 @@ def get_response(url, timeout=10, method=None):
         print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
         print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
         if False:
-            print(CYAN, response.read(), RESET) # content
+            #content = response.read().decode(response.headers.get_content_charset())
+            content = response.read().decode('utf-8')
+            print(CYAN, content, RESET) # content
         return response
     except urllib.error.HTTPError as error:
         print(f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
@@ -351,6 +353,7 @@ def get_response(url, timeout=10, method=None):
     except Exception as e:
         print(f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
         return None
+
 
 """
     Date: Tue, 21 Jun 2022 07:10:21 GMT
@@ -410,10 +413,21 @@ def get_status_code(url, timeout=10):
     print("get_status_code:", status, url)   
     return status
 
+def get_content(url, timeout=10):
+    try:
+        response =  get_response(url, timeout=timeout)
+        content = response.read().decode('utf-8') # decode(response.headers.get_content_charset())
+        print("get_content:", len(content)) 
+        #print("get_content:", CYAN, content, RESET) # content
+        return content
+    except Exception as e:
+        print(f"{RED}[!] get_content: {url} Exception: {e} --> None {RESET}")
+        return None        
+        
 #-----------------------------------------
 # file exists and is > 0
 #-----------------------------------------
-def file_exists(filepath):
+def file_exists_no_null(filepath):
     
     if os.path.exists(filepath):
         if os.path.getsize(filepath) > 0:
@@ -523,21 +537,26 @@ def wait_for_page_has_loaded_by_item(driver, by, item_to_find, timeout=60): # dr
 # 
 #-----------------------------------------
 
-def wait_for_page_has_loaded_readyState(driver, sleep_secs=0.1):
+def wait_for_page_has_loaded_readyState(driver, sleep_secs=1):
     
     # https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
     def _page_has_loaded_readyState(driver):
-        print("page_has_loaded: {}".format(driver.current_url))
+        #print("_page_has_loaded_readyState: {}".format(driver.current_url))
         page_state = driver.execute_script('return document.readyState;')
         return page_state == 'complete'
 
+    max_turns = 10
+    cnt = 0
     while not _page_has_loaded_readyState(driver):
+        print("wait_for_page_has_loaded_readyState: {} {}s {}".format(cnt, sleep_secs, driver.current_url))
         time.sleep(sleep_secs)
+        if cnt := cnt + 1 >= max_turns:
+            break
         
     return True
     
 # https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
-def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
+def wait_for_page_has_loaded_hash(driver, sleep_secs=1):
     '''
     Waits for page to completely load by comparing current page hash values.
     '''
@@ -552,24 +571,34 @@ def wait_for_page_has_loaded_hash(driver, sleep_secs=2):
         dom_hash = hash(dom.encode('utf-8'))
         return dom_hash
 
-    page_hash = 'empty'
-    page_hash_new = ''
     
     # comparing old and new page DOM hash together to verify the page is fully loaded
-    while page_hash != page_hash_new: 
-        page_hash = get_page_hash(driver)
-        time.sleep(sleep_secs)
-        page_hash_new = get_page_hash(driver)
-        print('<page_has_loaded> - page not loaded')
-
-    print('<page_has_loaded> - page loaded: {}'.format(driver.current_url))
+    # # page_hash = 'empty'
+    # # page_hash_new = ''
+    # # # while page_hash != page_hash_new: 
+    # # #     page_hash = get_page_hash(driver)
+    # # #     time.sleep(sleep_secs)
+    # # #     page_hash_new = get_page_hash(driver)
+    # # #     print('<page_has_loaded> - page not loaded')
+        
+    max_secs = 30
+    for cnt in range(max_secs):
+         page_hash = get_page_hash(driver)
+         print("wait_for_page_has_loaded_hash: sleep", sleep_secs, cnt)
+         time.sleep(sleep_secs)
+         page_hash_new = get_page_hash(driver)
+         if page_hash_new == page_hash:
+             print("wait_for_page_has_loaded_hash: ", "SUCCESS...")
+             break
+         
+    print("wait_for_page_has_loaded_hash: loaded", driver.current_url)
     return True
     
 #-----------------------------------------
 # surrogate
 #-----------------------------------------
 def wait_for_page_has_loaded(driver):
-    return wait_for_page_has_loaded_readyState(driver, sleep_secs=0.1)
+    return wait_for_page_has_loaded_readyState(driver, sleep_secs=1)
 #-----------------------------------------
 # 
 #-----------------------------------------
