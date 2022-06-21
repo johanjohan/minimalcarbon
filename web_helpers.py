@@ -252,6 +252,19 @@ def make_dirs(the_path):
         print("make_dirs:", dirs)
         os.makedirs(dirs)
 
+def was_redirected(url):
+    response = requests.head(url, allow_redirects=True)
+    if response.history:
+        print("Request was redirected:", url)
+        for resp in response.history:
+            print("\t", resp.status_code, resp.url)
+        print("Final destination:", response.status_code, response.url)
+        return True
+    else:
+        print("Request was not redirected")
+        return False
+    
+    
 # # assume that there is no files without extension on the Internet and all paths are unix...!!!!!
 # # Unlike some operating systems, UNIX doesn’t require a dot (.) in a filename; 
 # # in fact, you can use as many as you want. 
@@ -269,27 +282,14 @@ def make_dirs(the_path):
 # def is_file(url):   
 #     return not is_directory(url)
 
-def was_redirected(url):
-    response = requests.head(url, allow_redirects=True)
-    if response.history:
-        print("Request was redirected:", url)
-        for resp in response.history:
-            print("\t", resp.status_code, resp.url)
-        print("Final destination:", response.status_code, response.url)
-        return True
-    else:
-        print("Request was not redirected")
-        return False
-    
-def check_site_exist(url):
+def check_online_site_exists(url):
     from http import HTTPStatus
     try:
-        url_parts = urlparse(url)
-        response  = requests.head("://".join([url_parts.scheme, url_parts.netloc]))
-        ret       = (response.status_code == HTTPStatus.OK)
+        response  = requests.head(url)
+        ret       = True
     except:
         ret       = False
-    print("check_site_exist:", ret)
+    print("check_site_exist:", url, "-->", ret)
     return ret
 
 def is_online_file_and_exists(url):
@@ -300,7 +300,7 @@ def is_online_file_and_exists(url):
 def is_online_directory_or_not_exists(url):
     ret = not is_online_file_and_exists(url)
     print("is_online_directory_or_not_exists:", url, "-->", ret)
-    print("check_site_exist(url):", check_site_exist(url))
+    print("check_online_site_exists:", check_online_site_exists(url))
     print()
     return ret
     
