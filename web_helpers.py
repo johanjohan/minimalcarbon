@@ -1,3 +1,4 @@
+from urllib import response
 from urllib.parse import urlparse, urljoin
 import os
 import urllib.request
@@ -224,6 +225,9 @@ def has_leading_slash(url):
 def strip_leading_slash(url):
     return url.strip().lstrip('/')
 
+def strip_trailing_slash(url):
+    return url.strip().rstrip('/')
+
 def strip_tail(url, delim):
     if delim in url:
         url = url.split(delim)[0]
@@ -242,13 +246,65 @@ def add_trailing_slash(url):
 #-----------------------------------------
 # 
 #-----------------------------------------
-
 def make_dirs(the_path):
     dirs = os.path.dirname(the_path)
     if not os.path.exists(dirs):
         print("make_dirs:", dirs)
         os.makedirs(dirs)
 
+# # assume that there is no files without extension on the Internet and all paths are unix...!!!!!
+# # Unlike some operating systems, UNIX doesn’t require a dot (.) in a filename; 
+# # in fact, you can use as many as you want. 
+# # For instance, the filenames pizza and this.is.a.mess are both legal.
+# def is_directory(url):   
+#     print("is_directory:", url)
+#     url     = url.replace("\\\\", "/")
+#     url     = url.replace("\\",   "/")
+#     url     = strip_trailing_slash(url)
+#     subs    = url.split('/')
+#     print("is_directory:", "subs:", subs)
+#     last = subs[-1]
+#     return not '.' in subs[-1]
+    
+# def is_file(url):   
+#     return not is_directory(url)
+
+def was_redirected(url):
+    response = requests.head(url, allow_redirects=True)
+    if response.history:
+        print("Request was redirected:", url)
+        for resp in response.history:
+            print("\t", resp.status_code, resp.url)
+        print("Final destination:", response.status_code, response.url)
+        return True
+    else:
+        print("Request was not redirected")
+        return False
+    
+def check_site_exist(url):
+    from http import HTTPStatus
+    try:
+        url_parts = urlparse(url)
+        response  = requests.head("://".join([url_parts.scheme, url_parts.netloc]))
+        ret       = (response.status_code == HTTPStatus.OK)
+    except:
+        ret       = False
+    print("check_site_exist:", ret)
+    return ret
+
+          
+def is_online_file_and_exists(url):
+    t = get_mime_type(url) # None on a folder or if not exists
+    return t
+  
+### I suppose you can add a slash to a URL and see what happens from there. That might get you the results you are looking for.
+def is_online_directory_or_not_exists(url):
+    ret = not is_online_file_and_exists(url)
+    print("is_online_directory_or_not_exists:", url, "-->", ret)
+    print("check_site_exist(url):", check_site_exist(url))
+    print()
+    return ret
+    
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -256,27 +312,27 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
 }
 
-def get_content_type(url):
-    # seems to be incorrect many times
-    try:
-        r = requests.head(url, allow_redirects=True)
-        ### {'Date': 'Thu, 16 Jun 2022 16:03:31 GMT', 'Server': 'Apache/2.4.54 (Unix)', 'X-Powered-By': 'PHP/7.4.30', 'Allow': 'GET, POST, PUT', 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Expires': 'Sat, 26 Jul 1997 05:00:00 GMT', 'Pragma': 'no-cache', 'Vary': 'User-Agent,Accept-Encoding', 'Content-Encoding': 'gzip', 'Content-Type': 'text/html; charset=UTF-8', 'Set-Cookie': 'PHPSESSID=8bss92l8og8s789ldp0p3u5uvr; path=/', 'Keep-Alive': 'timeout=3, max=100', 'Connection': 'Keep-Alive'}
-        return r.headers["content-type"] # "text/html; charset=UTF-8"
-    except Exception as e:
-        print(f"{RED}[!] {url} Exception: {e}{RESET}")
-        return None
+# # def get_content_type(url):
+# #     # seems to be incorrect many times
+# #     try:
+# #         r = requests.head(url, allow_redirects=True)
+# #         ### {'Date': 'Thu, 16 Jun 2022 16:03:31 GMT', 'Server': 'Apache/2.4.54 (Unix)', 'X-Powered-By': 'PHP/7.4.30', 'Allow': 'GET, POST, PUT', 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Expires': 'Sat, 26 Jul 1997 05:00:00 GMT', 'Pragma': 'no-cache', 'Vary': 'User-Agent,Accept-Encoding', 'Content-Encoding': 'gzip', 'Content-Type': 'text/html; charset=UTF-8', 'Set-Cookie': 'PHPSESSID=8bss92l8og8s789ldp0p3u5uvr; path=/', 'Keep-Alive': 'timeout=3, max=100', 'Connection': 'Keep-Alive'}
+# #         return r.headers["content-type"] # "text/html; charset=UTF-8"
+# #     except Exception as e:
+# #         print(f"{RED}[!] {url} Exception: {e}{RESET}")
+# #         return None
     
-def get_content_part(url, index):
-    ct = get_content_type(url)
-    if ct:
-        subs = ct.split(';') # "text/html; charset=UTF-8"
-        if len(subs) >= (index+1):
-            return subs[index]
+# # def get_content_part(url, index):
+# #     ct = get_content_type(url)
+# #     if ct:
+# #         subs = ct.split(';') # "text/html; charset=UTF-8"
+# #         if len(subs) >= (index+1):
+# #             return subs[index]
 
-    return None
+# #     return None
 
-def get_encoding(url):
-    return get_content_part(url, 1)
+# # def get_encoding(url):
+# #     return get_content_part(url, 1)
     
 def get_mime_type(url):
     try:

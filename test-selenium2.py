@@ -245,6 +245,9 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
     path_base       = get_path_for_file(url, base, project_folder, ext="")
     path_index      = path_base + ".html"
     path_original   = wh.save_html(content, path_base + "_original.html")
+    
+    
+
 
     #-----------------------------------------
     # make all links absolute with base
@@ -269,7 +272,7 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
             
             src = src.strip()  
             
-            # # # avoid replacing base only....YAK
+            # # # avoid replacing base only....YAK.... no replaces with quotes below line 306ff
             # # if src == base:
             # #     print(f"{RED}src == base: {base}{RESET}")
             # #     time.sleep(10)
@@ -373,6 +376,30 @@ if __name__ == "__main__":
     # assert os.path.isfile("page/__KD__/") # err
     # assert os.path.isfile("page/__KD__/index.html")
     # exit(0)
+    
+    # # assert wh.is_directory("page/__KD__/")
+    # # assert wh.is_directory("page/__KD__") 
+    # # #assert wh.is_directory("page/__KD__/index.html") # err
+    # # #assert wh.is_directory("/index.html")# err
+    # # #assert wh.is_directory("index.html")# err
+    # # assert wh.is_directory("/")
+    # # assert wh.is_directory("dir")
+    # # assert wh.is_directory("/dir")
+    # # assert wh.is_directory("/dir/")
+    # # assert wh.is_directory("")
+    # # assert wh.is_directory(".")
+    # # assert wh.is_directory("./")
+    
+    wh.is_online_directory_or_not_exists("https://1001suns.com/reallyBadDOESNOTexist")
+    wh.is_online_directory_or_not_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
+    wh.is_online_directory_or_not_exists("https://1001suns.com/empty")
+    wh.is_online_directory_or_not_exists("https://1001suns.com/empty/")
+    wh.is_online_directory_or_not_exists("https://1001suns.com/empty/twitter.svg")
+    wh.is_online_directory_or_not_exists("https://1001suns.com") # actually points to a file
+    wh.is_online_directory_or_not_exists("https://1001suns.com/")
+    wh.is_online_directory_or_not_exists("https://1001suns.com/index.php")
+    
+    exit(0)
 
     #-----------------------------------------
     # 
