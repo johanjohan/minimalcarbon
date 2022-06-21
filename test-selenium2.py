@@ -257,7 +257,7 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
 
     def assets_save_internals_locally(content, url, base, links, project_folder):
       
-      b_strip_ver = True
+        b_strip_ver = True
         
         #links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
@@ -294,13 +294,16 @@ def make_static(url, base, project_folder, style_path, replacements_pre, wait_se
                 new_src = wh.strip_query_and_fragment(new_src)
                 print("stripped ?ver=:", new_src)
                         
-            # add index.html???
+            # add index.html??? TODO may not do so wp_json/ and sitemap/
             if '.' in new_src: # is a file
                 print("file:", new_src)
             else:
                 new_src = wh.add_trailing_slash(new_src)
-                new_src += get_page_name() # index.html
-                print("dir :", new_src, "[added index.html]")
+                if not 'wp_json/' in new_src and not 'sitemap/' in new_src: ### TODO check WP_SPECIAL_DIRS
+                    new_src += get_page_name() # index.html
+                    print("dir :", new_src, "[added index.html]")
+                else:
+                    print(f"{MAGENTA}\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
                 
             if not os.path.exists(local_path): # was isfile ERR new!!!!
             
