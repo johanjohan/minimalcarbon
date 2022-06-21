@@ -265,7 +265,7 @@ def make_dirs(the_path):
     #print("make_dirs:", the_path)
     dirs = os.path.dirname(the_path)
     if not os.path.exists(dirs):
-        print("make_dirs: did not exist:", dirs)
+        print("make_dirs: born:", dirs)
         os.makedirs(dirs)
         
 #-----------------------------------------
@@ -783,7 +783,39 @@ def replace_in_file(filename, string_from, string_to):
     fp = open(filename, "wt")
     fp.write(data)
     fp.close()
-      
+
+# -----------------------------------------
+#
+# -----------------------------------------
+
+
+def progress(perc, verbose_string="", VT=YELLOW, n=16):
+    import math
+    # if perc <= 0.0:
+    print("{}[{}] [{:.1f}%] {}{}".format(
+        VT, '.'*n, perc*100, verbose_string, RESET),  end='\r')
+    if perc >= 1.0:
+        end = '\n'
+    else:
+        n = min(n, math.ceil(n * perc))
+        end = '\r'
+    print("{}[{}{}".format(VT, '|'*n, RESET),  end=end)
+
+
+def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=YELLOW, n=16):
+    if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
+        import random
+        import math
+        s = random.uniform(wait_secs[0], wait_secs[1])
+        #print("sleep_random: {:.1f}...{:.1f} --> {:.1f}s".format(wait_secs[0], wait_secs[1], s))
+        start_secs = time.time()
+        progress(0, verbose_string=verbose_string, VT=VT, n=n)
+        while time.time() - start_secs < s:
+            perc = (time.time() - start_secs) / float(s)
+            progress(perc, verbose_string=verbose_string, VT=VT, n=n)
+            time.sleep(0.01)
+        progress(1, verbose_string=verbose_string, VT=VT, n=n)
+             
 #-----------------------------------------
 # 
 #-----------------------------------------

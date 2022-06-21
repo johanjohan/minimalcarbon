@@ -10,7 +10,7 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 CYAN = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
-print(YELLOW)
+print(MAGENTA)
 
 #-----------------------------------------
 # dq

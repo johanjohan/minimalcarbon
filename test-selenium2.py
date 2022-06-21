@@ -217,37 +217,11 @@ def get_path_local_root(url, base):
 #     # print("get_path_local_root:", src, "-->", ret)
 #     return ret
 
+
 # -----------------------------------------
 #
 # -----------------------------------------
 
-
-def progress(perc, verbose_string="", VT=YELLOW, n=16):
-    import math
-    # if perc <= 0.0:
-    print("{}[{}] [{:.1f}%] {}{}".format(
-        VT, '.'*n, perc*100, verbose_string, RESET),  end='\r')
-    if perc >= 1.0:
-        end = '\n'
-    else:
-        n = min(n, math.ceil(n * perc))
-        end = '\r'
-    print("{}[{}{}".format(VT, '|'*n, RESET),  end=end)
-
-
-def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=YELLOW, n=16):
-    if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
-        import random
-        import math
-        s = random.uniform(wait_secs[0], wait_secs[1])
-        #print("sleep_random: {:.1f}...{:.1f} --> {:.1f}s".format(wait_secs[0], wait_secs[1], s))
-        start_secs = time.time()
-        progress(0, verbose_string=verbose_string, VT=VT, n=n)
-        while time.time() - start_secs < s:
-            perc = (time.time() - start_secs) / float(s)
-            progress(perc, verbose_string=verbose_string, VT=VT, n=n)
-            time.sleep(0.01)
-        progress(1, verbose_string=verbose_string, VT=VT, n=n)
 
 def has_a_dot(url):
     return '.' in url
@@ -280,7 +254,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # driver = webdriver.Chrome()
     # driver.implicitly_wait(10)
 
-    sleep_random(wait_secs, url)
+    wh.sleep_random(wait_secs, url)
     if b_use_driver:
         driver.get(url)
         wh.wait_for_page_has_loaded(driver)
@@ -366,7 +340,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 # only save files in this go, local_path
                 if is_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
-                    sleep_random(wait_secs, abs_src)
+                    wh.sleep_random(wait_secs, abs_src)
 
                     # TODO >>> shifted right1
                     max_tries = 10
@@ -437,7 +411,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for asset, suffix in zip(assets, suffixes):
         print("/" * 80)
         print(suffix)
-        print(GRAY, *asset, RESET, sep='\n\t')
+        #print(GRAY, *asset, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
         content = assets_save_internals_locally(
             content, url, base, asset, project_folder)
         wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
@@ -562,7 +536,7 @@ if __name__ == "__main__":
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}")
-        progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
+        wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
         print("\n"*5)
 
         if not (url in config.sitemap_links_ignore):
