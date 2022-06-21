@@ -1,24 +1,51 @@
-url: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021
-[||||||||||||||||||||||..................................................................] [24.2%] TOTAL
+////////////////////////////////////////////////////////////////////////////////
+list_head_href
 
-sleep_random: 0.1...1.2 --> 0.5s
-[||||||||||||||||||||||||||||||||||||||||] [100.0%] https://karlsruhe.digital
-                 may be a directory: page/__KD__/
-                         abs_src: https://karlsruhe.digital
-                         rel_src: /karlsruhe.digital
-         src: https://karlsruhe.digital/
-                 may be a directory: page/__KD__/
-                         abs_src: https://karlsruhe.digital/
-                         rel_src: /
-         src: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/       
-                 may be a directory: page/__KD__/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
-                         abs_src: https://karlsruhe.digital/2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
-                         rel_src: /2021/01/digitale-fachkonferenz-learntec-xchange-vom-2-bis-4-februar-2021/
-         src: https://karlsruhe.digital/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/   
-                 may be a directory: page/__KD__/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/
-                         abs_src: https://karlsruhe.digital/2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/
-                         rel_src: /2022/06/bunte-nacht-der-digitalisierung-telemaxx-gibt-einblicke-in-die-cloud/        
-         src: https://karlsruhe.digital/2022/06/events-termine-in-karlsruhe-kw-24-2022/
+        https://karlsruhe.digital/wp-content/uploads/2019/09/favicon-96x96-1.png
+        https://karlsruhe.digital/blog/page/10/
+        https://karlsruhe.digital/blog/page/9/
+        https://karlsruhe.digital/blog/page/11/
+        //s.w.org
+        https://karlsruhe.digital/wp-includes/css/dist/block-library/style.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/plugins/feed-them-social/feeds/css/styles.css?ver=2.8.3.3
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/normalize.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/bootstrap.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/all.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/owl.carousel.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/style.css?ver=1.2
+        https://karlsruhe.digital/wp-json/
+        https://karlsruhe.digital/xmlrpc.php?rsd
+        https://karlsruhe.digital/wp-includes/wlwmanifest.xml
+
+
+
+        invalid:
+        //s.w.org
+
+assets_save_internals_locally:
+        https://karlsruhe.digital/blog/page/10/
+        https://karlsruhe.digital/blog/page/11/
+        https://karlsruhe.digital/blog/page/9/
+        https://karlsruhe.digital/wp-content/plugins/feed-them-social/feeds/css/styles.css?ver=2.8.3.3
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/all.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/bootstrap.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/normalize.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/owl.carousel.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-content/themes/karlsruhe-digital/css/style.css?ver=1.2
+        https://karlsruhe.digital/wp-content/uploads/2019/09/favicon-96x96-1.png
+        https://karlsruhe.digital/wp-includes/css/dist/block-library/style.min.css?ver=5.2.15
+        https://karlsruhe.digital/wp-includes/wlwmanifest.xml
+        https://karlsruhe.digital/wp-json/
+        https://karlsruhe.digital/xmlrpc.php?rsd
+         src: https://karlsruhe.digital/blog/page/10/
+url_has_ver:  False  /blog/page/10/
+ dir :  /blog/page/10/index.html [added index.html]
+                 already exists: page/__KD__/blog/page/10/
+                         abs_src: https://karlsruhe.digital/blog/page/10/
+                         new_src: /blog/page/10/index.html
+         src: https://karlsruhe.digital/blog/page/11/
+url_has_ver:  False  /blog/page/11/
+ dir :  /blog/page/11/index.html [added index.html]
 Traceback (most recent call last):
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
     httplib_response = self._make_request(
@@ -40,13 +67,13 @@ During handling of the above exception, another exception occurred:
 Traceback (most recent call last):
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 489, in send
     resp = conn.urlopen(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 785, in urlopen
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 785, in urlopen  
     retries = retries.increment(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\util\retry.py", line 550, in increment
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\util\retry.py", line 550, in increment    
     raise six.reraise(type(error), error, _stacktrace)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\packages\six.py", line 769, in reraise
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\packages\six.py", line 769, in reraise    
     raise value.with_traceback(tb)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen  
     httplib_response = self._make_request(
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\urllib3\connectionpool.py", line 449, in _make_request
     six.raise_from(e, None)
@@ -64,22 +91,18 @@ urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Re
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 394, 
-in <module>
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 497, in <module>
     make_static(
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 340, 
-in make_static
-    content = assets_save_internals_locally(content, url, base, asset, project_folder)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 292, 
-in assets_save_internals_locally
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 377, in make_static
+    content = assets_save_internals_locally(
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\test-selenium2.py", line 327, in assets_save_internals_locally
     res = sess.get(abs_src)
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 600, in get
     return self.request("GET", url, **kwargs)
-  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 587, in request
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 587, in request       
     resp = self.send(prep, **send_kwargs)
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\sessions.py", line 701, in send
     r = adapter.send(request, **kwargs)
   File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\requests\adapters.py", line 547, in send
     raise ConnectionError(err, request=request)
 requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-(venv) PS D:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap>  

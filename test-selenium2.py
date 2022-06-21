@@ -302,29 +302,37 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             # strip query ver=x.x.x
             if b_strip_ver and wh.url_has_ver(new_src):
                 new_src = wh.strip_query_and_fragment(new_src)
-                print("stripped ?ver=:", new_src)
+                print("\t\t stripped ?ver=:", new_src)
 
             # add index.html??? TODO may not do so wp_json/ and sitemap/
             if '.' in new_src:  # is a file
-                print(MAGENTA, "file:", RESET, new_src)
+                print(MAGENTA, "\t\t file:", RESET, new_src)
             else:
                 new_src = wh.add_trailing_slash(new_src)
                 if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
                     new_src += get_page_name()  # index.html
-                    print(MAGENTA, "dir :", RESET,
+                    print(MAGENTA, "\t\t dir :", RESET,
                           new_src, "[added index.html]")
                 else:
-                    print(f"{MAGENTA}\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
+                    print(f"{MAGENTA}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
-            if not os.path.exists(local_path):  # was isfile ERR new!!!!
+            if not wh.file_exists(local_path):  # was isfile ERR new!!!! file_exists(filepath) # path.exists(local_path)
 
                 # download the referenced files to the same path as in the html
                 if not abs_src.endswith('/'):  # folders may get exception below?
                     sleep_random(wait_secs, abs_src)
 
-                sess = requests.Session()
-                sess.get(base)  # sets cookies
-                res = sess.get(abs_src)
+                # try loop with pause as needed
+                for cnt in range(10):
+                    try:
+                        print(f"{GREEN}\t\t [{cnt}] sess.get: {abs_src}{RESET}")
+                        sess = requests.Session()
+                        sess.get(base)  # sets cookies
+                        res = sess.get(abs_src)
+                        break
+                    except Exception as e:
+                        print(f"{RED}\t\t {cnt} sess.get: {abs_src} {RESET}")
+                        time.sleep(5)
 
                 wh.make_dirs(local_path)
                 try:

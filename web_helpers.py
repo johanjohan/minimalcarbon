@@ -403,6 +403,17 @@ def get_status_code(url, timeout=10):
     return status
 
 #-----------------------------------------
+# file exists and is > 0
+#-----------------------------------------
+def file_exists(filepath):
+    
+    if os.path.exists(filepath):
+        if os.path.getsize(filepath) > 0:
+            return True
+        
+    return False
+    
+#-----------------------------------------
 # 
 #-----------------------------------------
 
@@ -420,7 +431,7 @@ def url_has_ver(url):
     except:
         #print(f"{RED}[!] url_has_ver: {url} {RESET}")
         ret = False
-    print("url_has_ver:", GREEN if ret else RED, ret, RESET, url)
+    #print("url_has_ver:", GREEN if ret else RED, ret, RESET, url)
     return ret
 
 def url_get_ver(url):
