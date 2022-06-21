@@ -146,13 +146,28 @@ def get_page_folder(url, base):
     # #     print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
     # #     return ''
 
+# url:  media.karlsruhe.digital/
+# base: karlsruhe.digital
 def get_path_local_root(url, base):
-    new_url = url
+    
+    if not wh.has_same_netloc(url, base):
+        print(f"{YELLOW}get_path_local_root: url: {url} has not same netloc {base} {RESET}")
+        exit(1)        
+    
+    new_url  = strip_protocols(url)
+    new_base = strip_protocols(base).rstrip('/')
+ 
+    path = new_url.replace(new_base, "")
+
+xxxxxxxxxxxxxxxxxxxxx
+   
     # print("get_path_local_root:", "url :", url)
     # print("get_path_local_root:", "base:", base)
     #### scheme = wh.url_scheme(url) # http
-    new_url = strip_protocols(new_url)
+    new_url = wh.url_path(new_url).lstrip('/')
     new_url = new_url.lstrip("www.")
+    
+    
     ####base    = strip_protocols(base)
     rooted  = "/" + new_url # https://media.ka.de/xxx/ ---> /media.ka.de/xxx/
     #print("get_path_local_root:", url, "-->", rooted)
