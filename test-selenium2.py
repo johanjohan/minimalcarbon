@@ -236,12 +236,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     driver.get(main_url)
     #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
     wh.wait_for_page_has_loaded_hash(driver, sleep_secs=0.5)
-
-    # seq_query_field = driver.find_element(By.ID, "seq") # find_element_by_id("seq")
-    # seq_query_field.send_keys(SEQUENCE)
-    # blast_button = driver.find_element(By.ID, "blastButton1")
-    # blast_button.click()
-
     content = driver.page_source
     h = lxml.html.fromstring(content)
 
@@ -348,10 +342,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                             res = sess.get(abs_src)
                             break
                         except Exception as e:
-                            print(f"{RED}\t\t {cnt} sess.get: {abs_src} {RESET}")
+                            print(f"{RED}\t\t ERROR {cnt} sess.get: {abs_src} {RESET}")
                             time.sleep(5)
                             # TODO may reload driver again or refresh.....
-                            print(f"{RED}\t\t {cnt} driver.get: {main_url} {RESET}")
+                            print(f"{RED}\t\t ERROR {cnt} driver.get: {main_url} {RESET}")
                             driver.get(main_url)
                             #wh.scroll_down_all_the_way(driver, sleep_secs=2, npixels=555)
                             wh.wait_for_page_has_loaded_hash(driver, sleep_secs=1)
