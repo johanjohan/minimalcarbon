@@ -529,6 +529,8 @@ if __name__ == "__main__":
         with open(config.sitemap_links_path) as file:
             lines = file.readlines()
             urls = [line.rstrip() for line in lines]
+    urls = wh.links_remove_comments(urls, '#')
+
 
     driver = webdriver.Chrome()
     driver.implicitly_wait(30)
