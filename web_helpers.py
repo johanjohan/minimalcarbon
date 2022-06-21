@@ -601,6 +601,8 @@ def get_style_background_images(driver):
 #-----------------------------------------
 def get_stylesheet_background_images(style_path):
     import cssutils
+    import logging
+    cssutils.log.setLevel(logging.CRITICAL)
     urls  = []
     if os.path.isfile(style_path):
         try:
