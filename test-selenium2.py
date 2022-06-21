@@ -90,7 +90,6 @@ def strip_protocols(url):
     new_url = new_url.lstrip("://")
     new_url = new_url.lstrip("//")
     new_url = new_url.lstrip('/')
-    n##########ew_url = new_url.lstrip('www.') # TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #print("strip_protocols:", url, "-->", new_url)
     return new_url
 
@@ -125,7 +124,7 @@ def get_page_folder(url, base):
         #print("get_page_folder: url:", url)
         res = urlparse(url)    
         #print("get_page_folder: res:", res)    
-        page_folder = res.netloc + '/'
+        page_folder = res.netloc.lstrip('www.') + '/'
         subs = res.path.split('/')
         #print("get_page_folder: subs:", subs)
         for folder in subs:
