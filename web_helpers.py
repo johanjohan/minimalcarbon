@@ -251,26 +251,10 @@ def make_dirs(the_path):
     if not os.path.exists(dirs):
         print("make_dirs:", dirs)
         os.makedirs(dirs)
-
-def was_redirected(url):
-    response = requests.head(url, allow_redirects=True)
-    if response.history:
-        # # print("Request was redirected:", url)
-        # # for resp in response.history:
-        # #     print("\t", resp.status_code, resp.url)
-        # # print("Final destination:", response.status_code, response.url)
-        ret = True
-    else:
-        ret = False
-    print("was_redirected: ", ret, url, "-->", response.url)
-    return ret, response.url
-
-def final_url(url, timeout=10):
-    try:
-        return requests.head(url, allow_redirects=True, timeout=timeout).url
-    except:
-        return url
-    
+        
+#-----------------------------------------
+# 
+#-----------------------------------------
 # # assume that there is no files without extension on the Internet and all paths are unix...!!!!!
 # # Unlike some operating systems, UNIX doesn’t require a dot (.) in a filename; 
 # # in fact, you can use as many as you want. 
@@ -288,29 +272,21 @@ def final_url(url, timeout=10):
 # def is_file(url):   
 #     return not is_directory(url)
 
-def check_online_site_exists(url):
-    from http import HTTPStatus
-    try:
-        response  = requests.head(url)
-        ret       = (response.status_code < 400)
-    except:
-        ret       = False
-    print("check_online_site_exists:", url, "-->", ret, response.status_code)
-    return ret
 
-def is_online_file_and_exists(url):
-    t = get_mime_type(url) # None on a folder or if not exists
-    return t
+# # def is_online_file_and_exists(url):
+# #     t = get_mime_type(url) # None on a folder or if not exists
+# #     return True if t else False
   
-### I suppose you can add a slash to a URL and see what happens from there. That might get you the results you are looking for.
-def is_online_directory_or_not_exists(url):
-    url = final_url(url)
-    ret = not is_online_file_and_exists(url)
-    print("is_online_directory_or_not_exists:", url, "-->", ret)
-    check_online_site_exists(url)
-    ###ret = was_redirected(url)
-    print()
-    return ret
+# # ### I suppose you can add a slash to a URL and see what happens from there. That might get you the results you are looking for.
+# # def is_online_directory_or_not_exists(url):
+# #     url = get_redirected_url(url)
+# #     t = get_mime_type(url)
+# #     ret = not is_online_file_and_exists(url)
+# #     print("is_online_directory_or_not_exists:", url, "-->", ret)
+# #     check_online_site_exists(url)
+# #     ###ret = was_redirected(url)
+# #     print()
+# #     return ret
     
 #-----------------------------------------
 # 
@@ -340,35 +316,97 @@ headers = {
 
 # # def get_encoding(url):
 # #     return get_content_part(url, 1)
-    
-def get_mime_type(url):
+
+# https://docs.python.org/3/library/urllib.request.html#module-urllib.response
+# https://docs.python.org/3/library/email.message.html#email.message.EmailMessage
+# https://www.w3.org/wiki/LinkHeader
+def _get_request(url, method=None): # 'HEAD'
+    return urllib.request.Request(url, data=None, headers=headers, method=method) # user agent in headers
+
+# https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
+def get_response(url, timeout=10, method=None):
     try:
-        req = urllib.request.Request(url, data=None, headers=headers) # user agent
-        # https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error
-        context = ssl._create_unverified_context()
-        contentType = None
-        with urllib.request.urlopen(req, context=context) as response:
-            contentType   = response.headers.get_content_type()
-            contentLength = response.headers.get('content-length')    
-        print("get_mime_type:", contentType)     
-        return contentType
+        req         = _get_request(url, method=method)
+        context     = ssl._create_unverified_context()
+        response    = urllib.request.urlopen(req, context=context, timeout=timeout)
+        print("get_response:", url)
+        print("\t", response.status)
+        print("\t", response.url)
+        print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
+        print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
+        if False:
+            print(CYAN, response.read(), RESET) # content
+        return response
+    except urllib.error.HTTPError as error:
+        print(f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
+        return None
     except Exception as e:
-        print(f"{RED}[!] {url} Exception: {e}{RESET}")
+        print(f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
         return None
 
-def get_status_code(url, fast=True, timeout=5):
+"""
+    Date: Tue, 21 Jun 2022 07:10:21 GMT
+    Server: Apache/2.4.54 (Unix)
+    X-Powered-By: PHP/7.4.30
+    Link: <https://1001suns.com/wp-json/>; rel="https://api.w.org/"
+    Vary: User-Agent,Accept-Encoding
+    Content-Type: text/html; charset=UTF-8
+    Connection: close
+    Transfer-Encoding: chunked
+"""    
+def get_response_link(response):
+    link = response.headers.get("Link", None)
+    if link:
+        link = link.split(';')[0].replace('<', '').replace('>', '') # Link: <https://1001suns.com/wp-json/>; rel="https://api.w.org/"
+    print("get_response_link:", link)    
+    return link
+    
+def get_redirected_url(url, timeout=10):
     try:
-        if fast:
-            r = requests.head(url,verify=True,timeout=timeout) # it is faster to only request the header
-            return (r.status_code)
-        else:
-            req = urllib.request.Request(url, timeout=timeout, data=None, headers=headers) # user agent
-            context = ssl._create_unverified_context()
-            with urllib.request.urlopen(req, context=context) as response:
-                return response.getcode()
+        res     = get_response(url, timeout=timeout)
+        new_url = res.url
+        print("get_redirected_url:", url, "-->", new_url)   
+        return new_url, not (new_url == url)
     except Exception as e:
-        print(f"{RED}[!] {url} Exception: {e}{RESET}")
-        return -1
+        print(f"{RED}[!] get_redirected_url: {url} Exception: {e}{RESET}")
+        return url, False 
+    
+def was_redirected(url, timeout=10):
+    new_url =  get_redirected_url(url, timeout=timeout)
+    return not (new_url == url)
+
+def get_mime_type(url, timeout=10):
+    try:
+        contentType =  get_response(url, timeout=timeout).headers.get_content_type()
+        print("get_mime_type:", contentType)   
+        return contentType
+    except Exception as e:
+        print(f"{RED}[!] get_mime_type: {url} Exception: {e} --> None {RESET}")
+        return None        
+        
+# https://nicolasbouliane.com/blog/python-3-urllib-examples
+def get_status_code(url, timeout=10):
+    try:
+        status = urllib.request.urlopen(
+            _get_request(url, method=None), # 'HEAD'
+            context=ssl._create_unverified_context(), 
+            timeout=timeout
+        ).status # 200...
+    except urllib.error.HTTPError as error:
+        print(f"{RED}[!] get_status_code: {url} error.code: {error.code} {RESET}")
+        status = error.code # 404, 500, etc
+    except Exception as e:
+        print(f"{RED}[!] get_status_code: {url} Exception: {e} --> None {RESET}")
+        status = None
+    
+    print("get_status_code:", status, url)   
+    return status
+
+def url_exists(url):
+    code = get_status_code(url)
+    exists = True if code and code < 400 else False
+    print("url_exists:", exists, code, url)
+    return exists
 
 #-----------------------------------------
 # 
@@ -577,7 +615,7 @@ def save_html(content, path, pretty=False):
                 fp.write(content)
             print("save_html:", path)
         else:
-            print(f"{YELLOW}\t save_html: file already exists: {path} {RESET}")
+            print(f"{MAGENTA}\t save_html: file already exists: {path} {RESET}")
     except Exception as e:
         print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
         exit(1) # TODO!!!!!!!!!!!!!!!!!!!!

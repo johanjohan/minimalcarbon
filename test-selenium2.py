@@ -390,16 +390,33 @@ if __name__ == "__main__":
     # # assert wh.is_directory(".")
     # # assert wh.is_directory("./")
     
-    wh.is_online_directory_or_not_exists("https://1001suns.com/reallyBadDOESNOTexist")
-    wh.is_online_directory_or_not_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
-    wh.is_online_directory_or_not_exists("https://1001suns.com/empty")
-    wh.is_online_directory_or_not_exists("https://1001suns.com/empty/")
-    wh.is_online_directory_or_not_exists("https://1001suns.com/empty/twitter.svg")
-    wh.is_online_directory_or_not_exists("https://1001suns.com") # actually points to a file
-    wh.is_online_directory_or_not_exists("https://1001suns.com/")
-    wh.is_online_directory_or_not_exists("https://1001suns.com/index.php")
+    # wh.get_status_code("https://1001suns.com")
+    # wh.get_status_code("https://1001suns.com/")
+    # wh.get_status_code("https://1001suns.com/index.php")
+    # wh.get_status_code("https://1001suns.com/index.phpXXXXXXX")
     
-    #exit(0)
+    # wh.get_mime_type("https://1001suns.com/empty/twitter.svg")
+    # wh.get_mime_type("https://1001suns.com/empty")
+    # wh.get_mime_type("https://1001suns.com/empty/")
+    
+    # wh.get_redirected_url("https://1001suns.com")
+    # wh.get_redirected_url("https://1001suns.com/")
+    # wh.get_redirected_url("https://1001suns.com/index.php")
+    
+    # wh.get_response_link(wh.get_response("https://1001suns.com"))
+    # wh.get_response_link(wh.get_response("https://karlsruhe.digital"))
+    # exit(0)
+    
+    wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")
+    wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
+    wh.url_exists("https://1001suns.com/empty")
+    wh.url_exists("https://1001suns.com/empty/")
+    wh.url_exists("https://1001suns.com/empty/twitter.svg")
+    wh.url_exists("https://1001suns.com") # actually points to a file
+    wh.url_exists("https://1001suns.com/")
+    wh.url_exists("https://1001suns.com/index.php")
+    
+    exit(0)
 
     #-----------------------------------------
     # 

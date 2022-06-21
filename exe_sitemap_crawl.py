@@ -3,6 +3,29 @@
 # pip3 install requests bs4 colorama
 # thank you!
 
+"""
+https://www.elegantthemes.com/blog/editorial/the-wordpress-json-rest-api-wp-api-what-it-is-how-it-works-what-it-means-for-the-future-of-wordpress
+https://developer.wordpress.org/rest-api/
+
+
+https://karlsruhe.digital/wp-json/
+https://karlsruhe.digital/wp-json/wp/v2
+https://karlsruhe.digital/wp-json/wp/v2/routes
+routes
+_links self
+
+TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-> link "https://karlsruhe.digital/2022/06/events-termine-in-karlsruhe-kw-25-2022/"
+-> guid rendered "https://karlsruhe.digital/?p=5522" ## media makes more sense
+https://karlsruhe.digital/wp-json/wp/v2/posts
+https://karlsruhe.digital/wp-json/wp/v2/pages
+https://karlsruhe.digital/wp-json/wp/v2/media
+https://karlsruhe.digital/wp-json/wp/v2/blocks
+https://karlsruhe.digital/wp-json/wp/v2/categories
+
+
+"""
+
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup

@@ -74,7 +74,7 @@ print()
 
 print("replacements_pre:")
 for fr, to in replacements_pre:
-    print("\t", fr, to)
+    print("\t", fr, "-->", to)
 print(RESET)
 
 #-----------------------------------------
