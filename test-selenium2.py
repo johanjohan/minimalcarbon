@@ -303,9 +303,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             if b_strip_ver and wh.url_has_ver(new_src):
                 new_src = wh.strip_query_and_fragment(new_src)
                 print("\t\t stripped ?ver=:", new_src)
-
+                
+            # TODO NEW EXPERI    
             # add index.html??? TODO may not do so wp_json/ and sitemap/
-            if '.' in new_src:  # is a file
+            if '.' in new_src: # is a file
                 print(MAGENTA, "\t\t file:", RESET, new_src)
             else:
                 new_src = wh.add_trailing_slash(new_src)
@@ -315,38 +316,55 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                           new_src, "[added index.html]")
                 else:
                     print(f"{MAGENTA}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
+                    
+            # local_path should only be written folders, index to be written later...        
+            # if not'.' in local_path:
+            #     local_path = wh.add_trailing_slash(local_path) + get_page_name() # TODO if not 'wp_json/' in new_src and not 'sitemap/'
+            #     print(f"{MAGENTA}\t\t local_path: {local_path} {RESET}")
+                
 
             if not wh.file_exists(local_path):  # was isfile ERR new!!!! file_exists(filepath) # path.exists(local_path)
 
+                wh.make_dirs(local_path)
+                
+                def may_be_a_folder(url):
+                    url = wh.strip_query_and_fragment(url)
+                    return url.endswith('/')
+
+                # only save files in this go, local_path
                 # download the referenced files to the same path as in the html
-                if not abs_src.endswith('/'):  # folders may get exception below?
+                if not may_be_a_folder(abs_src):  # folders may get exception below?
                     sleep_random(wait_secs, abs_src)
 
-                # try loop with pause as needed
-                for cnt in range(10):
-                    try:
-                        print(f"{GREEN}\t\t [{cnt}] sess.get: {abs_src}{RESET}")
-                        sess = requests.Session()
-                        sess.get(base)  # sets cookies
-                        res = sess.get(abs_src)
-                        break
-                    except Exception as e:
-                        print(f"{RED}\t\t {cnt} sess.get: {abs_src} {RESET}")
-                        time.sleep(5)
+                    # TODO >>> shifted right1
+                    # try loop with pause as needed
+                    for cnt in range(10):
+                        try:
+                            print(f"{GREEN}\t\t [{cnt}] sess.get: {abs_src}{RESET}")
+                            sess = requests.Session()
+                            sess.get(base)  # sets cookies
+                            res = sess.get(abs_src)
+                            break
+                        except Exception as e:
+                            print(f"{RED}\t\t {cnt} sess.get: {abs_src} {RESET}")
+                            time.sleep(5)
 
-                wh.make_dirs(local_path)
-                try:
-                    with open(local_path, 'wb') as fp:
-                        fp.write(res.content)
-                        print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
-                except:
-                    print(f"{RED}\t\t may be a directory?: {local_path}{RESET}")
+                    try:
+                        with open(local_path, 'wb') as fp:
+                            fp.write(res.content)
+                            print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
+                    except:
+                        print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
+                    ### END shifted <<<<<<<<<<<<<<
+                else:
+                    print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
             else:
                 print(f"{RED}\t\t already exists: {local_path}{RESET}")
 
             # dots rel to url of this url, not to the image itself
-            print(f"{GRAY}\t\t\t abs_src: {abs_src}{RESET}")
-            print(f"{GRAY}\t\t\t new_src: {new_src}{RESET}")
+            print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
+            print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
+            print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
             #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
 
             # post replace
@@ -466,6 +484,13 @@ if __name__ == "__main__":
     #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg")
     # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4"):
     #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4")
+    
+    
+    # wh.url_has_fragment("https://1001suns.com/empty/twitter.svg")
+    # wh.url_has_fragment("https://1001suns.com/empty/")
+    # wh.url_has_fragment("https://1001suns.com/empty/#frag123")
+    # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4")
+    # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4#frag655")
 
     # exit(0)
 

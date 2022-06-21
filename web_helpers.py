@@ -188,6 +188,12 @@ def url_path(url, char_lstrip=''): # '/'
         p = p.lstrip(char_lstrip)
     return p
 
+def url_has_fragment(url):
+    f = urlparse(url.strip()).fragment
+    ret = True if f else False
+    print("url_has_fragment:", ret, url)
+    return ret
+
 def url_scheme(url): # '/'
     return urlparse(url.strip()).scheme
 
@@ -235,7 +241,9 @@ def strip_tail(url, delim):
     return url
 
 def strip_query_and_fragment(url):
-    return strip_tail(url, '?')
+    url = strip_tail(url, '#')
+    url = strip_tail(url, '?')
+    return url
 
 def add_trailing(url, to_add):
     return url.rstrip(to_add) + to_add
