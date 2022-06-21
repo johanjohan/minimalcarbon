@@ -30,8 +30,10 @@ try_make_local: //media.karlsruhe.digital/storage/assets/ec308f06.css --> storag
 
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
+
 ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
             query='query', fragment='fragment')
+			
 urlparse("http://docs.python.org:80/3/library/urllib.parse.html?highlight=params#url-parsing")
 ParseResult(
     scheme  = 'http', 

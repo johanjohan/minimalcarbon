@@ -273,6 +273,11 @@ def has_no_trailing_slash(url):
 def has_leading_slash(url):
     return has_leading(url.strip(), '/')
 
+def add_leading_slash(url):
+    url = url.strip().lstrip('/')
+    url = '/' + url
+    return url
+
 def strip_leading_slash(url):
     return url.strip().lstrip('/')
 

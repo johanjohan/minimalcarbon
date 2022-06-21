@@ -115,121 +115,123 @@ def validate_filepath(filepath):
 def get_page_name(ext=".html", basename="index"):
     return basename + ext
 
-# karlsruhe.de/folder/
+"""
+get_path_local_root:  https://www.karlsruhe.digital/ -->  /
+get_page_folder    :  https://www.karlsruhe.digital/ --> 
+get_path_local_root:  https://www.media.karlsruhe.digital/ -->  /media/
+get_page_folder    :  https://www.media.karlsruhe.digital/ -->  media/
+get_path_local_root:  https://media.karlsruhe.digital/ -->  /media/
+get_page_folder    :  https://media.karlsruhe.digital/ -->  media/
+get_path_local_root:  https://media.karlsruhe.digital/my/folder/this.jpeg -->  /media/my/folder/this.jpeg
+get_page_folder    :  https://media.karlsruhe.digital/my/folder/this.jpeg -->  media/my/folder/
+get_path_local_root:  https://karlsruhe.digital/ -->  /
+get_page_folder    :  https://karlsruhe.digital/ --> 
+get_path_local_root:  https://karlsruhe.digital/index.html -->  /index.html
+get_page_folder    :  https://karlsruhe.digital/index.html --> 
+get_path_local_root:  https://karlsruhe.digital/some/folder/image.png -->  /some/folder/image.png
+get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/folder/
+"""
 def get_page_folder(url, base):
-    import re
-    from urllib.parse import urlparse, urljoin, parse_qs
-        
-    if wh.url_has_same_netloc(url, base):
-        #print("get_page_folder: url:", url)
-        res = urlparse(url)    
-        #print("get_page_folder: res:", res)    
-        page_folder = res.netloc.lstrip('www.') + '/'
-        subs = res.path.split('/')
-        #print("get_page_folder: subs:", subs)
-        for folder in subs:
-            if folder and is_a_folder(folder):
-                page_folder += folder + "/"
-        print("get_page_folder:", url, "-->", page_folder)
-        return page_folder
-    else:
-        print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
-        exit(1)
-        return ''
-        
-    # # if wh.has_same_netloc(url, base):
-    # #     page_folder = wh.url_path_lstrip_slash(url)
-    # #     if page_folder:
-    # #         wh.url_path_lstrip_slash(url)
-    # #     return page_folder
-    # # else:
-    # #     print(f"{YELLOW}\t url: {url} has not same netloc {RESET}")
-    # #     return ''
+    path = get_path_local_root(url, base).lstrip('/')
+    page_folder = ""
+    subs = path.split('/')
+    for folder in subs:
+        if folder and is_a_folder(folder):
+            page_folder += folder + "/" 
+    #print("get_page_folder    :", GRAY, url, "-->", RESET, page_folder)
+    return page_folder               
 
+
+"""
+get_path_local_root: https://www.karlsruhe.digital/ --> /
+get_path_local_root: https://www.media.karlsruhe.digital/ --> /media/
+get_path_local_root: https://media.karlsruhe.digital/ --> /media/
+get_path_local_root: https://media.karlsruhe.digital/my/folder/this.jpeg --> /media/my/folder/this.jpeg
+get_path_local_root: https://karlsruhe.digital/ --> /
+get_path_local_root: https://karlsruhe.digital/index.html --> /index.html
+get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/folder/image.png
+
+"""
 def get_path_local_root(url, base):
     
-    if not wh.has_same_netloc(url, base):
+    # externals should be removed before
+    if not wh.url_has_same_netloc(url, base):
         print(f"{YELLOW}get_path_local_root: url: {url} has not same netloc {base} {RESET}")
         exit(1)        
     
-    new_url  = strip_protocols(url)
-    new_base = strip_protocols(base).rstrip('/')
+    # # # # new_url  = strip_protocols(url)
+    # # # # new_base = strip_protocols(base).rstrip('/')
+    
+    loc_url   = wh.url_netloc(url).lstrip("www.")   # loc_url:  media.karlsruhe.digital
+    loc_base  = wh.url_netloc(base)                 # loc_base:       karlsruhe.digital
+    subdomain = loc_url.replace(loc_base, '').replace('.', '')
+    if subdomain: subdomain += '/'
  
-    path = new_url.replace(new_base, "")
-
-xxxxxxxxxxxxxxxxxxxxx
-   
-    # print("get_path_local_root:", "url :", url)
-    # print("get_path_local_root:", "base:", base)
-    #### scheme = wh.url_scheme(url) # http
-    new_url = wh.url_path(new_url).lstrip('/')
-    new_url = new_url.lstrip("www.")
-    
-    
-    ####base    = strip_protocols(base)
-    rooted  = "/" + new_url # https://media.ka.de/xxx/ ---> /media.ka.de/xxx/
-    #print("get_path_local_root:", url, "-->", rooted)
+    path = wh.url_path_lstrip_slash(url)
+    rooted = subdomain + path 
+    rooted = wh.add_leading_slash(rooted)
+    #print("get_path_local_root:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
-# def get_path_for_file(url, base, project_folder, ext=".html"):
-#     page_folder = get_page_folder(url, base)
-#     page_name = get_page_name(ext=ext, basename="index")
-#     #relative_path   = get_relative_path(url, base)
+# # # # # def get_path_for_file(url, base, project_folder, ext=".html"):
+# # # # #     page_folder = get_page_folder(url, base)
+# # # # #     page_name = get_page_name(ext=ext, basename="index")
+# # # # #     #relative_path   = get_relative_path(url, base)
 
-#     # print("page_folder:", page_folder)
-#     # print("page_name  :", page_name)
-#     # # print("relative_path:", relative_path)
+# # # # #     # print("page_folder:", page_folder)
+# # # # #     # print("page_name  :", page_name)
+# # # # #     # # print("relative_path:", relative_path)
 
-#     ret = project_folder + page_folder + page_name
-#     ret = os.path.realpath(ret)
+# # # # #     ret = project_folder + page_folder + page_name
+# # # # #     ret = os.path.realpath(ret)
 
-#     return ret
+# # # # #     return ret
 
-# def get_relative_dots(url, base):
-#     ret = "../" * get_page_folder(url, base).count('/')
-#     if not ret:
-#         ret = './'
-#     #print("get_relative_dots: -->", ret)
-#     return ret
-
-
-# # # def get_path_local_root_OLD(url, base):
-# # #     #print("get_path_local_root:", "base:", base)
-# # #     #print("get_path_local_root:", "url :", url)
-# # #     # scheme = wh.url_scheme(url) # http
-# # #     url = wh.link_make_absolute(url, base)
-# # #     url = strip_protocols(url)
-# # #     base = strip_protocols(base)
-# # #     rooted = "/" + url.replace(base, "")
-# # #     #print("get_path_local_root:", "--> rooted:", rooted)
-# # #     return rooted
+# # # # # def get_relative_dots(url, base):
+# # # # #     ret = "../" * get_page_folder(url, base).count('/')
+# # # # #     if not ret:
+# # # # #         ret = './'
+# # # # #     #print("get_relative_dots: -->", ret)
+# # # # #     return ret
 
 
-# https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
-# https://karlsruhe.digital/
-#                          /en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
+# # # # # # # def get_path_local_root_OLD(url, base):
+# # # # # # #     #print("get_path_local_root:", "base:", base)
+# # # # # # #     #print("get_path_local_root:", "url :", url)
+# # # # # # #     # scheme = wh.url_scheme(url) # http
+# # # # # # #     url = wh.link_make_absolute(url, base)
+# # # # # # #     url = strip_protocols(url)
+# # # # # # #     base = strip_protocols(base)
+# # # # # # #     rooted = "/" + url.replace(base, "")
+# # # # # # #     #print("get_path_local_root:", "--> rooted:", rooted)
+# # # # # # #     return rooted
 
-# def get_path_local_relative(url, base, src):
 
-#     url = wh.link_make_absolute(url, base)
-#     src = wh.link_make_absolute(src, base)
-#     # print("get_path_local_relative:", "url :", url)
-#     # print("get_path_local_relative:", "base:", base)
-#     # print("get_path_local_relative:", "src :", src)
+# # # # # https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
+# # # # # https://karlsruhe.digital/
+# # # # #                          /en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
 
-#     # scheme = wh.url_scheme(url) # http
+# # # # # def get_path_local_relative(url, base, src):
 
-#     dots = get_relative_dots(url, base)
-#     # print("get_path_local_relative:", "dots:", dots)
+# # # # #     url = wh.link_make_absolute(url, base)
+# # # # #     src = wh.link_make_absolute(src, base)
+# # # # #     # print("get_path_local_relative:", "url :", url)
+# # # # #     # print("get_path_local_relative:", "base:", base)
+# # # # #     # print("get_path_local_relative:", "src :", src)
 
-#     ret = dots + src.replace(base, "")
-#     # # # if ret.endswith('/'): # is a folder
-#     # # #     ret += get_page_name() # index.html
-#     # # #     #print(f"{CYAN}/ --> ret: {ret}{RESET}")
-#     # TODO check above, should still load online
+# # # # #     # scheme = wh.url_scheme(url) # http
 
-#     # print("get_path_local_root:", src, "-->", ret)
-#     return ret
+# # # # #     dots = get_relative_dots(url, base)
+# # # # #     # print("get_path_local_relative:", "dots:", dots)
+
+# # # # #     ret = dots + src.replace(base, "")
+# # # # #     # # # if ret.endswith('/'): # is a folder
+# # # # #     # # #     ret += get_page_name() # index.html
+# # # # #     # # #     #print(f"{CYAN}/ --> ret: {ret}{RESET}")
+# # # # #     # TODO check above, should still load online
+
+# # # # #     # print("get_path_local_root:", src, "-->", ret)
+# # # # #     return ret
 
 
 # -----------------------------------------
@@ -320,7 +322,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             abs_src = wh.link_make_absolute(src, base)
             ###abs_src_stripped = wh.strip_query_and_fragment(abs_src)
             #new_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
-            new_src = get_path_local_root(src, base)
+            #new_src = get_path_local_root(src, base)
+            new_src = get_path_local_root(abs_src, base)
             # new_src     = get_path_local_relative(url, base, src) # works
              
 
@@ -386,6 +389,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 print(f"{RED}\t\t already exists: {local_path}{RESET}")
 
             # dots rel to url of this url, not to the image itself
+            print(f"{GRAY}\t\t\t url       : {url}{RESET}")
             print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
             print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
             print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
@@ -521,6 +525,15 @@ if __name__ == "__main__":
     
     # wh.has_same_netloc("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
     # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
+    
+    
+    # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
 
     # exit(0)
 
