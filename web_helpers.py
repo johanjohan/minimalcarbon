@@ -255,15 +255,21 @@ def make_dirs(the_path):
 def was_redirected(url):
     response = requests.head(url, allow_redirects=True)
     if response.history:
-        print("Request was redirected:", url)
-        for resp in response.history:
-            print("\t", resp.status_code, resp.url)
-        print("Final destination:", response.status_code, response.url)
-        return True
+        # # print("Request was redirected:", url)
+        # # for resp in response.history:
+        # #     print("\t", resp.status_code, resp.url)
+        # # print("Final destination:", response.status_code, response.url)
+        ret = True
     else:
-        print("Request was not redirected")
-        return False
-    
+        ret = False
+    print("was_redirected: ", ret, url, "-->", response.url)
+    return ret, response.url
+
+def final_url(url, timeout=10):
+    try:
+        return requests.head(url, allow_redirects=True, timeout=timeout).url
+    except:
+        return url
     
 # # assume that there is no files without extension on the Internet and all paths are unix...!!!!!
 # # Unlike some operating systems, UNIX doesn’t require a dot (.) in a filename; 
@@ -286,10 +292,10 @@ def check_online_site_exists(url):
     from http import HTTPStatus
     try:
         response  = requests.head(url)
-        ret       = True
+        ret       = (response.status_code < 400)
     except:
         ret       = False
-    print("check_site_exist:", url, "-->", ret)
+    print("check_online_site_exists:", url, "-->", ret, response.status_code)
     return ret
 
 def is_online_file_and_exists(url):
@@ -298,9 +304,11 @@ def is_online_file_and_exists(url):
   
 ### I suppose you can add a slash to a URL and see what happens from there. That might get you the results you are looking for.
 def is_online_directory_or_not_exists(url):
+    url = final_url(url)
     ret = not is_online_file_and_exists(url)
     print("is_online_directory_or_not_exists:", url, "-->", ret)
-    print("check_online_site_exists:", check_online_site_exists(url))
+    check_online_site_exists(url)
+    ###ret = was_redirected(url)
     print()
     return ret
     
@@ -341,7 +349,8 @@ def get_mime_type(url):
         contentType = None
         with urllib.request.urlopen(req, context=context) as response:
             contentType   = response.headers.get_content_type()
-            contentLength = response.headers.get('content-length')         
+            contentLength = response.headers.get('content-length')    
+        print("get_mime_type:", contentType)     
         return contentType
     except Exception as e:
         print(f"{RED}[!] {url} Exception: {e}{RESET}")
