@@ -32,7 +32,38 @@ def sq(s=""):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def is_valid(url):
+
+def url_exists(url):
+    code = get_status_code(url)
+    exists = True if code and code < 400 else False
+    print("url_exists:", exists, code, url)
+    return exists
+
+# https://stackoverflow.com/questions/5074803/retrieving-parameters-from-a-url
+def url_has_ver(url):
+    try:
+        value = parse_qs(urlparse(url).query)['ver'][0]
+        ret = True
+    except:
+        #print(f"{RED}[!] url_has_ver: {url} {RESET}")
+        ret = False
+    #print("url_has_ver:", GREEN if ret else RED, ret, RESET, url)
+    return ret
+
+def url_get_ver(url):
+    # ver= # ?ver=
+    try:
+        value = parse_qs(urlparse(url).query)['ver'][0]
+        print("url_get_ver:", value)
+        return value
+    except:
+        print(f"{RED}[!] url_get_ver: {url} {RESET}")
+        return ""
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+def url_is_valid(url):
     """
     Checks whether `url` is a valid URL.
     """
@@ -45,14 +76,14 @@ def is_valid(url):
 # # def is_local(url):
 # #     return not is_remote(url)
 
-def is_absolute(url):
+def url_is_absolute(url):
     return url.strip().startswith('http')
 
-def is_relative(url):
-    return not is_absolute(url)
+def url_is_relative(url):
+    return not url_is_absolute(url)
 
-def is_relative_to_base(url, base):
-    return not is_absolute(url)
+# # def is_relative_to_base(url, base):
+# #     return not url_is_absolute(url)
 
 # https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
 
@@ -71,12 +102,12 @@ ParseResult(
     fragment= 'url-parsing'
 )
 """    
-def has_same_netloc(url, base):
+def url_has_same_netloc(url, base):
     url_loc  = urlparse(url.strip() ).netloc
     base_loc = urlparse(base.strip()).netloc
     #ret =  url_loc == base_loc
     ret =  base_loc in url_loc
-    #print("has_same_netloc:", ret, base_loc, url_loc)
+    #print("url_has_same_netloc:", ret, base_loc, url_loc)
     return ret
     return url.strip().startswith(base.strip())
 
@@ -132,7 +163,7 @@ def links_remove_similar(links):
 #     pass
 
 def link_make_absolute(link, base):
-    if is_relative(link):
+    if url_is_relative(link):
         link = add_trailing_slash(base) + strip_leading_slash(link)
     return link
 
@@ -166,7 +197,7 @@ def links_remove_comments(links, delim='#'):
     return [u for u in links if not u.strip().startswith(delim)]
 
 def links_remove_externals(links, base):
-    return [u for u in links if (has_same_netloc(u, base) or is_relative(u))]
+    return [u for u in links if (url_has_same_netloc(u, base) or url_is_relative(u))]
 
 def links_remove_folders(links):
     return [u for u in links if not u.strip().endswith('/')]
@@ -194,6 +225,10 @@ def url_path(url, char_lstrip=''): # '/'
         p = p.lstrip(char_lstrip)
     return p
 
+def url_netloc(url): 
+    loc = urlparse(url.strip()).netloc
+    return loc
+
 def url_has_fragment(url):
     f = urlparse(url.strip()).fragment
     ret = True if f else False
@@ -210,7 +245,7 @@ def url_path_lstrip_double_slash(url): # '/'
     return url_path(url, char_lstrip='//')
 
 def try_make_local(url, base):
-    if has_same_netloc(url, base):
+    if url_has_same_netloc(url, base):
         ret = url
         ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
         ret = url_path_lstrip_slash(ret)        # "/media.ka.de"

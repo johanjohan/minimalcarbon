@@ -44,8 +44,20 @@ for q in ['\"', '\'']:
     print("\t", "using", q)
     replacements_pre.append(
         (
+            q + 'http://'         ,
+            q + 'https://'
+        )
+    )
+    replacements_pre.append(
+        (
             q + 'https://karlsruhe.digital'  + q   ,
             q + 'https://karlsruhe.digital/' + q
+        )
+    )
+    replacements_pre.append(
+        (
+            q + 'https://www.karlsruhe.digital'    ,
+            q + 'https://karlsruhe.digital'
         )
     )
     replacements_pre.append(
@@ -60,20 +72,19 @@ for q in ['\"', '\'']:
             q + 'https://'
         )
     )
-
 print("replacements_pre", *replacements_pre, sep="\n\t")
 
-# prebuild some dirs, en/home would otherwise be built as a file...
-print("make_dirs:")
-dirs = [
-    ats(project_folder + 'en/home/'),
-    ats(project_folder + 'wp-json/'),
-    ats(project_folder + 'sitemap/')
-]
-for d in dirs:
-    print("\t", d)
-    wh.make_dirs(d)
-print()
+# # # # # prebuild some dirs, en/home would otherwise be built as a file...
+# # # # print("make_dirs:")
+# # # # dirs = [
+# # # #     ats(project_folder + 'en/home/'),
+# # # #     ats(project_folder + 'wp-json/'),
+# # # #     ats(project_folder + 'sitemap/')
+# # # # ]
+# # # # for d in dirs:
+# # # #     print("\t", d)
+# # # #     wh.make_dirs(d)
+# # # # print()
 
 #-----------------------------------------
 # verbose

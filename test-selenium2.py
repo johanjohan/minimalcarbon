@@ -90,6 +90,7 @@ def strip_protocols(url):
     new_url = new_url.lstrip("://")
     new_url = new_url.lstrip("//")
     new_url = new_url.lstrip('/')
+    n##########ew_url = new_url.lstrip('www.') # TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #print("strip_protocols:", url, "-->", new_url)
     return new_url
 
@@ -120,7 +121,7 @@ def get_page_folder(url, base):
     import re
     from urllib.parse import urlparse, urljoin, parse_qs
         
-    if wh.has_same_netloc(url, base):
+    if wh.url_has_same_netloc(url, base):
         #print("get_page_folder: url:", url)
         res = urlparse(url)    
         #print("get_page_folder: res:", res)    
@@ -152,6 +153,7 @@ def get_path_local_root(url, base):
     # print("get_path_local_root:", "base:", base)
     #### scheme = wh.url_scheme(url) # http
     new_url = strip_protocols(new_url)
+    new_url = new_url.lstrip("www.")
     ####base    = strip_protocols(base)
     rooted  = "/" + new_url # https://media.ka.de/xxx/ ---> /media.ka.de/xxx/
     #print("get_path_local_root:", url, "-->", rooted)

@@ -96,7 +96,7 @@ def get_all_website_links(url, max_urls):
         # remove URL GET parameters, URL fragments, etc.
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
         href = href.rstrip('/')
-        if not wh.is_valid(href):
+        if not wh.url_is_valid(href):
             # not a valid URL
             print(f"{RED}[!] bad url: {href}{RESET}")
             continue
