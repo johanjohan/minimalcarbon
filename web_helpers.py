@@ -162,6 +162,9 @@ def links_remove_invalids(links, base, invalids):
     #print(GREEN, *ret, RESET, sep="\n\t")
     return ret
         
+def links_remove_comments(links, delim='#'):
+    return [u for u in links if not u.strip().startswith(delim)]
+
 def links_remove_externals(links, base):
     return [u for u in links if (has_same_netloc(u, base) or is_relative(u))]
 

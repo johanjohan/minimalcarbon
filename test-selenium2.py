@@ -288,6 +288,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         
         b_strip_ver = True
 
+        links = wh.links_remove_comments(links, '#')
         # links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
         # links = wh.links_remove_folders(links) NO!!!
