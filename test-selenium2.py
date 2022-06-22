@@ -1,44 +1,6 @@
 """
 TODO
-
-/* Background images */
-.blog-hero {
-  background-image: url("/wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg");
-}
-.programm-hero {
-  background-image: url("/wp-content/themes/karlsruhe-digital/images/programm_hero.jpg");
-}
-.blog-overview-hero {
-  background-image: url("/wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg");
-}
-.searchpage-hero {
-  background-image: url("/wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg");
-}
-.search-hero {
-  background-image: url("/wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg");
-}
-
-
-must scan style.css for bg images
-
-https://pypi.org/project/cssutils/
-
-/* Background images */
-.blog-hero {
-  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg");
-}
-.programm-hero {
-  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/programm_hero.jpg");
-}
-.blog-overview-hero {
-  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg");
-}
-.searchpage-hero {
-  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg");
-}
-.search-hero {
-  background-image: url("https://particles.de/__test/wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg");
-}
+"https:\/\/karlsruhe.digital\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.2.15"
 
 """
 
@@ -528,15 +490,15 @@ if __name__ == "__main__":
     # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
     
     
-    get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
-    get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
-    get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
-    get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
-    get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
-    get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
-    get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
+    # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
+    # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
 
-    exit(0)
+    # exit(0)
 
     # -----------------------------------------
     #
