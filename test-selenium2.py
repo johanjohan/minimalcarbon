@@ -138,7 +138,7 @@ def get_page_folder(url, base):
     for folder in subs:
         if folder and is_a_folder(folder):
             page_folder += folder + "/" 
-    #print("get_page_folder    :", GRAY, url, "-->", RESET, page_folder)
+    print("get_page_folder    :", GRAY, url, "-->", RESET, page_folder)
     return page_folder               
 
 
@@ -165,7 +165,8 @@ def get_path_local_root(url, base):
     loc_url   = wh.url_netloc(url).lstrip("www.")   # loc_url:  media.karlsruhe.digital
     loc_base  = wh.url_netloc(base)                 # loc_base:       karlsruhe.digital
     subdomain = loc_url.replace(loc_base, '').replace('.', '')
-    if subdomain: subdomain += '/'
+    if subdomain: 
+        subdomain = "sub_" + subdomain + '/'
  
     path = wh.url_path_lstrip_slash(url)
     rooted = subdomain + path 
@@ -527,15 +528,15 @@ if __name__ == "__main__":
     # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
     
     
-    # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
-    # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
-    # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
-    # get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
-    # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
-    # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
-    # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
+    get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
+    get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
+    get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
+    get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
+    get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
+    get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
+    get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
 
-    # exit(0)
+    exit(0)
 
     # -----------------------------------------
     #
