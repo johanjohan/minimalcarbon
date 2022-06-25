@@ -13,14 +13,20 @@ MAGENTA = colorama.Fore.MAGENTA
 print(MAGENTA)
 
 #-----------------------------------------
+# init the colorama module
+#-----------------------------------------
+sitemap_links_internal = "data/karlsruhe.digital_internal_links.csv"
+sitemap_links_external = "data/karlsruhe.digital_external_links.csv"
+
+#-----------------------------------------
 # dq
 #-----------------------------------------
-import web_helpers as wh
+import helpers_web as wh
 dq  = wh.dq
 sq  = wh.sq
 q   = wh.sq
 #ats = wh.add_trailing_slash
-from web_helpers import add_trailing_slash as ats
+from helpers_web import add_trailing_slash as ats
 
 #-----------------------------------------
 # 

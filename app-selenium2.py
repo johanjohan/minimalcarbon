@@ -1,17 +1,23 @@
 """
 TODO
 "https:\/\/karlsruhe.digital\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.2.15"
+https://stackoverflow.com/questions/6076229/escaping-a-forward-slash-in-a-regular-expression
+
+
+https:\/\/karlsruhe.digital\/
+
+
 
 """
 
 # -----------------------------------------
 # init the colorama module
 # -----------------------------------------
-from web_helpers import sq as sq, url_path
-from web_helpers import dq as dq
+from helpers_web import sq as sq, url_path
+from helpers_web import dq as dq
 from bs4 import BeautifulSoup, Comment
 import time
-import web_helpers as wh
+import helpers_web as wh
 import os
 import requests
 import lxml.html
