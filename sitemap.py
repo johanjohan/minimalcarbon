@@ -7,19 +7,21 @@ import datetime
 import config
 import helpers_web as wh
 
-
-def create_xml_sitemap(links, out_xmlpath='sitemap.xml'):
-    print("registerSiteMaps:", out_xmlpath)
-    #print("registerSiteMaps", *links, sep="\n\t")
+#-----------------------------------------
+# 
+#-----------------------------------------
+def create_sitemap_xml(links, out_xml_path='sitemap.xml'):
+    print("create_sitemap_xml:", out_xml_path)
+    #print("create_sitemap_xml", *links, sep="\n\t")
     
     root = ET.Element('urlset')
     root.attrib['xmlns:xsi']="http://www.w3.org/2001/XMLSchema-instance"
     root.attrib['xsi:schemaLocation']="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
     root.attrib['xmlns']="http://www.sitemaps.org/schemas/sitemap/0.9"
 
+    dt = datetime.datetime.now().strftime ("%Y-%m-%d")
     for link in links:
         print("\t\t xml:", link)
-        dt = datetime.datetime.now().strftime ("%Y-%m-%d")
         doc = ET.SubElement(root, "url")
         ET.SubElement(doc, "loc").text = link
         ET.SubElement(doc, "lastmod").text = dt
@@ -29,44 +31,67 @@ def create_xml_sitemap(links, out_xmlpath='sitemap.xml'):
     # not pretty
     tree = ET.ElementTree(root)
     ET.indent(tree, space="\t", level=0) # pretty
-    tree.write(out_xmlpath, encoding='utf-8', xml_declaration=True)
+    tree.write(out_xml_path, encoding='utf-8', xml_declaration=True)
+    
+    return out_xml_path
+
+def create_sitemap_xml_from_file_of_links(in_list_path, out_xml_path='sitemap.xml'):
+    with open(in_list_path) as file:
+        links = file.readlines()
+        links = [line.rstrip() for line in links]
+        xmlpath = create_sitemap_xml(links, out_xml_path)
+        
+#-----------------------------------------
+# 
+#-----------------------------------------
     
 import requests
 from bs4 import BeautifulSoup
 import re
 
 def make_soup(url):
+    print("make_soup:", "trying as an online file:", url)
     try:
         r = requests.get(url, headers=wh.headers) # needs user agent
         text = r.text
-    except:
-        # try a local file
-        print("trying as a local file:", url)
+    except: # try a local file
+        print("make_soup:", "trying as a local file:", url)
         with open(url, encoding='utf-8') as file:
             text = file.read()
     #print("text:", text)  
-    
-    soup = BeautifulSoup(text, features='lxml-xml')
-    print(soup.prettify())
-    return soup
+    return BeautifulSoup(text, features='lxml-xml')
 
 # put urls in a list
 def get_xml_urls(soup):
-    urls = [loc.string for loc in soup.find_all('loc')]
-    return urls
+    #print(soup.prettify())
+    return [loc.string for loc in soup.find_all('loc')]
 
 # get the img urls
 def get_src_contain_str(soup, string):
-    srcs = [img['src'] for img in soup.find_all('img', src=re.compile(string))]
-    return srcs
-
+    return [img['src'] for img in soup.find_all('img', src=re.compile(string))]
+#-----------------------------------------
+# 
+#-----------------------------------------
+if __name__ == "__main__":
+    
+    #-----------------------------------------
+    # convert list of links to sitemap.xml
+    #-----------------------------------------
+    with open(config.sitemap_links_internal_path) as file:
+        links = file.readlines()
+        links = [line.rstrip() for line in links]
+        xmlpath = create_sitemap_xml(links, config.sitemap_xml_path)
+        
+    create_sitemap_xml_from_file_of_links(in_list_path=config.sitemap_links_internal_path, out_xml_path=config.sitemap_xml_path)
+        
 if __name__ == '__main__':
-    xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
-    xmlpath = 'https://1001suns.com/sitemap.xml'
+    # xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
+    # xmlpath = 'https://1001suns.com/sitemap.xml'
     xmlpath = config.sitemap_xml_path # a local file
     print("xmlpath:", xmlpath)
     
     soup = make_soup(xmlpath)
+    #print(soup.prettify())
     
     urls = get_xml_urls(soup)
     
@@ -77,13 +102,6 @@ if __name__ == '__main__':
     #     print(srcs)
     
     print("urls:", *urls, sep="\n\t")
-        
-
-if False and __name__ == "__main__":
-    with open(config.sitemap_links_internal) as file:
-        links = file.readlines()
-        links = [line.rstrip() for line in links]
-        create_xml_sitemap(links)
         
     
 exit(0)
