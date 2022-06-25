@@ -76,7 +76,7 @@ def validate_filepath(filepath):
     return fixedpath
 
 # -----------------------------------------
-#
+# TODO deal witz /en/ or invent /de/
 # -----------------------------------------
 
 # index.html

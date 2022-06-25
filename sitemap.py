@@ -69,31 +69,39 @@ def get_xml_urls(soup):
 # get the img urls
 def get_src_contain_str(soup, string):
     return [img['src'] for img in soup.find_all('img', src=re.compile(string))]
+
+def read_sitemap_xml_to_list(xmlpath):
+    print("read_sitemap_xml_to_list: xmlpath:", xmlpath)
+    soup = make_soup(xmlpath)
+    #print(soup.prettify())
+    urls = get_xml_urls(soup)
+    #print("urls:", *urls, sep="\n\t")
+    return urls
+        
 #-----------------------------------------
 # 
 #-----------------------------------------
 if __name__ == "__main__":
     
     #-----------------------------------------
-    # convert list of links to sitemap.xml
+    # write sitemap.xml
     #-----------------------------------------
-    with open(config.sitemap_links_internal_path) as file:
-        links = file.readlines()
-        links = [line.rstrip() for line in links]
-        xmlpath = create_sitemap_xml(links, config.sitemap_xml_path)
+    # with open(config.sitemap_links_internal_path) as file:
+    #     links = file.readlines()
+    #     links = [line.rstrip() for line in links]
+    #     xmlpath = create_sitemap_xml(links, config.sitemap_xml_path)
         
     create_sitemap_xml_from_file_of_links(in_list_path=config.sitemap_links_internal_path, out_xml_path=config.sitemap_xml_path)
         
 if __name__ == '__main__':
+    #-----------------------------------------
+    # read sitemap.xml
+    #-----------------------------------------
     # xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
     # xmlpath = 'https://1001suns.com/sitemap.xml'
     xmlpath = config.sitemap_xml_path # a local file
-    print("xmlpath:", xmlpath)
-    
-    soup = make_soup(xmlpath)
-    #print(soup.prettify())
-    
-    urls = get_xml_urls(soup)
+    urls = read_sitemap_xml_to_list(xmlpath)
+    print("urls:", *urls, sep="\n\t")
     
     # # loop through the urls
     # for url in urls:
@@ -101,7 +109,6 @@ if __name__ == '__main__':
     #     srcs = get_src_contain_str(url_soup, 'zoom')
     #     print(srcs)
     
-    print("urls:", *urls, sep="\n\t")
         
     
 exit(0)
