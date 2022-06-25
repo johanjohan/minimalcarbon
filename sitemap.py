@@ -5,8 +5,10 @@ import xml.etree.cElementTree as ET
 from xml.dom import minidom
 import datetime
 import config
+import helpers_web as wh
 
-def create_xml_sitemap(link, out_xmlpath='sitemap.xml'):
+
+def create_xml_sitemap(links, out_xmlpath='sitemap.xml'):
     print("registerSiteMaps:", out_xmlpath)
     #print("registerSiteMaps", *links, sep="\n\t")
     
@@ -16,7 +18,7 @@ def create_xml_sitemap(link, out_xmlpath='sitemap.xml'):
     root.attrib['xmlns']="http://www.sitemaps.org/schemas/sitemap/0.9"
 
     for link in links:
-        print("\t\t", link)
+        print("\t\t xml:", link)
         dt = datetime.datetime.now().strftime ("%Y-%m-%d")
         doc = ET.SubElement(root, "url")
         ET.SubElement(doc, "loc").text = link
@@ -28,14 +30,63 @@ def create_xml_sitemap(link, out_xmlpath='sitemap.xml'):
     tree = ET.ElementTree(root)
     ET.indent(tree, space="\t", level=0) # pretty
     tree.write(out_xmlpath, encoding='utf-8', xml_declaration=True)
+    
+import requests
+from bs4 import BeautifulSoup
+import re
 
-if __name__ == "__main__":
+def make_soup(url):
+    try:
+        r = requests.get(url, headers=wh.headers) # needs user agent
+        text = r.text
+    except:
+        # try a local file
+        print("trying as a local file:", url)
+        with open(url, encoding='utf-8') as file:
+            text = file.read()
+    #print("text:", text)  
+    
+    soup = BeautifulSoup(text, features='lxml-xml')
+    print(soup.prettify())
+    return soup
+
+# put urls in a list
+def get_xml_urls(soup):
+    urls = [loc.string for loc in soup.find_all('loc')]
+    return urls
+
+# get the img urls
+def get_src_contain_str(soup, string):
+    srcs = [img['src'] for img in soup.find_all('img', src=re.compile(string))]
+    return srcs
+
+if __name__ == '__main__':
+    xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
+    xmlpath = 'https://1001suns.com/sitemap.xml'
+    xmlpath = config.sitemap_xml_path # a local file
+    print("xmlpath:", xmlpath)
+    
+    soup = make_soup(xmlpath)
+    
+    urls = get_xml_urls(soup)
+    
+    # # loop through the urls
+    # for url in urls:
+    #     url_soup = make_soup(url)
+    #     srcs = get_src_contain_str(url_soup, 'zoom')
+    #     print(srcs)
+    
+    print("urls:", *urls, sep="\n\t")
+        
+
+if False and __name__ == "__main__":
     with open(config.sitemap_links_internal) as file:
         links = file.readlines()
         links = [line.rstrip() for line in links]
         create_xml_sitemap(links)
         
-    exit(0)
+    
+exit(0)
 
 
 # # # import pandas as pd

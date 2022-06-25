@@ -234,12 +234,14 @@ if __name__ == "__main__":
         print("[+] Total crawled URLs  :", total_urls_visited)
         print("[+] args.max_urls       :", args.max_urls)
                         
+        # write sitemap
+        sitemap_path = f"{data_folder}/{domain_name}_{date_time}_sitemap.xml"
+        sitemap.create_xml_sitemap(internal_urls, sitemap_path)
+
+        # all done
         secs = time.time() - start_secs
         print("all done:", "duration:", round(secs/60.0, 1), "m")
     
-        # write sitemap
-        sitemap.create_xml_sitemap(internal_urls, file_internal_path + "_sitemap.xml")
-        
     exit(0)
     #-----------------------------------------
     # pywebcopy

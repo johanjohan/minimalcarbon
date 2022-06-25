@@ -17,6 +17,7 @@ print(MAGENTA)
 #-----------------------------------------
 sitemap_links_internal = "data/karlsruhe.digital_internal_links.csv"
 sitemap_links_external = "data/karlsruhe.digital_external_links.csv"
+sitemap_xml_path        = "data/sitemap.xml"
 
 #-----------------------------------------
 # dq
