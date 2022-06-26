@@ -291,8 +291,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             
             # check external
             if wh.url_is_external(src, base):
-                print(f"{YELLOW}\t is  external: src: {src} {RESET}")
-                time.sleep(5)
+                print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
                 exit(6)
                 continue
             

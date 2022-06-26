@@ -95,7 +95,11 @@ def url_get_ver(url):
 # #     return not is_remote(url)
 
 def url_split(url):
-    print("url_split:", CYAN, dq(url), RESET, GRAY)
+    
+    vb = False
+    
+    if vb: print("url_split:", CYAN, dq(url), RESET, GRAY)
+    
     url         = url.strip()
     exts        = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
     root        = '/'
@@ -117,12 +121,10 @@ def url_split(url):
             url = url.lstrip('//')
             
         url = url.lstrip('/')
-        ###print("without protocol:", url)
             
         # loc
         subs = url.split('/')
         if subs:
-            #print(GRAY, "subs /:", subs, RESET)
             if '.' in subs[0]:
                 parts = subs[0].split('.')
                 if parts:
@@ -135,16 +137,19 @@ def url_split(url):
                 else:
                     pass
                     print(RED, "no parts .:", subs[0], RESET)
+                    _sleep()
             else:
                 path = root + url   
         else:
             pass
             print(RED, "no subs /:", url, RESET)
+            _sleep()
             
-    print("\t", "protocol:", protocol)
-    print("\t", "loc     :", loc)
-    print("\t", "path    :", path)
-    print(RESET, end='')
+    if vb: 
+        print("\t", "protocol:", protocol)
+        print("\t", "loc     :", loc)
+        print("\t", "path    :", path)
+        print(RESET, end='')
     
     return protocol, loc, path
 
@@ -241,8 +246,8 @@ ParseResult(
     fragment= 'url-parsing'
 )
 """    
-def _sleep(secs=5):
-    print(RED, "sleep:", secs, RESET)
+def _sleep(secs=33):
+    print(RED, "DEBUG _sleep:", secs, RESET)
     time.sleep(secs)
     
 def url_has_same_netloc(url, base):
@@ -356,7 +361,7 @@ def try_link_make_local(url, base):
         ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
     else:
         print(RED, "try_link_make_local:", "not internal: {}".format(url), RESET)
-        exit(1)
+        exit(7)
         
     print("NEW try_link_make_local:", url, "-->", ret)
     return ret
