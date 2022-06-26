@@ -196,7 +196,9 @@ if __name__ == "__main__":
     print("file_internal_path:", file_internal_path)
     print("file_external_path:", file_external_path)
  
-    if args.crawl:
+    if not args.crawl:
+        print(wh.RED, "args.crawl:", args.crawl, wh.RESET)
+    else:
         crawl(args.url, max_urls=args.max_urls)
 
         # skip http

@@ -1,3 +1,5 @@
+from urllib.parse import urlparse, urljoin
+
 #-----------------------------------------
 # init the colorama module
 #-----------------------------------------
@@ -36,6 +38,8 @@ wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 project_folder      = ats("page/__KD__/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
+
+base_netloc         = urlparse(base).netloc # for names
 
 sitemap_links_ignore = [
     base + 'wp-json/', # is a file not a dir

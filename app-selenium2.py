@@ -51,6 +51,12 @@ MAGENTA = config.MAGENTA
 #
 # -----------------------------------------
 
+images_written = []
+# -----------------------------------------
+#
+# -----------------------------------------
+
+
 def strip_protocols(url):
     new_url = url
     new_url = new_url.lstrip("https://")
@@ -204,10 +210,8 @@ def get_path_local_root(url, base):
 
 
 # -----------------------------------------
-#
+# based on ASSUMPTIONS!
 # -----------------------------------------
-
-
 def has_a_dot(url):
     return '.' in url
 
@@ -221,6 +225,9 @@ def is_a_folder(url):
     # # url = wh.strip_query_and_fragment(url)
     # # return url.endswith('/')  
 
+# -----------------------------------------
+# 
+# -----------------------------------------
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
     # ensure trailing slash
@@ -270,6 +277,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # make them all absolute urls
 
     def assets_save_internals_locally(content, url, base, links, project_folder):
+        
+        global images_written
         
         b_strip_ver = True
 
@@ -324,6 +333,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     
             new_src = validate_filepath(new_src)
             local_path = project_folder + new_src.lstrip('/')
+            
+            # collect local images
+            if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
+                images_written.append(os.path.abspath(local_path))
+                                        
             wh.make_dirs(local_path)
   
             # get and save link-asset to disk
@@ -421,14 +435,16 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # # path_temp     = wh.load_html_from_string(driver, content)
     # # os.remove(path_temp)
     # # time.sleep(10)
+    
+
 
     # # # driver.refresh()
     # # print("closing driver...")
     # # driver.close()
     # # driver.quit()
     
-    print("all done.")
-
+    print("make_static: all done.")
+### make_static />
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -604,7 +620,13 @@ if __name__ == "__main__":
             )
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
-
+            
+    # save image list
+    path_images_written = "data/" + config.base_netloc + "_images_written.csv"
+    images_written = list(set(images_written))
+    with open(path_images_written, 'w') as fp:
+        fp.write('\n'.join(images_written))
+        
     # todo this should work if in root of domain
     # # wh.replace_in_file(
     # #   style_path,

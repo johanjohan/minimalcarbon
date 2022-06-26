@@ -78,15 +78,15 @@ def url_get_ver(url):
 # 
 #-----------------------------------------
 
-# def url_is_valid(url):
-#     """
-#     Checks whether `url` is a valid URL.
-#     needs minimum //netloc to start with
-#     """
-#     parsed = urlparse(url)
-#     ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//'))
-#     print("url_is_valid:", ret, url )
-#     return ret
+def url_is_valid(url): # need by crawler
+    """
+    Checks whether `url` is a valid URL.
+    needs minimum //netloc to start with
+    """
+    parsed = urlparse(url)
+    ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//'))
+    #print("url_is_valid:", ret, url )
+    return ret
 
 # # def is_remote(url):
 # #     return url.strip().startswith('http')
@@ -318,25 +318,23 @@ def link_make_absolute(link, base):
         loc_url = loc_base
         
     ret = protocol_url + "://" + loc_url + path_url
-        
-    print("link_make_absolute:", link, "-->", YELLOW, ret, RESET)    
-        
+    #print("link_make_absolute:", link, "-->", YELLOW, ret, RESET)    
     return ret
 
-def link_make_absolute_OLD(link, base):
-    if url_is_relative(link):
-        link = add_trailing_slash(base) + strip_leading_slash(link) # base/link
-    return link
+# # def link_make_absolute_OLD(link, base):
+# #     if url_is_relative(link):
+# #         link = add_trailing_slash(base) + strip_leading_slash(link) # base/link
+# #     return link
 
-def try_link_make_local_OLD(url, base):
-    if url_has_same_netloc(url, base):
-        ret = url
-        ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
-        ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
-    else:
-        ret = url
-    print("try_link_make_local_OLD:", url, "-->", ret)
-    return ret
+# # def try_link_make_local_OLD(url, base):
+# #     if url_has_same_netloc(url, base):
+# #         ret = url
+# #         ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
+# #         ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
+# #     else:
+# #         ret = url
+# #     print("try_link_make_local_OLD:", url, "-->", ret)
+# #     return ret
 
 def try_link_make_local(url, base):
         
