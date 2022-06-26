@@ -91,14 +91,13 @@ a file has a dot for the extension, or a leading dot
 
 def url_split(url):
     print("url_split:", CYAN, dq(url), RESET)
-    url = url.strip()
-    exts = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
+    url         = url.strip()
+    exts        = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
+    root        = '/'
     
-    protocol = None
-    loc = None
-    path= None
-    
-    root = '/'
+    protocol    = None
+    loc         = None
+    path        = None
     
     if not url:
         path = root
@@ -194,13 +193,32 @@ def url_is_relative(url):
 
 # https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
 
+def url_is_internal(url, base):
+    _, loc_url, _  = url_split(url)
+    _, loc_base, _ = url_split(base)
+    assert loc_base, "loc_base is None"
+    
+    ret = False
+    if not loc_url:
+        ret = True
+    elif loc_base in loc_url:
+        ret = True
+    print("url_is_internal:", YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
+    return ret
+
 def url_is_external(url, base):
-    ret = True
-    if url_is_relative(url):
-        ret = False
-    elif url_has_same_netloc(url, base):
-        ret = False
-    print("url_is_external:", ret, "|", url, "|", base)
+    # # # # _, loc_url, _  = url_split(url)
+    # # # # _, loc_base, _ = url_split(base)
+    # # # # assert loc_base, "loc_base is None"
+    
+    # # # # ret = True
+    # # # # if not loc_url:
+    # # # #     ret = False
+    # # # # elif loc_base in loc_url:
+    # # # #     ret = False
+        
+    ret = not url_is_internal(url, base)
+    print("url_is_external:", YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
     return ret
 
 """

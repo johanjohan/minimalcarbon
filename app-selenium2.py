@@ -520,39 +520,44 @@ if __name__ == "__main__":
     # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("/path/image.jpg")
     
-    base="https://www.karlsruhe.digital"
-    links = [
-        "",
-        "index.html",
-        "path/image.jpg",
-        "/path/image.jpg",
-        "karlsruhe.digital",
-        "karlsruhe.digital/path/image.jpg",
-        "www.karlsruhe.digital/path/image.jpg",
-        "//www.karlsruhe.digital/path/image.jpg",
-        "http://www.karlsruhe.digital/path/image.jpg",
-        "https://www.karlsruhe.digital/path/image.jpg",
-        "xxxxx://www.karlsruhe.digital/path/image.jpg",
-        "facebook.de/test.html",
-        "http://facebook.de/test.html",
-        "http://facebook.de",
-        "facebook.de",
-        "facebook",
-        "facebook.html",
-        "facebook.php",
-        "facebook.com/facebook.php",
-        "facebook.com/facebook.com/facebook.php",
-    ]
-    for link in links:
-        wh.url_is_absolute(link)
-        #wh.url_is_relative(link)
-        #wh.url_split(link)
-        #wh.url_is_external(link, base)
-        print()
+    # print("check substring:", "karlsruhe.digital" in "karlsruhe.digital")
+    # print("check substring:", "karlsruhe.digital" == "karlsruhe.digital")
+    # print("check substring:", "karlsruhe.digital" in "media.karlsruhe.digital")
+    # print("check substring:", "karlsruhe.digital" in "arlsruhe.digital")
+    # exit(0)
+    
+    # base="https://karlsruhe.digital"
+    # links = [
+    #     "",
+    #     "index.html",
+    #     "path/image.jpg",
+    #     "/path/image.jpg",
+    #     "karlsruhe.digital",
+    #     "karlsruhe.digital/path/image.jpg",
+    #     "www.karlsruhe.digital/path/image.jpg",
+    #     "//www.karlsruhe.digital/path/image.jpg",
+    #     "http://www.karlsruhe.digital/path/image.jpg",
+    #     "https://www.karlsruhe.digital/path/image.jpg",
+    #     "xxxxx://www.karlsruhe.digital/path/image.jpg",
+    #     "facebook.de/test.html",
+    #     "http://facebook.de/test.html",
+    #     "http://facebook.de",
+    #     "facebook.de",
+    #     "facebook",
+    #     "facebook.html",
+    #     "facebook.php",
+    #     "facebook.com/facebook.php",
+    #     "facebook.com/facebook.com/facebook.php",
+    # ]
+    # for link in links:
+    #     print("_"*66)
+    #     #wh.url_is_absolute(link)
+    #     #wh.url_is_relative(link)
+    #     #wh.url_split(link)
+    #     wh.url_is_internal(link, base)
+    #     print()
 
-
-
-    exit(0)
+    # exit(0)
 
     # -----------------------------------------
     #
