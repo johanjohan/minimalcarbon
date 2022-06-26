@@ -86,20 +86,19 @@ if __name__ == "__main__":
     #-----------------------------------------
     # write sitemap.xml
     #-----------------------------------------
-    # with open(config.sitemap_links_internal_path) as file:
-    #     links = file.readlines()
-    #     links = [line.rstrip() for line in links]
-    #     xmlpath = create_sitemap_xml(links, config.sitemap_xml_path)
-        
+
     sitemap_xml_from_file(in_list_path=config.sitemap_links_internal_path, out_xml_path=config.sitemap_xml_path)
         
 if __name__ == '__main__':
+    
     #-----------------------------------------
     # read sitemap.xml
     #-----------------------------------------
+    
     # xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
     # xmlpath = 'https://1001suns.com/sitemap.xml'
     xmlpath = config.sitemap_xml_path # a local file or url
+    
     urls = read_sitemap_xml_to_list(xmlpath)
     print("urls:", *urls, sep="\n\t")
     
@@ -110,68 +109,3 @@ if __name__ == '__main__':
     #     print(srcs)
     
         
-    
-exit(0)
-
-
-# # # import pandas as pd
-# # # import os
-# # # import datetime 
-# # # from jinja2 import Template
-# # # import gzip
-
-# # # # Set-Up Maximum Number of URLs (recommended max 50,000)
-# # # n = 50000
-
-# # # # Create a Sitemap Template to Populate
- 
-# # # sitemap_template='''<?xml version="1.0" encoding="UTF-8"?>
-# # # <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-# # #     {% for page in pages %}
-# # #     <url>
-# # #         <loc>{{page[1]|safe}}</loc>
-# # #         <lastmod>{{page[3]}}</lastmod>
-# # #         <changefreq>{{page[4]}}</changefreq>
-# # #         <priority>{{page[5]}}</priority>        
-# # #     </url>
-# # #     {% endfor %}
-# # # </urlset>'''
- 
-# # # template = Template(sitemap_template)
- 
-# # # # Get Today's Date to add as Lastmod
-# # # lastmod_date = datetime.datetime.now().strftime('%Y-%m-%d')
-
-
-
-
-""" 
-https://stackoverflow.com/questions/41781054/how-do-i-create-a-list-from-a-sitemap-xml-file-to-extract-the-url-in-python
-import requests
-from bs4 import BeautifulSoup
-import re
-
-def make_soup(url):
-    r = requests.get(url)
-    soup = BeautifulSoup(r.text, 'lxml')
-    return soup
-# put urls in a list
-def get_xml_urls(soup):
-    urls = [loc.string for loc in soup.find_all('loc')]
-    return urls
-# get the img urls
-def get_src_contain_str(soup, string):
-    srcs = [img['src']for img in soup.find_all('img', src=re.compile(string))]
-    return srcs
-if __name__ == '__main__':
-    xml = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
-    soup = make_soup(xml)
-    urls = get_xml_urls(soup)
-    # loop through the urls
-    for url in urls:
-        url_soup = make_soup(url)
-        srcs = get_src_contain_str(url_soup, 'zoom')
-        print(srcs)
-
-
-"""
