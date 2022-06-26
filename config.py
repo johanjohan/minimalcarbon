@@ -32,7 +32,7 @@ from helpers_web import add_trailing_slash as ats
 #-----------------------------------------
 # app-selenium
 #-----------------------------------------
-wait_secs           = (0.1, 0.2)
+wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 project_folder      = ats("page/__KD__/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"

@@ -1,46 +1,36 @@
-        //s.w.org
+body {
+	background-color: #caffd0;
+}
 
-assets_save_internals_locally:
-        //media.karlsruhe.digital
-        //media.karlsruhe.digital/storage/assets/ec308f06.css
-        https://media.karlsruhe.digital/
-        https://media.karlsruhe.digital/feed/
-        https://media.karlsruhe.digital/wp-includes/wlwmanifest.xml
-        https://media.karlsruhe.digital/xmlrpc.php?rsd
-         src: //media.karlsruhe.digital
-has_same_netloc: True karlsruhe.digital media.karlsruhe.digital
-try_make_local: //media.karlsruhe.digital -->
-                 file:  /media.karlsruhe.digital
-                 already exists: page/__KD__/
-                         abs_src   : https://karlsruhe.digital/media.karlsruhe.digital
-                         new_src   : /media.karlsruhe.digital
-                         local_path: page/__KD__/
-         src: //media.karlsruhe.digital/storage/assets/ec308f06.css
-has_same_netloc: True karlsruhe.digital media.karlsruhe.digital
-try_make_local: //media.karlsruhe.digital/storage/assets/ec308f06.css --> storage/assets/ec308f06.css
-                 file:  /media.storage/assets/ec308f06.css
-                 already exists: page/__KD__/storage/assets/ec308f06.css
-                         abs_src   : https://karlsruhe.digital/media.karlsruhe.digital/storage/assets/ec308f06.css
-                         new_src   : /media.storage/assets/ec308f06.css
-                         local_path: page/__KD__/storage/assets/ec308f06.css
-						 
+.bg-gray {
+	background-color: #adffb2;
+}
 
->>> does not create that folder
+.has-pale-cyan-blue-background-color.has-pale-cyan-blue-background-color {
+	background-color: #dafc8e;
+}
+
+.fts-mashup-post-wrap {
+	background-color: rgba(31, 252, 0, 0.8) !important;
+}
+
+.testimonial-swiper .owl-carousel {
+	background-color: #fff889;
+}
+
+.footer-top {
+	background-color: #2b5031;
+}
+
+header.scrolled {
+	background-color: rgba(35, 42, 26, 0.8);
+}
 
 
-"""
-urlparse("scheme://netloc/path;parameters?query#fragment")
+.bg-cover {
+	/* height: 100%; */
+}
 
-ParseResult(scheme='scheme', netloc='netloc', path='/path;parameters', params='',
-            query='query', fragment='fragment')
-			
-urlparse("http://docs.python.org:80/3/library/urllib.parse.html?highlight=params#url-parsing")
-ParseResult(
-    scheme  = 'http', 
-    netloc  = 'docs.python.org:80',
-    path    = '/3/library/urllib.parse.html', 
-    params  = '',
-    query   = 'highlight=params', 
-    fragment= 'url-parsing'
-)
-"""    
+.bg-cover {
+	height: unset;
+}
