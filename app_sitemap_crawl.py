@@ -236,7 +236,7 @@ if __name__ == "__main__":
                         
         # write sitemap
         sitemap_path = f"{data_folder}/{domain_name}_{date_time}_sitemap.xml"
-        sitemap.create_sitemap_xml(internal_urls, sitemap_path)
+        sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
 
         # all done
         secs = time.time() - start_secs
