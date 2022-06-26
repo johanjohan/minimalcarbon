@@ -289,12 +289,12 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             src = src.strip()
             print(f"{GREEN}\t src: {src}{RESET}")
             
-            # # check external
-            # if wh.url_is_absolute(src, base) and not wh.url_has_same_netloc(src, base):
-            #     print(f"{YELLOW}\t is absolute and external: src: {src}{RESET}")
-            #     time.sleep(5)
-            #     continue
-            
+            # check external
+            if wh.url_is_external(src, base):
+                print(f"{YELLOW}\t is  external: src: {src} {RESET}")
+                time.sleep(5)
+                exit(6)
+                continue
             
             abs_src = wh.link_make_absolute(src, base)
             ###abs_src_stripped = wh.strip_query_and_fragment(abs_src)
@@ -554,7 +554,9 @@ if __name__ == "__main__":
     #     #wh.url_is_absolute(link)
     #     #wh.url_is_relative(link)
     #     #wh.url_split(link)
-    #     wh.url_is_internal(link, base)
+    #     #wh.url_is_internal(link, base)
+    #     wh.try_link_make_local(link, base)
+    #     #wh.link_make_absolute(link, base)
     #     print()
 
     # exit(0)

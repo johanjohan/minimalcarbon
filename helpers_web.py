@@ -1,3 +1,16 @@
+""" 
+URL ASSUMPTIONS
+
+If you don't know is website use https or http protocol, it's better to use '//'.
+An optional authority component preceded by two slashes (//),
+
+ASSUMPTIONS
+a folder has no dot
+a file has a dot for the extension, or a leading dot
+
+"""
+
+
 from posixpath import join
 from urllib import response
 from urllib.parse import urlparse, urljoin, parse_qs
@@ -37,7 +50,7 @@ def sq(s=""):
 def url_exists(url):
     code = get_status_code(url)
     exists = True if code and code < 400 else False
-    print("url_exists:", exists, code, url)
+    print("url_exists:", exists, "|", code, "|", url)
     return exists
 
 # https://stackoverflow.com/questions/5074803/retrieving-parameters-from-a-url
@@ -64,15 +77,7 @@ def url_get_ver(url):
 #-----------------------------------------
 # 
 #-----------------------------------------
-""" 
-If you don't know is website use https or http protocol, it's better to use '//'.
-An optional authority component preceded by two slashes (//),
 
-ASSUMPTIONS
-a folder has no dot
-a file has a dot for the extension, or a leading dot
-
-"""
 # def url_is_valid(url):
 #     """
 #     Checks whether `url` is a valid URL.
@@ -90,7 +95,7 @@ a file has a dot for the extension, or a leading dot
 # #     return not is_remote(url)
 
 def url_split(url):
-    print("url_split:", CYAN, dq(url), RESET)
+    print("url_split:", CYAN, dq(url), RESET, GRAY)
     url         = url.strip()
     exts        = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
     root        = '/'
@@ -104,9 +109,9 @@ def url_split(url):
     else:
         # protocol
         if '://' in url:
-            subs = url.split('://')
-            protocol = subs[0]
-            url = subs[1]
+            subs        = url.split('://')
+            protocol    = subs[0]
+            url         = subs[1]
         elif url.startswith('//'):
             #protocol = 'https'
             url = url.lstrip('//')
@@ -117,7 +122,7 @@ def url_split(url):
         # loc
         subs = url.split('/')
         if subs:
-            print(GRAY, "subs /:", subs, RESET)
+            #print(GRAY, "subs /:", subs, RESET)
             if '.' in subs[0]:
                 parts = subs[0].split('.')
                 if parts:
@@ -136,9 +141,10 @@ def url_split(url):
             pass
             print(RED, "no subs /:", url, RESET)
             
-    print("\t", "protocol", protocol)
-    print("\t", "loc     ", loc)
-    print("\t", "path    ", path)
+    print("\t", "protocol:", protocol)
+    print("\t", "loc     :", loc)
+    print("\t", "path    :", path)
+    print(RESET, end='')
     
     return protocol, loc, path
 
@@ -180,12 +186,22 @@ def url_is_absolute(url):
     # return ret
 
     protocol, loc, path = url_split(url)
+    
+    # err check
+    if protocol:
+        assert loc
+        assert path
+    elif loc:
+        assert path
+    else:
+        assert path
+    
     ret = bool(loc)
     print("url_is_absolute:", ret, "|", url )
 
 def url_is_relative(url):
     ret = not url_is_absolute(url)
-    print("url_is_relative:", ret, "|", url)
+    #print("url_is_relative:", ret, "|", url)
     return ret
 
 # # def is_relative_to_base(url, base):
@@ -207,18 +223,8 @@ def url_is_internal(url, base):
     return ret
 
 def url_is_external(url, base):
-    # # # # _, loc_url, _  = url_split(url)
-    # # # # _, loc_base, _ = url_split(base)
-    # # # # assert loc_base, "loc_base is None"
-    
-    # # # # ret = True
-    # # # # if not loc_url:
-    # # # #     ret = False
-    # # # # elif loc_base in loc_url:
-    # # # #     ret = False
-        
     ret = not url_is_internal(url, base)
-    print("url_is_external:", YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
+    #print("url_is_external:", YELLOW, ret, RESET, "| url:", dq(url), "| base:", dq(base))
     return ret
 
 """
@@ -240,20 +246,23 @@ def _sleep(secs=5):
     time.sleep(secs)
     
 def url_has_same_netloc(url, base):
+    _, loc_url, _  = url_split(url)
+    _, loc_base, _ = url_split(base)
+    return loc_base in loc_url
     
-    # # if not url_is_absolute(url):
-    # #     print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
+    # # # # if not url_is_absolute(url):
+    # # # #     print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
+    # # # #     #_sleep()
+    
+    # # # # if not url_is_absolute(base):
+    # # # #     print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
     # #     #_sleep()
     
-    # # if not url_is_absolute(base):
-    # #     print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
-        #_sleep()
-    
-    url_loc  = urlparse(url.strip() ).netloc
-    base_loc = urlparse(base.strip()).netloc
-    ret =  base_loc in url_loc # also subdomains: media.karlruhe.digital
-    print("url_has_same_netloc:", ret, "| base_loc:", base_loc, "| url_loc:", url_loc)
-    return ret
+    # # url_loc  = urlparse(url.strip() ).netloc
+    # # base_loc = urlparse(base.strip()).netloc
+    # # ret =  base_loc in url_loc # also subdomains: media.karlruhe.digital
+    # # print("url_has_same_netloc:", ret, "| base_loc:", base_loc, "| url_loc:", url_loc)
+    # # return ret
 
 #https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
 from difflib import SequenceMatcher
@@ -307,9 +316,50 @@ def links_remove_similar(links):
 #     pass
 
 def link_make_absolute(link, base):
+    p_url, loc_url, path_url    = url_split(link)
+    p_base, loc_base, path_base = url_split(base)
+    
+    if not p_url:
+        p_url = p_base
+    
+    if not loc_url:
+        loc_url = loc_base
+        
+    ret = p_url + "://" + loc_url + path_url
+        
+    print("link_make_absolute:", link, "-->", YELLOW, ret, RESET)    
+        
+    return ret
+
+def link_make_absolute_OLD(link, base):
     if url_is_relative(link):
         link = add_trailing_slash(base) + strip_leading_slash(link) # base/link
     return link
+
+def try_link_make_local_OLD(url, base):
+    if url_has_same_netloc(url, base):
+        ret = url
+        ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
+        ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
+    else:
+        ret = url
+    print("try_link_make_local_OLD:", url, "-->", ret)
+    return ret
+
+def try_link_make_local(url, base):
+        
+    ret = url
+    if url_is_internal(url, base):
+        
+        _, loc_url, path_url  = url_split(url)
+        ret = path_url
+        ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
+    else:
+        print(RED, "try_link_make_local:", "not internal: {}".format(url), RESET)
+        exit(1)
+        
+    print("NEW try_link_make_local:", url, "-->", ret)
+    return ret
 
 def links_make_absolute(links, base):
     ret = []
@@ -341,7 +391,7 @@ def links_remove_comments(links, delim='#'):
     return [u for u in links if not u.strip().startswith(delim)]
 
 def links_remove_externals(links, base):
-    return [u for u in links if (url_has_same_netloc(u, base) or url_is_relative(u))]
+    return [u for u in links if (url_is_internal(u, base))]
 
 def links_remove_folders(links):
     return [u for u in links if not u.strip().endswith('/')]
@@ -350,7 +400,10 @@ def links_strip_query_and_fragment(links):
     return [strip_query_and_fragment(u) for u in links]
 
 def links_make_relative(links, base):
-    return [try_make_local(u, base) for u in links]
+    len_prev = len(links)
+    links = links_remove_externals(links, base) # new
+    print(YELLOW, "links_make_relative: now removes externals first:", len_prev -  len(links), RESET)
+    return [try_link_make_local(u, base) for u in links]
 
 def links_make_unique(links):
     return list(set(links))
@@ -388,15 +441,6 @@ def url_path_lstrip_slash(url): # '/'
 def url_path_lstrip_double_slash(url): # '/'
     return url_path(url, char_lstrip='//')
 
-def try_make_local(url, base):
-    if url_has_same_netloc(url, base):
-        ret = url
-        ret = url_path_lstrip_double_slash(ret) # "//media.ka.de"
-        ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
-    else:
-        ret = url
-    print("try_make_local:", url, "-->", ret)
-    return ret
 
 #-----------------------------------------
 # 
