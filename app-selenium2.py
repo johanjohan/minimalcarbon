@@ -592,7 +592,7 @@ if __name__ == "__main__":
             'https://karlsruhe.digital/en/search/',
         ]
     else:
-        with open(config.sitemap_links_internal_path) as file:
+        with open(config.sitemap_links_internal_path, "r") as file:
             lines = file.readlines()
             urls = [line.rstrip() for line in lines]
     urls = wh.links_remove_comments(urls, '#')
@@ -624,7 +624,8 @@ if __name__ == "__main__":
     # save image list
     path_images_written = "data/" + config.base_netloc + "_images_written.csv"
     images_written = list(set(images_written))
-    with open(path_images_written, 'w') as fp:
+    print("images_written:", *images_written, sep="\n\t")
+    with open(path_images_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join(images_written))
         
     # todo this should work if in root of domain
