@@ -136,13 +136,13 @@ def url_split(url):
                         path = root + '/'.join(subs) 
                 else:
                     pass
-                    print(RED, "no parts .:", subs[0], RESET)
+                    print(RED, "WARN no parts .:", subs[0], RESET)
                     _sleep()
             else:
                 path = root + url   
         else:
             pass
-            print(RED, "no subs /:", url, RESET)
+            print(RED, "WARN no subs /:", url, RESET)
             _sleep()
             
     if vb: 
@@ -202,7 +202,8 @@ def url_is_absolute(url):
         assert path
     
     ret = bool(loc)
-    print("url_is_absolute:", ret, "|", url )
+    print("url_is_absolute:", GREEN if ret else YELLOW, ret, RESET, "|", url )
+    return ret
 
 def url_is_relative(url):
     ret = not url_is_absolute(url)
@@ -224,7 +225,7 @@ def url_is_internal(url, base):
         ret = True
     elif loc_base in loc_url:
         ret = True
-    print("url_is_internal:", YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
+    print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
     return ret
 
 def url_is_external(url, base):
@@ -254,20 +255,6 @@ def url_has_same_netloc(url, base):
     _, loc_url, _  = url_split(url)
     _, loc_base, _ = url_split(base)
     return loc_base in loc_url
-    
-    # # # # if not url_is_absolute(url):
-    # # # #     print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
-    # # # #     #_sleep()
-    
-    # # # # if not url_is_absolute(base):
-    # # # #     print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
-    # #     #_sleep()
-    
-    # # url_loc  = urlparse(url.strip() ).netloc
-    # # base_loc = urlparse(base.strip()).netloc
-    # # ret =  base_loc in url_loc # also subdomains: media.karlruhe.digital
-    # # print("url_has_same_netloc:", ret, "| base_loc:", base_loc, "| url_loc:", url_loc)
-    # # return ret
 
 #https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
 from difflib import SequenceMatcher
@@ -321,16 +308,16 @@ def links_remove_similar(links):
 #     pass
 
 def link_make_absolute(link, base):
-    p_url, loc_url, path_url    = url_split(link)
-    p_base, loc_base, path_base = url_split(base)
+    protocol_url,  loc_url,    path_url    = url_split(link)
+    protocol_base, loc_base,   path_base   = url_split(base)
     
-    if not p_url:
-        p_url = p_base
+    if not protocol_url:
+        protocol_url = protocol_base
     
     if not loc_url:
         loc_url = loc_base
         
-    ret = p_url + "://" + loc_url + path_url
+    ret = protocol_url + "://" + loc_url + path_url
         
     print("link_make_absolute:", link, "-->", YELLOW, ret, RESET)    
         
@@ -499,10 +486,15 @@ def add_trailing_slash(url):
 #-----------------------------------------
 def make_dirs(the_path):
     #print("make_dirs:", the_path)
-    dirs = os.path.dirname(the_path)
-    if not os.path.exists(dirs):
-        print("make_dirs: born:", dirs)
-        os.makedirs(dirs)
+    dir = os.path.dirname(the_path)
+    if not os.path.exists(dir):
+        print("make_dirs: new:", dir)
+        os.makedirs(dir)
+        
+    # debug ONLY
+    if dir.strip() in ("https", "sub_send"):
+        print(RED, "make_dirs: DEBUG found:", dir, RESET)
+        exit(1)
         
 #-----------------------------------------
 # 
