@@ -110,9 +110,7 @@ def get_all_website_links(url, max_urls):
             # already in the set
             continue
         
-        # issue: https://www.facebook.com/karlsruhe.digital
-        href_netloc = urlparse(href).netloc                 
-        if domain_name not in href_netloc:  #  in href
+        if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
             # external link
             if href not in external_urls:
                 print(
@@ -167,17 +165,17 @@ def crawl(url, max_urls):
 #-----------------------------------------
 if __name__ == "__main__":
 
-    # args defaults TODO make4 conf
+    # args defaults TODO use config
     def_url = "https://1001suns.com/sitemap_post/" # for args
     # def_url = "https://1001suns.com/universe_bochum21/" # for args
-    # def_url = "https://karlsruhe.digital/"
+    def_url = "https://karlsruhe.digital/"
     
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
     parser.add_argument("--max-urls",   default=5000,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
-    parser.add_argument("--timeout",    default=60*60,      type=float, help="timeout. -1 means no timeout")
+    parser.add_argument("--timeout",    default=60*60*3,    type=float, help="timeout in secs. -1 means no timeout")
     
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
@@ -190,7 +188,11 @@ if __name__ == "__main__":
     domain_name = urlparse(args.url).netloc
     file_internal_path = f"{data_folder}/{domain_name}_{date_time}_internal_links.csv"
     file_external_path = f"{data_folder}/{domain_name}_{date_time}_external_links.csv"
+    
+    print("\n"*4, wh.CYAN)
     print("domain_name       :", domain_name)
+    print("\n"*4, wh.RESET)
+    
     print("file_internal_path:", file_internal_path)
     print("file_external_path:", file_external_path)
  

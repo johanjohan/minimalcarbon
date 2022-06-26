@@ -63,12 +63,20 @@ def url_get_ver(url):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def url_is_valid(url):
-    """
-    Checks whether `url` is a valid URL.
-    """
-    parsed = urlparse(url)
-    return bool(parsed.netloc) and bool(parsed.scheme)
+""" 
+If you don't know is website use https or http protocol, it's better to use '//'.
+An optional authority component preceded by two slashes (//),
+
+"""
+# def url_is_valid(url):
+#     """
+#     Checks whether `url` is a valid URL.
+#     needs minimum //netloc to start with
+#     """
+#     parsed = urlparse(url)
+#     ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//'))
+#     print("url_is_valid:", ret, url )
+#     return ret
 
 # # def is_remote(url):
 # #     return url.strip().startswith('http')
@@ -77,7 +85,10 @@ def url_is_valid(url):
 # #     return not is_remote(url)
 
 def url_is_absolute(url):
-    return url.strip().startswith('http')
+    parsed = urlparse(url)
+    ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//')) # // WP specific?
+    #print("url_is_absolute:", ret, url )
+    return ret
 
 def url_is_relative(url):
     return not url_is_absolute(url)
@@ -102,11 +113,24 @@ ParseResult(
     fragment= 'url-parsing'
 )
 """    
+def _sleep(secs=5):
+    print(RED, "sleep:", secs, RESET)
+    time.sleep(secs)
+    
 def url_has_same_netloc(url, base):
+    
+    if not url_is_absolute(url):
+        print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
+        #_sleep()
+    
+    if not url_is_absolute(base):
+        print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
+        #_sleep()
+    
     url_loc  = urlparse(url.strip() ).netloc
     base_loc = urlparse(base.strip()).netloc
     #ret =  url_loc == base_loc
-    ret =  base_loc in url_loc
+    ret =  base_loc in url_loc # also subdomains: media.karlruhe.digital
     #print("url_has_same_netloc:", ret, base_loc, url_loc)
     return ret
     return url.strip().startswith(base.strip())
@@ -164,7 +188,7 @@ def links_remove_similar(links):
 
 def link_make_absolute(link, base):
     if url_is_relative(link):
-        link = add_trailing_slash(base) + strip_leading_slash(link)
+        link = add_trailing_slash(base) + strip_leading_slash(link) # base/link
     return link
 
 def links_make_absolute(links, base):
@@ -802,7 +826,7 @@ def replace_in_file(filename, string_from, string_to):
 # -----------------------------------------
 
 
-def progress(perc, verbose_string="", VT=YELLOW, n=16):
+def progress(perc, verbose_string="", VT=MAGENTA, n=16):
     import math
     # if perc <= 0.0:
     print("{}[{}] [{:.1f}%] {}{}".format(
@@ -815,7 +839,7 @@ def progress(perc, verbose_string="", VT=YELLOW, n=16):
     print("{}[{}{}".format(VT, '|'*n, RESET),  end=end)
 
 
-def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=YELLOW, n=16):
+def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=MAGENTA, n=16):
     if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
         import random
         import math

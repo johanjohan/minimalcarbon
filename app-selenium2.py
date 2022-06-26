@@ -285,9 +285,17 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
         for src in links:
+            
             src = src.strip()
             print(f"{GREEN}\t src: {src}{RESET}")
-
+            
+            # check external
+            if wh.url_is_absolute(src) and not wh.url_has_same_netloc(src, base):
+                print(f"{YELLOW}\t is absolute and external: src: {src}{RESET}")
+                time.sleep(5)
+                continue
+            
+            
             abs_src = wh.link_make_absolute(src, base)
             ###abs_src_stripped = wh.strip_query_and_fragment(abs_src)
             #new_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
@@ -503,6 +511,14 @@ if __name__ == "__main__":
     # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
     # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
     # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
+    
+    # wh.url_is_absolute("https://www.karlsruhe.digital/path/image.jpg")
+    # wh.url_is_absolute("https://www.karlsruhe.digital")
+    # wh.url_is_absolute("http://www.karlsruhe.digital")
+    # wh.url_is_absolute("htt://www.karlsruhe.digital")
+    # wh.url_is_absolute("//www.karlsruhe.digital/path/image.jpg")
+    # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
+    # wh.url_is_absolute("/path/image.jpg")
 
     # exit(0)
 
@@ -522,7 +538,7 @@ if __name__ == "__main__":
             'https://karlsruhe.digital/en/search/',
         ]
     else:
-        with open(config.sitemap_links_path) as file:
+        with open(config.sitemap_links_internal_path) as file:
             lines = file.readlines()
             urls = [line.rstrip() for line in lines]
     urls = wh.links_remove_comments(urls, '#')

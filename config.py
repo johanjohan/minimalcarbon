@@ -16,8 +16,8 @@ print(MAGENTA)
 # init the colorama module
 #-----------------------------------------
 sitemap_links_internal_path = "data/karlsruhe.digital_internal_links.csv"
-sitemap_links_external = "data/karlsruhe.digital_external_links.csv"
-sitemap_xml_path        = "data/sitemap.xml"
+sitemap_links_external_path = "data/karlsruhe.digital_external_links.csv"
+sitemap_xml_path            = "data/sitemap.xml"
 
 #-----------------------------------------
 # dq
@@ -30,14 +30,13 @@ q   = wh.sq
 from helpers_web import add_trailing_slash as ats
 
 #-----------------------------------------
-# 
+# app-selenium
 #-----------------------------------------
 wait_secs           = (0.1, 0.2)
 project_folder      = ats("page/__KD__/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 
-sitemap_links_path  = "data/karlsruhe.digital_20220616_222903_internal_links.csv"
 sitemap_links_ignore = [
     base + 'wp-json/', # is a file not a dir
     base + 'sitemap/', # is a file not a dir
