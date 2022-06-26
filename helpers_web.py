@@ -826,7 +826,11 @@ def replace_all(content, oldvalue, newvalue):
     len_orig = len(content)
     while oldvalue in content:
         content = content.replace(oldvalue, newvalue)
-    print("replace_all:", CYAN, dq(oldvalue), RESET, "| replaced", len_orig - len(content), "bytes")
+    
+    if True:
+        printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
+        print("replace_all:", CYAN, dq(printvalue), RESET, "| replaced", len_orig - len(content), "bytes")
+        
     return content
 
 #-----------------------------------------
@@ -947,19 +951,10 @@ def html_minify(content):
     
     length_orig = len(content)
     print("html_minify: length_orig:", length_orig)
+    
     if length_orig > 0:
-        if True:
-            content = replace_all(content, "\n", " ")
-            content = replace_all(content, "\t", " ")
-            content = replace_all(content, "\r", " ")
-            #print("len(content)", len(content))
-            content = replace_all(content, "  ", " ")
-            content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt
-            content = replace_all(content, " >", ">") 
-            content = replace_all(content, "> <", "><") 
-            #print("len(content)", len(content))
-
         # pip install htmlmin
+        
         import htmlmin
         try:
             content = htmlmin.minify(
@@ -974,6 +969,18 @@ def html_minify(content):
                 )
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
+            
+        
+        if True:
+            content = replace_all(content, "\n", " ")
+            content = replace_all(content, "\t", " ")
+            content = replace_all(content, "\r", " ")
+            #print("len(content)", len(content))
+            content = replace_all(content, "  ", " ")
+            content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt
+            content = replace_all(content, " >", ">") 
+            content = replace_all(content, "> <", "><") 
+            #print("len(content)", len(content))
             
         percent = round(len(content) / length_orig * 100, 1)
         percent_saved = round(100 - percent, 1)
