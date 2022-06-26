@@ -1,3 +1,4 @@
+from posixpath import join
 from urllib import response
 from urllib.parse import urlparse, urljoin, parse_qs
 import os
@@ -67,6 +68,10 @@ def url_get_ver(url):
 If you don't know is website use https or http protocol, it's better to use '//'.
 An optional authority component preceded by two slashes (//),
 
+ASSUMPTIONS
+a folder has no dot
+a file has a dot for the extension, or a leading dot
+
 """
 # def url_is_valid(url):
 #     """
@@ -84,20 +89,119 @@ An optional authority component preceded by two slashes (//),
 # # def is_local(url):
 # #     return not is_remote(url)
 
+def url_split(url):
+    print("url_split:", CYAN, dq(url), RESET)
+    url = url.strip()
+    exts = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
+    
+    protocol = None
+    loc = None
+    path= None
+    
+    root = '/'
+    
+    if not url:
+        path = root
+    else:
+        # protocol
+        if '://' in url:
+            subs = url.split('://')
+            protocol = subs[0]
+            url = subs[1]
+        elif url.startswith('//'):
+            #protocol = 'https'
+            url = url.lstrip('//')
+            
+        url = url.lstrip('/')
+        ###print("without protocol:", url)
+            
+        # loc
+        subs = url.split('/')
+        if subs:
+            print(GRAY, "subs /:", subs, RESET)
+            if '.' in subs[0]:
+                parts = subs[0].split('.')
+                if parts:
+                    ext   = parts[-1].lower()
+                    if not ext in exts:
+                        loc = subs[0]
+                        path = root + '/'.join(subs[1:]) 
+                    else:
+                        path = root + '/'.join(subs) 
+                else:
+                    pass
+                    print(RED, "no parts .:", subs[0], RESET)
+            else:
+                path = root + url   
+        else:
+            pass
+            print(RED, "no subs /:", url, RESET)
+            
+    print("\t", "protocol", protocol)
+    print("\t", "loc     ", loc)
+    print("\t", "path    ", path)
+    
+    return protocol, loc, path
+
+""" 
+url_is_absolute: False | ''
+url_is_absolute: False | index.html
+url_is_absolute: False | path/image.jpg
+url_is_absolute: False | /path/image.jpg
+url_is_absolute: True | karlsruhe.digital
+url_is_absolute: True | karlsruhe.digital/path/image.jpg
+url_is_absolute: True | www.karlsruhe.digital/path/image.jpg
+url_is_absolute: True | //www.karlsruhe.digital/path/image.jpg
+url_is_absolute: True | http://www.karlsruhe.digital/path/image.jpg
+url_is_absolute: True | https://www.karlsruhe.digital/path/image.jpg
+url_is_absolute: False | xxxxx://www.karlsruhe.digital/path/image.jpg
+url_is_absolute: True | facebook.de/test.html
+url_is_absolute: True | http://facebook.de/test.html
+url_is_absolute: True | http://facebook.de
+url_is_absolute: True | facebook.de
+url_is_absolute: False | facebook
+"""
 def url_is_absolute(url):
-    parsed = urlparse(url)
-    ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//')) # // WP specific?
-    #print("url_is_absolute:", ret, url )
-    return ret
+    # url = url.strip()
+    # exts = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
+    
+    # ret = False
+    # if url.startswith('http') or url.startswith('//'):
+    #     ret = True
+    # else:
+    #     subs = url.split('/')
+    #     if subs and '.' in subs[0]:
+    #         parts = subs[0].split('.')
+    #         if parts and not parts[-1].lower() in exts:
+    #             ret = True
+            
+    # # # parsed = urlparse(url)
+    # # # ret = bool(parsed.netloc) and (parsed.scheme.startswith('http') or url.strip().startswith('//')) # // WP specific?
+    # print("url_is_absolute:", ret, "|", url )
+    # return ret
+
+    protocol, loc, path = url_split(url)
+    ret = bool(loc)
+    print("url_is_absolute:", ret, "|", url )
 
 def url_is_relative(url):
-    return not url_is_absolute(url)
+    ret = not url_is_absolute(url)
+    print("url_is_relative:", ret, "|", url)
+    return ret
 
 # # def is_relative_to_base(url, base):
 # #     return not url_is_absolute(url)
 
 # https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
 
+def url_is_external(url, base):
+    ret = True
+    if url_is_relative(url):
+        ret = False
+    elif url_has_same_netloc(url, base):
+        ret = False
+    print("url_is_external:", ret, "|", url, "|", base)
+    return ret
 
 """
 urlparse("scheme://netloc/path;parameters?query#fragment")
@@ -119,21 +223,19 @@ def _sleep(secs=5):
     
 def url_has_same_netloc(url, base):
     
-    if not url_is_absolute(url):
-        print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
-        #_sleep()
+    # # if not url_is_absolute(url):
+    # #     print(RED, "url_has_same_netloc: url is not absolute:", url, RESET)
+    # #     #_sleep()
     
-    if not url_is_absolute(base):
-        print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
+    # # if not url_is_absolute(base):
+    # #     print(RED, "url_has_same_netloc: base is not absolute:", base, RESET)
         #_sleep()
     
     url_loc  = urlparse(url.strip() ).netloc
     base_loc = urlparse(base.strip()).netloc
-    #ret =  url_loc == base_loc
     ret =  base_loc in url_loc # also subdomains: media.karlruhe.digital
-    #print("url_has_same_netloc:", ret, base_loc, url_loc)
+    print("url_has_same_netloc:", ret, "| base_loc:", base_loc, "| url_loc:", url_loc)
     return ret
-    return url.strip().startswith(base.strip())
 
 #https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
 from difflib import SequenceMatcher
@@ -654,8 +756,10 @@ def wait_for_page_has_loaded(driver):
 #-----------------------------------------
     
 def replace_all(content, oldvalue, newvalue):
+    len_orig = len(content)
     while oldvalue in content:
         content = content.replace(oldvalue, newvalue)
+    print("replace_all:", oldvalue, "| replaced", len_orig - len(content), "bytes")
     return content
 
 #-----------------------------------------
@@ -783,6 +887,8 @@ def html_minify(content):
             content = replace_all(content, "\r", " ")
             #print("len(content)", len(content))
             content = replace_all(content, "  ", " ")
+            content = replace_all(content, "< ", "<") # assume that all <> are tags and not lt gt
+            content = replace_all(content, " >", ">") 
             #print("len(content)", len(content))
 
         # pip install htmlmin

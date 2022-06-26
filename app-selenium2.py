@@ -289,11 +289,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             src = src.strip()
             print(f"{GREEN}\t src: {src}{RESET}")
             
-            # check external
-            if wh.url_is_absolute(src) and not wh.url_has_same_netloc(src, base):
-                print(f"{YELLOW}\t is absolute and external: src: {src}{RESET}")
-                time.sleep(5)
-                continue
+            # # check external
+            # if wh.url_is_absolute(src, base) and not wh.url_has_same_netloc(src, base):
+            #     print(f"{YELLOW}\t is absolute and external: src: {src}{RESET}")
+            #     time.sleep(5)
+            #     continue
             
             
             abs_src = wh.link_make_absolute(src, base)
@@ -519,8 +519,40 @@ if __name__ == "__main__":
     # wh.url_is_absolute("//www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("/path/image.jpg")
+    
+    base="https://www.karlsruhe.digital"
+    links = [
+        "",
+        "index.html",
+        "path/image.jpg",
+        "/path/image.jpg",
+        "karlsruhe.digital",
+        "karlsruhe.digital/path/image.jpg",
+        "www.karlsruhe.digital/path/image.jpg",
+        "//www.karlsruhe.digital/path/image.jpg",
+        "http://www.karlsruhe.digital/path/image.jpg",
+        "https://www.karlsruhe.digital/path/image.jpg",
+        "xxxxx://www.karlsruhe.digital/path/image.jpg",
+        "facebook.de/test.html",
+        "http://facebook.de/test.html",
+        "http://facebook.de",
+        "facebook.de",
+        "facebook",
+        "facebook.html",
+        "facebook.php",
+        "facebook.com/facebook.php",
+        "facebook.com/facebook.com/facebook.php",
+    ]
+    for link in links:
+        wh.url_is_absolute(link)
+        #wh.url_is_relative(link)
+        #wh.url_split(link)
+        #wh.url_is_external(link, base)
+        print()
 
-    # exit(0)
+
+
+    exit(0)
 
     # -----------------------------------------
     #
