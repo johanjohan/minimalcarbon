@@ -67,7 +67,7 @@ def strip_protocols(url):
     #print("strip_protocols:", url, "-->", new_url)
     return new_url
 
-def validate_filepath(filepath):
+def sanitize_filepath(filepath):
     rep = '_'
     fixedpath = filepath
     fixedpath = fixedpath.replace('?', rep)
@@ -322,7 +322,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             # TODO may not do so wp_json/ and sitemap/
             if is_a_file(new_src) : # is a file
                 print(MAGENTA, "\t\t file:", RESET, new_src)
-            else:
+            else: 
                 new_src = wh.add_trailing_slash(new_src)
                 if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
                     new_src += get_page_name()  # index.html
@@ -331,8 +331,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 else:
                     print(f"{MAGENTA}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
                     
-            new_src = validate_filepath(new_src)
-            local_path = project_folder + new_src.lstrip('/')
+            new_src     = sanitize_filepath(new_src)
+            local_path  = project_folder + new_src.lstrip('/')
             
             # collect local images
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
