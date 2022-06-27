@@ -811,13 +811,12 @@ def wait_for_page_has_loaded(driver):
 #-----------------------------------------
 # 
 #-----------------------------------------
-    
 def replace_all(content, oldvalue, newvalue):
     len_orig = len(content)
     while oldvalue in content:
         content = content.replace(oldvalue, newvalue)
     
-    if False:
+    if False: # verbose
         printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
         print("replace_all:", CYAN, dq(printvalue), RESET, "| replaced", len_orig - len(content), "bytes")
         

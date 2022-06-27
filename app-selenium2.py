@@ -350,8 +350,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     list_img += wh.get_stylesheet_background_images_from_file(style_path)
     list_css_text = h.xpath("//style/text()")
     for text in list_css_text:
-        text = cssbeautifier.beautify(text)
-        print("script", GRAY + text + RESET)
+        # text = cssbeautifier.beautify(text)
+        # print("script", GRAY + text + RESET)
         list_img += wh.get_stylesheet_background_images_from_string(text)
     
     list_scripts = h.xpath('//script/@src')
