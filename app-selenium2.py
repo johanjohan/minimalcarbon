@@ -176,16 +176,35 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     #
     # -----------------------------------------
-    print(f"{CYAN}url: {url} {RESET}")
-    print(f"{CYAN}b_use_driver: {b_use_driver} wait_secs: {wait_secs} {RESET}")
-    
-    wh.sleep_random(wait_secs,verbose_string=url)
-    if b_use_driver:
-        driver.get(url)
-        wh.wait_for_page_has_loaded(driver)
-        content = driver.page_source
-    else:
-        content = wh.get_content(url)
+
+    content = ""
+    for tries in range(10):
+        
+        print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
+        print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
+        print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
+        wh.sleep_random(wait_secs,verbose_string=url)        
+        
+        try:
+            if b_use_driver:
+                driver.get(url) # TODO may throw SSL error
+                wh.wait_for_page_has_loaded(driver)
+                content = driver.page_source
+            else:
+                content = wh.get_content(url)
+        except Exception as e:
+            print(f"{RED}\t ERROR: GET url: {url} {RESET}")
+            
+        if content:
+            break
+        else:
+            if tries == 0:
+                url = "http://" + strip_protocol(url)
+            else:
+                url = "https://" + strip_protocol(url)
+            print(f"{RED}\t will try with different PROTOCOL: {url} {RESET}")
+            time.sleep(2)
+            
 
     # -----------------------------------------
     #

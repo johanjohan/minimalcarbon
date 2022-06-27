@@ -57,15 +57,21 @@ for q in ['\"', '\'']:
     replacements_pre.append(
         (
             q + 'http:// ', # has a trailing space
-            q + 'https://'
+            q + 'http://'
         )
     )
     replacements_pre.append(
         (
-            q + 'http://',
+            q + 'https:// ', # has a trailing space
             q + 'https://'
         )
     )
+    # replacements_pre.append(
+    #     (
+    #         q + 'http://',
+    #         q + 'https://'
+    #     )
+    # )
     replacements_pre.append(
         (
             q + 'https://karlsruhe.digital'  + q,
@@ -102,9 +108,9 @@ for q in ['\"', '\'']:
             '/'
         )
     )
-    replacements_pre.append(        # script escape "https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/"
+    replacements_pre.append(        
         (
-            '//arlsruhe.digital',
+            '//arlsruhe.digital',   # typo in external links searching for "ruhe.digi"
             '//karlsruhe.digital'
         )
     )
