@@ -622,9 +622,9 @@ if __name__ == "__main__":
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
             
     # save image list
-    path_images_written = "data/" + config.base_netloc + "_images_written.csv"
-    images_written = list(set(images_written))
-    print("images_written:", *images_written, sep="\n\t")
+    path_images_written = "data/" + config.base_netloc + "_images_written.txt"
+    images_written = sorted(list(set(images_written)))
+    #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join(images_written))
         

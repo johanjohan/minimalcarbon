@@ -996,6 +996,8 @@ def replace_in_file(filename, string_from, string_to):
 #
 # -----------------------------------------
 
+def progress_string(perc, verbose_string="", VT=MAGENTA, n=16, cdone='■', crest='-'):
+    return VT + "[" + cdone*round(n*perc) + crest*round(n*(1-perc)) + "] [{:.1f}%] ".format(perc*100) + verbose_string + RESET 
 
 def progress(perc, verbose_string="", VT=MAGENTA, n=16):
     import math
