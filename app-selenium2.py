@@ -39,14 +39,7 @@ MAGENTA = config.MAGENTA
 
 # https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
-#from lxml import html
 
-
-# -----------------------------------------
-#
-# -----------------------------------------
-# dq = wh.dq
-# sq = wh.sq
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -57,7 +50,7 @@ images_written = []
 # -----------------------------------------
 
 
-def strip_protocols(url):
+def strip_protocol(url):
     new_url = url
     new_url = new_url.lstrip("https://")
     new_url = new_url.lstrip("http://")
@@ -133,9 +126,6 @@ def get_path_local_root(url, base):
         print(f"{YELLOW}get_path_local_root: url: {url} has not same netloc {base} {RESET}")
         exit(1)        
     
-    # # # # new_url  = strip_protocols(url)
-    # # # # new_base = strip_protocols(base).rstrip('/')
-    
     loc_url   = wh.url_netloc(url).lstrip("www.")   # loc_url:  media.karlsruhe.digital
     loc_base  = wh.url_netloc(base)                 # loc_base:       karlsruhe.digital
     subdomain = loc_url.replace(loc_base, '').replace('.', '')
@@ -147,67 +137,6 @@ def get_path_local_root(url, base):
     rooted = wh.add_leading_slash(rooted)
     #print("get_path_local_root:", GRAY, url, "-->", RESET, rooted)
     return rooted
-
-# # # # # def get_path_for_file(url, base, project_folder, ext=".html"):
-# # # # #     page_folder = get_page_folder(url, base)
-# # # # #     page_name = get_page_name(ext=ext, basename="index")
-# # # # #     #relative_path   = get_relative_path(url, base)
-
-# # # # #     # print("page_folder:", page_folder)
-# # # # #     # print("page_name  :", page_name)
-# # # # #     # # print("relative_path:", relative_path)
-
-# # # # #     ret = project_folder + page_folder + page_name
-# # # # #     ret = os.path.realpath(ret)
-
-# # # # #     return ret
-
-# # # # # def get_relative_dots(url, base):
-# # # # #     ret = "../" * get_page_folder(url, base).count('/')
-# # # # #     if not ret:
-# # # # #         ret = './'
-# # # # #     #print("get_relative_dots: -->", ret)
-# # # # #     return ret
-
-
-# # # # # # # def get_path_local_root_OLD(url, base):
-# # # # # # #     #print("get_path_local_root:", "base:", base)
-# # # # # # #     #print("get_path_local_root:", "url :", url)
-# # # # # # #     # scheme = wh.url_scheme(url) # http
-# # # # # # #     url = wh.link_make_absolute(url, base)
-# # # # # # #     url = strip_protocols(url)
-# # # # # # #     base = strip_protocols(base)
-# # # # # # #     rooted = "/" + url.replace(base, "")
-# # # # # # #     #print("get_path_local_root:", "--> rooted:", rooted)
-# # # # # # #     return rooted
-
-
-# # # # # https://karlsruhe.digital/en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
-# # # # # https://karlsruhe.digital/
-# # # # #                          /en/2020/12/karlsruhe-becomes-pioneer-city-of-the-g20-global-smart-cities-alliance/
-
-# # # # # def get_path_local_relative(url, base, src):
-
-# # # # #     url = wh.link_make_absolute(url, base)
-# # # # #     src = wh.link_make_absolute(src, base)
-# # # # #     # print("get_path_local_relative:", "url :", url)
-# # # # #     # print("get_path_local_relative:", "base:", base)
-# # # # #     # print("get_path_local_relative:", "src :", src)
-
-# # # # #     # scheme = wh.url_scheme(url) # http
-
-# # # # #     dots = get_relative_dots(url, base)
-# # # # #     # print("get_path_local_relative:", "dots:", dots)
-
-# # # # #     ret = dots + src.replace(base, "")
-# # # # #     # # # if ret.endswith('/'): # is a folder
-# # # # #     # # #     ret += get_page_name() # index.html
-# # # # #     # # #     #print(f"{CYAN}/ --> ret: {ret}{RESET}")
-# # # # #     # TODO check above, should still load online
-
-# # # # #     # print("get_path_local_root:", src, "-->", ret)
-# # # # #     return ret
-
 
 # -----------------------------------------
 # based on ASSUMPTIONS!
@@ -222,8 +151,6 @@ def is_a_file(url):
 
 def is_a_folder(url):
     return not is_a_file(url)       
-    # # url = wh.strip_query_and_fragment(url)
-    # # return url.endswith('/')  
 
 # -----------------------------------------
 # 
@@ -240,12 +167,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     print(f"{CYAN}url: {url} {RESET}")
     print(f"{CYAN}b_use_driver: {b_use_driver} wait_secs: {wait_secs} {RESET}")
     
-    # # -----------------------------------------
-    # #
-    # # -----------------------------------------
-    # driver = webdriver.Chrome()
-    # driver.implicitly_wait(10)
-
     wh.sleep_random(wait_secs, url)
     if b_use_driver:
         driver.get(url)
@@ -264,7 +185,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     # TODO manual replace instead links_remove_similar
     # -----------------------------------------
-    # TODO manual replace instead links_remove_similar
     for fr, to in replacements_pre:
         print(YELLOW, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
@@ -283,11 +203,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         b_strip_ver = True
 
         links = wh.links_remove_comments(links, '#')
-        # links = wh.links_make_absolute(links, base)  NO!!!
+        ### links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
-        # links = wh.links_remove_folders(links) NO!!!
+        ### links = wh.links_remove_folders(links) NO!!!
         links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:", "javascript:"])
-        # links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
+        ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
         links = wh.links_make_unique(links)
         links = sorted(links)
 
@@ -305,14 +225,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 continue
             
             abs_src = wh.link_make_absolute(src, base)
-            ###abs_src_stripped = wh.strip_query_and_fragment(abs_src)
-            #new_src     = get_relative_dots(url, base) + wh.url_path_lstrip_slash(src)
-            #new_src = get_path_local_root(src, base)
             new_src = get_path_local_root(abs_src, base)
-            # new_src     = get_path_local_relative(url, base, src) # works
-             
-
-            # strip query ver=x.x.x
             if b_strip_ver:
                 if wh.url_has_ver(new_src):
                     new_src = wh.strip_query_and_fragment(new_src)
@@ -320,7 +233,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 
             # is a file? add index.html/get_page_name() to folder-links
             # TODO may not do so wp_json/ and sitemap/
-            if is_a_file(new_src) : # is a file
+            if is_a_file(new_src) : 
                 print(MAGENTA, "\t\t file:", RESET, new_src)
             else: 
                 new_src = wh.add_trailing_slash(new_src)
@@ -334,7 +247,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             new_src     = sanitize_filepath(new_src)
             local_path  = project_folder + new_src.lstrip('/')
             
-            # collect local images
+            # collect local images for a list to save at the end
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
                 images_written.append(os.path.abspath(local_path))
                                         
@@ -342,15 +255,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
   
             # get and save link-asset to disk
             if not wh.file_exists_and_valid(local_path): 
-
-                ####wh.make_dirs(local_path)
                 
-                # only save files in this go, local_path
                 if is_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
                     wh.sleep_random(wait_secs, abs_src)
 
-                    # TODO >>> shifted right1
                     max_tries = 10
                     for cnt in range(max_tries):
                         try:
@@ -371,7 +280,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                             print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
                     except:
                         print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-                    ### END shifted <<<<<<<<<<<<<<
                     
                 else:
                     print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
