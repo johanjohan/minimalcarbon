@@ -101,7 +101,7 @@ if __name__ == "__main__":
                                                         
     perc_avg /= len(images)  
     perc_avg = round(perc_avg, 1)  
-    print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET)
+    print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
     print("all done.")
                 
                 
