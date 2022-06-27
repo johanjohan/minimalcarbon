@@ -651,7 +651,7 @@ def get_content(url, timeout=10):
     try:
         response =  get_response(url, timeout=timeout)
         content = response.read().decode('utf-8') # decode(response.headers.get_content_charset())
-        print("get_content:", len(content)) 
+        print("get_content: len(content):", len(content)) 
         #print("get_content:", CYAN, content, RESET) # content
         return content
     except Exception as e:

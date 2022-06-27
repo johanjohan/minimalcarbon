@@ -7,7 +7,6 @@ from PIL import Image, ImageOps
 import config
 import helpers_web as wh
 
-
 def image_has_transparency(img):
     if img.info.get("transparency", None) is not None:
         return True
@@ -23,7 +22,6 @@ def image_has_transparency(img):
 
     return False
 
-
 def image_show(path, secs=1):
     import subprocess
     import time
@@ -36,21 +34,20 @@ def saved_percent(size_orig, size_new):
     perc = 100 - (size_new/size_orig*100)
     return perc
 
-
 def saved_percent_string(size_orig, size_new):
     return "{:.1f}%".format(saved_percent(size_orig, size_new))
 
 if __name__ == "__main__":
     
-
-    
     # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
     project_folder  = os.path.abspath(config.project_folder)
     quality         = 66
     max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-    force_write     = True
+    b_force_write   = True
     show_nth_image  = 20 # 0 is off
     resample        = Image.Resampling.LANCZOS
+    mono_mode       = "1" #  LA L 1 # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
+    b_colorize      = True
     
     image_exts = ['.jpg', '.jpeg', '.png', '.gif']
     image_exts = ['.png', '.gif']
@@ -58,7 +55,8 @@ if __name__ == "__main__":
     print("image_exts :", image_exts)
     print("quality    :", quality)
     print("max_dim    :", max_dim)
-    print("force_write:", force_write)
+    print("force_write:", b_force_write)
+    print("b_colorize :", b_colorize)
     
     images = []
     for root, dirs, files in os.walk(project_folder):
@@ -75,7 +73,7 @@ if __name__ == "__main__":
         name, ext = os.path.splitext(path) # ('my_file', '.txt')
         out_path = name + '.webp'  
                     
-        if force_write or not wh.file_exists_and_valid(out_path):
+        if b_force_write or not wh.file_exists_and_valid(out_path):
         
             print("\t", "{}/{}:".format(cnt+1, len(images)), os.path.basename(path))
             print("\t\t", wh.progress_string(cnt / len(images), verbose_string="", VT=wh.CYAN, n=33))
@@ -84,8 +82,11 @@ if __name__ == "__main__":
             image = Image.open(path)
             
             is_transp = image_has_transparency(image)
-            rgb_mode = 'RGBA' if is_transp else 'RGB'
-            
+            rgb_mode  = 'RGBA' if is_transp else 'RGB'
+            mono_mode = 'LA' if is_transp else 'L'
+            mono_mode = "1"
+            print("rgb_mode   :", rgb_mode)
+            print("mono_mode  :", mono_mode)
             
             image = image.convert(rgb_mode)
             wh_orig = image.size
@@ -104,9 +105,9 @@ if __name__ == "__main__":
                 image.thumbnail(max_dim, resample=resample)
                         
             # colorize
-            if not is_transp:
-                print("\t\t", "colorizing...")
-                image = image.convert("L")
+            if b_colorize: # not is_transp and mono_mode:
+                print("\t\t", "colorizing: mono_mode:", mono_mode)
+                image = image.convert(mono_mode) # LA L 1
                 image = ImageOps.colorize(image, black ="#003300", white ="white")
                 
             image = image.convert(rgb_mode)

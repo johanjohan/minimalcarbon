@@ -17,9 +17,10 @@ print(MAGENTA)
 #-----------------------------------------
 # init the colorama module
 #-----------------------------------------
-sitemap_links_internal_path = "data/karlsruhe.digital_internal_links.csv"
-sitemap_links_external_path = "data/karlsruhe.digital_external_links.csv"
-sitemap_xml_path            = "data/sitemap.xml"
+sitemap_base                = "data/karlsruhe.digital_20220627_222911"
+sitemap_links_internal_path = sitemap_base + "_internal_links.csv"
+sitemap_links_external_path = sitemap_base + "_external_links.csv"
+sitemap_xml_path            = sitemap_base + "_sitemap.xml"
 
 #-----------------------------------------
 # dq
@@ -34,8 +35,9 @@ from helpers_web import add_trailing_slash as ats
 #-----------------------------------------
 # app-selenium
 #-----------------------------------------
+timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats("page/__KD__/")
+project_folder      = ats("page/__KD__6/")
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 
@@ -52,6 +54,12 @@ print("sitemap_links_ignore", sitemap_links_ignore)
 replacements_pre = []
 for q in ['\"', '\'']:
     print("\t", "using", q)
+    replacements_pre.append(
+        (
+            q + 'http:// ', # has a trailing space
+            q + 'https://'
+        )
+    )
     replacements_pre.append(
         (
             q + 'http://',
@@ -82,10 +90,22 @@ for q in ['\"', '\'']:
             q + 'https://'
         )
     )
+    replacements_pre.append(
+        (
+            q + 'wp-content/',  # no root
+            q + '/wp-content/'
+        )
+    )
     replacements_pre.append(        # script escape "https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/"
         (
             '\/',
             '/'
+        )
+    )
+    replacements_pre.append(        # script escape "https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/"
+        (
+            '//arlsruhe.digital',
+            '//karlsruhe.digital'
         )
     )
 print("replacements_pre", *replacements_pre, sep="\n\t")

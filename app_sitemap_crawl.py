@@ -43,6 +43,8 @@ import time
 import datetime
 import helpers_web as wh
 import sitemap
+
+import config
         
 # init the colorama module
 import colorama
@@ -52,6 +54,7 @@ GRAY = colorama.Fore.LIGHTBLACK_EX
 RESET = colorama.Fore.RESET
 YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
+MAGENTA = colorama.Fore.MAGENTA
 
 #-----------------------------------------
 # 
@@ -82,7 +85,7 @@ date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 # #     return bool(parsed.netloc) and bool(parsed.scheme)
 
 
-def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.1)):
+def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
@@ -90,8 +93,26 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.1)):
     urls = set()
     # domain name of the URL without the protocol
     domain_name = urlparse(url).netloc
-    wh.sleep_random(wait_secs, verbose_string=url) # NEW
-    soup = BeautifulSoup(requests.get(url,headers=wh.headers).content, "html.parser")
+    
+    
+    if False:
+        wh.sleep_random(wait_secs, verbose_string=url) # NEW
+        content = requests.get(url,headers=wh.headers, allow_redirects=True).content # orig
+    else:
+        for tries in range(10):
+            print(MAGENTA + "[{}] tries: {}".format(tries, url), RESET)
+            wh.sleep_random(wait_secs, verbose_string=url) # NEW
+            url, _  = wh.get_redirected_url(url, timeout=config.timeout)
+            content = wh.get_content(url, timeout=config.timeout)
+            if content:
+                break
+            else:
+                print(RED, "request fialed...sleep and try again...", RESET)
+                time.sleep(3)
+        
+    internal_urls.add(url)
+    soup = BeautifulSoup(content, "html.parser")
+    
     for a_tag in soup.findAll("a"):
         href = a_tag.attrs.get("href")
         if href == "" or href is None:
@@ -151,8 +172,9 @@ def crawl(url, max_urls):
     links = get_all_website_links(url, max_urls)
     for link in links:
         
-        if (args.timeout > 0) and (time.time() - start_secs > args.timeout): # timeout
-            print(f"{RED}[*] TIMEOUT: {args.timeout}s {RESET}")
+        # app timeout?
+        if (args.app_timeout > 0) and (time.time() - start_secs > args.app_timeout):
+            print(f"{RED}[*] app_timeout: {args.app_timeout}s {RESET}")
             break
         
         if total_urls_visited > max_urls:
@@ -176,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
     parser.add_argument("--max-urls",   default=5000,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
-    parser.add_argument("--timeout",    default=60*60*3,    type=float, help="timeout in secs. -1 means no timeout")
+    parser.add_argument("--app_timeout",default=60*60*3,    type=float, help="app_timeout in secs. -1 means no timeout")
     
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
