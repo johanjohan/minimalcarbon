@@ -14,11 +14,14 @@ def image_show(path, secs=1):
     time.sleep(secs)
     p.kill()
 
-
 def saved_percent(size_orig, size_new):
     assert size_orig > 0
-    perc = 100 - (size_webp/size_orig*100)
-    return "{:.1f}%".format(perc)
+    perc = 100 - (size_new/size_orig*100)
+    return perc
+
+
+def saved_percent_string(size_orig, size_new):
+    return "{:.1f}%".format(saved_percent(size_orig, size_new))
 
 if __name__ == "__main__":
     
@@ -31,7 +34,8 @@ if __name__ == "__main__":
     quality         = 66
     max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
     force_write     = True
-    show_nth_image  = 20
+    show_nth_image  = 20 # 0 is off
+    resample        = Image.Resampling.LANCZOS
     
     print("quality    ", quality)
     print("max_dim    ", max_dim)
@@ -46,6 +50,7 @@ if __name__ == "__main__":
                 images.append(path)
                 
     # convert
+    perc_avg = 0.0
     for cnt, path in enumerate(images):
                 
         name, ext = os.path.splitext(path) # ('my_file', '.txt')
@@ -59,6 +64,7 @@ if __name__ == "__main__":
             size_orig = os.path.getsize(path)
             image = Image.open(path)
             image = image.convert('RGB')
+            wh_orig = image.size
             
             if False:
                 w, h = image.size
@@ -66,12 +72,12 @@ if __name__ == "__main__":
                 assert h > 0 and w > 0
                 if w > max_dim[0] or h > max_dim[1]:
                     if w >= h:
-                        image = image.resize((max_dim[0], round(h / w * max_dim[0])), resample=Image.Resampling.LANCZOS)
+                        image = image.resize((max_dim[0], round(h / w * max_dim[0])), resample=resample)
                     else:
-                        image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=Image.Resampling.LANCZOS)
+                        image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
                     print("\t\t", "new :", image.size)
             else:   
-                image.thumbnail(max_dim, resample=Image.Resampling.LANCZOS)
+                image.thumbnail(max_dim, resample=resample)
                         
             # colorize
             if True:
@@ -80,25 +86,22 @@ if __name__ == "__main__":
                 
             image = image.convert('RGB')
             image.save(out_path, 'webp', optimize=True, quality=quality)
-            print("\t\t", "saved  :", os.path.basename(out_path))
             print("\t\t", "quality:", quality)
-            print("\t\t", "max_dim:", max_dim)
+            print("\t\t", "wh     :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
+            
+            size_new = os.path.getsize(out_path)
+            print("\t\t", "saved  :", wh.GREEN + saved_percent_string(size_orig, size_new) + wh.RESET, os.path.basename(out_path))
+            perc_avg += saved_percent(size_orig, size_new)
             
             if show_nth_image > 0 and not (cnt%show_nth_image):
                 image_show(out_path, secs=0.5)
             
-            size_webp = os.path.getsize(out_path)
-            print("\t\t", "saved:", wh.GREEN, saved_percent(size_orig, size_webp), wh.RESET)
         else:
             print("\t\t", "already exists:", os.path.basename(path))
                                                         
-
-        
-
+    perc_avg /= len(images)  
+    perc_avg = round(perc_avg, 1)  
+    print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET)
+    print("all done.")
                 
                 
-    
-    # import os
-    # for file in os.listdir(project_folder):
-    #     if file.endswith(".png"):
-    #         print(os.path.join("/mydir", file))
