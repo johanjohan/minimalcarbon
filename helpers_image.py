@@ -1,10 +1,27 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 
-
+import glob, os
+import PIL
+from PIL import Image, ImageOps
 
 import config
 import helpers_web as wh
 
+
+def image_has_transparency(img):
+    if img.info.get("transparency", None) is not None:
+        return True
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+    elif img.mode == "RGBA":
+        extrema = img.getextrema()
+        if extrema[3][0] < 255:
+            return True
+
+    return False
 
 
 def image_show(path, secs=1):
@@ -25,9 +42,7 @@ def saved_percent_string(size_orig, size_new):
 
 if __name__ == "__main__":
     
-    import glob, os
-    import PIL
-    from PIL import Image, ImageOps
+
     
     # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
     project_folder  = os.path.abspath(config.project_folder)
@@ -37,14 +52,18 @@ if __name__ == "__main__":
     show_nth_image  = 20 # 0 is off
     resample        = Image.Resampling.LANCZOS
     
-    print("quality    ", quality)
-    print("max_dim    ", max_dim)
-    print("force_write", force_write)
+    image_exts = ['.jpg', '.jpeg', '.png', '.gif']
+    image_exts = ['.png', '.gif']
+    
+    print("image_exts :", image_exts)
+    print("quality    :", quality)
+    print("max_dim    :", max_dim)
+    print("force_write:", force_write)
     
     images = []
     for root, dirs, files in os.walk(project_folder):
         for file in files:
-            if any(file.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']): # , '.webp'
+            if any(file.lower().endswith(ext) for ext in image_exts): # , '.webp'
                 path = os.path.abspath(os.path.join(root, file))
                 #print("\t", os.path.basename(path))
                 images.append(path)
@@ -54,7 +73,7 @@ if __name__ == "__main__":
     for cnt, path in enumerate(images):
                 
         name, ext = os.path.splitext(path) # ('my_file', '.txt')
-        out_path = name + '.webp'       
+        out_path = name + '.webp'  
                     
         if force_write or not wh.file_exists_and_valid(out_path):
         
@@ -63,7 +82,12 @@ if __name__ == "__main__":
             
             size_orig = os.path.getsize(path)
             image = Image.open(path)
-            image = image.convert('RGB')
+            
+            is_transp = image_has_transparency(image)
+            rgb_mode = 'RGBA' if is_transp else 'RGB'
+            
+            
+            image = image.convert(rgb_mode)
             wh_orig = image.size
             
             if False:
@@ -80,14 +104,17 @@ if __name__ == "__main__":
                 image.thumbnail(max_dim, resample=resample)
                         
             # colorize
-            if True:
+            if not is_transp:
+                print("\t\t", "colorizing...")
                 image = image.convert("L")
                 image = ImageOps.colorize(image, black ="#003300", white ="white")
                 
-            image = image.convert('RGB')
+            image = image.convert(rgb_mode)
             image.save(out_path, 'webp', optimize=True, quality=quality)
-            print("\t\t", "quality:", quality)
-            print("\t\t", "wh     :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
+            print("\t\t", "is_transp:", is_transp)
+            print("\t\t", "rgb_mode :", rgb_mode)
+            print("\t\t", "quality  :", quality)
+            print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
             
             size_new = os.path.getsize(out_path)
             print("\t\t", "saved  :", wh.GREEN + saved_percent_string(size_orig, size_new) + wh.RESET, os.path.basename(out_path))
@@ -98,10 +125,12 @@ if __name__ == "__main__":
             
         else:
             print("\t\t", "already exists:", os.path.basename(path))
-                                                        
-    perc_avg /= len(images)  
-    perc_avg = round(perc_avg, 1)  
-    print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
+        
+    if images:                                                
+        perc_avg /= len(images)  
+        perc_avg = round(perc_avg, 1)  
+        print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
     print("all done.")
                 
+    # https://www.thepythoncode.com/article/compress-pdf-files-in-python
                 
