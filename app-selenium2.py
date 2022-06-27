@@ -6,6 +6,13 @@ https://stackoverflow.com/questions/6076229/escaping-a-forward-slash-in-a-regula
 
 https:\/\/karlsruhe.digital\/
 
+https://github.com/beautify-web/js-beautify
+pip install jsbeautifier
+pip install cssbeautifier
+
+
+Python script to extract URLs from HTML documents. 
+https://gist.github.com/zmwangx/49049218bd89c21ddabd647896af995a
 
 
 """
@@ -27,6 +34,11 @@ from selenium.webdriver.support.expected_conditions import visibility_of_element
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver  # pip install selenium
+
+import jsbeautifier
+import cssbeautifier
+
+
 import config
 GREEN = config.GREEN
 GRAY = config.GRAY
@@ -167,7 +179,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     print(f"{CYAN}url: {url} {RESET}")
     print(f"{CYAN}b_use_driver: {b_use_driver} wait_secs: {wait_secs} {RESET}")
     
-    wh.sleep_random(wait_secs, url)
+    wh.sleep_random(wait_secs,verbose_string=url)
     if b_use_driver:
         driver.get(url)
         wh.wait_for_page_has_loaded(driver)
@@ -316,9 +328,33 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     list_img = h.xpath('//img/@src')
     list_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     list_img += wh.get_style_background_images(driver)
-    list_img += wh.get_stylesheet_background_images(style_path)
-
+    list_img += wh.get_stylesheet_background_images_from_file(style_path)
+    list_css_text = h.xpath("//style/text()")
+    for text in list_css_text:
+        text = cssbeautifier.beautify(text)
+        print("script", GRAY + text + RESET)
+        list_img += wh.get_stylesheet_background_images_from_string(text)
+    
     list_scripts = h.xpath('//script/@src')
+    # list_script_text = h.xpath("//script/text()")
+    # import re
+    # import json
+    # for text in list_script_text:
+    #     text = jsbeautifier.beautify(text)
+    #     print("script", GRAY + text + RESET)
+    #     # j = json.loads(text)
+    #     # print(MAGENTA, json.dumps(j, indent=4), RESET)
+        
+    #     # # # s = re.findall("'([^']*)'", text)
+    #     #s = re.findall("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})", text)
+    #     s = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
+    #     #s = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', text)
+    #     regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"        
+    #     s = re.findall(regex, text)
+    #     print("s", YELLOW, *s, RESET, sep="\n\t")
+        
+    # exit(0)
+    
 
     # https://realpython.com/python-zip-function/
     assets = [list_head_href, list_body_href,

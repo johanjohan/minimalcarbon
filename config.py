@@ -54,32 +54,38 @@ for q in ['\"', '\'']:
     print("\t", "using", q)
     replacements_pre.append(
         (
-            q + 'http://'         ,
+            q + 'http://',
             q + 'https://'
         )
     )
     replacements_pre.append(
         (
-            q + 'https://karlsruhe.digital'  + q   ,
+            q + 'https://karlsruhe.digital'  + q,
             q + 'https://karlsruhe.digital/' + q
         )
     )
     replacements_pre.append(
         (
-            q + 'https://www.karlsruhe.digital'    ,
+            q + 'https://www.karlsruhe.digital',
             q + 'https://karlsruhe.digital'
         )
     )
     replacements_pre.append(
         (
-            q + 'https://karlsruhe.digital/en/home'  + q   ,
+            q + 'https://karlsruhe.digital/en/home'  + q,
             q + 'https://karlsruhe.digital/en/home/' + q
         )
     )
     replacements_pre.append(
         (
-            q + '//'         ,
+            q + '//',
             q + 'https://'
+        )
+    )
+    replacements_pre.append(        # script escape "https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/"
+        (
+            '\/',
+            '/'
         )
     )
 print("replacements_pre", *replacements_pre, sep="\n\t")

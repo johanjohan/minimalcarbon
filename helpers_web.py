@@ -829,8 +829,8 @@ def replace_all(content, oldvalue, newvalue):
 def get_style_background_images(driver):
 
     def _parse_style_attribute(style_string):
+        
         if 'background-image' in style_string:
-            
             try:
                 url_string = style_string.split(' url("')[1].replace('");', '')
             except:
@@ -852,7 +852,6 @@ def get_style_background_images(driver):
             #print(f"{GREEN}\t background-image: {link} {RESET}")
             links.append(link)
     links = [link for link in links if link is not None]
-   
     return links
 
 #-----------------------------------------
@@ -862,16 +861,19 @@ def get_style_background_images(driver):
 # https://pythonhosted.org/cssutils/docs/parse.html#parsefile
 # https://pythonhosted.org/cssutils/docs/css.html
 #-----------------------------------------
-def get_stylesheet_background_images(style_path):
-    import cssutils
-    import logging
-    cssutils.log.setLevel(logging.CRITICAL)
+import cssutils
+import logging
+import cssbeautifier
+def get_stylesheet_background_images_from_string(style_string):
+    
+    # # #style_string = html_minify(style_string)
+    # # style_string = cssbeautifier.beautify(style_string)
+    # # print(GRAY + style_string + RESET)
+    
     urls  = []
-    if os.path.isfile(style_path):
-        try:
-            sheet = cssutils.parseFile(style_path)
-        except:
-            pass
+    try:
+        cssutils.log.setLevel(logging.CRITICAL)
+        sheet = cssutils.parseString(style_string)
         #print (sheet.cssText)
         for rule in sheet:
             if rule.type == rule.STYLE_RULE:
@@ -880,12 +882,24 @@ def get_stylesheet_background_images(style_path):
                         if "url" in property.value:
                             url = property.value.replace("(", "").replace(")", "")
                             url = url.strip().lstrip("url")
-                            print("\t\t\t", CYAN, url, RESET)
+                            #print("\t\t\t", CYAN, url, RESET)
                             urls.append(url)
+    except Exception as e:
+        print(f"{RED}get_stylesheet_background_images_from_string: cssutils.parseString {e} {RESET}")
+    
+    if urls:    
+        print("get_stylesheet_background_images_from_string:", CYAN, *urls, RESET, sep="\n\t")
+        
+    return urls
+
+def get_stylesheet_background_images_from_file(style_path):
+    urls  = []
+    if os.path.isfile(style_path):
+        with open(style_path, mode='r') as fp:
+            style_string = fp.read()
+            urls = get_stylesheet_background_images_from_string(style_string)
     else:
-        # TODO
-        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}")
-                    
+        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}!!!!!!!!!!!!!!!!!!") # TODO         
     return urls
 
 #-----------------------------------------
@@ -970,6 +984,8 @@ def html_minify(content):
             content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt
             content = replace_all(content, " >", ">") 
             content = replace_all(content, "> <", "><") 
+            content = replace_all(content, "} }", "}}") 
+            content = replace_all(content, "{ {", "{{") 
             #print("len(content)", len(content))
             
         percent = round(len(content) / length_orig * 100, 1)

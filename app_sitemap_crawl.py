@@ -82,7 +82,7 @@ date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 # #     return bool(parsed.netloc) and bool(parsed.scheme)
 
 
-def get_all_website_links(url, max_urls):
+def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.1)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
@@ -90,6 +90,7 @@ def get_all_website_links(url, max_urls):
     urls = set()
     # domain name of the URL without the protocol
     domain_name = urlparse(url).netloc
+    wh.sleep_random(wait_secs, verbose_string=url) # NEW
     soup = BeautifulSoup(requests.get(url,headers=wh.headers).content, "html.parser")
     for a_tag in soup.findAll("a"):
         href = a_tag.attrs.get("href")
