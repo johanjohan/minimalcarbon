@@ -225,7 +225,7 @@ def url_is_internal(url, base):
         ret = True
     elif loc_base in loc_url:
         ret = True
-    print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
+    #print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
     return ret
 
 def url_is_external(url, base):
@@ -817,7 +817,7 @@ def replace_all(content, oldvalue, newvalue):
     while oldvalue in content:
         content = content.replace(oldvalue, newvalue)
     
-    if True:
+    if False:
         printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
         print("replace_all:", CYAN, dq(printvalue), RESET, "| replaced", len_orig - len(content), "bytes")
         
