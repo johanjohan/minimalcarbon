@@ -3,6 +3,7 @@
 import glob, os
 import PIL
 from PIL import Image, ImageOps
+import halftone as ht # https://pypi.org/project/halftone/
 
 import config
 import helpers_web as wh
@@ -41,23 +42,28 @@ if __name__ == "__main__":
     
     # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
     project_folder  = os.path.abspath(config.project_folder)
-    quality         = 66
+    quality         = 50 # 66
     max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-    b_force_write   = True
-    show_nth_image  = 20 # 0 is off
+    show_nth_image  = 1 # 0 is off, 1 all
     resample        = Image.Resampling.LANCZOS
-    mono_mode       = "1" #  LA L 1 # https://holypython.com/python-pil-tutorial/how-to-convert-an-image-to-black-white-in-python-pil/
     b_colorize      = True
+    halftone        = None # (4, 30) # or None
+    b_force_write   = True
+    b_blackwhite    = False
+    b_use_palette   = False
     
     image_exts = ['.jpg', '.jpeg', '.png', '.gif']
     image_exts = ['.png', '.gif']
     
-    print("image_exts :", image_exts)
-    print("quality    :", quality)
-    print("max_dim    :", max_dim)
-    print("force_write:", b_force_write)
-    print("b_colorize :", b_colorize)
+    print("image_exts   :", image_exts)
+    print("quality      :", quality)
+    print("max_dim      :", max_dim)
+    print("b_force_write:", b_force_write)
+    print("b_colorize   :", b_colorize)
+    print("halftone     :", halftone)
+    print("b_use_palette:", b_use_palette)
     
+    # collect images
     images = []
     for root, dirs, files in os.walk(project_folder):
         for file in files:
@@ -66,10 +72,11 @@ if __name__ == "__main__":
                 #print("\t", os.path.basename(path))
                 images.append(path)
                 
-    # convert
+    # convert images
     perc_avg = 0.0
     for cnt, path in enumerate(images):
                 
+        print("-"*88)
         name, ext = os.path.splitext(path) # ('my_file', '.txt')
         out_path = name + '.webp'  
                     
@@ -80,15 +87,8 @@ if __name__ == "__main__":
             
             size_orig = os.path.getsize(path)
             image = Image.open(path)
-            
-            is_transp = image_has_transparency(image)
-            rgb_mode  = 'RGBA' if is_transp else 'RGB'
-            mono_mode = 'LA' if is_transp else 'L'
-            mono_mode = "1"
-            print("rgb_mode   :", rgb_mode)
-            print("mono_mode  :", mono_mode)
-            
-            image = image.convert(rgb_mode)
+            is_transp   = image_has_transparency(image)
+            #image       = image.convert('RGBA' if is_transp else 'RGB')
             wh_orig = image.size
             
             if False:
@@ -104,16 +104,35 @@ if __name__ == "__main__":
             else:   
                 image.thumbnail(max_dim, resample=resample)
                         
-            # colorize
-            if b_colorize: # not is_transp and mono_mode:
-                print("\t\t", "colorizing: mono_mode:", mono_mode)
-                image = image.convert(mono_mode) # LA L 1
+            if halftone and not is_transp:
+                image = image.convert("L")
+                image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
+                assert isinstance(image, PIL.Image.Image)
+            
+            if b_colorize and not is_transp: 
+                image = image.convert("L") # L only !!! # LA L 1
                 image = ImageOps.colorize(image, black ="#003300", white ="white")
                 
-            image = image.convert(rgb_mode)
-            image.save(out_path, 'webp', optimize=True, quality=quality)
+            if b_blackwhite:
+                if is_transp:
+                    image = image.convert("LA")
+                else:
+                    image = image.convert("L")
+                    
+            if b_use_palette:
+                if is_transp:
+                    image = image.convert("PA")
+                else:
+                    image = image.convert("P")
+                
+            ###image = image.convert(rgb_mode)
+                
+            if is_transp:
+                image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
+            else:
+                image.save(out_path, 'webp', optimize=True, quality=quality) 
             print("\t\t", "is_transp:", is_transp)
-            print("\t\t", "rgb_mode :", rgb_mode)
+            print("\t\t", "mode     :", image.mode)
             print("\t\t", "quality  :", quality)
             print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
             
@@ -126,11 +145,13 @@ if __name__ == "__main__":
             
         else:
             print("\t\t", "already exists:", os.path.basename(path))
+    ### for images />
         
     if images:                                                
         perc_avg /= len(images)  
         perc_avg = round(perc_avg, 1)  
         print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
+        
     print("all done.")
                 
     # https://www.thepythoncode.com/article/compress-pdf-files-in-python
