@@ -1015,32 +1015,31 @@ def replace_in_file(filename, string_from, string_to):
 def progress_string(perc, verbose_string="", VT=MAGENTA, n=16, cdone='■', crest='-'):
     return VT + "[" + cdone*round(n*perc) + crest*round(n*(1-perc)) + "] [{:.1f}%] ".format(perc*100) + verbose_string + RESET 
 
-def progress(perc, verbose_string="", VT=MAGENTA, n=16):
+def progress(perc, verbose_string="", VT=MAGENTA, n=16, prefix="", cdone='■', crest='-'): # | .
     import math
     # if perc <= 0.0:
-    print("{}[{}] [{:.1f}%] {}{}".format(
-        VT, '.'*n, perc*100, verbose_string, RESET),  end='\r')
+    print("{}{}[{}] [{:.1f}%] {}{}".format(VT, prefix, crest*n, perc*100, verbose_string, RESET),  end='\r')
     if perc >= 1.0:
         end = '\n'
     else:
         n = min(n, math.ceil(n * perc))
         end = '\r'
-    print("{}[{}{}".format(VT, '|'*n, RESET),  end=end)
+    print("{}{}[{}{}".format(VT, prefix, cdone*n, RESET),  end=end)
 
 
-def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=MAGENTA, n=16):
+def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=MAGENTA, n=16, prefix=""):
     if wait_secs and abs(wait_secs[1] - wait_secs[0]) > 0.0:
         import random
         import math
         s = random.uniform(wait_secs[0], wait_secs[1])
         #print("sleep_random: {:.1f}...{:.1f} --> {:.1f}s".format(wait_secs[0], wait_secs[1], s))
         start_secs = time.time()
-        progress(0, verbose_string=verbose_string, VT=VT, n=n)
+        progress(0, verbose_string=verbose_string, VT=VT, n=n, prefix=prefix)
         while time.time() - start_secs < s:
             perc = (time.time() - start_secs) / float(s)
-            progress(perc, verbose_string=verbose_string, VT=VT, n=n)
+            progress(perc, verbose_string=verbose_string, VT=VT, n=n, prefix=prefix)
             time.sleep(0.01)
-        progress(1, verbose_string=verbose_string, VT=VT, n=n)
+        progress(1, verbose_string=verbose_string, VT=VT, n=n, prefix=prefix)
              
 #-----------------------------------------
 # 

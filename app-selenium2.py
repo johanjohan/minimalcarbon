@@ -183,7 +183,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
         print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
-        wh.sleep_random(wait_secs,verbose_string=url)        
+        wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ")        
         
         try:
             if b_use_driver:
