@@ -38,7 +38,7 @@ sitemap_xml_path            = sitemap_base + "_sitemap.xml"
 #-----------------------------------------
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats(os.path.abspath("page/__KD__7/")) 
+project_folder      = ats(("page/__KD__7/")) # os.path.abspath
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 

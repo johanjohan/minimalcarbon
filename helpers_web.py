@@ -916,9 +916,8 @@ def get_stylesheet_background_images_from_file(style_path):
             style_string = fp.read()
             urls = get_stylesheet_background_images_from_string(style_string)
     else:
-        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}!!!!!!!!!!!!!!!!!!") # TODO 
-        exit(7)     
-        time.sleep(5)   
+        print(f"{YELLOW}TODO: style_path not yet downloaded: {style_path} {RESET}") # TODO 
+        time.sleep(2)   
         
     return urls
 
@@ -940,7 +939,7 @@ def save_html(content, path, pretty=False):
             with open(path, 'w', encoding="utf-8") as fp:
                 fp.write(content)
         else:
-            print(f"{MAGENTA}\t save_html: file already exists: {path} {RESET}")
+            print(f"{MAGENTA}\t save_html: file already exists: {os.path.basename(path)} {RESET}")
     except Exception as e:
         print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
         exit(1) # TODO!!!!!!!!!!!!!!!!!!!!

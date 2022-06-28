@@ -87,7 +87,7 @@ def sanitize_filepath(filepath):
     return fixedpath
 
 # -----------------------------------------
-# TODO deal witz /en/ or invent /de/
+# TODO  /en/ or invent /de/
 # -----------------------------------------
 
 # index.html
@@ -183,7 +183,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
         print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
-        wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ")        
+        wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ") # verbose_string=url       
         
         try:
             if b_use_driver:
@@ -287,7 +287,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 
                 if is_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
-                    wh.sleep_random(wait_secs, abs_src)
+                    wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
 
                     # get the file via requests
                     max_tries = 10
@@ -314,7 +314,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 else:
                     print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
             else:
-                print(f"{RED}\t\t already exists: {local_path}{RESET}")
+                print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
             # dots rel to url of this url, not to the image itself
             print(f"{GRAY}\t\t\t url       : {url}{RESET}")

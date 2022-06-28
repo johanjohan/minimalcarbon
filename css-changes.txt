@@ -26,7 +26,6 @@ header.scrolled {
 	background-color: rgba(35, 42, 26, 0.8);
 }
 
-
 .bg-cover {
 	/* height: 100%; */
 }
