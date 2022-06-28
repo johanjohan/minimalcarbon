@@ -1,5 +1,16 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
+""" 
+font  s .ttf .woff
 
+<div class="footer-social-links d-flex justify-content-center">
+<a href="https://twitter.com/KA_digital" target="_blank" rel="nofollow noopener" class="tgwf_grey"><i class="fab fa-twitter"></i></a><a href="https://www.facebook.com/karlsruhe.digital" target="_blank" rel="nofollow noopener" class="tgwf_green" data-hasqtip="10"><i class="fab fa-facebook-square"></i></a><a href="https://www.instagram.com/karlsruhe.digital/" target="_blank" rel="nofollow noopener" class="tgwf_green" data-hasqtip="11"><i class="fab fa-instagram"></i></a><a href="https://de.linkedin.com/company/karlsruhedigital" target="_blank" rel="nofollow noopener" class="tgwf_grey"><i class="fab fa-linkedin"></i></a><a href="mailto:info@karlsruhe.digital"><i class="fas fa-envelope"></i></a></div>
+
+<i class="fas fa-search"></i>
+
+<div class="owl-nav d-flex justify-content-center align-items-center"><a class="owl-prev d-flex mr-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png"></a><span class="swiper-item-number">01</span><a class="owl-next d-flex ml-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts.png"></a></div>
+
+<span class="swiper-item-number">01</span>
+"""
 import glob, os
 from re import X
 import PIL
@@ -120,7 +131,7 @@ if __name__ == "__main__":
     b_perform_pdf_compression   = b_perform_conversion
     b_perform_replacement       = True
      
-    b_delete_originals          = True
+    b_delete_originals          = False
         
     if b_delete_originals:
         if "Cancel" == pag.confirm(text=f"b_delete_originals: {b_delete_originals}"):
@@ -306,6 +317,7 @@ if __name__ == "__main__":
         
         fp = open(filename, "r", encoding="utf-8")
         html = fp.read()
+        
         # replace
         for i, conversion in enumerate(conversions):
             fr, to = conversion
@@ -313,8 +325,11 @@ if __name__ == "__main__":
             if wh.file_exists_and_valid(to):    
                 
                 # rel paths from root /
-                wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
-                wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
+                wp_fr = to_posix('/' + os.path.relpath(fr, project_folder))
+                wp_to = to_posix('/' + os.path.relpath(to, project_folder))
+                
+                # cnt = html.count(wp_fr)
+                # print("\t\t cnt:", cnt, "|", wp_fr)
                 
                 if False and not (i%11):
                     #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
@@ -327,6 +342,7 @@ if __name__ == "__main__":
             else:
                 print("\t\t\t", "does not exist: to:", to)
         ### for conversion />
+        
         print(wh.RESET)   
         fp.close()
         
@@ -344,7 +360,19 @@ if __name__ == "__main__":
         for i, html_file in enumerate(html_files):
             print("\t", "-"*88)
             print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
-            replace_all_conversions_in_file(html_file, conversions)
+            
+            if False:
+                replace_all_conversions_in_file(html_file, conversions)
+            else:
+                conversions_exts = []
+                for q in ["\"", "\'"]:
+                    for ext in image_exts:
+                        conversions_exts.append((ext + q, ".webp" + q))
+                        
+                        wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
+                
+                #replace_all_conversions_in_file(html_file, conversions_exts)
+                                              
         ### for /> 
     ### b_perform_replacement />            
             

@@ -1032,13 +1032,20 @@ def html_minify(content):
 
 def replace_all_in_file(filename, string_from, string_to):
     
-    fp = open(filename, "rt")
+    #print("replace_all_in_file:", filename)
+    
+    fp = open(filename, "r", encoding="utf-8")
     data = fp.read()
+    
+    cnt = data.count(string_from)
+    if cnt > 0:
+        print("replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
+    
     data = replace_all(data, string_from, string_to)
     fp.close()
     
     #open the input file in write mode
-    fp = open(filename, "wt")
+    fp = open(filename, "w", encoding="utf-8")
     fp.write(data)
     fp.close()
 
