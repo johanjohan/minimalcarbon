@@ -8,7 +8,7 @@ import halftone as ht # https://pypi.org/project/halftone/
 import config
 import helpers_web as wh
 import time
-
+import pathlib
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -68,17 +68,20 @@ def load_conversions(path_conversions):
             conversions.append((subs[0].strip(), subs[1].strip()))
     print("load_conversions: len(conversions):", len(conversions))
     return conversions
+
+def to_posix(filepath):
+    return pathlib.Path(filepath).as_posix()
             
 #-----------------------------------------
 # 
 #-----------------------------------------
 if __name__ == "__main__":
     
-    project_folder  = os.path.abspath(config.project_folder)
+    project_folder  = to_posix(os.path.abspath(config.project_folder))
 
     b_perform_conversion    = True
     b_perform_replacement   = True
-    b_delete_replacement    = True
+    b_delete_replacement    = False
     path_conversions = "data/" + config.base_netloc + "_image_conversions.csv"
     
     if b_perform_conversion:   
@@ -112,15 +115,17 @@ if __name__ == "__main__":
         conversions = []
                      
         # convert images
+        
         perc_avg = 0.0
         for cnt, path in enumerate(images):
             
-            path = os.path.normpath(path)
-                    
             print("-"*88)
+            #path = os.path.normpath(path)
+            path = to_posix(path)
             name, ext = os.path.splitext(path) # ('my_file', '.txt')
             out_path = name + '.webp' 
-            out_path = os.path.normpath(out_path) 
+            #out_path = os.path.normpath(out_path) 
+            out_path = to_posix(out_path)
             
             conversions.append((path, out_path))
                         
@@ -204,6 +209,8 @@ if __name__ == "__main__":
 
     #-----------------------------------------
     # better use a list in case above finds no more erased images....
+    # TODO need to create /wp paths from these images...rel to project folder and using / 
+    # https://www.geeksforgeeks.org/python-os-path-relpath-method/
     #-----------------------------------------
     if b_perform_replacement:
         conversions = load_conversions(path_conversions)    
@@ -219,7 +226,11 @@ if __name__ == "__main__":
                 
                 if wh.file_exists_and_valid(to):
                     
-                    wh.replace_all_in_file(html, fr, to) 
+                    # rel paths from /
+                    wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
+                    wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
+                    
+                    wh.replace_all_in_file(html, wp_fr, wp_to) 
                       
                     if b_delete_replacement and wh.file_exists_and_valid(fr):
                         print("\t\t\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
