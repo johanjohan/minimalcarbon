@@ -37,7 +37,7 @@ from helpers_web import add_trailing_slash as ats
 #-----------------------------------------
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats(os.path.abspath("page/__KD__6/")) 
+project_folder      = ats(os.path.abspath("page/__KD__7/")) 
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 

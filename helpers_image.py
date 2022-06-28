@@ -7,6 +7,11 @@ import halftone as ht # https://pypi.org/project/halftone/
 
 import config
 import helpers_web as wh
+import time
+
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 def image_has_transparency(img):
     if img.info.get("transparency", None) is not None:
@@ -29,6 +34,9 @@ def image_show(path, secs=1):
     p = subprocess.Popen(["C:\Program Files\IrfanView\i_view64.exe", path])
     time.sleep(secs)
     p.kill()
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 def saved_percent(size_orig, size_new):
     assert size_orig > 0
@@ -36,122 +44,194 @@ def saved_percent(size_orig, size_new):
     return perc
 
 def saved_percent_string(size_orig, size_new):
-    return "{:.1f}%".format(saved_percent(size_orig, size_new))
-
+    pct = saved_percent(size_orig, size_new)
+    vt  = wh.RED if pct <= 0 else wh.GREEN
+    return "{}{:+.1f}%{}".format(vt, pct, wh.RESET)
+#-----------------------------------------
+# 
+#-----------------------------------------
+def save_conversions(path_conversions, conversions):
+    if conversions:    
+        print("save_conversions:", wh.YELLOW + path_conversions + wh.RESET)
+        with open(path_conversions, 'w', encoding="utf-8") as fp:
+            for conversion in conversions:
+                fr, to = conversion        
+                fp.write(fr.strip() +  "," + to.strip() + "\n")    
+        print("save_conversions: len(conversions):", len(conversions))
+                
+def load_conversions(path_conversions):
+    print("load_conversions:", wh.YELLOW + path_conversions + wh.RESET)
+    conversions = []
+    with open(path_conversions, 'r', encoding="utf-8") as fp:
+        for line in fp:
+            subs = line.split(',')
+            conversions.append((subs[0].strip(), subs[1].strip()))
+    print("load_conversions: len(conversions):", len(conversions))
+    return conversions
+            
+#-----------------------------------------
+# 
+#-----------------------------------------
 if __name__ == "__main__":
     
-    # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
     project_folder  = os.path.abspath(config.project_folder)
-    quality         = 50 # 66
-    max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-    show_nth_image  = 1 # 0 is off, 1 all
-    resample        = Image.Resampling.LANCZOS
-    b_colorize      = True
-    halftone        = None # (4, 30) # or None
-    b_force_write   = True
-    b_blackwhite    = False
-    b_use_palette   = False
+
+    b_perform_conversion    = True
+    b_perform_replacement   = True
+    b_delete_replacement    = True
+    path_conversions = "data/" + config.base_netloc + "_image_conversions.csv"
     
-    image_exts = ['.jpg', '.jpeg', '.png', '.gif']
-    image_exts = ['.png', '.gif']
-    
-    print("image_exts   :", image_exts)
-    print("quality      :", quality)
-    print("max_dim      :", max_dim)
-    print("b_force_write:", b_force_write)
-    print("b_colorize   :", b_colorize)
-    print("halftone     :", halftone)
-    print("b_use_palette:", b_use_palette)
-    
-    # collect images
-    images = []
-    for root, dirs, files in os.walk(project_folder):
-        for file in files:
-            if any(file.lower().endswith(ext) for ext in image_exts): # , '.webp'
-                path = os.path.abspath(os.path.join(root, file))
-                #print("\t", os.path.basename(path))
-                images.append(path)
-                
-    # convert images
-    perc_avg = 0.0
-    for cnt, path in enumerate(images):
-                
-        print("-"*88)
-        name, ext = os.path.splitext(path) # ('my_file', '.txt')
-        out_path = name + '.webp'  
-                    
-        if b_force_write or not wh.file_exists_and_valid(out_path):
+    if b_perform_conversion:   
         
-            print("\t", "{}/{}:".format(cnt+1, len(images)), os.path.basename(path))
-            print("\t\t", wh.progress_string(cnt / len(images), verbose_string="", VT=wh.CYAN, n=33))
+        # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
+        quality         = 50 # 66
+        max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
+        show_nth_image  = 50 # 0 is off, 1 all
+        resample        = Image.Resampling.LANCZOS
+        b_colorize      = True
+        halftone        = None # (4, 30) # or None
+        b_force_write   = False
+        b_blackwhite    = False
+        b_use_palette   = False
+        
+        image_exts = ['.jpg', '.jpeg', '.png', '.gif']
+        #image_exts = ['.png', '.gif']
+        
+        print("image_exts   :", image_exts)
+        print("quality      :", quality)
+        print("max_dim      :", max_dim)
+        print("b_force_write:", b_force_write)
+        print("b_colorize   :", b_colorize)
+        print("halftone     :", halftone)
+        print("b_use_palette:", b_use_palette)
+        
+        #-----------------------------------------
+        # 
+        #-----------------------------------------
+        images = wh.collect_files_endswith(project_folder, image_exts)
+        conversions = []
+                     
+        # convert images
+        perc_avg = 0.0
+        for cnt, path in enumerate(images):
             
-            size_orig = os.path.getsize(path)
-            image = Image.open(path)
-            is_transp   = image_has_transparency(image)
-            #image       = image.convert('RGBA' if is_transp else 'RGB')
-            wh_orig = image.size
+            path = os.path.normpath(path)
+                    
+            print("-"*88)
+            name, ext = os.path.splitext(path) # ('my_file', '.txt')
+            out_path = name + '.webp' 
+            out_path = os.path.normpath(out_path) 
             
-            if False:
-                w, h = image.size
-                print("\t\t", "size:", image.size)
-                assert h > 0 and w > 0
-                if w > max_dim[0] or h > max_dim[1]:
-                    if w >= h:
-                        image = image.resize((max_dim[0], round(h / w * max_dim[0])), resample=resample)
-                    else:
-                        image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
-                    print("\t\t", "new :", image.size)
-            else:   
-                image.thumbnail(max_dim, resample=resample)
+            conversions.append((path, out_path))
                         
-            if halftone and not is_transp:
-                image = image.convert("L")
-                image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
-                assert isinstance(image, PIL.Image.Image)
+            if b_force_write or not wh.file_exists_and_valid(out_path):
             
-            if b_colorize and not is_transp: 
-                image = image.convert("L") # L only !!! # LA L 1
-                image = ImageOps.colorize(image, black ="#003300", white ="white")
+                print("\t", "{}/{}:".format(cnt+1, len(images)), os.path.basename(path))
+                print("\t\t", wh.progress_string(cnt / len(images), verbose_string="", VT=wh.CYAN, n=33))
                 
-            if b_blackwhite:
-                if is_transp:
-                    image = image.convert("LA")
-                else:
+                size_orig = os.path.getsize(path)
+                image = Image.open(path)
+                is_transp   = image_has_transparency(image)
+                #image       = image.convert('RGBA' if is_transp else 'RGB')
+                wh_orig = image.size
+                
+                if False:
+                    w, h = image.size
+                    print("\t\t", "size:", image.size)
+                    assert h > 0 and w > 0
+                    if w > max_dim[0] or h > max_dim[1]:
+                        if w >= h:
+                            image = image.resize((max_dim[0], round(h / w * max_dim[0])), resample=resample)
+                        else:
+                            image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
+                        print("\t\t", "new :", image.size)
+                else:   
+                    image.thumbnail(max_dim, resample=resample)
+                            
+                if halftone and not is_transp:
                     image = image.convert("L")
+                    image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
+                    assert isinstance(image, PIL.Image.Image)
+                
+                if b_colorize and not is_transp: 
+                    image = image.convert("L") # L only !!! # LA L 1
+                    image = ImageOps.colorize(image, black ="#003300", white ="white")
                     
-            if b_use_palette:
+                if b_blackwhite:
+                    if is_transp:
+                        image = image.convert("LA")
+                    else:
+                        image = image.convert("L")
+                        
+                if b_use_palette:
+                    if is_transp:
+                        image = image.convert("PA")
+                    else:
+                        image = image.convert("P")
+                    
+                ###image = image.convert(rgb_mode)
+                    
                 if is_transp:
-                    image = image.convert("PA")
+                    image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
                 else:
-                    image = image.convert("P")
+                    image.save(out_path, 'webp', optimize=True, quality=quality) 
+                print("\t\t", "is_transp:", is_transp)
+                print("\t\t", "mode     :", image.mode)
+                print("\t\t", "quality  :", quality)
+                print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 
-            ###image = image.convert(rgb_mode)
+                size_new = os.path.getsize(out_path)
+                print("\t\t", "saved  :", saved_percent_string(size_orig, size_new), os.path.basename(out_path))
+                perc_avg += saved_percent(size_orig, size_new)
                 
-            if is_transp:
-                image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
+                if show_nth_image > 0 and not (cnt%show_nth_image):
+                    image_show(out_path, secs=0.5)
+                
             else:
-                image.save(out_path, 'webp', optimize=True, quality=quality) 
-            print("\t\t", "is_transp:", is_transp)
-            print("\t\t", "mode     :", image.mode)
-            print("\t\t", "quality  :", quality)
-            print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
+                print("\t\t", "already exists:", os.path.basename(out_path))
+        ### for images />
             
-            size_new = os.path.getsize(out_path)
-            print("\t\t", "saved  :", wh.GREEN + saved_percent_string(size_orig, size_new) + wh.RESET, os.path.basename(out_path))
-            perc_avg += saved_percent(size_orig, size_new)
+        if images:                                                
+            perc_avg /= len(images)  
+            perc_avg = round(perc_avg, 1)  
+            print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
+    
+
+         #print(*conversions, sep="\n\t")
+        if conversions:
+            save_conversions(path_conversions, conversions)   
+    ### b_perform_conversion />
+
+    #-----------------------------------------
+    # better use a list in case above finds no more erased images....
+    #-----------------------------------------
+    if b_perform_replacement:
+        conversions = load_conversions(path_conversions)    
+        #print(*conversions, sep="\n\t")      
+                                
+        htmls = images = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html"])
+        for i, html in enumerate(htmls):
+            print("\t", "-"*88)
+            print("\t", i+1, "/", len(htmls), os.path.basename(html))
+            for conversion in conversions:
+                fr, to = conversion
+                print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
+                
+                if wh.file_exists_and_valid(to):
+                    
+                    wh.replace_all_in_file(html, fr, to) 
+                      
+                    if b_delete_replacement and wh.file_exists_and_valid(fr):
+                        print("\t\t\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
+                        os.remove(fr)
+                else:
+                    print("\t\t\t", "does not exist: to:", to)
+                        
+    ### b_perform_replacement />            
             
-            if show_nth_image > 0 and not (cnt%show_nth_image):
-                image_show(out_path, secs=0.5)
-            
-        else:
-            print("\t\t", "already exists:", os.path.basename(path))
-    ### for images />
-        
-    if images:                                                
-        perc_avg /= len(images)  
-        perc_avg = round(perc_avg, 1)  
-        print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
-        
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
     print("all done.")
                 
     # https://www.thepythoncode.com/article/compress-pdf-files-in-python

@@ -663,17 +663,28 @@ def get_content(url, timeout=10):
 #-----------------------------------------
 def file_exists_and_valid(filepath):
     
+    filepath = filepath.strip()
+    
     if os.path.exists(filepath):
         if os.path.isfile(filepath):
             if os.path.getsize(filepath) > 0:
-                #print("file_exists_and_valid:", MAGENTA, "isfile", RESET, os.path.getsize(filepath), filepath)
+                #print("file_exists_and_valid:", GREEN, "isfile", RESET, os.path.getsize(filepath), filepath)
                 return True
         elif os.path.isdir(filepath):
-            #print("file_exists_and_valid:", MAGENTA, "isdir", RESET, filepath)
+            #print("file_exists_and_valid:", GREEN, "isdir", RESET, filepath)
             return True
-        
+       
+    #print("file_exists_and_valid:", RED, "NO", RESET, filepath) 
     return False
     
+    # import pathlib as p
+    # path = p.Path(filepath)
+    # if path.exists() and path.stat().st_size > 0:
+    #     print("file_exists_and_valid:", GREEN, "OK", RESET, path.stat().st_size, filepath)
+    #     return True
+    # else:
+    #     print("file_exists_and_valid:", RED, "NO", RESET, filepath)
+    #     return False
 
 #-----------------------------------------
 # 
@@ -812,13 +823,20 @@ def wait_for_page_has_loaded(driver):
 # 
 #-----------------------------------------
 def replace_all(content, oldvalue, newvalue):
+    cnt_first = content.count(oldvalue)
     len_orig = len(content)
     while oldvalue in content:
         content = content.replace(oldvalue, newvalue)
+    cnt_last = content.count(oldvalue)
     
     if False: # verbose
         printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
-        print("replace_all:", CYAN, dq(printvalue), RESET, "| replaced", len_orig - len(content), "bytes")
+        print(
+            "replace_all:", 
+            CYAN, dq(printvalue), RESET, 
+            "| replaced", len_orig - len(content), "bytes",
+            "| cnt:", cnt_first, "-->", cnt_last
+        )
         
     return content
 
@@ -967,7 +985,7 @@ def html_minify(content):
                 remove_all_empty_space=True,
                 reduce_boolean_attributes=True,
                 reduce_empty_attributes=True,
-                remove_optional_attribute_quotes=True,
+                remove_optional_attribute_quotes=False, # ??????? True TODO
                 convert_charrefs=True,
                 )
         except:
@@ -995,11 +1013,23 @@ def html_minify(content):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_in_file(filename, string_from, string_to):
+# def replace_in_file(filename, string_from, string_to):
+    
+#     fp = open(filename, "rt")
+#     data = fp.read()
+#     data = data.replace(string_from, string_to)
+#     fp.close()
+    
+#     #open the input file in write mode
+#     fp = open(filename, "wt")
+#     fp.write(data)
+#     fp.close()
+
+def replace_all_in_file(filename, string_from, string_to):
     
     fp = open(filename, "rt")
     data = fp.read()
-    data = data.replace(string_from, string_to)
+    data = replace_all(data, string_from, string_to)
     fp.close()
     
     #open the input file in write mode
@@ -1043,6 +1073,19 @@ def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=M
 #-----------------------------------------
 # 
 #-----------------------------------------
+def collect_files_endswith(project_folder, allowed_extensions):
+    allowed_extensions = [e.lower() for e in allowed_extensions]
+    print("collect_files:", project_folder)
+    print("collect_files:", allowed_extensions)
+    assets = []
+    for root, dirs, files in os.walk(project_folder):
+        for file in files:
+            if any(file.lower().endswith(ext) for ext in allowed_extensions): 
+                path = os.path.abspath(os.path.join(root, file))
+                #print("\t", os.path.basename(path))
+                assets.append(path)
+    print("collect_files:", len(assets), "assets found.")
+    return assets
 
 #-----------------------------------------
 # 
