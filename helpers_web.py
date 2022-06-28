@@ -357,7 +357,7 @@ def links_make_absolute(links, base):
         ret.append(link_make_absolute(link, base))
     return ret
         
-def links_remove_invalids(links, base, invalids):
+def links_remove_invalids(links, invalids):
     #print(YELLOW, *links, RESET, sep="\n\t")
     ret = []
     
@@ -916,7 +916,10 @@ def get_stylesheet_background_images_from_file(style_path):
             style_string = fp.read()
             urls = get_stylesheet_background_images_from_string(style_string)
     else:
-        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}!!!!!!!!!!!!!!!!!!") # TODO         
+        print(f"{YELLOW}\t style_path not yet downloaded TODO: {style_path} {RESET}!!!!!!!!!!!!!!!!!!") # TODO 
+        exit(7)     
+        time.sleep(5)   
+        
     return urls
 
 #-----------------------------------------

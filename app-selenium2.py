@@ -117,7 +117,7 @@ def get_page_folder(url, base):
     for folder in subs:
         if folder and is_a_folder(folder):
             page_folder += folder + "/" 
-    print("get_page_folder    :", GRAY, url, "-->", RESET, page_folder)
+    print("get_page_folder    :", GRAY, url, "-->", RESET, wh.sq(page_folder))
     return page_folder               
 
 
@@ -187,7 +187,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         
         try:
             if b_use_driver:
-                driver.get(url) # TODO may throw SSL error
+                driver.get(url) 
                 wh.wait_for_page_has_loaded(driver)
                 content = driver.page_source
             else:
@@ -204,7 +204,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 url = "https://" + strip_protocol(url)
             print(f"{RED}\t will try with different PROTOCOL: {url} {RESET}")
             time.sleep(2)
-            
+    ### for tries   get />     
 
     # -----------------------------------------
     #
@@ -214,7 +214,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     path_original   = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
-    # TODO manual replace instead links_remove_similar
+    # 
     # -----------------------------------------
     for fr, to in replacements_pre:
         print(YELLOW, "\t replace:", fr, "-->", to, RESET)
@@ -227,17 +227,15 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # collect internal files: skip externals
     # make them all absolute urls
 
-    def assets_save_internals_locally(content, url, base, links, project_folder):
+    def assets_save_internals_locally(content, url, base, links, project_folder, b_strip_ver=True):
         
         global images_written
         
-        b_strip_ver = True
-
         links = wh.links_remove_comments(links, '#')
         ### links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
         ### links = wh.links_remove_folders(links) NO!!!
-        links = wh.links_remove_invalids(links, base, ["s.w.org", "?p=", "mailto:", "javascript:"])
+        links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:"])
         ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
         links = wh.links_make_unique(links)
         links = sorted(links)
@@ -252,7 +250,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             # check external
             if wh.url_is_external(src, base):
                 print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
-                exit(6)
+                exit(6) # TODO DEBUG
                 continue
             
             abs_src = wh.link_make_absolute(src, base)
@@ -282,15 +280,16 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
                 images_written.append(os.path.abspath(local_path))
                                         
-            wh.make_dirs(local_path)
-  
+   
             # get and save link-asset to disk
+            wh.make_dirs(local_path)
             if not wh.file_exists_and_valid(local_path): 
                 
                 if is_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
                     wh.sleep_random(wait_secs, abs_src)
 
+                    # get the file via requests
                     max_tries = 10
                     for cnt in range(max_tries):
                         try:
@@ -304,7 +303,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                             print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                             time.sleep(3)
                     
-                    # write the file        
+                    # write the file to disk local        
                     try:
                         with open(local_path, 'wb') as fp:
                             fp.write(res.content)
@@ -336,25 +335,30 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
+    
+    links_head_css = h.xpath('head//link[@type="text/css"]/@href')
+    links_head_css = wh.links_strip_query_and_fragment(links_head_css)
+    links_head_css = wh.links_make_unique(links_head_css)
+    print("list_head_css", *links_head_css, sep="\n\t")
 
-    list_head_href = h.xpath('head//@href')
+    links_head_href = h.xpath('head//@href')
 
-    list_body_href = h.xpath('body//@href')
+    links_body_href = h.xpath('body//@href')
 
     # //link[not contains(@rel, "icon")]/@href
-    list_link_href = h.xpath('//link/@href')
+    links_link_href = h.xpath('//link/@href')
 
-    list_img = h.xpath('//img/@src')
-    list_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
-    list_img += wh.get_style_background_images(driver)
-    list_img += wh.get_stylesheet_background_images_from_file(style_path)
-    list_css_text = h.xpath("//style/text()")
-    for text in list_css_text:
+    links_img = h.xpath('//img/@src')
+    links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
+    links_img += wh.get_style_background_images(driver)
+    links_img += wh.get_stylesheet_background_images_from_file(style_path)
+    links_css_text = h.xpath("//style/text()")
+    for text in links_css_text:
         # text = cssbeautifier.beautify(text)
         # print("script", GRAY + text + RESET)
-        list_img += wh.get_stylesheet_background_images_from_string(text)
+        links_img += wh.get_stylesheet_background_images_from_string(text)
     
-    list_scripts = h.xpath('//script/@src')
+    links_scripts = h.xpath('//script/@src')
     # list_script_text = h.xpath("//script/text()")
     # import re
     # import json
@@ -376,16 +380,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     
 
     # https://realpython.com/python-zip-function/
-    assets = [list_head_href, list_body_href,
-              list_link_href, list_img, list_scripts]
-    suffixes = ["list_head_href", "list_body_href",
-                "list_link_href", "list_img", "list_scripts"]
-    for asset, suffix in zip(assets, suffixes):
+    lists       = [ links_head_css,   links_head_href,   links_body_href,  links_link_href,   links_img,   links_scripts]
+    suffixes    = ["links_head_css", "links_head_href", "links_body_href","links_link_href", "links_img", "links_scripts"]
+    for links, suffix in zip(lists, suffixes):
         print("/" * 80)
         print(suffix)
-        #print(GRAY, *asset, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
+        #print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
         content = assets_save_internals_locally(
-            content, url, base, asset, project_folder)
+            content, url, base, links, project_folder)
         wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
@@ -560,14 +562,16 @@ if __name__ == "__main__":
             urls = [line.rstrip() for line in lines]
     urls = wh.links_remove_comments(urls, '#')
 
+    # chrome
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
             driver = webdriver.Chrome()
+            driver.implicitly_wait(30)
             break
-        except:
+        except Exception as e:
+            print(f"{RED} {e} {RESET}")
             time.sleep(3)
-    driver.implicitly_wait(30)
     
     for count, url in enumerate(urls):
 
