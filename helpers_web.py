@@ -778,13 +778,25 @@ def wait_for_page_has_loaded_readyState(driver, sleep_secs=1):
         page_state = driver.execute_script('return document.readyState;')
         return page_state == 'complete'
 
-    max_turns = 10
-    cnt = 0
-    while not _page_has_loaded_readyState(driver):
-        print("wait_for_page_has_loaded_readyState: {} {}s {}".format(cnt, sleep_secs, driver.current_url))
-        time.sleep(sleep_secs)
-        if cnt := cnt + 1 >= max_turns:
+    # # # max_turns = 10
+    # # # cnt = 0
+    # # # while not _page_has_loaded_readyState(driver):
+    # # #     print("wait_for_page_has_loaded_readyState: {} {}s {}".format(cnt, sleep_secs, driver.current_url))
+    # # #     time.sleep(sleep_secs)
+    # # #     if cnt := cnt + 1 >= max_turns:
+    # # #         break
+        
+    max_tries = 20
+    for tries in range(1, max_tries+1):
+        print(MAGENTA + "[{}] wait_for_page_has_loaded_readyState: {}s | {}".format(tries, sleep_secs, driver.current_url) + RESET)
+        if _page_has_loaded_readyState(driver):
             break
+        else:
+            print("\t", "sleep:", sleep_secs)
+            time.sleep(sleep_secs)
+            
+    if tries == max_tries:
+        print("\t", RED + "wait_for_page_has_loaded_readyState: tried out" + RESET)
         
     return True
     
