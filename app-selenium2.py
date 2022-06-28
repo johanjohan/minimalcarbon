@@ -39,6 +39,113 @@ Note: The new features discussed in this article — srcset/sizes/<picture> — 
 
 http:// https://is_a_real_url.yes
 
+TODO
+
+now python replace tags via bs4 or selenium
+https://stackoverflow.com/questions/55915856/change-element-in-python-using-selenium
+
+var = 100
+js = f"arguments[0].setAttribute('value', '{var}')"
+browser.execute_script(js, get_draws)
+
+
+EDIT SOLVED:
+
+Figured out how to change the value of an element. I had to change the search method of that element to this:
+
+get_draws = browser.find_element_by_tag_name('option')
+
+Then my next line was pretty simple:
+
+browser.execute_script(arguments[0].setAttribute('value', '100'), get_draws)
+
+python replace tag with selenium
+https://stackoverflow.com/questions/69732483/python-selenium-find-all-css-element-and-replace-all
+https://www.geeksforgeeks.org/change-the-tags-contents-and-replace-with-the-given-string-using-beautifulsoup/
+https://python.tutorialink.com/i-want-to-replace-the-html-code-with-my-own/
+
+
+r=requests.get('https://neculaifantanaru.com/en/qualities-of-a-leader-inner-integrity.html')
+soup=BeautifulSoup(r.text, 'html.parser')
+
+try:
+    articles = soup.find_all('p', {'class':"text_obisnuit"})
+    for item in articles:  
+
+        original_text=item.text
+        #print(original_text)
+        translated_output=ts.google(original_text, from_language='en', to_language='ro')
+        print(item)
+
+        item.string = translated_output
+            
+except Exception as e:
+    print(e)
+
+# To see that it was changed
+for item in articles:   
+    print(item)
+
+
+translated_html = str(soup)
+
+####################
+
+    element =driver.find_element_by_id("some-random-number")
+    driver.execute_script("arguments[0].innerText = '200'", element)
+    
+    element =  driver.find_element_by_class_name("something");
+    driver.execute_script("arguments[0].setAttribute('style', 'transition: transform 2500ms bla bla bla')", element);       
+
+
+#######################
+
+
+37
+
+I do not know of a Selenium method that is designed specifically to remove elements. However, you can do it with:
+
+element = driver.find_element_by_class_name('classname')
+driver.execute_script(""
+var element = arguments[0];
+element.parentNode.removeChild(element);
+"", element)
+
+############################
+https://stackoverflow.com/questions/22515012/python-selenium-how-can-i-delete-an-element
+
+def excludeTagFromWebDriver(driver : WebDriver, selector : str):
+    i = 0
+    soup = BeautifulSoup(driver.page_source, 'html.parser') # Parsing content using beautifulsoup
+    while soup.find(selector):
+        # print(soup.find(selector))
+        js = ""
+            var element = document.querySelector(""" + "'" + selector + "'" + """);
+            if (element)
+                element.parentNode.removeChild(element);
+            ""
+        driver.execute_script(js)
+        soup = BeautifulSoup(driver.page_source, 'html.parser') # Parsing content using beautifulsoup
+        i += 1
+        # print('Removed tag with selector ' + "'" + selector + "'" + ' with nr: ', i)
+    print('Removed ' + str(i) + ' tags with the selector ' + "'" + selector + "'" + " and all it's children tags.")
+    return driver
+
+driver = excludeTagFromWebDriver(driver,"sup")
+
+###################################
+        try:
+            element = driver.find_element_by_xpath("//div[@class='chatContainer oldStyle']")
+        driver.execute_script(""var element = arguments[0]; 
+            element.parentNode.removeChild(element);"", element)
+        except Exception:
+            pass
+##################################
+chatBox = driver.find_element(By.XPATH, "//div[@class='chatContainer oldStyle']")
+driver.execute_script("arguments[0].remove();", chatBox)
+
+
+
 """
 
 # -----------------------------------------
@@ -598,6 +705,9 @@ if __name__ == "__main__":
             print(f"[{tries}] webdriver.Chrome()...")
             driver = webdriver.Chrome()
             driver.implicitly_wait(30)
+            # driver.execute_script("alert('alert via selenium')")
+            # time.sleep(33)
+            # exit(0)
             break
         except Exception as e:
             print(f"{RED} {e} {RESET}")
