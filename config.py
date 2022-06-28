@@ -25,24 +25,29 @@ CYAN = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
 print(MAGENTA)
 
-#-----------------------------------------
-# init the colorama module
-#-----------------------------------------
-sitemap_base                = "data/karlsruhe.digital_20220627_222911"
-sitemap_links_internal_path = sitemap_base + "_internal_links.csv"
-sitemap_links_external_path = sitemap_base + "_external_links.csv"
-sitemap_xml_path            = sitemap_base + "_sitemap.xml"
 
 #-----------------------------------------
 # app-selenium
 #-----------------------------------------
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats(("page/__KD__7/")) # os.path.abspath
+project_folder      = ats("page/__KD__7/") # os.path.abspath
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
-data_folder         = "data"
+data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
+
+#-----------------------------------------
+# init the colorama module
+#-----------------------------------------
+sitemap_base                = data_folder + "karlsruhe.digital_20220627_222911"
+sitemap_links_internal_path = sitemap_base + "_internal_links.csv"
+sitemap_links_external_path = sitemap_base + "_external_links.csv"
+sitemap_xml_path            = sitemap_base + "_sitemap.xml"
+
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 sitemap_links_ignore = [
     base + 'wp-json/', # is a file not a dir

@@ -31,11 +31,21 @@ def image_has_transparency(img):
     return False
 
 def image_show(path, secs=1):
+    path = os.path.normpath(path)
+    print("image_show:", path)
+    assert os.path.isfile(path)
+    
     import subprocess
     import time
-    p = subprocess.Popen(["C:\Program Files\IrfanView\i_view64.exe", path])
+    # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
+    p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
     time.sleep(secs)
     p.kill()
+    
+    # from PIL import Image
+    # img = Image.open(path)
+    # img.show()    
+    
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -52,10 +62,15 @@ def saved_percent_string(size_orig, size_new):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def save_conversions(path_conversions, conversions):
+def save_conversions(path_conversions, conversions, mode='w'):
+    
+    # make unique
+    conversions.extend(load_conversions(path_conversions))
+    conversions = list(set(conversions)) # unique
+    
     if conversions:    
         print("save_conversions:", wh.YELLOW + path_conversions + wh.RESET)
-        with open(path_conversions, 'w', encoding="utf-8") as fp:
+        with open(path_conversions, mode, encoding="utf-8") as fp:
             for conversion in conversions:
                 fr, to = conversion        
                 fp.write(fr.strip() +  "," + to.strip() + "\n")    
@@ -68,7 +83,10 @@ def load_conversions(path_conversions):
         for line in fp:
             subs = line.split(',')
             conversions.append((subs[0].strip(), subs[1].strip()))
+            
     print("load_conversions: len(conversions):", len(conversions))
+    conversions = list(set(conversions)) # unique
+    print("load_conversions: unique len(conversions):", len(conversions))
     return conversions
 
 #-----------------------------------------
@@ -82,24 +100,64 @@ def to_posix(filepath):
 #-----------------------------------------
 if __name__ == "__main__":
     
-    project_folder  = to_posix(os.path.abspath(config.project_folder))
-    path_conversions = "data/" + config.base_netloc + "_image_conversions.csv"
+    project_folder              = to_posix(os.path.abspath(config.project_folder))
+    path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
-    b_perform_conversion    = True
-    b_perform_replacement   = True
-    b_delete_replacement    = True
-        
-    if b_delete_replacement:
-        if "Cancel" == pag.confirm(text="b_delete_replacement: {}".format(b_delete_replacement)):
-            exit(0)
-            
+    b_perform_conversion        = True
+    b_perform_pdf_compression   = b_perform_conversion
+    b_perform_replacement       = True
      
+    b_delete_originals          = True
+        
+    if b_delete_originals:
+        if "Cancel" == pag.confirm(text=f"b_delete_originals: {b_delete_originals}"):
+            exit(0)
+
+    conversions = []
+            
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    if b_perform_pdf_compression:
+        import ghostscript as gs
+        csuffix = "_compressed.pdf"
+        
+        pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
+        pdfs = [pdf for pdf in pdfs if not csuffix in pdf] # no compressed files
+        #print("pdfs", *pdfs, sep="\n\t")
+        for i, pdf in enumerate(pdfs):
+            
+            print("-"*88)
+            
+            orig_path = pdf
+            new_path  = pdf + csuffix
+            
+            if not wh.file_exists_and_valid(new_path):
+                gs.compress_pdf(orig_path, new_path, res=96)
+                
+            if wh.file_exists_and_valid(new_path):
+                size_orig = os.path.getsize(orig_path)
+                size_new  = os.path.getsize(new_path)
+                print("\t", "saved:", saved_percent_string(size_orig, size_new), os.path.basename(new_path))
+                if size_new < size_orig:
+                    conversions.append((orig_path, new_path))     
+                    print("\t\t", "added to conversions.")           
+                
+        ### for />
+                 
+        if conversions:
+            save_conversions(path_conversions, conversions)  
+    ### b_perform_pdf_compression />   
+
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
     if b_perform_conversion:   
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
         quality         = 50 # 66
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-        show_nth_image  = 50 # 0 is off, 1 all
+        show_nth_image  = 22 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
         b_colorize      = True
         halftone        = None # (4, 30) # or None
@@ -122,7 +180,6 @@ if __name__ == "__main__":
         # 
         #-----------------------------------------
         images = wh.collect_files_endswith(project_folder, image_exts)
-        conversions = []
                      
         # convert images
         
@@ -130,12 +187,10 @@ if __name__ == "__main__":
         for cnt, path in enumerate(images):
             
             print("-"*88)
-            #path = os.path.normpath(path)
-            path = to_posix(path)
-            name, ext = os.path.splitext(path) # ('my_file', '.txt')
-            out_path = name + '.webp' 
-            #out_path = os.path.normpath(out_path) 
-            out_path = to_posix(out_path)
+            path        = os.path.normpath(path) # to_posix(path)
+            name, ext   = os.path.splitext(path) # ('my_file', '.txt')
+            out_path    = name + '.webp' 
+            out_path    = os.path.normpath(out_path) # to_posix(out_path)
             
             conversions.append((path, out_path))
                         
@@ -222,43 +277,74 @@ if __name__ == "__main__":
     # TODO need to create /wp paths from these images...rel to project folder and using / 
     # https://www.geeksforgeeks.org/python-os-path-relpath-method/
     #-----------------------------------------
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    
+    def replace_all_conversions_in_file(filename, conversions):
+        
+        print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
+        print("\t", wh.GRAY, end='')
+        
+        fp = open(filename, "r", encoding="utf-8")
+        html = fp.read()
+        # replace
+        for i, conversion in enumerate(conversions):
+            fr, to = conversion
+            
+            if wh.file_exists_and_valid(to):
+                
+                # rel paths from root /
+                wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
+                wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
+                
+                if not (i%11):
+                    #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
+                    #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
+                    #print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
+                    print('.', end='')
+                
+                html = wh.replace_all(html, wp_fr, wp_to) 
+                    
+            else:
+                print("\t\t\t", "does not exist: to:", to)
+        ### for conversion />
+        print(wh.RESET)   
+        fp.close()
+        
+        #open the input file in write mode
+        fp = open(filename, "w", encoding="utf-8")
+        fp.write(html)
+        fp.close()
+
+
     if b_perform_replacement:
         conversions = load_conversions(path_conversions)    
         #print(*conversions, sep="\n\t")      
                                 
-        htmls = images = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html"])
-        for i, html in enumerate(htmls):
+        html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html"])
+        for i, html_file in enumerate(html_files):
             print("\t", "-"*88)
-            print("\t", i+1, "/", len(htmls), os.path.basename(html))
-            for conversion in conversions:
-                fr, to = conversion
-                
-                
-                if wh.file_exists_and_valid(to):
-                    
-                    # rel paths from /
-                    wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
-                    wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
-                    
-                    #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
-                    #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
-                    print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
-                    
-                    wh.replace_all_in_file(html, wp_fr, wp_to) 
-                      
-                    if b_delete_replacement and wh.file_exists_and_valid(fr):
-                        print("\t\t\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
-                        os.remove(fr)
-                        
-                else:
-                    print("\t\t\t", "does not exist: to:", to)
-                        
+            print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
+            replace_all_conversions_in_file(html_file, conversions)
+        ### for /> 
     ### b_perform_replacement />            
             
+            
+    if b_delete_originals:
+        print("b_delete_originals")
+        conversions = load_conversions(path_conversions)    
+        for conversion in conversions:
+            fr, to = conversion
+            if wh.file_exists_and_valid(fr):
+                print("\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
+                os.remove(fr)
+  
     #-----------------------------------------
     # 
     #-----------------------------------------
     print("all done.")
                 
     # https://www.thepythoncode.com/article/compress-pdf-files-in-python
+    # https://blog.finxter.com/how-to-compress-pdf-files-using-python/
                 
