@@ -43,7 +43,7 @@ def image_has_transparency(img):
 
 def image_show(path, secs=1):
     path = os.path.normpath(path)
-    print("image_show:", path)
+    #print("image_show:", path)
     assert os.path.isfile(path)
     
     import subprocess
@@ -186,13 +186,14 @@ if __name__ == "__main__":
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
         quality         = 50 # 66
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-        show_nth_image  = 22 # 0 is off, 1 all
+        show_nth_image  = 11 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
         b_colorize      = True
         halftone        = None # (4, 30) # or None
-        b_force_write   = False
+        b_force_write   = True
         b_blackwhite    = False
         b_use_palette   = False
+        blend_alpha     = 0.9
         
         image_exts = ['.jpg', '.jpeg', '.png', '.gif']
         #image_exts = ['.png', '.gif']
@@ -204,6 +205,7 @@ if __name__ == "__main__":
         print("b_colorize   :", b_colorize)
         print("halftone     :", halftone)
         print("b_use_palette:", b_use_palette)
+        print("blend_alpha  :", blend_alpha)
         
         #-----------------------------------------
         # 
@@ -234,6 +236,10 @@ if __name__ == "__main__":
                 #image       = image.convert('RGBA' if is_transp else 'RGB')
                 wh_orig = image.size
                 
+                print("\t\t", "is_transp:", is_transp)
+                print("\t\t", "mode     :", image.mode)
+                print("\t\t", "size     :", image.size)
+                
                 if False:
                     w, h = image.size
                     print("\t\t", "size:", image.size)
@@ -246,6 +252,8 @@ if __name__ == "__main__":
                         print("\t\t", "new :", image.size)
                 else:   
                     image.thumbnail(max_dim, resample=resample)
+                    image_orig = image.copy()
+                    #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
                             
                 if halftone and not is_transp:
                     image = image.convert("L")
@@ -254,7 +262,20 @@ if __name__ == "__main__":
                 
                 if b_colorize and not is_transp: 
                     image = image.convert("L") # L only !!! # LA L 1
-                    image = ImageOps.colorize(image, black ="#003300", white ="white")
+                    black = "#003300"
+                    black = "#002200"
+                    #black = "#001733"
+                    image = ImageOps.colorize(image, black=black, white="#eeeeee")
+                    ####image = ImageOps.autocontrast(image)
+                    
+                # blend
+                if (not is_transp) and( blend_alpha < 1.0): 
+                    ###assert image.mode == image_orig.mode
+                    image = Image.blend(
+                        image_orig.convert("RGB"), 
+                        image.convert("RGB"), 
+                        blend_alpha
+                    )
                     
                 if b_blackwhite:
                     if is_transp:
@@ -274,8 +295,8 @@ if __name__ == "__main__":
                     image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
                 else:
                     image.save(out_path, 'webp', optimize=True, quality=quality) 
-                print("\t\t", "is_transp:", is_transp)
-                print("\t\t", "mode     :", image.mode)
+                # print("\t\t", "is_transp:", is_transp)
+                # print("\t\t", "mode     :", image.mode)
                 print("\t\t", "quality  :", quality)
                 print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 
