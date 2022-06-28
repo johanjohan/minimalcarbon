@@ -144,7 +144,144 @@ driver = excludeTagFromWebDriver(driver,"sup")
 chatBox = driver.find_element(By.XPATH, "//div[@class='chatContainer oldStyle']")
 driver.execute_script("arguments[0].remove();", chatBox)
 
+###################################
+driver.find_element_by_id('foo').clear()
 
+###################################
+
+def removeOneTag(text, tag):
+    return text[:text.find("<"+tag+">")] + text[text.find("</"+tag+">") + len(tag)+3:]
+    
+####################################
+tree=et.fromstring(xml)
+
+for bad in tree.xpath("//fruit[@state=\'rotten\']"):
+  bad.getparent().remove(bad)     # here I grab the parent of the element to call the remove directly on it
+
+print et.tostring(tree, pretty_print=True, xml_declaration=True)
+
+###################################
+import lxml.etree as et
+
+xml=""
+<groceries>
+  <fruit state="rotten">apple</fruit>
+  <fruit state="fresh">pear</fruit>
+  <punnet>
+    <fruit state="rotten">strawberry</fruit>
+    <fruit state="fresh">blueberry</fruit>
+  </punnet>
+  <fruit state="fresh">starfruit</fruit>
+  <fruit state="rotten">mango</fruit>
+  <fruit state="fresh">peach</fruit>
+</groceries>
+""
+
+tree=et.fromstring(xml)
+
+for bad in tree.xpath("//fruit[@state='rotten']"):
+    bad.getparent().remove(bad)
+
+print et.tostring(tree, pretty_print=True)
+
+###################################
+for bad in tree.xpath("//fruit[@state=\'rotten\']"):
+  bad.getparent().remove(bad)
+  
+###################################
+https://stackoverflow.com/questions/7981840/how-to-remove-an-element-in-lxml
+###################################
+e.getparent().remove(e)
+
+###################################
+https://www.geeksforgeeks.org/remove-all-style-scripts-and-html-tags-using-beautifulsoup/
+
+# Import Module
+from bs4 import BeautifulSoup
+
+# HTML Document
+HTML_DOC = ""
+			<html>
+				<head>
+					<title> Geeksforgeeks </title>
+					<style>.call {background-color:black;} </style>
+					<script>getit</script>
+				</head>
+				<body>
+					is a
+					<div>Computer Science portal.</div>
+				</body>
+			</html>
+			""
+
+# Function to remove tags
+def remove_tags(html):
+
+	# parse html content
+	soup = BeautifulSoup(html, "html.parser")
+
+	for data in soup(['style', 'script']):
+		# Remove tags
+		data.decompose()
+
+	# return data by retrieving the tag content
+	return ' '.join(soup.stripped_strings)
+
+
+# Print the extracted data
+print(remove_tags(HTML_DOC))
+
+###################################
+# Import Module
+from bs4 import BeautifulSoup
+
+# HTML Documen
+HTML_DOC = ""
+			<html>
+				<head>
+					<title> Geeksforgeeks </title>
+					<style>.call {background-color:black;} </style>
+					<script>getit</script>
+				</head>
+				<body>
+					is a
+					<div>Computer Science portal.</div>
+				</body>
+			</html>
+			""
+
+# Function to remove tags
+def remove_tags(html):
+
+	# parse html content
+	soup = BeautifulSoup(html, "html.parser")
+
+	for data in soup(['style', 'script']):
+		# Remove tags
+		data.decompose()
+
+	# return data by retrieving the tag content
+	return ' '.join(soup.stripped_strings)
+
+
+# Print the extracted data
+print(remove_tags(HTML_DOC))
+
+
+###################################
+document.getElementById("FirstDiv").remove();
+
+###################################
+###################################
+###################################
+###################################
+###################################
+###################################
+###################################
+###################################
+###################################
+
+###################################
 
 """
 
