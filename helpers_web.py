@@ -825,8 +825,11 @@ def wait_for_page_has_loaded(driver):
 def replace_all(content, oldvalue, newvalue):
     cnt_first = content.count(oldvalue)
     len_orig = len(content)
-    while oldvalue in content:
-        content = content.replace(oldvalue, newvalue)
+    
+    # while oldvalue in content:
+    #     content = content.replace(oldvalue, newvalue)
+    content = content.replace(oldvalue, newvalue)
+    
     cnt_last = content.count(oldvalue)
     
     if False: # verbose

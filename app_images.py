@@ -292,7 +292,7 @@ if __name__ == "__main__":
         for i, conversion in enumerate(conversions):
             fr, to = conversion
             
-            if wh.file_exists_and_valid(to):
+            if wh.file_exists_and_valid(to):    
                 
                 # rel paths from root /
                 wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
