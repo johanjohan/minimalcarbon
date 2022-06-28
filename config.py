@@ -1,5 +1,16 @@
 from urllib.parse import urlparse, urljoin
 import os
+
+#-----------------------------------------
+# dq
+#-----------------------------------------
+import helpers_web as wh
+dq  = wh.dq
+sq  = wh.sq
+q   = wh.sq
+#ats = wh.add_trailing_slash
+from helpers_web import add_trailing_slash as ats
+
 #-----------------------------------------
 # init the colorama module
 #-----------------------------------------
@@ -21,16 +32,6 @@ sitemap_base                = "data/karlsruhe.digital_20220627_222911"
 sitemap_links_internal_path = sitemap_base + "_internal_links.csv"
 sitemap_links_external_path = sitemap_base + "_external_links.csv"
 sitemap_xml_path            = sitemap_base + "_sitemap.xml"
-
-#-----------------------------------------
-# dq
-#-----------------------------------------
-import helpers_web as wh
-dq  = wh.dq
-sq  = wh.sq
-q   = wh.sq
-#ats = wh.add_trailing_slash
-from helpers_web import add_trailing_slash as ats
 
 #-----------------------------------------
 # app-selenium
