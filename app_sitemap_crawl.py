@@ -66,25 +66,17 @@ external_urls = set()
 total_urls_visited = 0
 
 
-data_folder         = "data"
+data_folder         = config.data_folder
 mime_types_allowed  = ["text/html", "text/plain"]
 excludes            = [] # ["/category/", "/author/"]
 start_secs          = time.time()
 args                = None
 
-date_time  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+date_time           = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 #-----------------------------------------
 # 
 #-----------------------------------------
-# # def is_valid(url):
-# #     """
-# #     Checks whether `url` is a valid URL.
-# #     """
-# #     parsed = urlparse(url)
-# #     return bool(parsed.netloc) and bool(parsed.scheme)
-
-
 def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
@@ -94,21 +86,16 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     # domain name of the URL without the protocol
     domain_name = urlparse(url).netloc
     
-    
-    if False:
+    for tries in range(10):
+        print(MAGENTA + f"[{tries}] tries: {url}", RESET)
         wh.sleep_random(wait_secs, verbose_string=url) # NEW
-        content = requests.get(url,headers=wh.headers, allow_redirects=True).content # orig
-    else:
-        for tries in range(10):
-            print(MAGENTA + "[{}] tries: {}".format(tries, url), RESET)
-            wh.sleep_random(wait_secs, verbose_string=url) # NEW
-            url, _  = wh.get_redirected_url(url, timeout=config.timeout)
-            content = wh.get_content(url, timeout=config.timeout)
-            if content:
-                break
-            else:
-                print(RED, "request fialed...sleep and try again...", RESET)
-                time.sleep(3)
+        url, _  = wh.get_redirected_url(url, timeout=config.timeout)
+        content = wh.get_content(url, timeout=config.timeout)
+        if content:
+            break
+        else:
+            print(RED, "request fialed...sleep and try again...", RESET)
+            time.sleep(3)
         
     internal_urls.add(url)
     soup = BeautifulSoup(content, "html.parser")
@@ -177,6 +164,7 @@ def crawl(url, max_urls):
             print(f"{RED}[*] app_timeout: {args.app_timeout}s {RESET}")
             break
         
+        # max_urls?
         if total_urls_visited > max_urls:
             print(f"{RED}[*] max_urls: {max_urls} {RESET}")
             break
@@ -189,9 +177,9 @@ def crawl(url, max_urls):
 if __name__ == "__main__":
 
     # args defaults TODO use config
-    def_url = "https://1001suns.com/sitemap_post/" # for args
+    # def_url = "https://1001suns.com/sitemap_post/" # for args
     # def_url = "https://1001suns.com/universe_bochum21/" # for args
-    def_url = "https://karlsruhe.digital/"
+    def_url = config.base # "https://karlsruhe.digital/"
     
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")

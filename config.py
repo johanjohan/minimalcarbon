@@ -41,7 +41,7 @@ wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 project_folder      = ats(("page/__KD__7/")) # os.path.abspath
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
-
+data_folder         = "data"
 base_netloc         = urlparse(base).netloc # for names
 
 sitemap_links_ignore = [

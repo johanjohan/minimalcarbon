@@ -217,7 +217,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # 
     # -----------------------------------------
     for fr, to in replacements_pre:
-        print(YELLOW, "\t replace:", fr, "-->", to, RESET)
+        print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
     path_replaced = wh.save_html(content, path_index_base + "_replaced_pre.html")
     
@@ -245,7 +245,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         for src in links:
             
             src = src.strip()
-            print(f"{GREEN}\t src: {src}{RESET}")
+            print(f"{CYAN}\t src: {src}{RESET}")
             
             # check external
             if wh.url_is_external(src, base):
@@ -293,7 +293,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     max_tries = 10
                     for cnt in range(max_tries):
                         try:
-                            print(f"{GREEN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
+                            print(f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
                             session = requests.Session()
                             session.get(base)  # sets cookies
                             res = session.get(abs_src)
@@ -336,10 +336,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     h = lxml.html.fromstring(content)
     
-    links_head_css = h.xpath('head//link[@type="text/css"]/@href')
-    links_head_css = wh.links_strip_query_and_fragment(links_head_css)
-    links_head_css = wh.links_make_unique(links_head_css)
-    print("list_head_css", *links_head_css, sep="\n\t")
+    # links_head_css = h.xpath('head//link[@type="text/css"]/@href')
+    # links_head_css = wh.links_strip_query_and_fragment(links_head_css)
+    # links_head_css = wh.links_make_unique(links_head_css)
+    # print("list_head_css", *links_head_css, sep="\n\t")
 
     links_head_href = h.xpath('head//@href')
 
@@ -380,8 +380,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     
 
     # https://realpython.com/python-zip-function/
-    lists       = [ links_head_css,   links_head_href,   links_body_href,  links_link_href,   links_img,   links_scripts]
-    suffixes    = ["links_head_css", "links_head_href", "links_body_href","links_link_href", "links_img", "links_scripts"]
+    lists       = [ links_head_href,   links_body_href,  links_link_href,   links_img,   links_scripts] # links_head_css,   
+    suffixes    = ["links_head_href", "links_body_href","links_link_href", "links_img", "links_scripts"]
     for links, suffix in zip(lists, suffixes):
         print("/" * 80)
         print(suffix)
