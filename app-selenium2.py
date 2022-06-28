@@ -560,8 +560,13 @@ if __name__ == "__main__":
             urls = [line.rstrip() for line in lines]
     urls = wh.links_remove_comments(urls, '#')
 
-
-    driver = webdriver.Chrome()
+    for tries in range(10):
+        try:
+            print(f"[{tries}] webdriver.Chrome()...")
+            driver = webdriver.Chrome()
+            break
+        except:
+            time.sleep(3)
     driver.implicitly_wait(30)
     
     for count, url in enumerate(urls):

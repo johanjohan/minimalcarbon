@@ -1,6 +1,7 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 
 import glob, os
+from re import X
 import PIL
 from PIL import Image, ImageOps
 import halftone as ht # https://pypi.org/project/halftone/
@@ -9,6 +10,7 @@ import config
 import helpers_web as wh
 import time
 import pathlib
+import pyautogui as pag
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -81,12 +83,17 @@ def to_posix(filepath):
 if __name__ == "__main__":
     
     project_folder  = to_posix(os.path.abspath(config.project_folder))
+    path_conversions = "data/" + config.base_netloc + "_image_conversions.csv"
 
     b_perform_conversion    = True
     b_perform_replacement   = True
-    b_delete_replacement    = False
-    path_conversions = "data/" + config.base_netloc + "_image_conversions.csv"
-    
+    b_delete_replacement    = True
+        
+    if b_delete_replacement:
+        if "Cancel" == pag.confirm(text="b_delete_replacement: {}".format(b_delete_replacement)):
+            exit(0)
+            
+     
     if b_perform_conversion:   
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
