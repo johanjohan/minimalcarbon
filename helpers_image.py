@@ -69,6 +69,9 @@ def load_conversions(path_conversions):
     print("load_conversions: len(conversions):", len(conversions))
     return conversions
 
+#-----------------------------------------
+# 
+#-----------------------------------------
 def to_posix(filepath):
     return pathlib.Path(filepath).as_posix()
             
@@ -222,7 +225,7 @@ if __name__ == "__main__":
             print("\t", i+1, "/", len(htmls), os.path.basename(html))
             for conversion in conversions:
                 fr, to = conversion
-                print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
+                
                 
                 if wh.file_exists_and_valid(to):
                     
@@ -230,11 +233,16 @@ if __name__ == "__main__":
                     wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
                     wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
                     
+                    #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
+                    #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
+                    print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
+                    
                     wh.replace_all_in_file(html, wp_fr, wp_to) 
                       
                     if b_delete_replacement and wh.file_exists_and_valid(fr):
                         print("\t\t\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
                         os.remove(fr)
+                        
                 else:
                     print("\t\t\t", "does not exist: to:", to)
                         
