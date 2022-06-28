@@ -796,7 +796,7 @@ def wait_for_page_has_loaded_readyState(driver, sleep_secs=1):
             time.sleep(sleep_secs)
             
     if tries == max_tries:
-        print("\t", RED + "wait_for_page_has_loaded_readyState: tried out" + RESET)
+        print("\t", RED + "wait_for_page_has_loaded_readyState: tried out !!!" + RESET)
         
     return True
     

@@ -24,6 +24,21 @@ Note: The new features discussed in this article — srcset/sizes/<picture> — 
      src="elva-fairy-800w.jpg"
      alt="Elva dressed as a fairy">
 
+
+Note: The new features discussed in this article — srcset/sizes/<picture> — are all supported in modern desktop and mobile browsers (including Microsoft's Edge browser, although not Internet Explorer.)
+
+
+<img srcset="elva-fairy-480w.jpg 480w,
+             elva-fairy-800w.jpg 800w"
+     sizes="(max-width: 600px) 480px,
+            800px"
+     src="elva-fairy-800w.jpg"
+     alt="Elva dressed as a fairy">
+
+
+
+http:// https://is_a_real_url.yes
+
 """
 
 # -----------------------------------------
@@ -288,8 +303,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             le_tuple = (
                 src,
                 new_src,
+                local_path,
                 # abs_src,
-                # os.path.abspath(local_path),
             )
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
                 images_written.append(le_tuple)
@@ -590,6 +605,10 @@ if __name__ == "__main__":
     
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
+        
+        # # # # DEBUG TODO
+        # # # if count == 3:
+        # # #     break
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         print(f"{CYAN}url: {url}{RESET}")
@@ -614,8 +633,7 @@ if __name__ == "__main__":
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
-        #fp.write('\n'.join(images_written))
-        fp.write('\n'.join('{},{},{},{}'.format(x[0],x[1],x[2],x[3]) for x in images_written))
+        fp.write('\n'.join('{},{},{}'.format(x[0],x[1],x[2]) for x in images_written))
         
     # todo this should work if in root of domain
     # # wh.replace_in_file(

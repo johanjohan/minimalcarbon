@@ -106,7 +106,7 @@ def load_conversions(path_conversions):
 def to_posix(filepath):
     return pathlib.Path(filepath).as_posix()
  
-def get_size(start_path):
+def get_directory_total_size(start_path):
     print("get_size:", wh.CYAN, start_path, wh.RESET)
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    dir_size_orig = get_size(config.project_folder)
+    dir_size_orig = get_directory_total_size(config.project_folder)
             
     #-----------------------------------------
     # 
@@ -408,7 +408,7 @@ if __name__ == "__main__":
                 print("\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
                 os.remove(fr)
                 
-        dir_size_new = get_size(config.project_folder)
+        dir_size_new = get_directory_total_size(config.project_folder)
         print("saved:", saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   
     #-----------------------------------------
