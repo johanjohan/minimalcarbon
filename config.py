@@ -36,6 +36,7 @@ base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
+pdf_res             = 96 # dpi
 
 #-----------------------------------------
 # init the colorama module

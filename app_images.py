@@ -151,7 +151,7 @@ if __name__ == "__main__":
             new_path  = pdf + csuffix
             
             if not wh.file_exists_and_valid(new_path):
-                gs.compress_pdf(orig_path, new_path, res=96)
+                gs.compress_pdf(orig_path, new_path, res=config.pdf_res)
                 
             if wh.file_exists_and_valid(new_path):
                 size_orig = os.path.getsize(orig_path)
