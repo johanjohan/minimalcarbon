@@ -94,7 +94,20 @@ def load_conversions(path_conversions):
 #-----------------------------------------
 def to_posix(filepath):
     return pathlib.Path(filepath).as_posix()
-            
+ 
+def get_size(start_path):
+    print("get_size:", wh.CYAN, start_path, wh.RESET)
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+
+    print("get_size: total_size:", round(total_size / (1024*1024), 1), "MB")
+    return total_size
+           
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -114,6 +127,11 @@ if __name__ == "__main__":
             exit(0)
 
     conversions = []
+    
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    dir_size_orig = get_size(config.project_folder)
             
     #-----------------------------------------
     # 
@@ -298,7 +316,7 @@ if __name__ == "__main__":
                 wp_fr = '/' + to_posix(os.path.relpath(fr, project_folder))
                 wp_to = '/' + to_posix(os.path.relpath(to, project_folder))
                 
-                if not (i%11):
+                if False and not (i%11):
                     #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
                     #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
                     #print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
@@ -334,11 +352,15 @@ if __name__ == "__main__":
     if b_delete_originals:
         print("b_delete_originals")
         conversions = load_conversions(path_conversions)    
+        
         for conversion in conversions:
             fr, to = conversion
             if wh.file_exists_and_valid(fr):
                 print("\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
                 os.remove(fr)
+                
+        dir_size_new = get_size(config.project_folder)
+        print("saved:", saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   
     #-----------------------------------------
     # 
