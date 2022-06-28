@@ -261,6 +261,16 @@ from difflib import SequenceMatcher
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio() #+ 0..1
 
+
+#https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
+""" 
+>>> import jellyfish
+>>> jellyfish.levenshtein_distance(u'jellyfish', u'smellyfish')
+2
+>>> jellyfish.jaro_distance(u'jellyfish', u'smellyfish')
+0.89629629629629637
+>>> jellyfish.damerau_levenshtein_distance(u'jellyfish', u'jellyfihs')
+"""
 # may just be a missing / for a folder
 # https://stackoverflow.com/questions/16603282/how-to-compare-each-item-in-a-list-with-the-rest-only-once
 def links_remove_similar(links):
@@ -268,7 +278,7 @@ def links_remove_similar(links):
     links = links_make_unique(links)
     
     # those have just a forgotten trailing slash
-    def is_similar(a,b):
+    def is_similar_by_missing_trailing_slash(a,b):
         
         a = a.strip()
         b = b.strip()
@@ -282,14 +292,14 @@ def links_remove_similar(links):
                 ret = b
             
         if ret:
-            print("\t", RED, "is_similar:", ret, "a,b:", a, b, RESET)
+            print("\t", RED, "is_similar_by_missing_trailing_slash:", ret, "a,b:", a, b, RESET)
         
         return ret
         
     excludes = []
     import itertools
     for a, b in itertools.combinations(links, 2):
-        res = is_similar(a, b)
+        res = is_similar_by_missing_trailing_slash(a, b)
         if res:
             excludes.append(res) # the smaller one to be deleted
  
@@ -298,7 +308,7 @@ def links_remove_similar(links):
         print("links_remove_similar:", YELLOW, "excludes:", *excludes, RESET, sep="\n\t")    
          
     new_links = [link for link in links if link not in excludes]  
-    #print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
+    print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
     
     return new_links
             
@@ -388,6 +398,9 @@ def links_remove_folders(links):
 
 def links_strip_query_and_fragment(links):
     return [strip_query_and_fragment(u) for u in links]
+
+def links_strip_trailing_slash(links):
+    return [strip_trailing_slash(u) for u in links]
 
 def links_make_relative(links, base):
     len_prev = len(links)
@@ -1108,3 +1121,23 @@ def collect_files_endswith(project_folder, allowed_extensions):
 #-----------------------------------------
 if __name__ == "__main__":
     print("\n"*3 + "you started the wrong file..." + "\n"*3)
+    
+    # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
+    import jellyfish
+    a = "https://domain.com/has/just/forgotten/slash/"
+    b = "https://domain.com/has/just/forgotten/slash"
+    
+    a = "https://domain.com/has/just/forgotten/slash/"
+    b = "http://domain.com/has/just/forgotten/slash"
+    
+    a = "https://google.com"
+    b = "https://apple.de/"
+    
+    print( jellyfish.levenshtein_distance(a, b) )
+    print( jellyfish.jaro_distance(a, b) )
+    print( jellyfish.damerau_levenshtein_distance(a, b) )
+    print( jellyfish.jaro_winkler_similarity(a, b) )
+    print( jellyfish.hamming_distance(a, b) )
+    print( jellyfish.match_rating_comparison(a, b) )
+
+    

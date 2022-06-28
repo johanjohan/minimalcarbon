@@ -14,6 +14,15 @@ pip install cssbeautifier
 Python script to extract URLs from HTML documents. 
 https://gist.github.com/zmwangx/49049218bd89c21ddabd647896af995a
 
+Note: The new features discussed in this article — srcset/sizes/<picture> — are all supported in modern desktop and mobile browsers (including Microsoft's Edge browser, although not Internet Explorer.)
+
+
+<img srcset="elva-fairy-480w.jpg 480w,
+             elva-fairy-800w.jpg 800w"
+     sizes="(max-width: 600px) 480px,
+            800px"
+     src="elva-fairy-800w.jpg"
+     alt="Elva dressed as a fairy">
 
 """
 
@@ -115,7 +124,7 @@ def get_page_folder(url, base):
     page_folder = ""
     subs = path.split('/')
     for folder in subs:
-        if folder and is_a_folder(folder):
+        if folder and assuming_a_folder(folder):
             page_folder += folder + "/" 
     print("get_page_folder    :", GRAY, url, "-->", RESET, wh.sq(page_folder))
     return page_folder               
@@ -156,13 +165,13 @@ def get_path_local_root(url, base):
 def has_a_dot(url):
     return '.' in url
 
-def is_a_file(url):
+def assuming_a_file(url):
     url = url_path(url)
     url = wh.strip_query_and_fragment(url)
     return has_a_dot(url)
 
-def is_a_folder(url):
-    return not is_a_file(url)       
+def assuming_a_folder(url):
+    return not assuming_a_file(url)       
 
 # -----------------------------------------
 # 
@@ -174,9 +183,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     b_use_driver    = True
 
     # -----------------------------------------
-    #
+    # GET content
     # -----------------------------------------
-
     content = ""
     for tries in range(10):
         
@@ -219,7 +227,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for fr, to in replacements_pre:
         print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
-    path_replaced = wh.save_html(content, path_index_base + "_replaced_pre.html")
+    path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
     
     # -----------------------------------------
     # make all links absolute with base
@@ -235,7 +243,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         ### links = wh.links_make_absolute(links, base)  NO!!!
         links = wh.links_remove_externals(links, base)
         ### links = wh.links_remove_folders(links) NO!!!
-        links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:"])
+        links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
         ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
         links = wh.links_make_unique(links)
         links = sorted(links)
@@ -244,8 +252,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
 
         for src in links:
             
-            src = src.strip()
-            print(f"{CYAN}\t src: {src}{RESET}")
+            #src = src.strip()
+            print(f"{CYAN}\t src: \'{src}\' {RESET} ")
             
             # check external
             if wh.url_is_external(src, base):
@@ -262,7 +270,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 
             # is a file? add index.html/get_page_name() to folder-links
             # TODO may not do so wp_json/ and sitemap/
-            if is_a_file(new_src) : 
+            if assuming_a_file(new_src) : 
                 print(MAGENTA, "\t\t file:", RESET, new_src)
             else: 
                 new_src = wh.add_trailing_slash(new_src)
@@ -277,19 +285,25 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             local_path  = project_folder + new_src.lstrip('/')
             
             # collect local images for a list to save at the end
+            le_tuple = (
+                src,
+                new_src,
+                # abs_src,
+                # os.path.abspath(local_path),
+            )
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
-                images_written.append(os.path.abspath(local_path))
+                images_written.append(le_tuple)
                                         
    
             # get and save link-asset to disk
             wh.make_dirs(local_path)
             if not wh.file_exists_and_valid(local_path): 
                 
-                if is_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
+                if assuming_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
                     wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
 
-                    # get the file via requests
+                    # get the file via session requests
                     max_tries = 10
                     for cnt in range(max_tries):
                         try:
@@ -303,7 +317,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                             print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                             time.sleep(3)
                     
-                    # write the file to disk local        
+                    # write the file binary to disk local        
                     try:
                         with open(local_path, 'wb') as fp:
                             fp.write(res.content)
@@ -317,10 +331,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
             # dots rel to url of this url, not to the image itself
-            print(f"{GRAY}\t\t\t url       : {url}{RESET}")
-            print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
+            print(f"{GRAY}\t\t\t src       : {src}{RESET}")
             print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
+            print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
             print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
+            print(f"{GRAY}\t\t\t url       : {url}{RESET}")
             #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
 
             # post replace
@@ -351,7 +366,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     links_img = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_style_background_images(driver)
-    links_img += wh.get_stylesheet_background_images_from_file(style_path)
+    links_img += wh.get_stylesheet_background_images_from_file(style_path) # TODO need to replace these in css as well
     links_css_text = h.xpath("//style/text()")
     for text in links_css_text:
         # text = cssbeautifier.beautify(text)
@@ -562,7 +577,7 @@ if __name__ == "__main__":
             urls = [line.rstrip() for line in lines]
     urls = wh.links_remove_comments(urls, '#')
 
-    # chrome
+    # chrome init
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
@@ -573,6 +588,7 @@ if __name__ == "__main__":
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
     
+    # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
@@ -598,7 +614,8 @@ if __name__ == "__main__":
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
-        fp.write('\n'.join(images_written))
+        #fp.write('\n'.join(images_written))
+        fp.write('\n'.join('{},{},{},{}'.format(x[0],x[1],x[2],x[3]) for x in images_written))
         
     # todo this should work if in root of domain
     # # wh.replace_in_file(

@@ -31,7 +31,7 @@ print(MAGENTA)
 #-----------------------------------------
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats("page/__KD__7/") # os.path.abspath # raw has 
+project_folder      = ats("page/__KD__08/") # os.path.abspath # raw has 
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 data_folder         = ats("data/")
@@ -40,16 +40,15 @@ pdf_res             = 96 # dpi
 
 #-----------------------------------------
 # init the colorama module
-#-----------------------------------------
-sitemap_base                = data_folder + "karlsruhe.digital_20220627_222911"
-sitemap_links_internal_path = sitemap_base + "_internal_links.csv"
-sitemap_links_external_path = sitemap_base + "_external_links.csv"
-sitemap_xml_path            = sitemap_base + "_sitemap.xml"
+#----------------------------------------- 
+_sitemap_base               = data_folder + "karlsruhe.digital_20220628_200838"
+sitemap_links_internal_path = _sitemap_base + "_internal_links.csv"
+sitemap_links_external_path = _sitemap_base + "_external_links.csv"
+sitemap_xml_path            = _sitemap_base + "_sitemap.xml"
 
 #-----------------------------------------
 # 
 #-----------------------------------------
-
 sitemap_links_ignore = [
     base + 'wp-json/', # is a file not a dir
     base + 'sitemap/', # is a file not a dir
@@ -58,9 +57,16 @@ print("sitemap_links_ignore", sitemap_links_ignore)
 # replace later with both qotes so we dont replace substrings
 
 # use all possible quotes
+# these are inspired from internal and external links files
 replacements_pre = []
 for q in ['\"', '\'']:
     print("\t", "using", q)
+    replacements_pre.append(
+        (
+            'http:// https://',
+            'https://'
+        )
+    )
     replacements_pre.append(
         (
             q + 'http:// ', # has a trailing space

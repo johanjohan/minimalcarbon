@@ -68,7 +68,7 @@ total_urls_visited = 0
 
 data_folder         = config.data_folder
 mime_types_allowed  = ["text/html", "text/plain"]
-excludes            = [] # ["/category/", "/author/"]
+excludes            = ["bunte-nacht-karlsruhe.digital"] # ["/category/", "/author/"]
 start_secs          = time.time()
 args                = None
 
@@ -213,11 +213,19 @@ if __name__ == "__main__":
         crawl(args.url, max_urls=args.max_urls)
 
         # skip http
-        print("before http replace:", len(internal_urls))
-        internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
-        internal_urls = sorted(set(internal_urls))
-        external_urls = sorted(set(external_urls))
-        print("after http replace :", len(internal_urls))
+        # internal
+        print("before http replace: len(internal_urls):", len(internal_urls))
+        ###internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
+        ###internal_urls = wh.links_strip_trailing_slash(internal_urls) #new
+        internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
+        internal_urls = wh.links_make_unique(internal_urls)
+        internal_urls = sorted(internal_urls)
+        print("after http replace : len(internal_urls):", len(internal_urls))
+        
+        # external
+        external_urls = wh.links_remove_similar(external_urls)
+        external_urls = wh.links_make_unique(external_urls )
+        external_urls = sorted(external_urls)
         
         # save the internal links to a file
         print("save the internal links to a file...")

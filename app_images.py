@@ -377,7 +377,7 @@ if __name__ == "__main__":
         conversions = load_conversions(path_conversions)    
         #print(*conversions, sep="\n\t")      
                                 
-        html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html"])
+        html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html", "style.css"])
         for i, html_file in enumerate(html_files):
             print("\t", "-"*88)
             print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
