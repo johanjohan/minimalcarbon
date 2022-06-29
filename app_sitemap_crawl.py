@@ -55,7 +55,15 @@ RESET = colorama.Fore.RESET
 YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 MAGENTA = colorama.Fore.MAGENTA
+#-----------------------------------------
+# 
+#-----------------------------------------
 
+print(wh.get_mime_type("http://karlsruhe.digital"))
+print(wh.get_mime_type("https://karlsruhe.digital"))
+print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
+print(wh.get_mime_type("https://123ddd.cccXXXX"))
+exit(0)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -94,7 +102,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
         if content:
             break
         else:
-            print(RED, "request fialed...sleep and try again...", RESET)
+            print(RED, "request failed...sleep and try again...", url, RESET)
             time.sleep(3)
         
     internal_urls.add(url)
@@ -106,20 +114,28 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             # href empty tag
             continue
         # join the URL if it's relative (not absolute link)
+        
         href = urljoin(url, href)
         parsed_href = urlparse(href)
         # remove URL GET parameters, URL fragments, etc.
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
         href = href.rstrip('/')
+        
         if not wh.url_is_valid(href):
             # not a valid URL
             print(f"{RED}[!] bad url: {href}{RESET}")
             continue
+
+        # get redirected href NEW
+        href, _ = wh.get_redirected_url(href, timeout=config.timeout)
+       
         if href in internal_urls:
             # already in the set
             continue
         
-        if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
+        # external link
+        #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
+        if wh.url_is_external(href, domain_name):
             # external link
             if href not in external_urls:
                 print(
@@ -134,6 +150,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             print(f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
             continue
         
+        # internel url
         if not href in internal_urls:
             print(
                 f"{total_urls_visited}/{max_urls}", 
@@ -142,7 +159,8 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             )
             internal_urls.add(href)
         
-        urls.add(href)
+        urls.add(href) # only store internals
+    ### for a_tag
         
     return urls
 

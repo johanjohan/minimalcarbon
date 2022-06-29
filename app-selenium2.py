@@ -729,8 +729,8 @@ if __name__ == "__main__":
     # wh.get_redirected_url("https://1001suns.com/")
     # wh.get_redirected_url("https://1001suns.com/index.php")
 
-    # wh.get_response_link(wh.get_response("https://1001suns.com"))
-    # wh.get_response_link(wh.get_response("https://karlsruhe.digital"))
+    # wh.get_response_header_link(wh.get_response("https://1001suns.com"))
+    # wh.get_response_header_link(wh.get_response("https://karlsruhe.digital"))
     # exit(0)
 
     # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")

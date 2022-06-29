@@ -8,6 +8,9 @@ ASSUMPTIONS
 a folder has no dot
 a file has a dot for the extension, or a leading dot
 
+https://docs.python.org/3/library/urllib.parse.html
+
+
 """
 
 
@@ -43,6 +46,11 @@ def dq(s=""):
 def sq(s=""):
     return _wrap(s, delim="\'")
 
+#-----------------------------------------
+# 
+#-----------------------------------------
+def vt_b(b_val):
+    return (GREEN if b_val else RED) + str(b_val) + RESET
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -171,7 +179,7 @@ url_is_absolute: True | http://facebook.de
 url_is_absolute: True | facebook.de
 url_is_absolute: False | facebook
 """
-def url_is_absolute(url):
+def url_is_absolute(url): # absolute URL (that is, it starts with // or scheme://)
     # url = url.strip()
     # exts = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
     
@@ -579,16 +587,17 @@ def _get_request(url, method=None): # 'HEAD'
     return urllib.request.Request(url, data=None, headers=headers, method=method) # user agent in headers
 
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
-def get_response(url, timeout=10, method=None):
+def get_response(url, timeout=10, method=None): # 'HEAD'
     try:
         req         = _get_request(url, method=method)
         context     = ssl._create_unverified_context()
         response    = urllib.request.urlopen(req, context=context, timeout=timeout)
         print("get_response:", url)
-        print("\t", response.status)
-        print("\t", response.url)
-        print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
-        print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
+        print("\t", response.status, "|", vt_b(url != response.url), response.url)
+        
+        if True:
+            #print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
+            print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
         if False:
             #content = response.read().decode(response.headers.get_content_charset())
             content = response.read().decode('utf-8')
@@ -612,30 +621,30 @@ def get_response(url, timeout=10, method=None):
     Connection: close
     Transfer-Encoding: chunked
 """    
-def get_response_link(response):
+def get_response_header_link(response):
     link = response.headers.get("Link", None)
     if link:
         link = link.split(';')[0].replace('<', '').replace('>', '') # Link: <https://1001suns.com/wp-json/>; rel="https://api.w.org/"
-    print("get_response_link:", link)    
+    print("get_response_header_link:", link)    
     return link
     
 def get_redirected_url(url, timeout=10):
     try:
-        res     = get_response(url, timeout=timeout)
+        res     = get_response(url, timeout=timeout, method='HEAD') # None 'HEAD'
         new_url = res.url
-        print("get_redirected_url:", url, "-->", new_url)   
-        return new_url, not (new_url == url)
+        print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
+        return new_url, (new_url != url)
     except Exception as e:
         print(f"{RED}[!] get_redirected_url: {url} Exception: {e}{RESET}")
         return url, False 
     
 def was_redirected(url, timeout=10):
     new_url =  get_redirected_url(url, timeout=timeout)
-    return not (new_url == url)
+    return (new_url != url)
 
 def get_mime_type(url, timeout=10):
     try:
-        contentType =  get_response(url, timeout=timeout).headers.get_content_type()
+        contentType =  get_response(url, timeout=timeout, method='HEAD').headers.get_content_type()
         print("get_mime_type:", contentType)   
         return contentType
     except Exception as e:
@@ -662,7 +671,7 @@ def get_status_code(url, timeout=10):
 
 def get_content(url, timeout=10):
     try:
-        response =  get_response(url, timeout=timeout)
+        response =  get_response(url, timeout=timeout, method=None)
         content = response.read().decode('utf-8') # decode(response.headers.get_content_charset())
         print("get_content: len(content):", len(content)) 
         #print("get_content:", CYAN, content, RESET) # content
@@ -1137,19 +1146,19 @@ if __name__ == "__main__":
     # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
     import jellyfish
     a = "https://domain.com/has/just/forgotten/slash/"
-    b = "https://domain.com/has/just/forgotten/slash"
+    vt_b = "https://domain.com/has/just/forgotten/slash"
     
     a = "https://domain.com/has/just/forgotten/slash/"
-    b = "http://domain.com/has/just/forgotten/slash"
+    vt_b = "http://domain.com/has/just/forgotten/slash"
     
     a = "https://google.com"
-    b = "https://apple.de/"
+    vt_b = "https://apple.de/"
     
-    print( jellyfish.levenshtein_distance(a, b) )
-    print( jellyfish.jaro_distance(a, b) )
-    print( jellyfish.damerau_levenshtein_distance(a, b) )
-    print( jellyfish.jaro_winkler_similarity(a, b) )
-    print( jellyfish.hamming_distance(a, b) )
-    print( jellyfish.match_rating_comparison(a, b) )
+    print( jellyfish.levenshtein_distance(a, vt_b) )
+    print( jellyfish.jaro_distance(a, vt_b) )
+    print( jellyfish.damerau_levenshtein_distance(a, vt_b) )
+    print( jellyfish.jaro_winkler_similarity(a, vt_b) )
+    print( jellyfish.hamming_distance(a, vt_b) )
+    print( jellyfish.match_rating_comparison(a, vt_b) )
 
     
