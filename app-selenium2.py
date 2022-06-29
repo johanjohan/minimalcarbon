@@ -329,17 +329,6 @@ images_written = []
 #
 # -----------------------------------------
 
-
-# def strip_protocol(url):
-#     new_url = url
-#     new_url = new_url.lstrip("https://")
-#     new_url = new_url.lstrip("http://")
-#     new_url = new_url.lstrip("://")
-#     new_url = new_url.lstrip("//")
-#     new_url = new_url.lstrip('/')
-#     #print("strip_protocols:", url, "-->", new_url)
-#     return new_url
-
 def sanitize_filepath(filepath):
     rep = '_'
     fixedpath = filepath
@@ -418,27 +407,129 @@ def get_path_local_root(url, base):
     #print("get_path_local_root:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
-# # # # -----------------------------------------
-# # # # based on ASSUMPTIONS!
-# # # # -----------------------------------------
-# # # def has_a_dot(url):
-# # #     return '.' in url
-
-# # # def assuming_a_file(url):
+# -----------------------------------------
+# 
+# -----------------------------------------
+def assets_save_internals_locally(
+    content, url, base, 
+    links, suffix, 
+    project_folder, 
+    b_strip_ver=True
+    ):
     
-# # #     print("assuming_a_file:", url)
+    global images_written
     
-# # #     if url.endswith('/'):
-# # #         return False
+    links = wh.links_remove_comments(links, '#')
+    ### links = wh.links_make_absolute(links, base)  NO!!!
+    links = wh.links_remove_externals(links, base)
+    ### links = wh.links_remove_folders(links) NO!!!
+    links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
+    ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
+    links = wh.links_make_unique(links)
+    links = sorted(links)
+    print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
+   
+    # append the links to a file NEW
+    with open(config.data_base_path + suffix + ".txt", mode="a", encoding="utf-8") as fp:
+        for link in links:
+            fp.write(f"{link}\n")
 
-# # #     url = url_path(url)
-# # #     url = wh.strip_query_and_fragment(url)
-# # #     url = wh.strip_trailing_slash(url)
-    
-# # #     return has_a_dot(url.split('/')[-1]) # if last part has a dot...
+    # loop tze links
+    for src in links:
+        
+        src = src.strip()
+        print(f"{CYAN}\t src: \'{src}\' {RESET} ")
+        
+        # check external
+        if wh.url_is_external(src, base):
+            print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
+            exit(6) # TODO DEBUG
+            continue
+        
+        abs_src = wh.link_make_absolute(src, base)
+        new_src = get_path_local_root(abs_src, base)
+        if b_strip_ver:
+            if wh.url_has_ver(new_src):
+                new_src = wh.strip_query_and_fragment(new_src)
+                print("\t\t stripped ?ver=:", new_src)
+            
+        # is a file? add index.html/get_page_name() to folder-links
+        # TODO may not do so wp_json/ and sitemap/
+        if wh.url_is_assumed_file(new_src) : 
+            print(MAGENTA, "\t\t file:", RESET, new_src)
+        else: 
+            new_src = wh.add_trailing_slash(new_src)
+            if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
+                new_src += get_page_name()  # index.html
+                print(MAGENTA, "\t\t dir :", RESET,
+                        new_src, "[added index.html]")
+            else:
+                print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
+                
+        new_src     = sanitize_filepath(new_src)
+        local_path  = project_folder + new_src.lstrip('/')
+        
+        # collect local images for a list to save at the end
+        le_tuple = (
+            src,        # as found in html
+            new_src,    # for wp /
+            local_path, # local file path
+            # abs_src,
+        )
+        assert len(le_tuple) == 3 # images_written saving at very end
+        if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
+            images_written.append(le_tuple)
+                                    
+        # get and save link-asset to disk
+        wh.make_dirs(local_path)
+        if not wh.file_exists_and_valid(local_path): 
+            
+            if wh.url_is_assumed_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
+                
+                wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
 
-# # # def assuming_a_folder(url):
-# # #     return not assuming_a_file(url)       
+                # get the file via session requests
+                max_tries = 10
+                for cnt in range(max_tries):
+                    try:
+                        print(f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
+                        session = requests.Session()
+                        session.get(base)  # sets cookies
+                        res = session.get(abs_src)
+                        break
+                    except Exception as e:
+                        print("\n"*4)
+                        print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
+                        time.sleep(3)
+                
+                # write the file binary to disk local        
+                try:
+                    with open(local_path, 'wb') as fp:
+                        fp.write(res.content)
+                        print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
+                except:
+                    print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
+                
+            else:
+                print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
+        else:
+            print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
+
+        # dots rel to url of this url, not to the image itself
+        print(f"{GRAY}\t\t\t src       : {src}{RESET}")
+        print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
+        print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
+        print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
+        print(f"{GRAY}\t\t\t url       : {url}{RESET}")
+        #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
+
+        # post replace
+        # TODO would be better to set tags or change tags or rename tags
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        content = content.replace(dq(src), dq(new_src))  # try both
+        content = content.replace(sq(src), sq(new_src))  # try both
+
+    return content
 
 # -----------------------------------------
 # 
@@ -497,123 +588,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
     
     # -----------------------------------------
-    # make all links absolute with base
-    # -----------------------------------------
-    # collect internal files: skip externals
-    # make them all absolute urls
-
-    def assets_save_internals_locally(content, url, base, links, project_folder, b_strip_ver=True):
-        
-        global images_written
-        
-        links = wh.links_remove_comments(links, '#')
-        ### links = wh.links_make_absolute(links, base)  NO!!!
-        links = wh.links_remove_externals(links, base)
-        ### links = wh.links_remove_folders(links) NO!!!
-        links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
-        ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
-        links = wh.links_make_unique(links)
-        links = sorted(links)
-
-        print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
-
-        for src in links:
-            
-            #src = src.strip()
-            print(f"{CYAN}\t src: \'{src}\' {RESET} ")
-            
-            # check external
-            if wh.url_is_external(src, base):
-                print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
-                exit(6) # TODO DEBUG
-                continue
-            
-            abs_src = wh.link_make_absolute(src, base)
-            new_src = get_path_local_root(abs_src, base)
-            if b_strip_ver:
-                if wh.url_has_ver(new_src):
-                    new_src = wh.strip_query_and_fragment(new_src)
-                    print("\t\t stripped ?ver=:", new_src)
-                
-            # is a file? add index.html/get_page_name() to folder-links
-            # TODO may not do so wp_json/ and sitemap/
-            if wh.url_is_assumed_file(new_src) : 
-                print(MAGENTA, "\t\t file:", RESET, new_src)
-            else: 
-                new_src = wh.add_trailing_slash(new_src)
-                if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
-                    new_src += get_page_name()  # index.html
-                    print(MAGENTA, "\t\t dir :", RESET,
-                          new_src, "[added index.html]")
-                else:
-                    print(f"{MAGENTA}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
-                    
-            new_src     = sanitize_filepath(new_src)
-            local_path  = project_folder + new_src.lstrip('/')
-            
-            # collect local images for a list to save at the end
-            le_tuple = (
-                src,        # as found in html
-                new_src,    # for wp /
-                local_path, # local file path
-                # abs_src,
-            )
-            assert len(le_tuple) == 3 # images_written saving at very end
-            if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
-                images_written.append(le_tuple)
-                                        
-            # get and save link-asset to disk
-            wh.make_dirs(local_path)
-            if not wh.file_exists_and_valid(local_path): 
-                
-                if wh.url_is_assumed_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
-                    
-                    wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
-
-                    # get the file via session requests
-                    max_tries = 10
-                    for cnt in range(max_tries):
-                        try:
-                            print(f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
-                            session = requests.Session()
-                            session.get(base)  # sets cookies
-                            res = session.get(abs_src)
-                            break
-                        except Exception as e:
-                            print("\n"*4)
-                            print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
-                            time.sleep(3)
-                    
-                    # write the file binary to disk local        
-                    try:
-                        with open(local_path, 'wb') as fp:
-                            fp.write(res.content)
-                            print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
-                    except:
-                        print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-                    
-                else:
-                    print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
-            else:
-                print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
-
-            # dots rel to url of this url, not to the image itself
-            print(f"{GRAY}\t\t\t src       : {src}{RESET}")
-            print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
-            print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
-            print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
-            print(f"{GRAY}\t\t\t url       : {url}{RESET}")
-            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
-
-            # post replace
-            # TODO would be better to set tags or change tags or rename tags
-            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            content = content.replace(dq(src), dq(new_src))  # try both
-            content = content.replace(sq(src), sq(new_src))  # try both
-
-        return content
-
-    # -----------------------------------------
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
@@ -668,7 +642,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("/" * 80)
         print(suffix)
         #print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
-        content = assets_save_internals_locally(content, url, base, links, project_folder)
+        content = assets_save_internals_locally(
+            content, 
+            url, base, 
+            links, suffix,
+            project_folder)
         wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
@@ -852,9 +830,15 @@ if __name__ == "__main__":
 
     # TODO style_path must be downloaded first....immediately change links to local......
     
+    # -----------------------------------------
     # copy sitemap
+    # -----------------------------------------
     import shutil
     shutil.copyfile(config.sitemap_xml_path, config.project_folder + "sitemap.xml")
+    
+    # -----------------------------------------
+    #
+    # -----------------------------------------
 
     if False:
         urls = [
