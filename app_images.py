@@ -147,18 +147,19 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    options = Options()
-    #options.headless = True
+    options=config.options
+    options.headless = False
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(30)    
     
     func=lambda s : True
     func=lambda s : os.path.isfile(s) # doesnt work
     func=lambda s : s.endswith(".jpg") or s.endswith(".jpeg")
-    func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"])
-    func=lambda file : file.endswith("index.html")
+    func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
+    func=lambda file : file.lower().endswith("index.html")
     
     files_index_html = wh.collect_files_func(project_folder, func=func)
+
     for file in files_index_html:
         print("-"*80)
 

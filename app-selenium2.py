@@ -453,7 +453,8 @@ def assets_save_internals_locally(
     for src in links:
 
         src = src.strip()
-        print(f"{CYAN}\t src: \'{src}\' {RESET} ")
+        #print(f"{CYAN}\t src: \'{src}\' {RESET} ")
+        print(f"{CYAN}\t {(time.time() - start_secs)/60.0:.1f}m | src: \'{src}\' {RESET}")
 
         # check external
         if wh.url_is_external(src, base):
@@ -574,8 +575,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
         print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
-        wh.sleep_random(wait_secs, verbose_string=url,
-                        prefix="\t ")  # verbose_string=url
+        wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ")  # verbose_string=url
 
         try:
             if b_use_driver:
