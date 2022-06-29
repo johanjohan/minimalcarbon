@@ -630,10 +630,15 @@ def get_response_header_link(response):
     
 def get_redirected_url(url, timeout=10):
     try:
-        res     = get_response(url, timeout=timeout, method='HEAD') # None 'HEAD'
-        new_url = res.url
-        print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
-        return new_url, (new_url != url)
+        if True:
+            res     = get_response(url, timeout=timeout, method='HEAD') # None 'HEAD'
+            new_url = res.url
+            print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
+            return new_url, (new_url != url)
+        else:
+            r = requests.head(url, timeout=timeout) 
+            return r.url, (r.url != url)
+    
     except Exception as e:
         print(f"{RED}[!] get_redirected_url: {url} Exception: {e}{RESET}")
         return url, False 

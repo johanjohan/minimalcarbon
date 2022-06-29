@@ -56,22 +56,24 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 MAGENTA = colorama.Fore.MAGENTA
 #-----------------------------------------
-# 
+# testing...
 #-----------------------------------------
-
+# requests TFFTF vs urllib TFFTF
 print(wh.get_mime_type("http://karlsruhe.digital"))
 print(wh.get_mime_type("https://karlsruhe.digital"))
+print(wh.get_mime_type("https://karlsruhe.digital/"))
+print(wh.get_mime_type("https://karlsruhe.digital//"))
 print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
-print(wh.get_mime_type("https://123ddd.cccXXXX"))
+#print(wh.get_mime_type("https://123ddd.cccXXXX"))
 exit(0)
 #-----------------------------------------
 # 
 #-----------------------------------------
 # initialize the set of links (unique links)
-internal_urls = set()
-external_urls = set()
+internal_urls       = set()
+external_urls       = set()
 
-total_urls_visited = 0
+total_urls_visited  = 0
 
 
 data_folder         = config.data_folder
