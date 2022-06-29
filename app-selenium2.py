@@ -600,9 +600,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     #
     # -----------------------------------------
-    #path_index_base = get_path_for_file(url, base, project_folder, ext="")
     path_index_base = project_folder + get_page_folder(url, base) + "index"
-    if(config.DEBUG): path_original = wh.save_html(content, path_index_base + "_original.html")
+    
+    if(config.DEBUG): 
+        path_original = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
     #
@@ -610,6 +611,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for fr, to in replacements_pre:
         print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
+        
     if(config.DEBUG): path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
 
     # -----------------------------------------
@@ -681,20 +683,12 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     #
     # -----------------------------------------
-
     content = wh.html_minify(content)
     path_minified = wh.save_html(content, path_index_base + ".html")
     path_pretty = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
-    # # path_temp     = wh.load_html_from_string(driver, content)
-    # # os.remove(path_temp)
-    # # time.sleep(10)
-
-    # # # driver.refresh()
-    # # print("closing driver...")
-    # # driver.close()
-    # # driver.quit()
 
     print("make_static: all done.")
+    
 # make_static />
 # -----------------------------------------
 #
