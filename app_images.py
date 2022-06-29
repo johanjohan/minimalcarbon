@@ -57,19 +57,7 @@ def image_show(path, secs=1):
     # img = Image.open(path)
     # img.show()    
     
-#-----------------------------------------
-# 
-#-----------------------------------------
 
-def saved_percent(size_orig, size_new):
-    assert size_orig > 0
-    perc = 100 - (size_new/size_orig*100)
-    return perc
-
-def saved_percent_string(size_orig, size_new):
-    pct = saved_percent(size_orig, size_new)
-    vt  = wh.RED if pct <= 0 else wh.GREEN
-    return "{}{:+.1f}%{}".format(vt, pct, wh.RESET)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -131,8 +119,8 @@ if __name__ == "__main__":
     b_perform_pdf_compression   = b_perform_conversion
     b_perform_replacement       = True
      
+    # del with warning
     b_delete_originals          = False
-        
     if b_delete_originals:
         if "Cancel" == pag.confirm(text=f"b_delete_originals: {b_delete_originals}"):
             exit(0)
@@ -167,7 +155,7 @@ if __name__ == "__main__":
             if wh.file_exists_and_valid(new_path):
                 size_orig = os.path.getsize(orig_path)
                 size_new  = os.path.getsize(new_path)
-                print("\t", "saved:", saved_percent_string(size_orig, size_new), os.path.basename(new_path))
+                print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
                 if size_new < size_orig:
                     conversions.append((orig_path, new_path))     
                     print("\t\t", "added to conversions.")           
@@ -301,8 +289,8 @@ if __name__ == "__main__":
                 print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 
                 size_new = os.path.getsize(out_path)
-                print("\t\t", "saved  :", saved_percent_string(size_orig, size_new), os.path.basename(out_path))
-                perc_avg += saved_percent(size_orig, size_new)
+                print("\t\t", "saved  :", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(out_path))
+                perc_avg += wh.vt_saved_percent(size_orig, size_new)
                 
                 if show_nth_image > 0 and not (cnt%show_nth_image):
                     image_show(out_path, secs=0.5)
@@ -409,7 +397,7 @@ if __name__ == "__main__":
                 os.remove(fr)
                 
         dir_size_new = get_directory_total_size(config.project_folder)
-        print("saved:", saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
+        print("saved:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   
     #-----------------------------------------
     # 

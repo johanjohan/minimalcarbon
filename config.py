@@ -31,12 +31,13 @@ print(MAGENTA)
 #-----------------------------------------
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-project_folder      = ats("page/__KD__08/") # os.path.abspath # raw has 
+project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
 base                = ats('https://karlsruhe.digital/')
 style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
+data_base_path      = data_folder + base_netloc + "_"
 
 #-----------------------------------------
 # init the colorama module

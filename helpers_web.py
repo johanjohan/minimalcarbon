@@ -58,6 +58,16 @@ def vt_b(b_val):
 def vt_code(code):
     return (GREEN if code < 400 else RED) + str(code) + RESET
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
+    
+def vt_saved_percent(size_orig, size_new):
+    assert size_orig > 0
+    perc = 100 - (size_new/size_orig*100)
+    return perc
+
+def vt_saved_percent_string(size_orig, size_new):
+    pct = vt_saved_percent(size_orig, size_new)
+    vt  = wh.RED if pct <= 0 else wh.GREEN
+    return "{}{:+.1f}%{}".format(vt, pct, wh.RESET)
 #-----------------------------------------
 # 
 #-----------------------------------------
