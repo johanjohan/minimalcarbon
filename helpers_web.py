@@ -307,7 +307,8 @@ def links_remove_similar(links):
                 ret = b
             
         if ret:
-            print("\t", RED, "is_similar_by_missing_trailing_slash:", ret, "a,b:", a, b, RESET)
+            #print("\t", RED, "is_similar_by_missing_trailing_slash:", ret, "a,b:", a, b, RESET)
+            pass
         
         return ret
         
@@ -320,10 +321,11 @@ def links_remove_similar(links):
  
     excludes = links_make_unique(excludes)
     if excludes:
-        print("links_remove_similar:", YELLOW, "excludes:", *excludes, RESET, sep="\n\t")    
+        #print("links_remove_similar:", YELLOW, "excludes:", *excludes, RESET, sep="\n\t") 
+        pass   
          
     new_links = [link for link in links if link not in excludes]  
-    print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
+    #print("\t", GREEN, "new_links:", *new_links, RESET, sep="\n\t")   
     
     return new_links
             
@@ -381,8 +383,12 @@ def links_make_absolute(links, base):
     for link in links:
         ret.append(link_make_absolute(link, base))
     return ret
+
+def links_remove_excludes(links, excludes):
+    return [link for link in links if not any(exclude in link for exclude in excludes)]
         
 def links_remove_invalids(links, invalids):
+    # TODO is same as links_remove_excludes???????????????????
     #print(YELLOW, *links, RESET, sep="\n\t")
     ret = []
     
@@ -401,7 +407,9 @@ def links_remove_invalids(links, invalids):
             
     #print(GREEN, *ret, RESET, sep="\n\t")
     return ret
-        
+
+
+                
 def links_remove_comments(links, delim='#'):
     return [u for u in links if not u.strip().startswith(delim)]
 

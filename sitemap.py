@@ -21,7 +21,7 @@ def sitemap_xml_from_list(links, out_xml_path='sitemap.xml'):
 
     dt = datetime.datetime.now().strftime ("%Y-%m-%d")
     for link in links:
-        print("\t\t xml:", link)
+        #print("\t", "xml:", link)
         doc = ET.SubElement(root, "url")
         ET.SubElement(doc, "loc").text = link
         ET.SubElement(doc, "lastmod").text = dt
@@ -33,6 +33,7 @@ def sitemap_xml_from_list(links, out_xml_path='sitemap.xml'):
     ET.indent(tree, space="\t", level=0) # pretty
     tree.write(out_xml_path, encoding='utf-8', xml_declaration=True)
     
+    print("sitemap_xml_from_list: all done.")
     return out_xml_path
 
 def sitemap_xml_from_file(in_list_path, out_xml_path='sitemap.xml'):

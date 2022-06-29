@@ -95,7 +95,7 @@ date_time           = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 #-----------------------------------------
 # 
 #-----------------------------------------
-def get_all_website_links(url, max_urls, wait_secs=(0.1, 0.2)):
+def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
@@ -232,6 +232,8 @@ def crawl(url, max_urls):
     """
     global total_urls_visited
     total_urls_visited += 1
+    
+    print("\n" + YELLOW + "-"*88 + RESET)
     print(f"{YELLOW}[*] Crawling: {url}{RESET}")
     links = get_all_website_links(url, max_urls)
     for link in links:
@@ -263,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
     parser.add_argument("--max-urls",   default=5000,       type=int,   help="Number of max URLs to crawl.")
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
-    parser.add_argument("--app_timeout",default=60*60*3,    type=float, help="app_timeout in secs. -1 means no timeout")
+    parser.add_argument("--app_timeout",default=60*60*2,    type=float, help="app_timeout in secs. -1 means no timeout")
     
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
@@ -289,16 +291,14 @@ if __name__ == "__main__":
     else:
         crawl(args.url, max_urls=args.max_urls)
 
-        # skip http
         # internal
-        print("before http replace: len(internal_urls):", len(internal_urls))
         ###internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
         ###internal_urls = wh.links_strip_trailing_slash(internal_urls) #new
         internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
         internal_urls = wh.links_make_unique(internal_urls)
+        internal_urls = wh.links_remove_excludes(internal_urls, excludes)
         #internal_urls = wh.links_strip_trailing_slash(internal_urls)
         internal_urls = sorted(internal_urls)
-        print("after http replace : len(internal_urls):", len(internal_urls))
         
         # external
         external_urls = wh.links_remove_similar(external_urls)
@@ -310,19 +310,7 @@ if __name__ == "__main__":
         print("save the internal links to a file...")
         with open(file_internal_path, "w", encoding="utf-8") as f:
             for internal_link in internal_urls:
-                if True:
-                    if not any(exclude in internal_link for exclude in excludes):
-                        f.write(internal_link.strip() + "\n")
-                    else:
-                        print(f"{RED}[*] exclude: {internal_link} {RESET}")
-                else:
-                    #check response
-                    status = get_status_code(internal_link)
-                    if status in [200, 301]:
-                        #print(status, internal_link)
-                        f.write(internal_link.strip() + "\n")
-                    else:
-                        print(f"{RED}[*] status: {status} {internal_link} {RESET}")
+                f.write(internal_link.strip() + "\n")
 
         # save the external links to a file
         print("save the external links to a file...")
