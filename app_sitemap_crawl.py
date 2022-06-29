@@ -235,6 +235,8 @@ def crawl(url, max_urls):
     
     print("\n" + YELLOW + "-"*88 + RESET)
     print(f"{YELLOW}[*] Crawling: {url}{RESET}")
+    print(f"{YELLOW}[*] {round((time.time() - start_secs)/60.0, 1)}m {RESET}")
+     
     links = get_all_website_links(url, max_urls)
     for link in links:
         
@@ -292,8 +294,7 @@ if __name__ == "__main__":
         crawl(args.url, max_urls=args.max_urls)
 
         # internal
-        ###internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
-        ###internal_urls = wh.links_strip_trailing_slash(internal_urls) #new
+        internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
         internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
         internal_urls = wh.links_make_unique(internal_urls)
         internal_urls = wh.links_remove_excludes(internal_urls, excludes)
@@ -303,17 +304,17 @@ if __name__ == "__main__":
         # external
         external_urls = wh.links_remove_similar(external_urls)
         external_urls = wh.links_make_unique(external_urls )
-        #external_urls = wh.links_strip_trailing_slash(external_urls)
+        external_urls = wh.links_strip_trailing_slash(external_urls)
         external_urls = sorted(external_urls)
         
         # save the internal links to a file
-        print("save the internal links to a file...")
+        print("save the internal links to a file:", file_internal_path)
         with open(file_internal_path, "w", encoding="utf-8") as f:
             for internal_link in internal_urls:
                 f.write(internal_link.strip() + "\n")
 
         # save the external links to a file
-        print("save the external links to a file...")
+        print("save the external links to a file:", file_external_path)
         with open(file_external_path, "w", encoding="utf-8") as f:
             for external_link in external_urls:
                 f.write(external_link.strip() + "\n")
