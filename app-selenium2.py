@@ -602,7 +602,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     #path_index_base = get_path_for_file(url, base, project_folder, ext="")
     path_index_base = project_folder + get_page_folder(url, base) + "index"
-    path_original = wh.save_html(content, path_index_base + "_original.html")
+    if(config.DEBUG): path_original = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
     #
@@ -610,8 +610,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for fr, to in replacements_pre:
         print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
-    path_replaced_pre = wh.save_html(
-        content, path_index_base + "_replaced_pre.html")
+    if(config.DEBUG): path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
 
     # -----------------------------------------
     # make lists
@@ -676,8 +675,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             links, suffix,
             project_folder
         )
-        wh.save_html(content, path_index_base + "_" +
-                     suffix + ".html", pretty=True)
+        if(config.DEBUG): 
+            wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
     #
@@ -685,8 +684,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
 
     content = wh.html_minify(content)
     path_minified = wh.save_html(content, path_index_base + ".html")
-    path_pretty = wh.save_html(
-        content, path_index_base + "_pretty.html", pretty=True)
+    path_pretty = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
     # # path_temp     = wh.load_html_from_string(driver, content)
     # # os.remove(path_temp)
     # # time.sleep(10)
@@ -860,12 +858,6 @@ if __name__ == "__main__":
         sanitize=True
     )
     
-    # def to_tuple(s):
-    #     return(tuple(s.split(',')))
-    
-    to_tuple = lambda s : tuple(s.split(','))
-    
-    #image_links = wh.list_exec(image_links, to_tuple)
     #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
     image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
     wh.list_print(image_links)
