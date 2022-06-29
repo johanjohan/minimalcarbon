@@ -892,25 +892,35 @@ if __name__ == "__main__":
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
+            # https://stackoverflow.com/questions/54446419/selenium-chrome-options-and-capabilities
             options = Options()
-            # options.headless = config.headless
-            # options.add_argument("--disable-extensions")
-            options.add_argument("--headless")
+            options.add_argument("--headless") # options.headless = config.headless
+            options.add_argument('--lang=de')
             options.add_argument('--ignore-certificate-errors')
             options.add_argument('--incognito')
             options.add_argument('--log-level=3')
             options.add_argument("--disable-webgl")
             options.add_argument("--disable-popup-blocking")
-            options.add_argument("--window-size=800,600")
+            options.add_argument("--window-size=1000,1000")
             options.add_argument("--no-sandbox")
             options.add_argument('user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36')
             options.add_argument('--disable-gpu')
+            options.add_argument('--disable-setuid-sandbox')
+            options.add_argument('--disable-features=UsePasswordSeparatedSigninFlow')
+            options.add_argument("--disable-extensions")
+            options.add_experimental_option("prefs", { \
+                'download.default_directory': 'V:/00trash/__chrom',
+                'download.prompt_for_download': False,
+                'download.directory_upgrade': True,
+            })
+            # "--start-maximized" '--kiosk'
             print(f"[{tries}] {options}")
             driver = webdriver.Chrome(options=options)
             driver.implicitly_wait(30)
             # driver.execute_script("alert('alert via selenium')")
             # time.sleep(33)
             # exit(0)
+            # driver.maximize_window()
             break
         except Exception as e:
             print(f"{RED} {e} {RESET}")
@@ -924,7 +934,9 @@ if __name__ == "__main__":
         # # #     break
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
-        print(f"{CYAN}url: {url}{RESET}")
+        ###print(f"{CYAN}url: {url}{RESET}")
+        print(f"{CYAN}{(time.time() - start_secs)/60.0:.1f}m | url: {url}{RESET}")
+        ###print("{:.1f}m".format((time.time() - start_secs)/60.0))
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
         print("\n"*5)
 
@@ -966,7 +978,6 @@ if __name__ == "__main__":
     # # )
 
     # all done
-    secs = time.time() - start_secs
-    print("all done:", "duration:", round(secs/60.0, 1), "m")
+    print("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0))
 
     exit(0)
