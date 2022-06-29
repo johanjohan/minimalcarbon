@@ -11,6 +11,9 @@ a file has a dot for the extension, or a leading dot
 https://docs.python.org/3/library/urllib.parse.html
 
 
+WP API
+https://github.com/MickaelWalter/wp-json-scraper
+
 """
 
 
@@ -50,7 +53,11 @@ def sq(s=""):
 # 
 #-----------------------------------------
 def vt_b(b_val):
-    return (GREEN if b_val else RED) + str(b_val) + RESET
+    return (GREEN if b_val else RED) + str(b_val)[0] + RESET
+    #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
+def vt_code(code):
+    return (GREEN if code < 400 else RED) + str(code) + RESET
+    #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -587,21 +594,22 @@ def _get_request(url, method=None): # 'HEAD'
     return urllib.request.Request(url, data=None, headers=headers, method=method) # user agent in headers
 
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
-def get_response(url, timeout=10, method=None): # 'HEAD'
+def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
     try:
         req         = _get_request(url, method=method)
         context     = ssl._create_unverified_context()
         response    = urllib.request.urlopen(req, context=context, timeout=timeout)
-        print("get_response:", url)
-        print("\t", response.status, "|", vt_b(url != response.url), response.url)
+        #print("get_response:", url)
+        print(pre, vt_code(response.status), "|", vt_b(url != response.url), response.url)
         
-        if True:
+        if False:
             #print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
             print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
         if False:
             #content = response.read().decode(response.headers.get_content_charset())
             content = response.read().decode('utf-8')
             print(CYAN, content, RESET) # content
+            
         return response
     except urllib.error.HTTPError as error:
         print(f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
@@ -862,6 +870,9 @@ def wait_for_page_has_loaded(driver):
 # 
 #-----------------------------------------
 def replace_all(content, oldvalue, newvalue):
+    if not content:
+        return content
+    
     cnt_first = content.count(oldvalue)
     len_orig = len(content)
     
@@ -1151,19 +1162,19 @@ if __name__ == "__main__":
     # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
     import jellyfish
     a = "https://domain.com/has/just/forgotten/slash/"
-    vt_b = "https://domain.com/has/just/forgotten/slash"
+    b = "https://domain.com/has/just/forgotten/slash"
     
     a = "https://domain.com/has/just/forgotten/slash/"
-    vt_b = "http://domain.com/has/just/forgotten/slash"
+    b = "http://domain.com/has/just/forgotten/slash"
     
     a = "https://google.com"
-    vt_b = "https://apple.de/"
+    b = "https://apple.de/"
     
-    print( jellyfish.levenshtein_distance(a, vt_b) )
-    print( jellyfish.jaro_distance(a, vt_b) )
-    print( jellyfish.damerau_levenshtein_distance(a, vt_b) )
-    print( jellyfish.jaro_winkler_similarity(a, vt_b) )
-    print( jellyfish.hamming_distance(a, vt_b) )
-    print( jellyfish.match_rating_comparison(a, vt_b) )
+    print( jellyfish.levenshtein_distance(a, b) )
+    print( jellyfish.jaro_distance(a, b) )
+    print( jellyfish.damerau_levenshtein_distance(a, b) )
+    print( jellyfish.jaro_winkler_similarity(a, b) )
+    print( jellyfish.hamming_distance(a, b) )
+    print( jellyfish.match_rating_comparison(a, b) )
 
     

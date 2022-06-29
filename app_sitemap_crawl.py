@@ -55,17 +55,25 @@ RESET = colorama.Fore.RESET
 YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 MAGENTA = colorama.Fore.MAGENTA
+CYAN = colorama.Fore.CYAN
 #-----------------------------------------
 # testing...
 #-----------------------------------------
-# requests TFFTF vs urllib TFFTF
-print(wh.get_mime_type("http://karlsruhe.digital"))
-print(wh.get_mime_type("https://karlsruhe.digital"))
-print(wh.get_mime_type("https://karlsruhe.digital/"))
-print(wh.get_mime_type("https://karlsruhe.digital//"))
-print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
-#print(wh.get_mime_type("https://123ddd.cccXXXX"))
-exit(0)
+# # requests TFFTF vs urllib TFFTF
+# print(wh.get_mime_type("http://karlsruhe.digital"))
+# print(wh.get_mime_type("https://karlsruhe.digital"))
+# print(wh.get_mime_type("https://karlsruhe.digital/"))
+# print(wh.get_mime_type("https://karlsruhe.digital//"))
+# print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
+# #print(wh.get_mime_type("https://123ddd.cccXXXX"))
+# exit(0)
+
+# https://searchfacts.com/url-trailing-slash/
+# Should You Have a Trailing Slash at the End of URLs
+# The short answer is that the trailing slash does not matter for your root domain or subdomain. 
+# Google sees the two as equivalent.
+# But trailing slashes do matter for everything else because Google sees the two versions 
+# (one with a trailing slash and one without) as being different URLs.
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -99,8 +107,13 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     for tries in range(10):
         print(MAGENTA + f"[{tries}] tries: {url}", RESET)
         wh.sleep_random(wait_secs, verbose_string=url) # NEW
-        url, _  = wh.get_redirected_url(url, timeout=config.timeout)
-        content = wh.get_content(url, timeout=config.timeout)
+        
+        # # # url, _  = wh.get_redirected_url(url, timeout=config.timeout)
+        # # # content = wh.get_content(url, timeout=config.timeout)
+        
+        response    = wh.get_response(url, timeout=config.timeout)
+        url         = response.url
+        content     = response.read().decode('utf-8')
         if content:
             break
         else:
@@ -111,7 +124,13 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     soup = BeautifulSoup(content, "html.parser")
     
     for a_tag in soup.findAll("a"):
+        
         href = a_tag.attrs.get("href")
+        
+        #href = wh.replace_all(href, "http:// https://", "https://")
+        href = wh.replace_all(href, "http:// ",  "")
+        href = wh.replace_all(href, "https:// ", "")        
+        
         if href == "" or href is None:
             # href empty tag
             continue
@@ -127,10 +146,27 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             # not a valid URL
             print(f"{RED}[!] bad url: {href}{RESET}")
             continue
+        
+        for tries in range(5):
+            hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
+            if hresponse:
+                break
+            else:
+                print(f"{YELLOW}[{tries}] trying again: {href}{RESET}")
+                time.sleep(1)
+            
+        if not hresponse:
+            print(f"{RED}[!] not hresponse: {href}{RESET}")
+            continue
 
         # get redirected href NEW
-        href, _ = wh.get_redirected_url(href, timeout=config.timeout)
-       
+        ####href, _ = wh.get_redirected_url(href, timeout=config.timeout)
+        href = hresponse.url
+        
+
+        #-----------------------------------------
+        # 
+        #-----------------------------------------       
         if href in internal_urls:
             # already in the set
             continue
@@ -142,12 +178,13 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             if href not in external_urls:
                 print(
                     f"{total_urls_visited}/{max_urls}", 
-                    f"{GRAY}[!] External: {href}{RESET}"
+                    f"{MAGENTA}[!] External: {href}{RESET}"
                 )
                 external_urls.add(href)
             continue
         
-        mime_type =  wh.get_mime_type(href)
+        ###mime_type =  wh.get_mime_type(href)
+        mime_type =  hresponse.headers.get_content_type()
         if not mime_type in mime_types_allowed:
             print(f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
             continue
@@ -157,7 +194,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             print(
                 f"{total_urls_visited}/{max_urls}", 
                 mime_type, 
-                f"{GREEN}[*] Internal: {href}{RESET}"
+                f"{CYAN}[*] Internal: {href}{RESET}"
             )
             internal_urls.add(href)
         
@@ -239,12 +276,14 @@ if __name__ == "__main__":
         ###internal_urls = wh.links_strip_trailing_slash(internal_urls) #new
         internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
         internal_urls = wh.links_make_unique(internal_urls)
+        #internal_urls = wh.links_strip_trailing_slash(internal_urls)
         internal_urls = sorted(internal_urls)
         print("after http replace : len(internal_urls):", len(internal_urls))
         
         # external
         external_urls = wh.links_remove_similar(external_urls)
         external_urls = wh.links_make_unique(external_urls )
+        #external_urls = wh.links_strip_trailing_slash(external_urls)
         external_urls = sorted(external_urls)
         
         # save the internal links to a file
