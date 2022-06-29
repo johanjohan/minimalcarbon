@@ -147,92 +147,95 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    options=config.options
-    options.headless = False
-    driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(30)    
-    
-    func=lambda s : True
-    func=lambda s : os.path.isfile(s) # doesnt work
-    func=lambda s : s.endswith(".jpg") or s.endswith(".jpeg")
-    func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
-    func=lambda file : file.lower().endswith("index.html")
-    
-    files_index_html = wh.collect_files_func(project_folder, func=func)
+    if False:
+        options=config.options
+        options.headless = False
+        driver = webdriver.Chrome(options=options)
+        driver.implicitly_wait(30)    
+        
+        func=lambda s : True
+        func=lambda s : os.path.isfile(s) # doesnt work
+        func=lambda s : s.endswith(".jpg") or s.endswith(".jpeg")
+        func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
+        func=lambda file : file.lower().endswith("index.html")
+        
+        files_index_html = wh.collect_files_func(project_folder, func=func)
 
-    for file in files_index_html:
-        print("-"*80)
+        for file in files_index_html:
+            print("-"*80)
 
-        driver.get("file:///" + file)
-        wh.wait_for_page_has_loaded(driver)
-        content = driver.page_source
-        
-        time.sleep(3)
-        
-        #elements = driver.find_elements(By.TAG_NAME, "img")
-        
-        #elements = driver.find_elements(By.XPATH, "//img[@srcset]")
-        elements = driver.find_elements(By.XPATH, "//img")
-        for element in elements:
-            print("\t", element.tag_name, element.text)
-            driver.execute_script("arguments[0].remove();", element)
+            driver.get("file:///" + file)
+            wh.wait_for_page_has_loaded(driver)
+            content = driver.page_source
             
-        driver.execute_script(
-            """
-            var element = document.getElementById("Ebene_1");
-            element.parentNode.removeChild(element);
-            """
-        )
-
+            time.sleep(3)
             
-        #driver.refresh()
-        for i in range(7):
-            time.sleep(1)
-            print('.', end='', flush=True)
+            #elements = driver.find_elements(By.TAG_NAME, "img")
             
-        # # # # content = wh.string_from_file(file, sanitize=False)
-        # # # soup    = bs(content, "html.parser")
-        # # # #content = soup.prettify()
-        # # # for data in soup(['style', 'script']):
-        # # #     # Remove tags
-        # # #     print("\t", data)
-        # # #     data.decompose()
-
-        # # # # return data by retrieving the tag content
-        # # # #content = ' '.join(soup.stripped_strings)        
-        
-        # # # #print(content)    
-    
-        # # # driver.get("data:text/html;charset=utf-8," + content)
-        # # # wh.wait_for_page_has_loaded(driver)
-        
-        # # # for i in range(30):
-        # # #     time.sleep(1)
-        # # #     print('.', end='', flush=True)
+            #elements = driver.find_elements(By.XPATH, "//img[@srcset]")
+            elements = driver.find_elements(By.XPATH, "//img")
+            for element in elements:
+                print("\t", element.tag_name, element.text)
+                driver.execute_script("arguments[0].remove();", element)
                 
+            driver.execute_script(
+                """
+                var element = document.getElementById("Ebene_1");
+                element.parentNode.removeChild(element);
+                """
+            )
+
                 
-    #print(*files_index_html, sep="\n\t")
-    
-    # driver.close()
-    # driver.quit()
-    exit(0)
-    
-    files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
-    for file in files_index_html:
-        print("-"*80)
-        content = wh.string_from_file(file, sanitize=False)
-        soup    = bs(content)
-        content = soup.prettify()
+            #driver.refresh()
+            for i in range(7):
+                time.sleep(1)
+                print('.', end='', flush=True)
+                
+            # # # # content = wh.string_from_file(file, sanitize=False)
+            # # # soup    = bs(content, "html.parser")
+            # # # #content = soup.prettify()
+            # # # for data in soup(['style', 'script']):
+            # # #     # Remove tags
+            # # #     print("\t", data)
+            # # #     data.decompose()
+
+            # # # # return data by retrieving the tag content
+            # # # #content = ' '.join(soup.stripped_strings)        
+            
+            # # # #print(content)    
         
-        print(content)
-    exit(0)
+            # # # driver.get("data:text/html;charset=utf-8," + content)
+            # # # wh.wait_for_page_has_loaded(driver)
+            
+            # # # for i in range(30):
+            # # #     time.sleep(1)
+            # # #     print('.', end='', flush=True)
+                    
+                    
+        #print(*files_index_html, sep="\n\t")
+        
+        # driver.close()
+        # driver.quit()
+        exit(0)
+    
+        files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+        for file in files_index_html:
+            print("-"*80)
+            content = wh.string_from_file(file, sanitize=False)
+            soup    = bs(content)
+            content = soup.prettify()
+            
+            print(content)
+        exit(0)
             
     #-----------------------------------------
     # 
     #-----------------------------------------
     if b_perform_pdf_compression:
         import ghostscript as gs
-        csuffix = "_compressed.pdf"
+
+        compression='/screen'
+        csuffix = "_" + compression.lstrip('/') + ".pdf"
         
         pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
         pdfs = [pdf for pdf in pdfs if not csuffix in pdf] # no compressed files
@@ -245,7 +248,7 @@ if __name__ == "__main__":
             new_path  = pdf + csuffix
             
             if not wh.file_exists_and_valid(new_path):
-                gs.compress_pdf(orig_path, new_path, res=config.pdf_res)
+                gs.compress_pdf(orig_path, new_path, compression=compression, res=config.pdf_res)
                 
             if wh.file_exists_and_valid(new_path):
                 size_orig = os.path.getsize(orig_path)
@@ -273,7 +276,7 @@ if __name__ == "__main__":
         resample        = Image.Resampling.LANCZOS
         b_colorize      = True
         halftone        = None # (4, 30) # or None
-        b_force_write   = True
+        b_force_write   = False
         b_blackwhite    = False
         b_use_palette   = False
         blend_alpha     = 0.9
@@ -462,7 +465,9 @@ if __name__ == "__main__":
                                 
         html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html", "style.css"])
         for i, html_file in enumerate(html_files):
-            print("\t", "-"*88)
+            #print("\t", "-"*88)
+            wh.progress(i / len(html_files), verbose_string="TOTAL", VT=wh.CYAN, n=80, prefix="\t ")
+            print("\n"*2)
             print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
             
             if False:
