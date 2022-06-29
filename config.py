@@ -48,6 +48,7 @@ sitemap_links_external_path = _sitemap_base + "_external_links.csv"
 sitemap_xml_path            = _sitemap_base + "_sitemap.xml"
 
 custom_css_path             = data_base_path + "custom.css"
+image_tuples_written_path   = data_base_path + "images_written.csv"
 
 #-----------------------------------------
 # 

@@ -441,6 +441,12 @@ def links_make_relative(links, base):
 def links_make_unique(links):
     return list(set(links))
 
+def links_sanitize(links):
+    links = links_make_unique(links)
+    links = links_remove_comments(links, delim='#')
+    links = links_remove_similar(links)
+    return sorted(links)
+
 # def links_make_absolute_internals_only(links, base):
 #     links = links_make_absolute(links, base)
 #     links = links_remove_externals(links, base)
@@ -1175,7 +1181,48 @@ def replace_all_in_file(filename, string_from, string_to):
     fp = open(filename, "w", encoding="utf-8")
     fp.write(data)
     fp.close()
+# -----------------------------------------
+#
+# -----------------------------------------
+def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
+    with open(path, mode=mode, encoding=encoding) as file:
+        ret = [line.strip() for line in file]
+        if sanitize:
+            ret = links_sanitize(ret)
+        return ret
+    
+def list_to_file(items, path, mode="w", encoding="utf-8"):
+    with open(path, mode=mode, encoding=encoding) as file:
+        file.write(list_to_string(items))
+ 
+def list_to_string(items):
+    return "\n".join(str(item) for item in items)
 
+def list_from_string(s):
+    return list(s.split('\n'))
+        
+def list_print(items, sep="\n\t", vt=GRAY):
+    print("list_print:", GRAY, *items, RESET, sep=sep)    
+    print("list_print:", len(items), "items")  
+
+# -----------------------------------------
+#
+# -----------------------------------------    
+list_func_to_tuple = lambda s : tuple(s.split(','))
+list_func_strip = lambda s : s.strip()
+def list_exec(items, func): 
+    return [func(item) for item in items]
+
+    
+""" 
+    css = wh.list_from_file(config.style_path)
+    css = cssbeautifier.beautify(wh.list_to_string(css))
+    wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
+    
+    wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
+    
+    
+""" 
 # -----------------------------------------
 #
 # -----------------------------------------

@@ -323,11 +323,12 @@ MAGENTA = config.MAGENTA
 # -----------------------------------------
 #
 # -----------------------------------------
-start_secs      = time.time()
-images_written  = []
+start_secs = time.time()
+images_written = []
 # -----------------------------------------
 #
 # -----------------------------------------
+
 
 def sanitize_filepath(filepath):
     rep = '_'
@@ -337,8 +338,8 @@ def sanitize_filepath(filepath):
     fixedpath = fixedpath.replace('*', rep)
     fixedpath = fixedpath.replace(':', rep)
     fixedpath = fixedpath.replace('|', rep)
-    fixedpath = fixedpath.replace('\"',rep)
-    fixedpath = fixedpath.replace('\'',rep)
+    fixedpath = fixedpath.replace('\"', rep)
+    fixedpath = fixedpath.replace('\'', rep)
     fixedpath = fixedpath.replace('<', rep)
     fixedpath = fixedpath.replace('>', rep)
     return fixedpath
@@ -348,8 +349,11 @@ def sanitize_filepath(filepath):
 # -----------------------------------------
 
 # index.html
+
+
 def get_page_name(ext=".html", basename="index"):
     return basename + ext
+
 
 """
 get_path_local_root:  https://www.karlsruhe.digital/ -->  /
@@ -367,15 +371,17 @@ get_page_folder    :  https://karlsruhe.digital/index.html -->
 get_path_local_root:  https://karlsruhe.digital/some/folder/image.png -->  /some/folder/image.png
 get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/folder/
 """
+
+
 def get_page_folder(url, base):
     path = get_path_local_root(url, base).lstrip('/')
     page_folder = ""
     subs = path.split('/')
     for folder in subs:
         if folder and wh.url_is_assumed_folder(folder):
-            page_folder += folder + "/" 
+            page_folder += folder + "/"
     print("get_page_folder    :", GRAY, url, "-->", RESET, wh.sq(page_folder))
-    return page_folder               
+    return page_folder
 
 
 """
@@ -388,47 +394,55 @@ get_path_local_root: https://karlsruhe.digital/index.html --> /index.html
 get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/folder/image.png
 
 """
+
+
 def get_path_local_root(url, base):
-    
+
     # externals should be removed before
     if not wh.url_has_same_netloc(url, base):
-        print(f"{YELLOW}get_path_local_root: url: {url} has not same netloc {base} {RESET}")
-        exit(1)        
-    
-    loc_url   = wh.url_netloc(url).lstrip("www.")   # loc_url:  media.karlsruhe.digital
-    loc_base  = wh.url_netloc(base)                 # loc_base:       karlsruhe.digital
+        print(
+            f"{YELLOW}get_path_local_root: url: {url} has not same netloc {base} {RESET}")
+        exit(1)
+
+    # loc_url:  media.karlsruhe.digital
+    loc_url = wh.url_netloc(url).lstrip("www.")
+    # loc_base:       karlsruhe.digital
+    loc_base = wh.url_netloc(base)
     subdomain = loc_url.replace(loc_base, '').replace('.', '')
-    if subdomain: 
+    if subdomain:
         subdomain = "sub_" + subdomain + '/'
- 
+
     path = wh.url_path_lstrip_slash(url)
-    rooted = subdomain + path 
+    rooted = subdomain + path
     rooted = wh.add_leading_slash(rooted)
     #print("get_path_local_root:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
 # -----------------------------------------
-# 
+#
 # -----------------------------------------
+
+
 def assets_save_internals_locally(
-    content, url, base, 
-    links, suffix, 
-    project_folder, 
+    content, url, base,
+    links, suffix,
+    project_folder,
     b_strip_ver=True
-    ):
-    
+):
+
     global images_written
-    
+
     links = wh.links_remove_comments(links, '#')
-    ### links = wh.links_make_absolute(links, base)  NO!!!
+    # links = wh.links_make_absolute(links, base)  NO!!!
     links = wh.links_remove_externals(links, base)
-    ### links = wh.links_remove_folders(links) NO!!!
-    links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
-    ### links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
+    # links = wh.links_remove_folders(links) NO!!!
+    links = wh.links_remove_invalids(
+        links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
+    # links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
     links = wh.links_make_unique(links)
     links = sorted(links)
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
-   
+
     # append the links to a file NEW
     with open(config.data_base_path + suffix + ".txt", mode="a", encoding="utf-8") as fp:
         for link in links:
@@ -436,80 +450,86 @@ def assets_save_internals_locally(
 
     # loop tze links
     for src in links:
-        
+
         src = src.strip()
         print(f"{CYAN}\t src: \'{src}\' {RESET} ")
-        
+
         # check external
         if wh.url_is_external(src, base):
-            print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
-            exit(6) # TODO DEBUG
+            print(
+                f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
+            exit(6)  # TODO DEBUG
             continue
-        
+
         abs_src = wh.link_make_absolute(src, base)
         new_src = get_path_local_root(abs_src, base)
         if b_strip_ver:
             if wh.url_has_ver(new_src):
                 new_src = wh.strip_query_and_fragment(new_src)
                 print("\t\t stripped ?ver=:", new_src)
-            
+
         # is a file? add index.html/get_page_name() to folder-links
         # TODO may not do so wp_json/ and sitemap/
-        if wh.url_is_assumed_file(new_src) : 
+        if wh.url_is_assumed_file(new_src):
             print(MAGENTA, "\t\t file:", RESET, new_src)
-        else: 
+        else:
             new_src = wh.add_trailing_slash(new_src)
             if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
                 new_src += get_page_name()  # index.html
                 print(MAGENTA, "\t\t dir :", RESET,
-                        new_src, "[added index.html]")
+                      new_src, "[added index.html]")
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
-                
-        new_src     = sanitize_filepath(new_src)
-        local_path  = project_folder + new_src.lstrip('/')
-        
+
+        new_src = sanitize_filepath(new_src)
+        local_path = project_folder + new_src.lstrip('/')
+
         # collect local images for a list to save at the end
         le_tuple = (
             src,        # as found in html
             new_src,    # for wp /
-            local_path, # local file path
+            local_path,  # local file path
             # abs_src,
         )
-        assert len(le_tuple) == 3 # images_written saving at very end
+        assert len(le_tuple) == 3  # images_written saving at very end
         if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
             images_written.append(le_tuple)
-                                    
+
         # get and save link-asset to disk
         wh.make_dirs(local_path)
-        if not wh.file_exists_and_valid(local_path): 
-            
-            if wh.url_is_assumed_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
-                
-                wh.sleep_random(config.wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
+        if not wh.file_exists_and_valid(local_path):
+
+            # may_be_a_folder(abs_src):  # folders may get exception below?
+            if wh.url_is_assumed_file(abs_src):
+
+                wh.sleep_random(config.wait_secs,
+                                verbose_string=src, prefix="\t\t ")  # abs_src
 
                 # get the file via session requests
                 max_tries = 10
                 for cnt in range(max_tries):
                     try:
-                        print(f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
+                        print(
+                            f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
                         session = requests.Session()
                         session.get(base)  # sets cookies
                         res = session.get(abs_src)
                         break
                     except Exception as e:
                         print("\n"*4)
-                        print(f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
+                        print(
+                            f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                         time.sleep(3)
-                
-                # write the file binary to disk local        
+
+                # write the file binary to disk local
                 try:
                     with open(local_path, 'wb') as fp:
                         fp.write(res.content)
                         print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
                 except:
-                    print(f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-                
+                    print(
+                        f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
+
             else:
                 print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
         else:
@@ -528,41 +548,44 @@ def assets_save_internals_locally(
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         content = content.replace(dq(src), dq(new_src))  # try both
         content = content.replace(sq(src), sq(new_src))  # try both
-        
-        #TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
+
+        # TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
 
     return content
 
 # -----------------------------------------
-# 
+#
 # -----------------------------------------
+
+
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
     # ensure trailing slash
-    url             = wh.add_trailing_slash(url)
-    b_use_driver    = True
+    url = wh.add_trailing_slash(url)
+    b_use_driver = True
 
     # -----------------------------------------
     # GET content
     # -----------------------------------------
     content = ""
     for tries in range(10):
-        
+
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
         print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
-        wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ") # verbose_string=url       
-        
+        wh.sleep_random(wait_secs, verbose_string=url,
+                        prefix="\t ")  # verbose_string=url
+
         try:
             if b_use_driver:
-                driver.get(url) 
+                driver.get(url)
                 wh.wait_for_page_has_loaded(driver)
                 content = driver.page_source
             else:
                 content = wh.get_content(url)
         except Exception as e:
             print(f"{RED}\t ERROR: GET url: {url} {RESET}")
-            
+
         if content:
             break
         else:
@@ -572,28 +595,29 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 url = "https://" + wh.strip_protocol(url)
             print(f"{RED}\t will try with different PROTOCOL: {url} {RESET}")
             time.sleep(2)
-    ### for tries   get />     
+    # for tries   get />
 
     # -----------------------------------------
     #
     # -----------------------------------------
     #path_index_base = get_path_for_file(url, base, project_folder, ext="")
     path_index_base = project_folder + get_page_folder(url, base) + "index"
-    path_original   = wh.save_html(content, path_index_base + "_original.html")
+    path_original = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
-    # 
+    #
     # -----------------------------------------
     for fr, to in replacements_pre:
         print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
-    path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
-    
+    path_replaced_pre = wh.save_html(
+        content, path_index_base + "_replaced_pre.html")
+
     # -----------------------------------------
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
-    
+
     # links_head_css = h.xpath('head//link[@type="text/css"]/@href')
     # links_head_css = wh.links_strip_query_and_fragment(links_head_css)
     # links_head_css = wh.links_make_unique(links_head_css)
@@ -609,13 +633,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     links_img = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_style_background_images(driver)
-    links_img += wh.get_stylesheet_background_images_from_file(style_path) # TODO need to replace these in css as well
+    # TODO need to replace these in css as well
+    links_img += wh.get_stylesheet_background_images_from_file(style_path)
     links_css_text = h.xpath("//style/text()")
     for text in links_css_text:
         # text = cssbeautifier.beautify(text)
         # print("script", GRAY + text + RESET)
         links_img += wh.get_stylesheet_background_images_from_string(text)
-    
+
     links_scripts = h.xpath('//script/@src')
     # list_script_text = h.xpath("//script/text()")
     # import re
@@ -625,53 +650,54 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     #     print("script", GRAY + text + RESET)
     #     # j = json.loads(text)
     #     # print(MAGENTA, json.dumps(j, indent=4), RESET)
-        
+
     #     # # # s = re.findall("'([^']*)'", text)
     #     #s = re.findall("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})", text)
     #     s = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
     #     #s = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', text)
-    #     regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"        
+    #     regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
     #     s = re.findall(regex, text)
     #     print("s", YELLOW, *s, RESET, sep="\n\t")
-        
+
     # exit(0)
-    
 
     # https://realpython.com/python-zip-function/
-    lists       = [ links_head_href,   links_body_href,  links_link_href,   links_img,   links_scripts] # links_head_css,   
-    suffixes    = ["links_head_href", "links_body_href","links_link_href", "links_img", "links_scripts"]
+    lists = [links_head_href,   links_body_href,  links_link_href,
+             links_img,   links_scripts]  # links_head_css,
+    suffixes = ["links_head_href", "links_body_href",
+                "links_link_href", "links_img", "links_scripts"]
     for links, suffix in zip(lists, suffixes):
         print("/" * 80)
         print(suffix)
-        #print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
+        # print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
         content = assets_save_internals_locally(
-            content, 
-            url, base, 
+            content,
+            url, base,
             links, suffix,
             project_folder
         )
-        wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
+        wh.save_html(content, path_index_base + "_" +
+                     suffix + ".html", pretty=True)
 
     # -----------------------------------------
     #
     # -----------------------------------------
 
     content = wh.html_minify(content)
-    path_minified   = wh.save_html(content, path_index_base + ".html")
-    path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
+    path_minified = wh.save_html(content, path_index_base + ".html")
+    path_pretty = wh.save_html(
+        content, path_index_base + "_pretty.html", pretty=True)
     # # path_temp     = wh.load_html_from_string(driver, content)
     # # os.remove(path_temp)
     # # time.sleep(10)
-    
-
 
     # # # driver.refresh()
     # # print("closing driver...")
     # # driver.close()
     # # driver.quit()
-    
+
     print("make_static: all done.")
-### make_static />
+# make_static />
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -734,18 +760,16 @@ if __name__ == "__main__":
     #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg")
     # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4"):
     #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4")
-    
-    
+
     # wh.url_has_fragment("https://1001suns.com/empty/twitter.svg")
     # wh.url_has_fragment("https://1001suns.com/empty/")
     # wh.url_has_fragment("https://1001suns.com/empty/#frag123")
     # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4")
     # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4#frag655")
-    
+
     # wh.has_same_netloc("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
     # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
-    
-    
+
     # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
     # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
     # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
@@ -753,7 +777,7 @@ if __name__ == "__main__":
     # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
     # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
     # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
-    
+
     # wh.url_is_absolute("https://www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("https://www.karlsruhe.digital")
     # wh.url_is_absolute("http://www.karlsruhe.digital")
@@ -761,13 +785,13 @@ if __name__ == "__main__":
     # wh.url_is_absolute("//www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
     # wh.url_is_absolute("/path/image.jpg")
-    
+
     # print("check substring:", "karlsruhe.digital" in "karlsruhe.digital")
     # print("check substring:", "karlsruhe.digital" == "karlsruhe.digital")
     # print("check substring:", "karlsruhe.digital" in "media.karlsruhe.digital")
     # print("check substring:", "karlsruhe.digital" in "arlsruhe.digital")
     # exit(0)
-    
+
     # base="https://karlsruhe.digital"
     # links = [
     #     "",
@@ -800,13 +824,12 @@ if __name__ == "__main__":
     #     wh.try_link_make_local(link, base)
     #     #wh.link_make_absolute(link, base)
     #     print()
-    
-    
+
     # print("1", "".split('/'))
     # print("2", "".split('/')[-1])
     # print("3", "".split('/')[-1] + "_added")
     # print("4", '.' in "".split('/')[-1])
-    
+
     # func = wh.url_is_assumed_folder
     # func = wh.url_is_assumed_file
     # print(func(None), "\n")
@@ -827,19 +850,37 @@ if __name__ == "__main__":
 
     # exit(0)
 
-    # -----------------------------------------
-    #
-    # -----------------------------------------
+    # # css = wh.list_from_file(config.style_path)
+    # # css = cssbeautifier.beautify(wh.list_to_string(css))
+    # # wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
+
+    image_links = wh.list_from_file(
+        #config.data_base_path + "links_img" + ".txt", 
+        config.image_tuples_written_path, 
+        sanitize=True
+    )
+    
+    # def to_tuple(s):
+    #     return(tuple(s.split(',')))
+    
+    to_tuple = lambda s : tuple(s.split(','))
+    
+    #image_links = wh.list_exec(image_links, to_tuple)
+    #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
+    image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
+    wh.list_print(image_links)
+    exit(0)
 
     # TODO style_path must be downloaded first....immediately change links to local......
-    
+
     # -----------------------------------------
     # copy sitemap
     # -----------------------------------------
     import shutil
     wh.make_dirs(config.project_folder)
-    shutil.copyfile(config.sitemap_xml_path, config.project_folder + "sitemap.xml")
-    
+    shutil.copyfile(config.sitemap_xml_path,
+                    config.project_folder + "sitemap.xml")
+
     # -----------------------------------------
     #
     # -----------------------------------------
@@ -854,9 +895,10 @@ if __name__ == "__main__":
             'https://karlsruhe.digital/en/search/',
         ]
     else:
-        with open(config.sitemap_links_internal_path, "r") as file:
-            lines = file.readlines()
-            urls = [line.rstrip() for line in lines]
+        # # # with open(config.sitemap_links_internal_path, "r") as file:
+        # # #     lines = file.readlines()
+        # # #     urls = [line.rstrip() for line in lines]
+        urls = wh.list_from_file(config.sitemap_links_internal_path)
     urls = wh.links_remove_comments(urls, '#')
 
     # chrome init
@@ -872,10 +914,10 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
-    
+
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
-        
+
         # # # # DEBUG TODO
         # # # if count == 3:
         # # #     break
@@ -897,33 +939,33 @@ if __name__ == "__main__":
             )
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
-    
+
     driver.close()
     driver.quit()
-        
+
     # save image tuples list
     path_images_written = "data/" + config.base_netloc + "_images_written.csv"
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
-        fp.write('\n'.join('{},{},{}'.format(x[0], x[1], x[2]) for x in images_written))
-        
+        fp.write('\n'.join('{},{},{}'.format(
+            x[0], x[1], x[2]) for x in images_written))
+
     # append css
     with open(config.style_path, 'a', encoding="utf-8") as outfile:
         with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
             data = infile.read()
             outfile.write(data)
-        
+
     # todo this should work if in root of domain
     # # wh.replace_in_file(
     # #   style_path,
     # #   "background-image: url(\"/wp-content/",
     # #   "background-image: url(\"../../../../wp-content/" # rel to css/
     # # )
-    
+
     # all done
     secs = time.time() - start_secs
     print("all done:", "duration:", round(secs/60.0, 1), "m")
-        
-        
+
     exit(0)
