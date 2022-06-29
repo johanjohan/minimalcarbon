@@ -302,6 +302,7 @@ from selenium.webdriver.support.expected_conditions import visibility_of_element
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver  # pip install selenium
+from selenium.webdriver.chrome.options import Options
 
 import jsbeautifier
 import cssbeautifier
@@ -846,16 +847,16 @@ if __name__ == "__main__":
     # # css = cssbeautifier.beautify(wh.list_to_string(css))
     # # wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
 
-    image_links = wh.list_from_file(
-        #config.data_base_path + "links_img" + ".txt", 
-        config.image_tuples_written_path, 
-        sanitize=True
-    )
+    # image_links = wh.list_from_file(
+    #     #config.data_base_path + "links_img" + ".txt", 
+    #     config.image_tuples_written_path, 
+    #     sanitize=True
+    # )
     
-    #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
-    image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
-    wh.list_print(image_links)
-    exit(0)
+    # #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
+    # image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
+    # wh.list_print(image_links)
+    # exit(0)
 
     # TODO style_path must be downloaded first....immediately change links to local......
 
@@ -891,7 +892,21 @@ if __name__ == "__main__":
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
-            driver = webdriver.Chrome()
+            options = Options()
+            # options.headless = config.headless
+            # options.add_argument("--disable-extensions")
+            options.add_argument("--headless")
+            options.add_argument('--ignore-certificate-errors')
+            options.add_argument('--incognito')
+            options.add_argument('--log-level=3')
+            options.add_argument("--disable-webgl")
+            options.add_argument("--disable-popup-blocking")
+            options.add_argument("--window-size=800,600")
+            options.add_argument("--no-sandbox")
+            options.add_argument('user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36')
+            options.add_argument('--disable-gpu')
+            print(f"[{tries}] {options}")
+            driver = webdriver.Chrome(options=options)
             driver.implicitly_wait(30)
             # driver.execute_script("alert('alert via selenium')")
             # time.sleep(33)

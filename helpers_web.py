@@ -1198,6 +1198,9 @@ def list_to_file(items, path, mode="w", encoding="utf-8"):
 def list_to_string(items):
     return "\n".join(str(item) for item in items)
 
+def string_from_file(path, sanitize):
+    return list_to_string(list_from_file(path, sanitize=False))
+
 def list_from_string(s):
     return list(s.split('\n'))
         
@@ -1276,6 +1279,26 @@ def collect_files_endswith(project_folder, allowed_extensions):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def collect_files_func(project_folder, func):
+    print("collect_files:", project_folder)
+    assets = []
+    for root, dirs, files in os.walk(project_folder):
+        
+        for file in files:
+            if func(file): 
+                path = os.path.abspath(os.path.join(root, file))
+                #print("\t", os.path.basename(path))
+                assets.append(path)
+                
+        for dir in dirs:
+            if func(dir): 
+                path = os.path.abspath(os.path.join(root, dir))
+                #print("\t", os.path.basename(path))
+                assets.append(path)
+                
+    print("collect_files:", len(assets), "assets found.")
+    return assets
+
 
 #-----------------------------------------
 # 

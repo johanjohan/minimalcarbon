@@ -22,6 +22,18 @@ import helpers_web as wh
 import time
 import pathlib
 import pyautogui as pag
+
+
+from bs4 import BeautifulSoup as bs
+
+import lxml.html
+import chromedriver_binary  # pip install chromedriver-binary-auto
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.expected_conditions import visibility_of_element_located
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium import webdriver  # pip install selenium
+from selenium.webdriver.chrome.options import Options
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -132,11 +144,86 @@ if __name__ == "__main__":
     #-----------------------------------------
     dir_size_orig = get_directory_total_size(config.project_folder)
     
-    
     #-----------------------------------------
     # 
     #-----------------------------------------
+    options = Options()
+    #options.headless = True
+    driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(30)    
+    
+    func=lambda s : True
+    func=lambda s : os.path.isfile(s) # doesnt work
+    func=lambda s : s.endswith(".jpg") or s.endswith(".jpeg")
+    func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"])
+    func=lambda file : file.endswith("index.html")
+    
+    files_index_html = wh.collect_files_func(project_folder, func=func)
+    for file in files_index_html:
+        print("-"*80)
+
+        driver.get("file:///" + file)
+        wh.wait_for_page_has_loaded(driver)
+        content = driver.page_source
+        
+        time.sleep(3)
+        
+        #elements = driver.find_elements(By.TAG_NAME, "img")
+        
+        #elements = driver.find_elements(By.XPATH, "//img[@srcset]")
+        elements = driver.find_elements(By.XPATH, "//img")
+        for element in elements:
+            print("\t", element.tag_name, element.text)
+            driver.execute_script("arguments[0].remove();", element)
+            
+        driver.execute_script(
+            """
+            var element = document.getElementById("Ebene_1");
+            element.parentNode.removeChild(element);
+            """
+        )
+
+            
+        #driver.refresh()
+        for i in range(7):
+            time.sleep(1)
+            print('.', end='', flush=True)
+            
+        # # # # content = wh.string_from_file(file, sanitize=False)
+        # # # soup    = bs(content, "html.parser")
+        # # # #content = soup.prettify()
+        # # # for data in soup(['style', 'script']):
+        # # #     # Remove tags
+        # # #     print("\t", data)
+        # # #     data.decompose()
+
+        # # # # return data by retrieving the tag content
+        # # # #content = ' '.join(soup.stripped_strings)        
+        
+        # # # #print(content)    
+    
+        # # # driver.get("data:text/html;charset=utf-8," + content)
+        # # # wh.wait_for_page_has_loaded(driver)
+        
+        # # # for i in range(30):
+        # # #     time.sleep(1)
+        # # #     print('.', end='', flush=True)
+                
+                
+    #print(*files_index_html, sep="\n\t")
+    
+    # driver.close()
+    # driver.quit()
+    exit(0)
+    
     files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+    for file in files_index_html:
+        print("-"*80)
+        content = wh.string_from_file(file, sanitize=False)
+        soup    = bs(content)
+        content = soup.prettify()
+        
+        print(content)
     exit(0)
             
     #-----------------------------------------
