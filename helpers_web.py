@@ -1167,6 +1167,7 @@ def replace_all_in_file(filename, string_from, string_to):
     
     #print("replace_all_in_file:", filename)
     
+    # read and replace
     fp = open(filename, "r", encoding="utf-8")
     data = fp.read()
     
@@ -1177,7 +1178,7 @@ def replace_all_in_file(filename, string_from, string_to):
     data = replace_all(data, string_from, string_to)
     fp.close()
     
-    #open the input file in write mode
+    # write changes
     fp = open(filename, "w", encoding="utf-8")
     fp.write(data)
     fp.close()

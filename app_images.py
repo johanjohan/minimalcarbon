@@ -419,7 +419,7 @@ if __name__ == "__main__":
     
     def replace_all_conversions_in_file(filename, conversions):
         
-        print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
+        #print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
         print("\t", wh.GRAY, end='')
         
         fp = open(filename, "r", encoding="utf-8")
@@ -447,7 +447,7 @@ if __name__ == "__main__":
                 html = wh.replace_all(html, wp_fr, wp_to) 
                     
             else:
-                print("\t\t\t", "does not exist: to:", to)
+                print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
         ### for conversion />
         
         print(wh.RESET)   
@@ -466,11 +466,12 @@ if __name__ == "__main__":
         html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html", "style.css"])
         for i, html_file in enumerate(html_files):
             #print("\t", "-"*88)
+            print("\n"*1)
             wh.progress(i / len(html_files), verbose_string="TOTAL", VT=wh.CYAN, n=80, prefix="\t ")
-            print("\n"*2)
+            print("\n"*1)
             print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
             
-            if False:
+            if True:
                 replace_all_conversions_in_file(html_file, conversions)
             else:
                 conversions_exts = []
@@ -481,6 +482,9 @@ if __name__ == "__main__":
                         wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
                 
                 #replace_all_conversions_in_file(html_file, conversions_exts)
+                
+            wh.replace_all_in_file(html_file, " srcset=", " XXXsrcset=")
+            wh.replace_all_in_file(html_file, " sizes=", " XXXsizes=")
                                               
         ### for /> 
     ### b_perform_replacement />            
