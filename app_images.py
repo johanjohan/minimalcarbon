@@ -131,6 +131,13 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     dir_size_orig = get_directory_total_size(config.project_folder)
+    
+    
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+    exit(0)
             
     #-----------------------------------------
     # 
