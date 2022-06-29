@@ -95,7 +95,7 @@ date_time           = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 #-----------------------------------------
 # 
 #-----------------------------------------
-def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
+def get_all_website_links(url, max_urls, wait_secs=(0.1, 0.2)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
@@ -104,13 +104,10 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
     # domain name of the URL without the protocol
     domain_name = urlparse(url).netloc
     
+    # get content
     for tries in range(10):
         print(MAGENTA + f"[{tries}] tries: {url}", RESET)
         wh.sleep_random(wait_secs, verbose_string=url) # NEW
-        
-        # # # url, _  = wh.get_redirected_url(url, timeout=config.timeout)
-        # # # content = wh.get_content(url, timeout=config.timeout)
-        
         response    = wh.get_response(url, timeout=config.timeout)
         url         = response.url
         content     = response.read().decode('utf-8')
@@ -119,7 +116,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
         else:
             print(RED, "request failed...sleep and try again...", url, RESET)
             time.sleep(3)
-        
+            
     internal_urls.add(url)
     soup = BeautifulSoup(content, "html.parser")
     
@@ -152,17 +149,27 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
         #-----------------------------------------       
         #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
         if wh.url_is_external(href, domain_name):
-            if href not in external_urls:
+            if href not in external_urls and wh.strip_trailing_slash(href) not in external_urls:
                 print(
+                    "\t\t",
                     f"{total_urls_visited}/{max_urls}", 
                     f"{GRAY}[!] External: {href}{RESET}"
                 )
                 external_urls.add(href)
+            else:
+                #print("\t\t", f"{YELLOW}skipping external_urls: {href}{RESET}")
+                pass
+            
             continue
                 
         #-----------------------------------------
         # internal link
-        #-----------------------------------------       
+        #-----------------------------------------     
+        if href in internal_urls or wh.strip_trailing_slash(href) in internal_urls:
+            # already in the internal_urls
+            #print("\t\t", f"{YELLOW}skipping internal_urls: {href}{RESET}")
+            continue
+          
         # hresponse redirected, mime etc
         for tries in range(3):
             hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
@@ -178,30 +185,39 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
 
         # get redirected href NEW
         ####href, _ = wh.get_redirected_url(href, timeout=config.timeout)
-        href = hresponse.url
-        
-        #-----------------------------------------
-        # 
-        #-----------------------------------------       
-        if href in internal_urls:
-            # already in the set
-            continue
+        # # # # # # # # # if hresponse.url != href:
+        # # # # # # # # #     internal_urls.add(hresponse.url)
+            
+        #href = hresponse.url
+          
+        # # # if href in internal_urls:
+        # # #     # already in the set
+        # # #     continue
         
         ###mime_type =  wh.get_mime_type(href)
         mime_type =  hresponse.headers.get_content_type()
         if not mime_type in mime_types_allowed:
-            print(f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
+            print("\t\t", f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
             continue
         
         # internel url
-        if not href in internal_urls:
+        if not href in internal_urls and not wh.strip_trailing_slash(href) in internal_urls:
             print(
+                "\t\t",
                 f"{total_urls_visited}/{max_urls}", 
                 mime_type, 
                 f"{CYAN}[*] Internal: {href}{RESET}"
             )
             internal_urls.add(href)
-        
+            
+            # add redirected as well
+            if hresponse.url != href:
+                internal_urls.add(hresponse.url)
+                
+        else:
+            #print("\t\t", f"{YELLOW}finally skipping internal_urls: {href}{RESET}")
+            pass
+            
         urls.add(href) # only store internals
     ### for a_tag
         
