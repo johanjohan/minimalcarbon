@@ -120,7 +120,7 @@ def excludeTagFromWebDriver(driver : WebDriver, selector : str):
     while soup.find(selector):
         # print(soup.find(selector))
         js = ""
-            var element = document.querySelector(""" + "'" + selector + "'" + """);
+            var element = document.querySelector("" + "'" + selector + "'" + "");
             if (element)
                 element.parentNode.removeChild(element);
             ""
@@ -330,15 +330,15 @@ images_written = []
 # -----------------------------------------
 
 
-def strip_protocol(url):
-    new_url = url
-    new_url = new_url.lstrip("https://")
-    new_url = new_url.lstrip("http://")
-    new_url = new_url.lstrip("://")
-    new_url = new_url.lstrip("//")
-    new_url = new_url.lstrip('/')
-    #print("strip_protocols:", url, "-->", new_url)
-    return new_url
+# def strip_protocol(url):
+#     new_url = url
+#     new_url = new_url.lstrip("https://")
+#     new_url = new_url.lstrip("http://")
+#     new_url = new_url.lstrip("://")
+#     new_url = new_url.lstrip("//")
+#     new_url = new_url.lstrip('/')
+#     #print("strip_protocols:", url, "-->", new_url)
+#     return new_url
 
 def sanitize_filepath(filepath):
     rep = '_'
@@ -383,7 +383,7 @@ def get_page_folder(url, base):
     page_folder = ""
     subs = path.split('/')
     for folder in subs:
-        if folder and assuming_a_folder(folder):
+        if folder and wh.url_is_assumed_folder(folder):
             page_folder += folder + "/" 
     print("get_page_folder    :", GRAY, url, "-->", RESET, wh.sq(page_folder))
     return page_folder               
@@ -418,19 +418,27 @@ def get_path_local_root(url, base):
     #print("get_path_local_root:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
-# -----------------------------------------
-# based on ASSUMPTIONS!
-# -----------------------------------------
-def has_a_dot(url):
-    return '.' in url
+# # # # -----------------------------------------
+# # # # based on ASSUMPTIONS!
+# # # # -----------------------------------------
+# # # def has_a_dot(url):
+# # #     return '.' in url
 
-def assuming_a_file(url):
-    url = url_path(url)
-    url = wh.strip_query_and_fragment(url)
-    return has_a_dot(url)
+# # # def assuming_a_file(url):
+    
+# # #     print("assuming_a_file:", url)
+    
+# # #     if url.endswith('/'):
+# # #         return False
 
-def assuming_a_folder(url):
-    return not assuming_a_file(url)       
+# # #     url = url_path(url)
+# # #     url = wh.strip_query_and_fragment(url)
+# # #     url = wh.strip_trailing_slash(url)
+    
+# # #     return has_a_dot(url.split('/')[-1]) # if last part has a dot...
+
+# # # def assuming_a_folder(url):
+# # #     return not assuming_a_file(url)       
 
 # -----------------------------------------
 # 
@@ -466,9 +474,9 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             break
         else:
             if tries == 0:
-                url = "http://" + strip_protocol(url)
+                url = "http://" + wh.strip_protocol(url)
             else:
-                url = "https://" + strip_protocol(url)
+                url = "https://" + wh.strip_protocol(url)
             print(f"{RED}\t will try with different PROTOCOL: {url} {RESET}")
             time.sleep(2)
     ### for tries   get />     
@@ -529,7 +537,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 
             # is a file? add index.html/get_page_name() to folder-links
             # TODO may not do so wp_json/ and sitemap/
-            if assuming_a_file(new_src) : 
+            if wh.url_is_assumed_file(new_src) : 
                 print(MAGENTA, "\t\t file:", RESET, new_src)
             else: 
                 new_src = wh.add_trailing_slash(new_src)
@@ -545,20 +553,20 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             
             # collect local images for a list to save at the end
             le_tuple = (
-                src,
-                new_src,
-                local_path,
+                src,        # as found in html
+                new_src,    # for wp /
+                local_path, # local file path
                 # abs_src,
             )
+            assert len(le_tuple) == 3 # images_written saving at very end
             if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
                 images_written.append(le_tuple)
                                         
-   
             # get and save link-asset to disk
             wh.make_dirs(local_path)
             if not wh.file_exists_and_valid(local_path): 
                 
-                if assuming_a_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
+                if wh.url_is_assumed_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                     
                     wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
 
@@ -660,8 +668,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("/" * 80)
         print(suffix)
         #print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
-        content = assets_save_internals_locally(
-            content, url, base, links, project_folder)
+        content = assets_save_internals_locally(content, url, base, links, project_folder)
         wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
@@ -812,6 +819,30 @@ if __name__ == "__main__":
     #     wh.try_link_make_local(link, base)
     #     #wh.link_make_absolute(link, base)
     #     print()
+    
+    
+    # print("1", "".split('/'))
+    # print("2", "".split('/')[-1])
+    # print("3", "".split('/')[-1] + "_added")
+    # print("4", '.' in "".split('/')[-1])
+    
+    # func = wh.url_is_assumed_folder
+    # func = wh.url_is_assumed_file
+    # print(func(None), "\n")
+    # print(func(""), "\n")
+    # print(func("https://"), "\n")
+    # print(func("https://domain.com"), "\n")
+    # print(func("https://domain.com/"), "\n")
+    # print(func("https://domain.com/folder"), "\n")
+    # print(func("https://domain.com/folder/"), "\n")
+    # print(func("https://domain.com/folder/nodot"), "\n")
+    # print(func("https://domain.com/folder/nodot#fragment"), "\n")
+    # print(func("https://domain.com/folder/nodot?p=123"), "\n")
+    # print(func("https://domain.com/folder/with.dot"), "\n")
+    # print(func("https://domain.com/folder/with.dot?p=123"), "\n")
+    # print(func("https://domain.com/folder/with.dot?p=12#frag3"), "\n")
+    # print(func("https://domain.com/folder/with.dot#frag3"), "\n")
+    # print(func("https://domain.com/folder/with.dot/"), "\n")
 
     # exit(0)
 
@@ -880,7 +911,7 @@ if __name__ == "__main__":
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
-        fp.write('\n'.join('{},{},{}'.format(x[0],x[1],x[2]) for x in images_written))
+        fp.write('\n'.join('{},{},{}'.format(x[0], x[1], x[2]) for x in images_written))
         
     # todo this should work if in root of domain
     # # wh.replace_in_file(

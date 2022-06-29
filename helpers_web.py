@@ -388,20 +388,17 @@ def links_remove_excludes(links, excludes):
     return [link for link in links if not any(exclude in link for exclude in excludes)]
         
 def links_remove_invalids(links, invalids):
+    print("links_remove_invalids:", invalids)
     # TODO is same as links_remove_excludes???????????????????
     #print(YELLOW, *links, RESET, sep="\n\t")
     ret = []
-    
     for link in links:
-        
         b_is_valid = True
-        
         for invalid in invalids:
             if invalid in link:
                 b_is_valid = False
                 print("\t", RED, "invalid:", link, RESET, sep="\n\t")
                 break
-            
         if b_is_valid:
             ret.append(link)
             
@@ -471,6 +468,65 @@ def url_path_lstrip_double_slash(url): # '/'
 #-----------------------------------------
 # 
 #-----------------------------------------
+def strip_protocol(url):
+    
+    if not url:
+        return url
+    
+    new_url = url
+    new_url = new_url.lstrip("https://")
+    new_url = new_url.lstrip("http://")
+    new_url = new_url.lstrip("://")
+    new_url = new_url.lstrip("//")
+    new_url = new_url.lstrip('/')
+    #print("strip_protocols:", url, "-->", new_url)
+    return new_url
+
+# -----------------------------------------
+# based on ASSUMPTION that a file has a dot
+# -----------------------------------------
+def _has_a_dot(url):
+    return '.' in url
+
+def url_is_assumed_file(url):
+    print(url)
+    #url = strip_protocol(url)
+    
+    if url == None:
+        return False
+    elif url.endswith('/'):
+        return False
+
+    url = url_path(url)
+    url = strip_query_and_fragment(url)
+    url = strip_trailing_slash(url)
+    
+    return _has_a_dot(url.split('/')[-1]) # last part
+
+def url_is_assumed_folder(url):
+    print(url)
+     
+    if url == None:
+        return False
+    
+    url = url_path(url)
+   
+    if not url:
+        return True
+    elif url.endswith('/'):
+        return True
+    
+    # # url = url_path(url)
+    # # print("url_path:", url)
+    # # if not url:
+    # #     return True # just domain.com no /
+    # # else:    
+    return not url_is_assumed_file(url)   
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
 
 def has_trailing(url, s):
     return url.endswith(s)

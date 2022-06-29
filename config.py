@@ -41,7 +41,7 @@ pdf_res             = 96 # dpi
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 
-_sitemap_base               = data_folder + "karlsruhe.digital_20220629_122945"
+_sitemap_base               = data_folder + "karlsruhe.digital_20220629_131730"
 sitemap_links_internal_path = _sitemap_base + "_internal_links.csv"
 sitemap_links_external_path = _sitemap_base + "_external_links.csv"
 sitemap_xml_path            = _sitemap_base + "_sitemap.xml"
