@@ -66,8 +66,8 @@ def vt_saved_percent(size_orig, size_new):
 
 def vt_saved_percent_string(size_orig, size_new):
     pct = vt_saved_percent(size_orig, size_new)
-    vt  = wh.RED if pct <= 0 else wh.GREEN
-    return "{}{:+.1f}%{}".format(vt, pct, wh.RESET)
+    vt  = RED if pct <= 0 else GREEN
+    return "{}{:+.1f}%{}".format(vt, pct, RESET)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -1092,10 +1092,28 @@ def load_html_from_string(driver, content, dir='.'):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def html_minify(content):
+def html_sanitize(content, vb=False):
     
     length_orig = len(content)
-    print("html_minify: length_orig:", length_orig)
+    
+    content = replace_all(content, "\n", " ")
+    content = replace_all(content, "\t", " ")
+    content = replace_all(content, "\r", " ")
+    content = replace_all(content, "  ", " ")
+    content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt
+    content = replace_all(content, " >", ">") 
+    content = replace_all(content, "> <", "><") 
+    content = replace_all(content, "} }", "}}") 
+    content = replace_all(content, "{ {", "{{") 
+
+    if vb:
+        print("html_sanitize:", "percent_saved:", vt_saved_percent_string(length_orig, len(content)))
+    
+    return content
+    
+def html_minify(content, vb=True):
+    
+    length_orig = len(content)
     
     if length_orig > 0:
         # pip install htmlmin
@@ -1115,23 +1133,13 @@ def html_minify(content):
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
             
-        
-        if True:
-            content = replace_all(content, "\n", " ")
-            content = replace_all(content, "\t", " ")
-            content = replace_all(content, "\r", " ")
-            #print("len(content)", len(content))
-            content = replace_all(content, "  ", " ")
-            content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt
-            content = replace_all(content, " >", ">") 
-            content = replace_all(content, "> <", "><") 
-            content = replace_all(content, "} }", "}}") 
-            content = replace_all(content, "{ {", "{{") 
-            #print("len(content)", len(content))
+        content = html_sanitize(content)
             
-        percent = round(len(content) / length_orig * 100, 1)
-        percent_saved = round(100 - percent, 1)
-        print("html_minify: final len(content)", len(content), "|", GREEN, "percent_saved:", percent_saved, "%", RESET)
+        if vb:
+            print(
+                "html_minify: final len(content)", len(content), 
+                "|", 
+                "percent_saved:", vt_saved_percent_string(length_orig, len(content)))
     
     return content
 #-----------------------------------------

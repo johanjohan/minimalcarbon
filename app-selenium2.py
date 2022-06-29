@@ -323,8 +323,8 @@ MAGENTA = config.MAGENTA
 # -----------------------------------------
 #
 # -----------------------------------------
-
-images_written = []
+start_secs      = time.time()
+images_written  = []
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -486,7 +486,7 @@ def assets_save_internals_locally(
             
             if wh.url_is_assumed_file(abs_src): ##  may_be_a_folder(abs_src):  # folders may get exception below?
                 
-                wh.sleep_random(wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
+                wh.sleep_random(config.wait_secs, verbose_string=src, prefix="\t\t ") # abs_src
 
                 # get the file via session requests
                 max_tries = 10
@@ -528,6 +528,8 @@ def assets_save_internals_locally(
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         content = content.replace(dq(src), dq(new_src))  # try both
         content = content.replace(sq(src), sq(new_src))  # try both
+        
+        #TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
 
     return content
 
@@ -646,7 +648,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             content, 
             url, base, 
             links, suffix,
-            project_folder)
+            project_folder
+        )
         wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
@@ -834,6 +837,7 @@ if __name__ == "__main__":
     # copy sitemap
     # -----------------------------------------
     import shutil
+    wh.make_dirs(config.project_folder)
     shutil.copyfile(config.sitemap_xml_path, config.project_folder + "sitemap.xml")
     
     # -----------------------------------------
@@ -893,13 +897,22 @@ if __name__ == "__main__":
             )
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
-            
-    # save image list
-    path_images_written = "data/" + config.base_netloc + "_images_written.txt"
+    
+    driver.close()
+    driver.quit()
+        
+    # save image tuples list
+    path_images_written = "data/" + config.base_netloc + "_images_written.csv"
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
     with open(path_images_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join('{},{},{}'.format(x[0], x[1], x[2]) for x in images_written))
+        
+    # append css
+    with open(config.style_path, 'a', encoding="utf-8") as outfile:
+        with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
+            data = infile.read()
+            outfile.write(data)
         
     # todo this should work if in root of domain
     # # wh.replace_in_file(
@@ -908,7 +921,9 @@ if __name__ == "__main__":
     # #   "background-image: url(\"../../../../wp-content/" # rel to css/
     # # )
     
-    driver.close()
-    driver.quit()
-
+    # all done
+    secs = time.time() - start_secs
+    print("all done:", "duration:", round(secs/60.0, 1), "m")
+        
+        
     exit(0)
