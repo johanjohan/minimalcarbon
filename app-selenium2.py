@@ -851,6 +851,10 @@ if __name__ == "__main__":
     # -----------------------------------------
 
     # TODO style_path must be downloaded first....immediately change links to local......
+    
+    # copy sitemap
+    import shutil
+    shutil.copyfile(config.sitemap_xml_path, config.project_folder + "sitemap.xml")
 
     if False:
         urls = [

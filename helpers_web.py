@@ -489,7 +489,7 @@ def _has_a_dot(url):
     return '.' in url
 
 def url_is_assumed_file(url):
-    print(url)
+    #print(url)
     #url = strip_protocol(url)
     
     if url == None:
@@ -504,7 +504,7 @@ def url_is_assumed_file(url):
     return _has_a_dot(url.split('/')[-1]) # last part
 
 def url_is_assumed_folder(url):
-    print(url)
+    #print(url)
      
     if url == None:
         return False
@@ -515,12 +515,7 @@ def url_is_assumed_folder(url):
         return True
     elif url.endswith('/'):
         return True
-    
-    # # url = url_path(url)
-    # # print("url_path:", url)
-    # # if not url:
-    # #     return True # just domain.com no /
-    # # else:    
+     
     return not url_is_assumed_file(url)   
 
 #-----------------------------------------

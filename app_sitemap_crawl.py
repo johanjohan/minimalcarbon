@@ -328,6 +328,8 @@ if __name__ == "__main__":
         # write sitemap
         sitemap_path = f"{data_folder}/{domain_name}_{date_time}_sitemap.xml"
         sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
+        import shutil
+        shutil.copyfile(sitemap_path, config.project_folder + "sitemap.xml")
 
         # all done
         secs = time.time() - start_secs
