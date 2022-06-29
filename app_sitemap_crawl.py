@@ -146,8 +146,25 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
             # not a valid URL
             print(f"{RED}[!] bad url: {href}{RESET}")
             continue
-        
-        for tries in range(5):
+
+        #-----------------------------------------
+        # external link
+        #-----------------------------------------       
+        #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
+        if wh.url_is_external(href, domain_name):
+            if href not in external_urls:
+                print(
+                    f"{total_urls_visited}/{max_urls}", 
+                    f"{GRAY}[!] External: {href}{RESET}"
+                )
+                external_urls.add(href)
+            continue
+                
+        #-----------------------------------------
+        # internal link
+        #-----------------------------------------       
+        # hresponse redirected, mime etc
+        for tries in range(3):
             hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
             if hresponse:
                 break
@@ -163,24 +180,11 @@ def get_all_website_links(url, max_urls, wait_secs=(0.5, 2.0)):
         ####href, _ = wh.get_redirected_url(href, timeout=config.timeout)
         href = hresponse.url
         
-
         #-----------------------------------------
         # 
         #-----------------------------------------       
         if href in internal_urls:
             # already in the set
-            continue
-        
-        # external link
-        #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
-        if wh.url_is_external(href, domain_name):
-            # external link
-            if href not in external_urls:
-                print(
-                    f"{total_urls_visited}/{max_urls}", 
-                    f"{MAGENTA}[!] External: {href}{RESET}"
-                )
-                external_urls.add(href)
             continue
         
         ###mime_type =  wh.get_mime_type(href)
