@@ -60,6 +60,7 @@ data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
 data_base_path      = data_folder + base_netloc + "_"
+suffix_compressed   = "_unpowered"
 
 #-----------------------------------------
 # init the colorama module

@@ -27,6 +27,9 @@ import pyautogui as pag
 from bs4 import BeautifulSoup as bs
 
 import lxml.html
+import helpers_lxml as hx
+
+
 import chromedriver_binary  # pip install chromedriver-binary-auto
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.expected_conditions import visibility_of_element_located
@@ -93,43 +96,26 @@ def load_conversions(path_conversions):
     with open(path_conversions, 'r', encoding="utf-8") as fp:
         for line in fp:
             subs = line.split(',')
-            conversions.append((subs[0].strip(), subs[1].strip()))
+            if len(subs) >= 2:
+                conversions.append((subs[0].strip(), subs[1].strip()))
             
     print("load_conversions: len(conversions):", len(conversions))
     conversions = list(set(conversions)) # unique
     print("load_conversions: unique len(conversions):", len(conversions))
     return conversions
 
-#-----------------------------------------
-# 
-#-----------------------------------------
-def to_posix(filepath):
-    return pathlib.Path(filepath).as_posix()
- 
-def get_directory_total_size(start_path):
-    print("get_size:", wh.CYAN, start_path, wh.RESET)
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(start_path):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            # skip if it is symbolic link
-            if not os.path.islink(fp):
-                total_size += os.path.getsize(fp)
 
-    print("get_size: total_size:", round(total_size / (1024*1024), 1), "MB")
-    return total_size
-           
 #-----------------------------------------
 # 
 #-----------------------------------------
 if __name__ == "__main__":
     
-    project_folder              = to_posix(os.path.abspath(config.project_folder))
+    project_folder              = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
-    b_perform_conversion        = True
-    b_perform_pdf_compression   = b_perform_conversion
-    b_perform_replacement       = True
+    b_perform_pdf_compression   = False 
+    b_perform_image_conversion  = False
+    b_perform_replacement       = False
      
     # del with warning
     b_delete_originals          = False
@@ -142,91 +128,88 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    dir_size_orig = get_directory_total_size(config.project_folder)
-    
+    dir_size_orig = wh.get_directory_total_size(config.project_folder)
+
     #-----------------------------------------
     # 
     #-----------------------------------------
+    # append css
     if False:
-        options=config.options
-        options.headless = False
-        driver = webdriver.Chrome(options=options)
-        driver.implicitly_wait(30)    
+        with open(config.style_path, 'a', encoding="utf-8") as outfile:
+            with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
+                data = infile.read()
+                outfile.write(data)
+                
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    b_remove_image_attributes = True
+    if b_remove_image_attributes:
         
-        func=lambda s : True
-        func=lambda s : os.path.isfile(s) # doesnt work
-        func=lambda s : s.endswith(".jpg") or s.endswith(".jpeg")
+        func=lambda s : True # finds all
         func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
         func=lambda file : file.lower().endswith("index.html")
         
         files_index_html = wh.collect_files_func(project_folder, func=func)
-
-        for file in files_index_html:
-            print("-"*80)
-
-            driver.get("file:///" + file)
-            wh.wait_for_page_has_loaded(driver)
-            content = driver.page_source
-            
-            time.sleep(3)
-            
-            #elements = driver.find_elements(By.TAG_NAME, "img")
-            
-            #elements = driver.find_elements(By.XPATH, "//img[@srcset]")
-            elements = driver.find_elements(By.XPATH, "//img")
-            for element in elements:
-                print("\t", element.tag_name, element.text)
-                driver.execute_script("arguments[0].remove();", element)
-                
-            driver.execute_script(
-                """
-                var element = document.getElementById("Ebene_1");
-                element.parentNode.removeChild(element);
-                """
-            )
-
-                
-            #driver.refresh()
-            for i in range(7):
-                time.sleep(1)
-                print('.', end='', flush=True)
-                
-            # # # # content = wh.string_from_file(file, sanitize=False)
-            # # # soup    = bs(content, "html.parser")
-            # # # #content = soup.prettify()
-            # # # for data in soup(['style', 'script']):
-            # # #     # Remove tags
-            # # #     print("\t", data)
-            # # #     data.decompose()
-
-            # # # # return data by retrieving the tag content
-            # # # #content = ' '.join(soup.stripped_strings)        
-            
-            # # # #print(content)    
-        
-            # # # driver.get("data:text/html;charset=utf-8," + content)
-            # # # wh.wait_for_page_has_loaded(driver)
-            
-            # # # for i in range(30):
-            # # #     time.sleep(1)
-            # # #     print('.', end='', flush=True)
-                    
-                    
         #print(*files_index_html, sep="\n\t")
         
-        # driver.close()
-        # driver.quit()
-        exit(0)
-    
-        files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+
         for file in files_index_html:
-            print("-"*80)
-            content = wh.string_from_file(file, sanitize=False)
-            soup    = bs(content)
-            content = soup.prettify()
             
-            print(content)
-        exit(0)
+            
+            
+            print("-"*80)
+            print("file", wh.CYAN + file + wh.RESET)
+            
+            wp_path = wh.to_posix('/' + os.path.relpath(file, project_folder))
+            #print("wp_path", wh.CYAN + wp_path + wh.RESET)
+            
+            base_path = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
+            #print("base_path", wh.CYAN + base_path + wh.RESET)
+
+            home_link_text = f"""<a href="{base_path}">{config.base_netloc}</a><br/>"""
+            
+            
+            tree = lxml.html.parse(file) # lxml.html.fromstring(content)
+            
+            if False: # +++
+                tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
+            
+            if True:
+                
+                
+                banner_header = hx.banner_header(home_link_text + "111banner_header the text inside. also has a link to the original site. " * 4 + "<br/>" + home_link_text)
+                hx.remove_by_xpath(tree, "//div[@class='banner_header']")
+                print("\t adding banner_header")                    
+                tree.find(".//header").insert(0, banner_header)    
+                
+                banner_footer = hx.banner_footer("needs a logo 222banner_footer the text inside.<br/>also has a link to the original site")
+                hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
+                tree.find(".//footer").append(banner_footer) # ".//body"
+
+            if True: # +++
+                # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
+                hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+
+            # save to html
+            out_path = file #### + ".html"
+            print("writing:", out_path)
+            tree.write(
+                out_path, 
+                pretty_print=True, 
+                xml_declaration=False,   
+                encoding="utf-8", 
+                method='html'       # !!!!
+            )
+        
+    
+        # files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+        # for file in files_index_html:
+        #     print("-"*80)
+        #     content = wh.string_from_file(file, sanitize=False)
+        #     soup    = bs(content)
+        #     content = soup.prettify()
+        #     print(content)
             
     #-----------------------------------------
     # 
@@ -235,11 +218,12 @@ if __name__ == "__main__":
         import ghostscript as gs
 
         compression='/screen'
-        csuffix = "_" + compression.lstrip('/') + ".pdf"
+        compression_path = "_" + compression.lstrip('/')
+        csuffix = config.suffix_compressed + compression_path + ".pdf" # "_unpowered"
         
         pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
-        pdfs = [pdf for pdf in pdfs if not csuffix in pdf] # no compressed files
-        #print("pdfs", *pdfs, sep="\n\t")
+        pdfs = [pdf for pdf in pdfs if not compression_path in pdf] # no compressed files
+        print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
             
             print("-"*88)
@@ -256,7 +240,15 @@ if __name__ == "__main__":
                 print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
                 if size_new < size_orig:
                     conversions.append((orig_path, new_path))     
-                    print("\t\t", "added to conversions.")           
+                    print("\t\t", "added to conversions.")    
+                    
+                    if b_delete_originals:
+                        print("\t\t", "removing orig_path:", wh.RED + orig_path, wh.RESET) 
+                        os.remove(orig_path) 
+                else: # compressed was bigger!
+                    if b_delete_originals:
+                        print("\t\t", "removing new_path:", wh.CYAN + new_path, wh.RESET) 
+                        os.remove(new_path)                              
                 
         ### for />
                  
@@ -267,10 +259,10 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    if b_perform_conversion:   
+    if b_perform_image_conversion:   
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 50 # 66
+        quality         = 60 # 66
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = 11 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
@@ -279,9 +271,9 @@ if __name__ == "__main__":
         b_force_write   = False
         b_blackwhite    = False
         b_use_palette   = False
-        blend_alpha     = 0.9
+        blend_alpha     = 0.8
         
-        image_exts = ['.jpg', '.jpeg', '.png', '.gif']
+        image_exts = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
         #image_exts = ['.png', '.gif']
         
         print("image_exts   :", image_exts)
@@ -304,10 +296,10 @@ if __name__ == "__main__":
         for cnt, path in enumerate(images):
             
             print("-"*88)
-            path        = os.path.normpath(path) # to_posix(path)
+            path        = os.path.normpath(path) # wh.to_posix(path)
             name, ext   = os.path.splitext(path) # ('my_file', '.txt')
-            out_path    = name + '.webp' 
-            out_path    = os.path.normpath(out_path) # to_posix(out_path)
+            out_path    = name + config.suffix_compressed + '.webp' 
+            out_path    = os.path.normpath(out_path) # wh.to_posix(out_path)
             
             conversions.append((path, out_path))
                         
@@ -406,7 +398,7 @@ if __name__ == "__main__":
          #print(*conversions, sep="\n\t")
         if conversions:
             save_conversions(path_conversions, conversions)   
-    ### b_perform_conversion />
+    ### b_perform_image_conversion />
 
     #-----------------------------------------
     # better use a list in case above finds no more erased images....
@@ -416,7 +408,6 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    
     def replace_all_conversions_in_file(filename, conversions):
         
         #print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
@@ -432,8 +423,8 @@ if __name__ == "__main__":
             if wh.file_exists_and_valid(to):    
                 
                 # rel paths from root /
-                wp_fr = to_posix('/' + os.path.relpath(fr, project_folder))
-                wp_to = to_posix('/' + os.path.relpath(to, project_folder))
+                wp_fr = wh.to_posix('/' + os.path.relpath(fr, project_folder))
+                wp_to = wh.to_posix('/' + os.path.relpath(to, project_folder))
                 
                 # cnt = html.count(wp_fr)
                 # print("\t\t cnt:", cnt, "|", wp_fr)
@@ -458,7 +449,6 @@ if __name__ == "__main__":
         fp.write(html)
         fp.close()
 
-
     if b_perform_replacement:
         conversions = load_conversions(path_conversions)    
         #print(*conversions, sep="\n\t")      
@@ -482,7 +472,8 @@ if __name__ == "__main__":
                         wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
                 
                 #replace_all_conversions_in_file(html_file, conversions_exts)
-                
+             
+            # extras replacements_post   
             wh.replace_all_in_file(html_file, " srcset=", " XXXsrcset=")
             wh.replace_all_in_file(html_file, " sizes=", " XXXsizes=")
                                               
@@ -490,18 +481,21 @@ if __name__ == "__main__":
     ### b_perform_replacement />            
             
             
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
     if b_delete_originals:
         print("b_delete_originals")
         conversions = load_conversions(path_conversions)    
         
         for conversion in conversions:
-            fr, to = conversion
-            if wh.file_exists_and_valid(fr):
-                print("\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)
-                os.remove(fr)
+            fr_to_delete, __to = conversion
+            if wh.file_exists_and_valid(fr_to_delete):
+                print("\t", wh.RED, "removing:", os.path.basename(fr_to_delete), wh.RESET)
+                os.remove(fr_to_delete)
                 
-        dir_size_new = get_directory_total_size(config.project_folder)
-        print("saved:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
+    dir_size_new = wh.get_directory_total_size(config.project_folder)
+    print("saved dir_size_new:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   
     #-----------------------------------------
     # 
@@ -511,3 +505,84 @@ if __name__ == "__main__":
     # https://www.thepythoncode.com/article/compress-pdf-files-in-python
     # https://blog.finxter.com/how-to-compress-pdf-files-using-python/
                 
+                
+                
+""" 
+        # # options=config.options
+        # # options.headless = False
+        # # driver = webdriver.Chrome(options=options)
+        # # driver.implicitly_wait(30)    
+
+        for file in files_index_html:
+            
+            print("-"*80)
+            
+            tree = lxml.html.parse(file)
+            #tree = lxml.html.fromstring(content)
+
+            tree = hx.remove_attributes(tree, "img", ["srcset", "xxxsrcset", "sizes", "xxxsizes"])
+        
+            out_path = file + "_srcset.html"
+            print("writing:", out_path)
+            tree.write(out_path, pretty_print=True)
+            
+            # img_sizes = h.xpath('//img[@sizes or @xxxsizes]') 
+            # print(img_sizes)
+
+            # # # # # # # # # driver.get("file:///" + file)
+            # # # # # # # # # wh.wait_for_page_has_loaded(driver)
+            # # # # # # # # # content = driver.page_source
+            
+            # # # # # # # # # time.sleep(3)
+            
+            # # # # # # # # # #elements = driver.find_elements(By.TAG_NAME, "img")
+            
+            # # # # # # # # # #elements = driver.find_elements(By.XPATH, "//img[@srcset]")
+            # # # # # # # # # elements = driver.find_elements(By.XPATH, "//img")
+            # # # # # # # # # for element in elements:
+            # # # # # # # # #     print("\t", element.tag_name, element.text)
+            # # # # # # # # #     driver.execute_script("arguments[0].remove();", element)
+                
+            # # # # # # # # # driver.execute_script(
+            # # # # # # # # #     ""
+            # # # # # # # # #     var element = document.getElementById("Ebene_1");
+            # # # # # # # # #     element.parentNode.removeChild(element);
+            # # # # # # # # #     ""
+            # # # # # # # # # )
+
+                
+            # # # # # # # # # #driver.refresh()
+            # # # # # # # # # for i in range(7):
+            # # # # # # # # #     time.sleep(1)
+            # # # # # # # # #     print('.', end='', flush=True)
+                
+            # # # # content = wh.string_from_file(file, sanitize=False)
+            # # # soup    = bs(content, "html.parser")
+            # # # #content = soup.prettify()
+            # # # for data in soup(['style', 'script']):
+            # # #     # Remove tags
+            # # #     print("\t", data)
+            # # #     data.decompose()
+
+            # # # # return data by retrieving the tag content
+            # # # #content = ' '.join(soup.stripped_strings)        
+            
+            # # # #print(content)    
+        
+            # # # driver.get("data:text/html;charset=utf-8," + content)
+            # # # wh.wait_for_page_has_loaded(driver)
+            
+            # # # for i in range(30):
+            # # #     time.sleep(1)
+            # # #     print('.', end='', flush=True)
+                    
+                    
+        #print(*files_index_html, sep="\n\t")
+        # 
+        # 
+        
+        # driver.close()
+        # driver.quit()
+        
+        
+"""

@@ -4,11 +4,13 @@
 # thank you!
 
 """
-TODO
-create xml sitemap
-
-
-
+    # wget -E -H -k -K -p -e robots=off https://karlsruhe.digital
+    # wget -E --span-hosts -k -K -p -e robots=off https://karlsruhe.digital
+    # wget --mirror -nH -np -p -k -E -e robots=off https://karlsruhe.digital
+    # wget --mirror -nH -np -p -k -E -e robots=off -i "../data/karlsruhe.digital_internal_links.csv" 
+    
+    # https://stackoverflow.com/questions/31205497/how-to-download-a-full-webpage-with-a-python-script
+    
 https://www.elegantthemes.com/blog/editorial/the-wordpress-json-rest-api-wp-api-what-it-is-how-it-works-what-it-means-for-the-future-of-wordpress
 https://developer.wordpress.org/rest-api/
 
@@ -400,10 +402,5 @@ if __name__ == "__main__":
     
     exit(0)    
     
-    # wget -E -H -k -K -p -e robots=off https://karlsruhe.digital
-    # wget -E --span-hosts -k -K -p -e robots=off https://karlsruhe.digital
-    # wget --mirror -nH -np -p -k -E -e robots=off https://karlsruhe.digital
-    # wget --mirror -nH -np -p -k -E -e robots=off -i "../data/karlsruhe.digital_internal_links.csv" 
-    
-    # https://stackoverflow.com/questions/31205497/how-to-download-a-full-webpage-with-a-python-script
+
     
