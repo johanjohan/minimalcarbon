@@ -65,6 +65,11 @@ suffix_compressed   = "_unpowered"
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 
+#html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
+html_infossil       = f"""<a href="https://1001suns.com">infossil</a>"""
+#-----------------------------------------
+# init the colorama module
+#----------------------------------------- 
 _sitemap_base               = data_base_path + "20220629_131730"
 sitemap_links_internal_path = _sitemap_base + "_internal_links.csv"
 sitemap_links_external_path = _sitemap_base + "_external_links.csv"
