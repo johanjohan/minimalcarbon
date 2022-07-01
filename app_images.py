@@ -181,8 +181,6 @@ if __name__ == "__main__":
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
-            if True: # +++
-                tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
             
             if True: # +++
                 # TODO must be /en/ and not depending on wp_path /en/
@@ -196,34 +194,78 @@ if __name__ == "__main__":
                 print("\t adding banner_footer")  
                 tree.find(".//footer").append(banner_footer) # ".//body"
 
-            if True: # +++
-                # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
-                hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+            # image attributes srcset
+            tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
 
-                
-            """
-            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-136" id="menu-item-136">
-                <a href="/suche/index.html">
-                    <i class="fas fa-search">
-                    </i>
-                </a>
-            </li>                    
-            """
-            # fa-search top menu
+            # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
+            hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+
+            # search in menu
             if True:
-                if True:
-                    hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # no search at all
-                else:
-                    hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
-                    # # for item in tree.xpath("//i[contains(@class, 'fa-search')]"):
-                    # #     print("\t replacing:", item)
-                    # #     #item.getparent().remove(item)  
-                    # #     item.getparent().replace(item, lxml.html.fragment_fromstring("<span>SUCHE</span"))
+                hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
+            else:
+                hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
 
-          
             # all fa font awesome TODO also gets rid of dates etc...
-            if False:
-                hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
+            # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
+
+            # <span class="swiper-item-number">6</span>
+            # if True:
+            #     #hx.remove_by_xpath(tree, "//span[@class='swiper-item-number']")
+            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
+            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
+            
+            
+            # //script[normalize-space(text())]
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'checkCookie' )]")
+            
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'google-analytics' )]")
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'wp-emoji-release' )]")
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'feed-them-social' )]")
+            
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery-migrate' )]")
+            #hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery.js' )]") >> needed for menu !!!
+            
+            hx.remove_by_xpath(tree, "//head//script[@async]")
+            hx.remove_by_xpath(tree, "//head//script[@defer]")
+            
+            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+            
+            # twitter feeds
+            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
+            
+            # social media footer
+            footer_social_html = """
+            <div id="unpowered-social-media-footer">
+                <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+                twitter
+                </a>
+                <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="8" aria-describedby="qtip-8">
+                facebook
+                </a>
+                <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="9">
+                instagram
+                </a>
+                <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+                linkedin
+                </a>
+                <a href="mailto:info@karlsruhe.digital">
+                mail
+                </a>
+            </div>
+            """
+            hx.replace_by_xpath(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", footer_social_html)
+            hx.replace_by_xpath(tree, "//div[@id='unpowered-social-media-footer']", footer_social_html)
+
+            # blog swiper
+            # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
+            ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
 
             # save to html
             out_path = file # + "__test.html"
@@ -232,7 +274,7 @@ if __name__ == "__main__":
                 out_path, 
                 pretty_print=True, 
                 xml_declaration=False,   
-                encoding="utf-8", 
+                encoding="utf-8",   # !!!!
                 method='html'       # !!!!
             )
         
@@ -497,19 +539,18 @@ if __name__ == "__main__":
             
             if True:
                 replace_all_conversions_in_file(html_file, conversions)
-            else:
+                
+            # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
+            if True:
                 conversions_exts = []
                 for q in ["\"", "\'"]:
                     for ext in image_exts:
-                        conversions_exts.append((ext + q, ".webp" + q))
-                        
                         wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
                 
-                #replace_all_conversions_in_file(html_file, conversions_exts)
              
-            # extras replacements_post   
-            wh.replace_all_in_file(html_file, " srcset=", " XXXsrcset=")
-            wh.replace_all_in_file(html_file, " sizes=", " XXXsizes=")
+            # # # # # extras replacements_post   
+            # # # # wh.replace_all_in_file(html_file, " srcset=", " XXXsrcset=")
+            # # # # wh.replace_all_in_file(html_file, " sizes=", " XXXsizes=")
                                               
         ### for /> 
     ### b_perform_replacement />            

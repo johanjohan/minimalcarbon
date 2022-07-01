@@ -180,7 +180,26 @@ body {
   }
   
   
+/* font awesome */
 .fa, .fab, .fad, .fal, .far, .fas {
     font-family: unset;
     display: none;
+}
+
+
+/*  */
+/* #section-1 .swiper-item-number, #section-1 .color-white {
+
+    display: none;
+} */
+
+/* new social media */
+#unpowered-social-media-footer {
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+#unpowered-social-media-footer a {
+    margin-left: 1rem;
+    margin-right: 1rem;    
 }
