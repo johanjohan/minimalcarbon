@@ -427,6 +427,9 @@ def assets_save_internals_locally(
     project_folder,
     b_strip_ver=True
 ):
+    #print("assets_save_internals_locally:", links)
+    # # links =  wh.links_remove_nones(links)
+    # # print("assets_save_internals_locally: AFTER:", links)
 
     global images_written
 
@@ -629,28 +632,24 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # //link[not contains(@rel, "icon")]/@href
     links_link_href = h.xpath('//link/@href')
 
+    #-----------
+    # images
+    #-----------
     links_img = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_style_background_images(driver)
     # TODO need to replace these in css as well
     links_img += wh.get_background_images_from_stylesheet_file(style_path)
-    links_css_text = h.xpath("//style/text()")
-    #print("links_css_text", links_css_text)
-    for text in links_css_text:
-        #text = cssbeautifier.beautify(text)
-        #print("links_css_text", GRAY + text + RESET)
+    
+    for text in h.xpath("//style/text()"):
         links_img += wh.get_background_images_from_stylesheet_string(text)
-    # TODO more images in media. in local css as background
     
-    links_div_style = h.xpath("//div/@style")
-    #print("links_div_style", links_div_style)
-    for text in links_div_style:
-        #text = cssbeautifier.beautify(text)
-        #print("links_div_style", GRAY + text + RESET)
+    for text in  h.xpath("//div/@style"):
         links_img += wh.get_background_images_from_inline_style_tag(text)
-    
-    exit(0)    
         
+    #-----------
+    # scripts
+    #-----------
     links_scripts = h.xpath('//script/@src')
     # list_script_text = h.xpath("//script/text()")
     # import re
@@ -672,10 +671,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # exit(0)
 
     # https://realpython.com/python-zip-function/
-    lists = [links_head_href,   links_body_href,  links_link_href,
-             links_img,   links_scripts]  # links_head_css,
-    suffixes = ["links_head_href", "links_body_href",
-                "links_link_href", "links_img", "links_scripts"]
+    lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
+    suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
     for links, suffix in zip(lists, suffixes):
         print("/" * 80)
         print(suffix)

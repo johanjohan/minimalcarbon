@@ -416,10 +416,12 @@ def links_remove_invalids(links, invalids):
     #print(GREEN, *ret, RESET, sep="\n\t")
     return ret
 
-
                 
+def links_remove_nones(links):
+    return [u for u in links if u]
+         
 def links_remove_comments(links, delim='#'):
-    return [u for u in links if not u.strip().startswith(delim)]
+    return [u for u in links if not u.startswith(delim)]
 
 def links_remove_externals(links, base):
     return [u for u in links if (url_is_internal(u, base))]
@@ -1054,9 +1056,9 @@ def get_background_images_from_stylesheet_string(style_string):
         for rule in sheet:
             if rule.type == rule.STYLE_RULE:
                 for property in rule.style:
-                    urls.append(
-                        extract_background_image(property)
-                    )
+                    url = extract_background_image(property)
+                    if url:
+                        urls.append(url)
     except Exception as e:
         print(f"{RED}get_background_images_from_stylesheet_string: cssutils.parseString {e} {RESET}")
     
@@ -1069,9 +1071,9 @@ def get_background_images_from_inline_style_tag(style_string):
         style = cssutils.parseStyle(style_string) # <<<
         #print ("style.cssText:", MAGENTA, style.cssText, RESET)
         for property in style:
-            urls.append(
-                extract_background_image(property)
-            )
+            url = extract_background_image(property)
+            if url:
+                urls.append(url)
                     
     except Exception as e:
         print(f"{RED}get_background_images_from_inline_style_tag: cssutils.parseString {e} {RESET}")
