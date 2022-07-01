@@ -295,7 +295,7 @@ import time
 import helpers_web as wh
 import os
 import requests
-#import lxml.html
+import lxml.html
 import lxml
 import chromedriver_binary  # pip install chromedriver-binary-auto
 from selenium.common.exceptions import TimeoutException
@@ -637,10 +637,18 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     links_css_text = h.xpath("//style/text()")
     for text in links_css_text:
         text = cssbeautifier.beautify(text)
-        print("links_css_text", GRAY + text + RESET)
+        #print("links_css_text", GRAY + text + RESET)
         links_img += wh.get_stylesheet_background_images_from_string(text)
     # TODO more images in media. in local css as background
-
+    
+    links_div_style = h.xpath("//div/@style")
+    for text in links_div_style:
+        text = cssbeautifier.beautify(text)
+        print("links_div_style", GRAY + text + RESET)
+        links_img += wh.get_stylesheet_background_images_from_string(text)
+    
+    exit(0)    
+        
     links_scripts = h.xpath('//script/@src')
     # list_script_text = h.xpath("//script/text()")
     # import re

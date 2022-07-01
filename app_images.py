@@ -204,7 +204,8 @@ if __name__ == "__main__":
             if True:
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
             else:
-                hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
+                #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
+                pass
 
             # all fa font awesome TODO also gets rid of dates etc...
             # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
@@ -262,10 +263,14 @@ if __name__ == "__main__":
             hx.replace_by_xpath(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", footer_social_html)
             hx.replace_by_xpath(tree, "//div[@id='unpowered-social-media-footer']", footer_social_html)
 
-            # blog swiper
+            # swipers
             # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
             ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
             hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'hero-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'testimonial-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            
+            etree
 
             # save to html
             out_path = file # + "__test.html"
