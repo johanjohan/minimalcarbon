@@ -1010,40 +1010,80 @@ def get_style_background_images(driver):
 import cssutils
 import logging
 import cssbeautifier
-def get_stylesheet_background_images_from_string(style_string):
+
+
+# # # def __extract_css(style_string, parse_func): # parse_func=cssutils.parseString
+# # #     urls  = []
+# # #     try:
+# # #         cssutils.log.setLevel(logging.CRITICAL)
+# # #         sheet = parse_func(style_string)
+# # #         print ("__extract_css: sheet.cssText:", MAGENTA, sheet.cssText, RESET)
+# # #         for rule in sheet:
+# # #             if rule.type == rule.STYLE_RULE:
+# # #                 for property in rule.style:
+# # #                     if property.name == 'background-image':
+# # #                         if "url" in property.value:
+# # #                             url = property.value.replace("(", "").replace(")", "")
+# # #                             url = url.strip().lstrip("url")
+# # #                             print("\t\t\t", CYAN, url, RESET)
+# # #                             urls.append(url)
+# # #     except Exception as e:
+# # #         print(f"{RED}__extract_css: cssutils.parseString {e} {RESET}")
     
-    # # #style_string = html_minify(style_string)
-    # # style_string = cssbeautifier.beautify(style_string)
-    # # print(GRAY + style_string + RESET)
-    
+# # #     return urls   
+
+def extract_background_image(property):
+    try:
+        if property.name == 'background-image':
+            if "url" in property.value:
+                url = property.value.replace("(", "").replace(")", "")
+                url = url.strip().lstrip("url")
+                print("\t\t\t", CYAN, url, RESET)
+                return url
+    except Exception as e:
+        print(f"{RED}extract_background_image: cssutils.parseString {e} {RESET}")
+        
+    return None
+
+def get_background_images_from_stylesheet_string(style_string):
     urls  = []
     try:
         cssutils.log.setLevel(logging.CRITICAL)
-        sheet = cssutils.parseString(style_string)
-        #print (sheet.cssText)
+        sheet = cssutils.parseString(style_string) # <<<
+        #print ("sheet.cssText:", MAGENTA, sheet.cssText, RESET)
         for rule in sheet:
             if rule.type == rule.STYLE_RULE:
                 for property in rule.style:
-                    if property.name == 'background-image':
-                        if "url" in property.value:
-                            url = property.value.replace("(", "").replace(")", "")
-                            url = url.strip().lstrip("url")
-                            #print("\t\t\t", CYAN, url, RESET)
-                            urls.append(url)
+                    urls.append(
+                        extract_background_image(property)
+                    )
     except Exception as e:
-        print(f"{RED}get_stylesheet_background_images_from_string: cssutils.parseString {e} {RESET}")
+        print(f"{RED}get_background_images_from_stylesheet_string: cssutils.parseString {e} {RESET}")
     
-    if urls:    
-        print("get_stylesheet_background_images_from_string:", CYAN, *urls, RESET, sep="\n\t")
-        
-    return urls
+    return urls  
 
-def get_stylesheet_background_images_from_file(style_path):
+def get_background_images_from_inline_style_tag(style_string):
+    urls  = []
+    try:
+        cssutils.log.setLevel(logging.CRITICAL)
+        style = cssutils.parseStyle(style_string) # <<<
+        #print ("style.cssText:", MAGENTA, style.cssText, RESET)
+        for property in style:
+            urls.append(
+                extract_background_image(property)
+            )
+                    
+    except Exception as e:
+        print(f"{RED}get_background_images_from_inline_style_tag: cssutils.parseString {e} {RESET}")
+    
+    return urls  
+
+def get_background_images_from_stylesheet_file(style_path):
     urls  = []
     if os.path.isfile(style_path):
         with open(style_path, mode='r') as fp:
             style_string = fp.read()
-            urls = get_stylesheet_background_images_from_string(style_string)
+            urls = get_background_images_from_stylesheet_string(style_string)
     else:
         print(f"{YELLOW}TODO: style_path not yet downloaded: {style_path} {RESET}") # TODO 
         time.sleep(2)   

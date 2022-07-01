@@ -633,19 +633,21 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_style_background_images(driver)
     # TODO need to replace these in css as well
-    links_img += wh.get_stylesheet_background_images_from_file(style_path)
+    links_img += wh.get_background_images_from_stylesheet_file(style_path)
     links_css_text = h.xpath("//style/text()")
+    #print("links_css_text", links_css_text)
     for text in links_css_text:
-        text = cssbeautifier.beautify(text)
+        #text = cssbeautifier.beautify(text)
         #print("links_css_text", GRAY + text + RESET)
-        links_img += wh.get_stylesheet_background_images_from_string(text)
+        links_img += wh.get_background_images_from_stylesheet_string(text)
     # TODO more images in media. in local css as background
     
     links_div_style = h.xpath("//div/@style")
+    #print("links_div_style", links_div_style)
     for text in links_div_style:
-        text = cssbeautifier.beautify(text)
-        print("links_div_style", GRAY + text + RESET)
-        links_img += wh.get_stylesheet_background_images_from_string(text)
+        #text = cssbeautifier.beautify(text)
+        #print("links_div_style", GRAY + text + RESET)
+        links_img += wh.get_background_images_from_inline_style_tag(text)
     
     exit(0)    
         
@@ -929,7 +931,7 @@ if __name__ == "__main__":
 
         print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         ###print(f"{CYAN}url: {url}{RESET}")
-        print(f"{CYAN}{(time.time() - start_secs)/60.0:.1f}m | url: {url}{RESET}")
+        print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f}m] url: {url}{RESET}")
         ###print("{:.1f}m".format((time.time() - start_secs)/60.0))
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
         print("\n"*5)
