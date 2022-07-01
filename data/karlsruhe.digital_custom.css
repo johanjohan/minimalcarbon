@@ -180,3 +180,7 @@ body {
   }
   
   
+.fa, .fab, .fad, .fal, .far, .fas {
+    font-family: unset;
+    display: none;
+}
