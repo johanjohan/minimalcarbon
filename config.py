@@ -70,7 +70,7 @@ date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
 # init the colorama module
 #----------------------------------------- 
 #html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com">infossil</a>"""
+html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>"""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 

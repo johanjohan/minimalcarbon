@@ -65,11 +65,18 @@ def remove_by_xpath(tree, sxpath):
         print("\t removing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().remove(item)     
 
-def replace_by_xpath(tree, sxpath, html_string):
+def replace_xpath_with_fragment(tree, sxpath, html_string):
     #print("replace_by_xpath", sxpath)
     for item in tree.xpath(sxpath):
         print("\t replacing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().replace(item, lxml.html.fragment_fromstring(html_string)) 
+        
+def replace_xpath_with_fragment_from_file(tree, sxpath, frag_file_path):
+    html_string =  hw.string_from_file(frag_file_path, sanitize=False)
+    for item in tree.xpath(sxpath):
+        print("\t replacing:", hw.YELLOW + sxpath + hw.RESET)
+        item.getparent().replace(item, lxml.html.fragment_fromstring(html_string)) 
+ 
                     
 if __name__ == "__main__":
     banner_header("text with html<br> end.")
