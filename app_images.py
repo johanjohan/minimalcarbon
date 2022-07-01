@@ -110,12 +110,28 @@ def load_conversions(path_conversions):
 #-----------------------------------------
 if __name__ == "__main__":
     
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    # append css
+    if False:
+        with open(config.style_path, 'a', encoding="utf-8") as outfile:
+            with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
+                data = infile.read()
+                outfile.write(data)
+        print("appended custom css to", config.style_path)
+        time.sleep(5)
+    
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
     project_folder              = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
     b_perform_pdf_compression   = False 
     b_perform_image_conversion  = False
     b_perform_replacement       = False
+    b_fix_xml                   = True
      
     # del with warning
     b_delete_originals          = False
@@ -130,21 +146,13 @@ if __name__ == "__main__":
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
-    #-----------------------------------------
-    # 
-    #-----------------------------------------
-    # append css
-    if False:
-        with open(config.style_path, 'a', encoding="utf-8") as outfile:
-            with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
-                data = infile.read()
-                outfile.write(data)
+
                 
     #-----------------------------------------
     # 
     #-----------------------------------------
-    b_remove_image_attributes = True
-    if b_remove_image_attributes:
+    
+    if b_fix_xml:
         
         func=lambda s : True # finds all
         func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
@@ -161,20 +169,28 @@ if __name__ == "__main__":
             wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
             base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
 
-            home_link_text = f"""<a href="{base_path}">{config.base_netloc}</a>"""
+            same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
             
+            if "/en/" in wp_path:
+                banner_header_text = f"This is the Low Carbon Website of {same_page_link} unpowered by {config.html_infossil_link}"
+                banner_footer_text = f"unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission."
+            else:
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link} unpowered by {config.html_infossil_link}"
+                banner_footer_text = f"unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission."
+                
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
-            if False: # +++
+            if True: # +++
                 tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
             
-            if True:
-                banner_header = hx.banner_header(f"this is the low carbon website of {home_link_text} unpowered by {config.html_infossil}")
+            if True: # +++
+                # TODO must be /en/ and not depending on wp_path /en/
+                banner_header = hx.banner_header(banner_header_text)
                 hx.remove_by_xpath(tree, "//div[@class='banner_header']")
                 print("\t adding banner_header")                    
                 tree.find(".//header").insert(0, banner_header)    
                 
-                banner_footer = hx.banner_footer("unpowered by xyz123.org saving 23 kWh per year. our logo. our certificate." + "<br/>" + config.html_infossil)
+                banner_footer = hx.banner_footer(banner_footer_text)
                 hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
                 print("\t adding banner_footer")  
                 tree.find(".//footer").append(banner_footer) # ".//body"
@@ -184,7 +200,7 @@ if __name__ == "__main__":
                 hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
 
             # save to html
-            out_path = file #### + ".html"
+            out_path = file # + "__test.html"
             print("writing:", out_path)
             tree.write(
                 out_path, 
