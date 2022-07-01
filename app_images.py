@@ -132,7 +132,7 @@ if __name__ == "__main__":
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
     b_perform_pdf_compression   = False 
-    b_perform_image_conversion  = True
+    b_perform_image_conversion  = False
     b_perform_replacement       = False
     b_fix_xml_elements          = True
      
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         blend_alpha     = 0.7
 
 
-        if "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
+        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
             exit(0)
             
                     
@@ -465,13 +465,13 @@ if __name__ == "__main__":
             
             # start the hocus pocus in focus
             # use section-1 from original site as frag
-            hx.replace_xpath_with_fragment_from_file(
-                tree, 
-                "//section[@id='section-1']", 
-                "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
-            )
+            if False and False:
+                hx.replace_xpath_with_fragment_from_file(
+                    tree, 
+                    "//section[@id='section-1']", 
+                    "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
+                )
             
-                        
             if True: # +++
                 # TODO must be /en/ and not depending on wp_path /en/
                 banner_header = hx.banner_header(banner_header_text)
