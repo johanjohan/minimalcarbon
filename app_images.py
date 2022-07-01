@@ -111,6 +111,8 @@ def load_conversions(path_conversions):
 #-----------------------------------------
 if __name__ == "__main__":
     
+    pag.alert(text=f"good time to backup htdocs!")
+                
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -130,168 +132,22 @@ if __name__ == "__main__":
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
     b_perform_pdf_compression   = False 
-    b_perform_image_conversion  = False
+    b_perform_image_conversion  = True
     b_perform_replacement       = False
-    b_fix_xml                   = True
+    b_fix_xml_elements          = True
      
     # del with warning
-    b_delete_originals          = False
-    if b_delete_originals:
-        if "Cancel" == pag.confirm(text=f"b_delete_originals: {b_delete_originals}"):
+    conversions = []
+    b_delete_conversion_originals   = False
+    if b_delete_conversion_originals:
+        if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
 
-    conversions = []
-    
     #-----------------------------------------
     # 
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
-
-                
-    #-----------------------------------------
-    # 
-    #-----------------------------------------
-    
-    if b_fix_xml:
-        
-        func=lambda s : True # finds all
-        func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
-        func=lambda file : file.lower().endswith("index.html")
-        
-        files_index_html = wh.collect_files_func(project_folder, func=func)
-        #print(*files_index_html, sep="\n\t")
-        
-
-        for file in files_index_html:
-            
-            print("-"*80)
-            print("file", wh.CYAN + file + wh.RESET)
-            wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
-            base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
-
-            same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
-            
-            if "/en/" in wp_path:
-                banner_header_text = f"This is the Low Carbon Website of {same_page_link} unpowered by {config.html_infossil_link}"
-                banner_footer_text = f"Un-Powered by {config.html_infossil_link}. Proudly unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission. {config.date_time2}"
-            else:
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link} unpowered by {config.html_infossil_link}"
-                banner_footer_text = f"Un-Powered by {config.html_infossil_link}. Proudly unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. {config.date_time2}"
-                
-            tree = lxml.html.parse(file) # lxml.html.fromstring(content)
-            
-            
-            if True: # +++
-                # TODO must be /en/ and not depending on wp_path /en/
-                banner_header = hx.banner_header(banner_header_text)
-                hx.remove_by_xpath(tree, "//div[@class='banner_header']")
-                print("\t adding banner_header")                    
-                tree.find(".//header").insert(0, banner_header)    
-                
-                banner_footer = hx.banner_footer(banner_footer_text)
-                hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
-                print("\t adding banner_footer")  
-                tree.find(".//footer").append(banner_footer) # ".//body"
-
-            # image attributes srcset
-            tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
-
-            # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
-            hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
-
-            # search in menu
-            if True:
-                hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
-            else:
-                #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
-                pass
-
-            # all fa font awesome TODO also gets rid of dates etc...
-            # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
-
-            # <span class="swiper-item-number">6</span>
-            # if True:
-            #     #hx.remove_by_xpath(tree, "//span[@class='swiper-item-number']")
-            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
-            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
-            
-            
-            # //script[normalize-space(text())]
-            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
-            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
-            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'checkCookie' )]")
-            
-            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'google-analytics' )]")
-            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'wp-emoji-release' )]")
-            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'feed-them-social' )]")
-            
-            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery-migrate' )]")
-            #hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery.js' )]") >> needed for menu !!!
-            
-            hx.remove_by_xpath(tree, "//head//script[@async]")
-            hx.remove_by_xpath(tree, "//head//script[@defer]")
-            
-            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
-            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
-            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
-            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
-            
-            # twitter feeds
-            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
-            
-            # social media footer
-            footer_social_html = """
-            <div id="unpowered-social-media-footer">
-                <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
-                twitter
-                </a>
-                <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="8" aria-describedby="qtip-8">
-                facebook
-                </a>
-                <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="9">
-                instagram
-                </a>
-                <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
-                linkedin
-                </a>
-                <a href="mailto:info@karlsruhe.digital">
-                mail
-                </a>
-            </div>
-            """
-            hx.replace_by_xpath(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", footer_social_html)
-            hx.replace_by_xpath(tree, "//div[@id='unpowered-social-media-footer']", footer_social_html)
-
-            # swipers
-            # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
-            ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
-            hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
-            hx.remove_by_xpath(tree, "//div[contains(@id, 'hero-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
-            hx.remove_by_xpath(tree, "//div[contains(@id, 'testimonial-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
-            
-            etree
-
-            # save to html
-            out_path = file # + "__test.html"
-            print("writing:", out_path)
-            tree.write(
-                out_path, 
-                pretty_print=True, 
-                xml_declaration=False,   
-                encoding="utf-8",   # !!!!
-                method='html'       # !!!!
-            )
-        
-    
-        # files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
-        # for file in files_index_html:
-        #     print("-"*80)
-        #     content = wh.string_from_file(file, sanitize=False)
-        #     soup    = bs(content)
-        #     content = soup.prettify()
-        #     print(content)
-            
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -323,11 +179,11 @@ if __name__ == "__main__":
                     conversions.append((orig_path, new_path))     
                     print("\t\t", "added to conversions.")    
                     
-                    if b_delete_originals:
+                    if b_delete_conversion_originals:
                         print("\t\t", "removing orig_path:", wh.RED + orig_path, wh.RESET) 
                         os.remove(orig_path) 
                 else: # compressed was bigger!
-                    if b_delete_originals:
+                    if b_delete_conversion_originals:
                         print("\t\t", "removing new_path:", wh.CYAN + new_path, wh.RESET) 
                         os.remove(new_path)                              
                 
@@ -343,17 +199,22 @@ if __name__ == "__main__":
     if b_perform_image_conversion:   
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 60 # 66
+        quality         = 66 # 66
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-        show_nth_image  = 11 # 0 is off, 1 all
+        show_nth_image  = 30 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
-        b_colorize      = True
         halftone        = None # (4, 30) # or None
+        b_colorize      = True
         b_force_write   = False
         b_blackwhite    = False
         b_use_palette   = False
-        blend_alpha     = 0.8
-        
+        blend_alpha     = 0.7
+
+
+        if "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
+            exit(0)
+            
+                    
         image_exts = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
         #image_exts = ['.png', '.gif']
         
@@ -370,9 +231,16 @@ if __name__ == "__main__":
         # 
         #-----------------------------------------
         images = wh.collect_files_endswith(project_folder, image_exts)
+        # # # # # # # func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
+        # # # # # # # images = wh.collect_files_func(project_folder, func)
+        
+        # remove compressed
+        images_no_compressed = [img for img in images if not config.suffix_compressed in img]
+        removed = [item for item in images if item not in images_no_compressed]
+        print("removed", hw.GRAY, *removed, hw.RESET, sep = "\n\t")
+        print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
                      
         # convert images
-        
         perc_avg = 0.0
         for cnt, path in enumerate(images):
             
@@ -382,7 +250,9 @@ if __name__ == "__main__":
             out_path    = name + config.suffix_compressed + '.webp' 
             out_path    = os.path.normpath(out_path) # wh.to_posix(out_path)
             
-            conversions.append((path, out_path))
+            # # # # avoid erasing webp
+            # # # if not 'webp' in ext:
+            # # #     conversions.append((path, out_path))
                         
             if b_force_write or not wh.file_exists_and_valid(out_path):
             
@@ -424,7 +294,9 @@ if __name__ == "__main__":
                     black = "#003300"
                     black = "#002200"
                     #black = "#001733"
-                    image = ImageOps.colorize(image, black=black, white="#eeeeee")
+                    white = "#eeeeee"
+                    white = "#ffffff"
+                    image = ImageOps.colorize(image, black=black, white=white)
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
@@ -510,7 +382,7 @@ if __name__ == "__main__":
                 # cnt = html.count(wp_fr)
                 # print("\t\t cnt:", cnt, "|", wp_fr)
                 
-                if False and not (i%11):
+                if not (i%11):
                     #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
                     #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
                     #print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
@@ -560,11 +432,161 @@ if __name__ == "__main__":
         ### for /> 
     ### b_perform_replacement />            
             
+                
+    #-----------------------------------------
+    # b_fix_xml
+    #-----------------------------------------
+    if b_fix_xml_elements:
+        
+        func=lambda s : True # finds all
+        func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
+        func=lambda file : file.lower().endswith("index.html")
+        
+        files_index_html = wh.collect_files_func(project_folder, func=func)
+        #print(*files_index_html, sep="\n\t")
+        
+
+        for file in files_index_html:
             
+            print("-"*80)
+            print("file", wh.CYAN + file + wh.RESET)
+            wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
+            base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
+            same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
+            
+            if "/en/" in wp_path:
+                banner_header_text = f"This is the Low Carbon Website Version of {same_page_link}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission. {config.date_time2}"
+            else:
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. {config.date_time2}"
+                
+            tree = lxml.html.parse(file) # lxml.html.fromstring(content)
+            
+            # start the hocus pocus in focus
+            # use section-1 from original site as frag
+            hx.replace_xpath_with_fragment_from_file(
+                tree, 
+                "//section[@id='section-1']", 
+                "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
+            )
+            
+                        
+            if True: # +++
+                # TODO must be /en/ and not depending on wp_path /en/
+                banner_header = hx.banner_header(banner_header_text)
+                hx.remove_by_xpath(tree, "//div[@class='banner_header']")
+                print("\t adding banner_header")                    
+                tree.find(".//header").insert(0, banner_header)    
+                
+                banner_footer = hx.banner_footer(banner_footer_text)
+                hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
+                print("\t adding banner_footer")  
+                tree.find(".//footer").append(banner_footer) # ".//body"
+
+            # image attributes srcset
+            tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
+
+            # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
+            hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+
+            # search in menu
+            if True:
+                hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
+            else:
+                #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
+                pass
+
+            # all fa font awesome TODO also gets rid of dates etc...
+            # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
+
+            # <span class="swiper-item-number">6</span>
+            # if True:
+            #     #hx.remove_by_xpath(tree, "//span[@class='swiper-item-number']")
+            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
+            #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
+            
+            
+            # //script[normalize-space(text())]
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
+            hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'checkCookie' )]")
+            
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'google-analytics' )]")
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'wp-emoji-release' )]")
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'feed-them-social' )]")
+            
+            hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery-migrate' )]")
+            #hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery.js' )]") >> needed for menu !!!
+            
+            hx.remove_by_xpath(tree, "//head//script[@async]")
+            hx.remove_by_xpath(tree, "//head//script[@defer]")
+            
+            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+            # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+            
+            # twitter feeds
+            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
+            
+            # social media footer
+            footer_social_html = """
+            <div id="unpowered-social-media-footer">
+                <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+                twitter
+                </a>
+                <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="8" aria-describedby="qtip-8">
+                facebook
+                </a>
+                <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="9">
+                instagram
+                </a>
+                <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+                linkedin
+                </a>
+                <a href="mailto:info@karlsruhe.digital">
+                mail
+                </a>
+            </div>
+            """
+            hx.replace_xpath_with_fragment(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", footer_social_html)
+            hx.replace_xpath_with_fragment(tree, "//div[@id='unpowered-social-media-footer']", footer_social_html)
+
+            # swipers
+            # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
+            ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'hero-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'testimonial-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            hx.remove_by_xpath(tree, "//div[contains(@id, 'theses-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            
+            
+
+            # save to html
+            out_path = file # + "__test.html"
+            print("writing:", out_path)
+            tree.write(
+                out_path, 
+                pretty_print=True, 
+                xml_declaration=False,   
+                encoding="utf-8",   # !!!!
+                method='html'       # !!!!
+            )
+        
+    
+        # files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+        # for file in files_index_html:
+        #     print("-"*80)
+        #     content = wh.string_from_file(file, sanitize=False)
+        #     soup    = bs(content)
+        #     content = soup.prettify()
+        #     print(content)
+                      
     #-----------------------------------------
     # 
     #-----------------------------------------
-    if b_delete_originals:
+    if b_delete_conversion_originals:
         print("b_delete_originals")
         conversions = load_conversions(path_conversions)    
         
