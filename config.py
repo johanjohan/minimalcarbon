@@ -1,6 +1,7 @@
 from distutils.log import debug
 from urllib.parse import urlparse, urljoin
 import os
+import datetime
 
 #-----------------------------------------
 # dq
@@ -61,6 +62,9 @@ base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
 data_base_path      = data_folder + base_netloc + "_"
 suffix_compressed   = "_unpowered"
+
+date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
+date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
 
 #-----------------------------------------
 # init the colorama module

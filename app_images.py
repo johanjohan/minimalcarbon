@@ -173,10 +173,10 @@ if __name__ == "__main__":
             
             if "/en/" in wp_path:
                 banner_header_text = f"This is the Low Carbon Website of {same_page_link} unpowered by {config.html_infossil_link}"
-                banner_footer_text = f"unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission."
+                banner_footer_text = f"unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission. {config.date_time2}"
             else:
                 banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link} unpowered by {config.html_infossil_link}"
-                banner_footer_text = f"unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission."
+                banner_footer_text = f"unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. {config.date_time2}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
@@ -198,6 +198,23 @@ if __name__ == "__main__":
             if True: # +++
                 # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
                 hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+
+                
+            """
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-136" id="menu-item-136">
+    <a href="/suche/index.html">
+        <i class="fas fa-search">
+        </i>
+    </a>
+</li>                    
+            """
+            # fa-search top menu
+            if True:
+                #hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-search')]")
+                for item in tree.xpath("//i[contains(@class, 'fa-search')]"):
+                    print("\t replacing:", item)
+                    #item.getparent().remove(item)  
+                    item.getparent().replace(item, lxml.html.fragment_fromstring("<span>SUCHE</span"))
 
             # save to html
             out_path = file # + "__test.html"

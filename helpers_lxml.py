@@ -60,6 +60,7 @@ def banner_footer(text, id="banner_footer", class_banner="banner_footer", class_
     return banner
 
 def remove_by_xpath(tree, sxpath):
+    #print("remove_by_xpath", sxpath)
     for item in tree.xpath(sxpath):
         print("\t removing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().remove(item)     

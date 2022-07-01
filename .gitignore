@@ -3,7 +3,7 @@ desktop.ini
 folderhighlight*
 *.lnk
 *.URL
-data/
+###data/
 scraped_pywebcopy/
 wget/
 scraped/
