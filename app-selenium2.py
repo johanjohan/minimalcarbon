@@ -542,8 +542,8 @@ def assets_save_internals_locally(
 
         # dots rel to url of this url, not to the image itself
         print(f"{GRAY}\t\t\t src       : {src}{RESET}")
+        #print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
         print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
-        print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
         print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
         print(f"{GRAY}\t\t\t url       : {url}{RESET}")
         #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")

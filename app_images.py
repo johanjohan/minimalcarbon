@@ -336,7 +336,7 @@ if __name__ == "__main__":
                 
                 size_new = os.path.getsize(out_path)
                 print("\t\t", "saved  :", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(out_path))
-                perc_avg += wh.vt_saved_percent(size_orig, size_new)
+                perc_avg += wh._saved_percent(size_orig, size_new)
                 
                 if show_nth_image > 0 and not (cnt%show_nth_image):
                     image_show(out_path, secs=0.5)
@@ -605,6 +605,11 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
+    wh.get_project_total_size(config.project_folder)
+
+    #-----------------------------------------
+    # 
+    #-----------------------------------------   
     print("all done.")
                 
     # https://www.thepythoncode.com/article/compress-pdf-files-in-python

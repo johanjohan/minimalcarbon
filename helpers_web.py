@@ -63,13 +63,13 @@ def vt_code(code):
     return (GREEN if code < 400 else RED) + str(code) + RESET
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
     
-def vt_saved_percent(size_orig, size_new):
+def _saved_percent(size_orig, size_new):
     assert size_orig > 0
     perc = 100 - (size_new/size_orig*100)
     return perc
 
 def vt_saved_percent_string(size_orig, size_new):
-    pct = vt_saved_percent(size_orig, size_new)
+    pct = _saved_percent(size_orig, size_new)
     vt  = RED if pct <= 0 else GREEN
     return "{}{:+.1f}%{}".format(vt, pct, RESET)
 #-----------------------------------------
@@ -1366,27 +1366,34 @@ def get_directory_total_size(start_path):
     return total_size
 
 def get_project_total_size(project_folder):
+    
+    def __get_sizes(func):
+        total_size = 0
+        for file in collect_files_func(project_folder, func=func):
+            if os.path.isfile(file):
+                total_size += os.path.getsize(file)
+        return total_size
+                  
     f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
         ".jpg", ".jpeg", ".png", ".gif", 
         ".pdf", 
         "index_original.html"
     ])
-    
-    total_size_originals = 0
-    for file in collect_files_func(project_folder, func=f_originals):
-          if os.path.isfile(file):
-              total_size_originals += os.path.getsize(file)
-              
+    total_size_originals = __get_sizes(f_originals)
+
     f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
-        ".webp", 
+        "_unpowered.webp", 
         "_unpowered_screen.pdf", 
         "index.html"
     ])
+    total_size_unpowered = __get_sizes(f_unpowered)
     
-    total_size_unpowered = 0
-    for file in collect_files_func(project_folder, func=f_originals):
-          if os.path.isfile(file):
-              total_size_unpowered += os.path.getsize(file)
+    perc100 = _saved_percent(total_size_originals, total_size_unpowered)
+    
+    print("get_project_total_size:", vt_saved_percent_string(total_size_originals, total_size_unpowered))
+    
+    return perc100
+
               
               
     
@@ -1401,9 +1408,10 @@ def to_posix(filepath):
 #-----------------------------------------
 #https://pypi.org/project/art/ 
 import art
-def logo_filename(filename,  font="tarty3", vt=MAGENTA): # tarty3 tarty7 sub-zero
+def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
     filename = os.path.splitext(os.path.basename(filename))[0]
-    print(vt + art.text2art(filename, font=font) + RESET)
+    nl = "\n"*npad
+    print(nl + vt + art.text2art(filename, font=font) + RESET + nl)
     
 #-----------------------------------------
 # 
