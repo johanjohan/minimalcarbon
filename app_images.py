@@ -120,18 +120,17 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    project_folder              = wh.to_posix(os.path.abspath(config.project_folder))
-    path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
+    project_folder                          = wh.to_posix(os.path.abspath(config.project_folder))
+    path_conversions                        = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
-    b_convert_all_links_from_lists_to_local     = False # make all links to local
-    
-    b_append_custom_css         = False
-    b_perform_pdf_compression   = True 
-    b_perform_image_conversion  = True
-    b_convert_images_written    = True
+    b_append_custom_css                     = False
+    b_perform_pdf_compression               = True 
+    b_perform_image_conversion              = True
+    b_convert_images_written                = False
+    b_convert_all_links_from_lists_to_local = False # make all links to local
     #b_perform_replacement_conv  = False
-    b_fix_xml_elements          = False
-    b_minify                    = False
+    b_fix_xml_elements                      = False
+    b_minify                                = False
      
     # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
@@ -146,7 +145,6 @@ if __name__ == "__main__":
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
-
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -160,7 +158,6 @@ if __name__ == "__main__":
         print("appended custom css to", config.path_stylesheet)
         time.sleep(5)
     
-        
     #-----------------------------------------
     # replace via karlsruhe.digital_images_written.csv
     #-----------------------------------------
@@ -223,7 +220,6 @@ if __name__ == "__main__":
     #         #print()
     #         wh.replace_all_in_file_tuples(file, tuples)
         pass
-
 
     if b_convert_images_written:
         wh.logo("b_convert_images_written")

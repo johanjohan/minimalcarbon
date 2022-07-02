@@ -369,10 +369,19 @@ def assets_save_internals_locally(
     links = sorted(links)
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
-    # debug append the links to a file
-    with open(config.path_data_netloc + suffix + ".txt", mode="a", encoding="utf-8") as fp:
-        for link in links:
-            fp.write(f"{link}\n")
+    # append the links to a file
+    suffix_file_path = config.path_data_netloc + suffix + ".txt" 
+    wh.list_to_file(links, suffix_file_path, mode="a")
+    # minimize that file
+    if os.path.isfile(suffix_file_path):
+        stored_links = wh.list_from_file(suffix_file_path)
+        stored_links = wh.links_make_unique(stored_links)
+        stored_links = sorted(stored_links)
+    wh.list_to_file(stored_links, suffix_file_path)      
+    
+    # # # # with open(suffix_file_path, mode="a", encoding="utf-8") as fp:
+    # # # #     for link in links:
+    # # # #         fp.write(f"{link}\n")
 
     # loop tze links
     for src in links:

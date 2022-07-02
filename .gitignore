@@ -3,8 +3,15 @@ desktop.ini
 folderhighlight*
 *.lnk
 *.URL
+
 #data/
-data/karlsruhe.digital_links_body_href.txt
+# data/karlsruhe.digital_links_body_href.txt
+# data/karlsruhe.digital_links_head_href.txt
+# data/karlsruhe.digital_links_img.txt
+# data/karlsruhe.digital_links_link_href.txt
+# data/karlsruhe.digital_links_scripts.txt
+# data/karlsruhe.digital_links_*
+# data/karlsruhe.digital_links_body_href.txt
 
 scraped_pywebcopy/
 wget/
