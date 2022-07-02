@@ -4,7 +4,6 @@ folderhighlight*
 *.lnk
 *.URL
 #data/
-data/karlsruhe.digital_links_*
 data/karlsruhe.digital_links_body_href.txt
 
 scraped_pywebcopy/
@@ -128,4 +127,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/karlsruhe.digital_links_body_href.txt
