@@ -454,8 +454,7 @@ def assets_save_internals_locally(
     for src in links:
 
         src = src.strip()
-        #print(f"{CYAN}\t src: \'{src}\' {RESET} ")
-        print(f"{CYAN}\t {(time.time() - start_secs)/60.0:.1f}m | src: \'{src}\' {RESET}")
+        print(f"{CYAN}\t [{(time.time() - start_secs)/60.0:.1f} m] src: \'{src}\' {RESET}")
 
         # check external
         if wh.url_is_external(src, base):
@@ -486,15 +485,14 @@ def assets_save_internals_locally(
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
-        new_src = sanitize_filepath(new_src)
-        local_path = project_folder + new_src.lstrip('/')
+        new_src     = sanitize_filepath(new_src)
+        local_path  = project_folder + new_src.lstrip('/')
 
         # collect local images for a list to save at the end
         le_tuple = (
             src,        # as found in html
             new_src,    # for wp "/file.ext"
             local_path, # local file path on disk
-            # abs_src,
         )
         assert len(le_tuple) == 3  # images_written saving at very end
         if any(ext in local_path.lower() for ext in config.image_exts):
@@ -525,7 +523,6 @@ def assets_save_internals_locally(
                         print(
                             f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                         time.sleep(3)
-
                 # SAVE the file binary to disk local
                 try:
                     with open(local_path, 'wb') as fp:
@@ -534,24 +531,23 @@ def assets_save_internals_locally(
                 except:
                     print(
                         f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-
             else:
                 print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
         else:
             print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
         # dots rel to url of this url, not to the image itself
+        ####print(f"{GRAY}\t\t url       : {url}{RESET}")
         print(f"{GRAY}\t\t\t src       : {src}{RESET}")
         #print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
         print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
         print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}")
-        print(f"{GRAY}\t\t\t url       : {url}{RESET}")
         #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
 
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for s in [dq(new_src), sq(new_src), pa(new_src)]:
+        for s in [dq(src), sq(src), pa(src)]:
             print(f"{GRAY}\t\t\t replacing: {s}{RESET}")
             
         content = content.replace(dq(src), dq(new_src))  # "image.png"
@@ -681,8 +677,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
     suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
     for links, suffix in zip(lists, suffixes):
+        print(MAGENTA, end='')
         print("/" * 80)
         print(suffix)
+        print(RESET, end='')
         # print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
         content = assets_save_internals_locally(
             content,
@@ -690,6 +688,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             links, suffix,
             project_folder
         )
+        
         if(config.DEBUG): 
             wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
@@ -913,12 +912,14 @@ if __name__ == "__main__":
         # # # if count == 3:
         # # #     break
 
-        print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
-        ###print(f"{CYAN}url: {url}{RESET}")
-        print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f}m] url: {url}{RESET}")
-        ###print("{:.1f}m".format((time.time() - start_secs)/60.0))
+        print("\n"*1)
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
-        print("\n"*5)
+        print()
+        ######print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
+        ###print(f"{CYAN}url: {url}{RESET}")
+        print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
+        ###print("{:.1f}m".format((time.time() - start_secs)/60.0))
+        #print("\n"*1)
 
         if not (url in config.sitemap_links_ignore):
             make_static(
