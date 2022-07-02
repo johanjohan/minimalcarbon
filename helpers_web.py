@@ -272,7 +272,15 @@ def url_is_internal(url, base):
     return ret
 
 def url_is_external(url, base):
-    ret = not url_is_internal(url, base)
+    tld_url  =  tldextract.extract(url) 
+    tld_base =  tldextract.extract(base) 
+    assert tld_base, "loc_base is None"
+    
+    if not tld_url:
+        ret = False
+    else:
+        ret = (tld_url != tld_base)
+    
     #print("url_is_external:", YELLOW, ret, RESET, "| url:", dq(url), "| base:", dq(base))
     return ret
 
@@ -455,7 +463,7 @@ def links_remove_comments(links, delim='#'):
     return [u for u in links if not u.startswith(delim)]
 
 def links_remove_externals(links, base):
-    return [u for u in links if (url_is_internal(u, base))]
+    return [u for u in links if not url_is_external(u, base)]
 
 def links_remove_folders(links):
     return [u for u in links if not u.strip().endswith('/')]
@@ -479,6 +487,7 @@ def links_sanitize(links):
     links = links_make_unique(links)
     links = links_remove_comments(links, delim='#')
     links = links_remove_similar(links)
+    links = links_remove_nones(links)
     return sorted(links)
 
 # def links_make_absolute_internals_only(links, base):
@@ -1248,7 +1257,7 @@ def minify_on_disk(filename):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all(content, oldvalue, newvalue, vb = False):
+def replace_all(content, oldvalue, newvalue, vb = True):
     if not content:
         return content
     
@@ -1333,12 +1342,13 @@ def replace_all_in_file_tuples(filename, tuples):
         data = fp.read()
          
     for conversion in tuples:
+        #print(YELLOW, conversion, RESET)
         fr, to = conversion
         
         fr = fr.strip()
         to = to.strip()
         
-        #print(YELLOW, sq(fr), sq(to), RESET)
+        print(YELLOW, fr, CYAN, "-->", YELLOW, to, RESET)
         
         data = replace_all(data, dq(fr), dq(to)) 
         data = replace_all(data, sq(fr), sq(to)) 
@@ -1625,6 +1635,7 @@ import art
 def logo(text,  font="tarty3", vt=CYAN, npad=2): # tarty3 tarty7 sub-zero
     nl = "\n"*npad
     print(nl + vt + art.text2art(text, font=font) + RESET + nl)
+    time.sleep(4)
     
 def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
     text = os.path.splitext(os.path.basename(filename))[0]
