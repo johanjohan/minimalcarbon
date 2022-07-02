@@ -150,7 +150,6 @@ if __name__ == "__main__":
     #-----------------------------------------
     # append css
     if b_append_custom_css:
-        wh.logo("b_append_custom_css")
         with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
             with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
                 data = infile.read()
@@ -366,7 +365,6 @@ if __name__ == "__main__":
             path        = os.path.normpath(path) # wh.to_posix(path)
             name, ext   = os.path.splitext(path) # ('my_file', '.txt')
             out_path    = name + config.suffix_compressed + '.webp' 
-            ####out_path    = name + '.webp' 
             out_path    = os.path.normpath(out_path) # wh.to_posix(out_path)
             
             conversions.append((path, out_path))
