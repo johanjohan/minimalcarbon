@@ -111,6 +111,8 @@ def load_conversions(path_conversions):
 #-----------------------------------------
 if __name__ == "__main__":
     
+    wh.logo_filename(__file__)
+    
     pag.alert(text=f"good time to backup htdocs!")
                 
     #-----------------------------------------
@@ -119,7 +121,7 @@ if __name__ == "__main__":
     # append css
     if False:
         with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
-            with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
+            with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
                 data = infile.read()
                 outfile.write(data)
         print("appended custom css to", config.path_stylesheet)

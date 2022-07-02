@@ -258,6 +258,7 @@ def crawl(url, max_urls):
 # main
 #-----------------------------------------
 if __name__ == "__main__":
+    wh.logo_filename(__file__)
 
     # args defaults TODO use config
     # def_url = "https://1001suns.com/sitemap_post/" # for args

@@ -27,6 +27,7 @@ import requests
 import time
 import pathlib
 
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -49,6 +50,8 @@ def dq(s=""):
     return _wrap(s, delim="\"")
 def sq(s=""):
     return _wrap(s, delim="\'")
+def pa(s=""):
+    return "(" + str(s) + ")"
 
 #-----------------------------------------
 # 
@@ -1361,17 +1364,59 @@ def get_directory_total_size(start_path):
 
     print("get_size: total_size:", round(total_size / (1024*1024), 1), "MB")
     return total_size
+
+def get_project_total_size(project_folder):
+    f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
+        ".jpg", ".jpeg", ".png", ".gif", 
+        ".pdf", 
+        "index_original.html"
+    ])
+    
+    total_size_originals = 0
+    for file in collect_files_func(project_folder, func=f_originals):
+          if os.path.isfile(file):
+              total_size_originals += os.path.getsize(file)
+              
+    f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
+        ".webp", 
+        "_unpowered_screen.pdf", 
+        "index.html"
+    ])
+    
+    total_size_unpowered = 0
+    for file in collect_files_func(project_folder, func=f_originals):
+          if os.path.isfile(file):
+              total_size_unpowered += os.path.getsize(file)
+              
+              
+    
 #-----------------------------------------
 # 
 #-----------------------------------------
 def to_posix(filepath):
     return pathlib.Path(filepath).as_posix()
  
+#-----------------------------------------
+# 
+#-----------------------------------------
+#https://pypi.org/project/art/ 
+import art
+def logo_filename(filename,  font="tarty3", vt=MAGENTA): # tarty3 tarty7 sub-zero
+    filename = os.path.splitext(os.path.basename(filename))[0]
+    print(vt + art.text2art(filename, font=font) + RESET)
+    
+#-----------------------------------------
+# 
+#-----------------------------------------
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 #-----------------------------------------
 # 
 #-----------------------------------------
 if __name__ == "__main__":
+    logo_filename(__file__)
     print("\n"*3 + "you started the wrong file..." + "\n"*3)
     
     # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings

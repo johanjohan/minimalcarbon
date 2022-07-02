@@ -290,6 +290,7 @@ document.getElementById("FirstDiv").remove();
 # -----------------------------------------
 from helpers_web import sq as sq, url_path
 from helpers_web import dq as dq
+from helpers_web import pa as pa
 from bs4 import BeautifulSoup, Comment
 import time
 import helpers_web as wh
@@ -473,6 +474,8 @@ def assets_save_internals_locally(
         # is a file? add index.html/get_page_name() to folder-links
         # TODO may not do so wp_json/ and sitemap/
         if wh.url_is_assumed_file(new_src):
+            name, ext = os.path.splitext(new_src)
+            new_src = name + config.suffix_compressed + ext
             print(MAGENTA, "\t\t file:", RESET, new_src)
         else:
             new_src = wh.add_trailing_slash(new_src)
@@ -489,12 +492,12 @@ def assets_save_internals_locally(
         # collect local images for a list to save at the end
         le_tuple = (
             src,        # as found in html
-            new_src,    # for wp /
-            local_path,  # local file path
+            new_src,    # for wp "/file.ext"
+            local_path, # local file path on disk
             # abs_src,
         )
         assert len(le_tuple) == 3  # images_written saving at very end
-        if any(ext in local_path.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
+        if any(ext in local_path.lower() for ext in config.image_exts):
             images_written.append(le_tuple)
 
         # get and save link-asset to disk
@@ -507,7 +510,7 @@ def assets_save_internals_locally(
                 wh.sleep_random(config.wait_secs,
                                 verbose_string=src, prefix="\t\t ")  # abs_src
 
-                # get the file via session requests
+                # GET the file via session requests
                 max_tries = 10
                 for cnt in range(max_tries):
                     try:
@@ -523,7 +526,7 @@ def assets_save_internals_locally(
                             f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                         time.sleep(3)
 
-                # write the file binary to disk local
+                # SAVE the file binary to disk local
                 try:
                     with open(local_path, 'wb') as fp:
                         fp.write(res.content)
@@ -548,8 +551,12 @@ def assets_save_internals_locally(
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        content = content.replace(dq(src), dq(new_src))  # try both
-        content = content.replace(sq(src), sq(new_src))  # try both
+        for s in [dq(new_src), sq(new_src), pa(new_src)]:
+            print(f"{GRAY}\t\t\t replacing: {s}{RESET}")
+            
+        content = content.replace(dq(src), dq(new_src))  # "image.png"
+        content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
+        content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
 
         # TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
 
@@ -702,6 +709,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
 
 
 if __name__ == "__main__":
+    
+    # print(__file__)
+    # print(os.path.basename(__file__))
+    wh.logo_filename(__file__)
 
     if True:
         # LOG: "C:\Users\michaelsaup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
@@ -927,23 +938,17 @@ if __name__ == "__main__":
 
     # save image tuples list
     images_written = sorted(list(set(images_written)))
-    #print("images_written:", *images_written, sep="\n\t")
+    print("saving images_written:", config.path_image_tuples_written)
     with open(config.path_image_tuples_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join('{},{},{}'.format(
             x[0], x[1], x[2]) for x in images_written))
 
     # append css
+    print("appending css:", config.path_custom_css)
     with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
-        with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
+        with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
             data = infile.read()
             outfile.write(data)
-
-    # todo this should work if in root of domain
-    # # wh.replace_in_file(
-    # #   style_path,
-    # #   "background-image: url(\"/wp-content/",
-    # #   "background-image: url(\"../../../../wp-content/" # rel to css/
-    # # )
 
     # all done
     print("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0))
