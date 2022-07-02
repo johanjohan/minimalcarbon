@@ -4,6 +4,8 @@ folderhighlight*
 *.lnk
 *.URL
 ###data/
+data/karlsruhe.digital_links_*
+
 scraped_pywebcopy/
 wget/
 scraped/
