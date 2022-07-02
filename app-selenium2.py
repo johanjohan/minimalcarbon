@@ -445,7 +445,7 @@ def assets_save_internals_locally(
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
     # append the links to a file NEW
-    with open(config.data_base_path + suffix + ".txt", mode="a", encoding="utf-8") as fp:
+    with open(config.path_data_netloc + suffix + ".txt", mode="a", encoding="utf-8") as fp:
         for link in links:
             fp.write(f"{link}\n")
 
@@ -603,7 +603,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     path_index_base = project_folder + get_page_folder(url, base) + "index"
     
-    if(config.DEBUG): 
+    if True or config.DEBUG: 
         path_original = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
@@ -872,47 +872,23 @@ if __name__ == "__main__":
     # -----------------------------------------
     import shutil
     wh.make_dirs(config.project_folder)
-    shutil.copyfile(config.sitemap_xml_path,
+    shutil.copyfile(config.path_sitemap_xml,
                     config.project_folder + "sitemap.xml")
 
     # -----------------------------------------
     #
     # -----------------------------------------
-    urls = wh.list_from_file(config.sitemap_links_internal_path)
+    urls = wh.list_from_file(config.path_sitemap_links_internal)
     urls = wh.links_remove_comments(urls, '#')
 
     # chrome init
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
-            # https://stackoverflow.com/questions/54446419/selenium-chrome-options-and-capabilities
-            options = Options()
-            options.add_argument("--headless") # options.headless = config.headless
-            options.add_argument('--lang=de')
-            options.add_argument('--ignore-certificate-errors')
-            options.add_argument('--incognito')
-            options.add_argument('--log-level=3')
-            options.add_argument("--disable-webgl")
-            options.add_argument("--disable-popup-blocking")
-            options.add_argument("--window-size=1000,1000")
-            options.add_argument("--no-sandbox")
-            options.add_argument('user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36')
-            options.add_argument('--disable-gpu')
-            options.add_argument('--disable-setuid-sandbox')
-            options.add_argument('--disable-features=UsePasswordSeparatedSigninFlow')
-            options.add_argument("--disable-extensions")
-            options.add_experimental_option("prefs", { \
-                'download.default_directory': 'V:/00trash/__chrom',
-                'download.prompt_for_download': False,
-                'download.directory_upgrade': True,
-            })
-            # "--start-maximized" '--kiosk'
-            print(f"[{tries}] {options}")
-            driver = webdriver.Chrome(options=options)
+            print(f"[{tries}] {config.options}")
+            driver = webdriver.Chrome(options=config.options)
             driver.implicitly_wait(30)
             # driver.execute_script("alert('alert via selenium')")
-            # time.sleep(33)
-            # exit(0)
             # driver.maximize_window()
             break
         except Exception as e:
@@ -939,7 +915,7 @@ if __name__ == "__main__":
                 url,
                 config.base,
                 config.project_folder,
-                config.style_path,
+                config.path_stylesheet,
                 config.replacements_pre,
                 wait_secs=config.wait_secs
             )
@@ -950,15 +926,14 @@ if __name__ == "__main__":
     driver.quit()
 
     # save image tuples list
-    path_images_written = "data/" + config.base_netloc + "_images_written.csv"
     images_written = sorted(list(set(images_written)))
     #print("images_written:", *images_written, sep="\n\t")
-    with open(path_images_written, 'w', encoding="utf-8") as fp:
+    with open(config.path_image_tuples_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join('{},{},{}'.format(
             x[0], x[1], x[2]) for x in images_written))
 
     # append css
-    with open(config.style_path, 'a', encoding="utf-8") as outfile:
+    with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
         with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
             data = infile.read()
             outfile.write(data)
