@@ -467,6 +467,25 @@ def url_path(url, char_lstrip=''): # '/'
         p = p.lstrip(char_lstrip)
     return p
 
+# parsed = urlparse('http://netloc/path;parameters?query=argument#fragment')
+# ParseResult(scheme='http', netloc='netloc', path='/path', params='parameters', query='query=argument', fragment='fragment')
+def url_ppqf(url):
+    parsed = urlparse(url)
+    ret = ""
+    ret += parsed.path if parsed.path else '' # ---> may have /path
+    #ret += ';' + parsed.parameters if parsed.parameters else ''
+    ret += '?' + parsed.query if parsed.query else ''
+    ret += '#' + parsed.fragment if parsed.fragment else ''
+    return ret
+    
+def url_qf(url):
+    parsed = urlparse(url)
+    ret = ""
+    ret += '?' + parsed.query if parsed.query else ''
+    ret += '#' + parsed.fragment if parsed.fragment else ''
+    return ret
+    
+
 def url_netloc(url): 
     loc = urlparse(url.strip()).netloc
     return loc
@@ -577,10 +596,23 @@ def strip_tail(url, delim):
         #print("--> strip_tail:", url)
     return url
 
+# https://en.wikipedia.org/wiki/URI_fragment
+# scheme://netloc/path;parameters?query#fragment
 def strip_query_and_fragment(url):
-    url = strip_tail(url, '#')
-    url = strip_tail(url, '?')
-    return url
+    new_url = url
+    new_url = strip_tail(new_url, '?')
+    new_url = strip_tail(new_url, '#')
+    #print("strip_query_and_fragment", url, "-->", YELLOW, new_url, RESET)
+    return new_url
+
+def strip_query(url):
+    parsed  = urlparse(url)
+    new_url = url
+    new_url = strip_query_and_fragment(new_url)
+    if parsed.fragment:
+        new_url += "#" + parsed.fragment
+    print("strip_query", url, "-->", YELLOW, new_url, RESET)
+    return new_url
 
 def add_trailing(url, to_add):
     return url.rstrip(to_add) + to_add
@@ -1090,8 +1122,8 @@ def get_background_images_from_stylesheet_file(style_path):
             style_string = fp.read()
             urls = get_background_images_from_stylesheet_string(style_string)
     else:
-        print(f"{YELLOW}TODO: style_path not yet downloaded: {style_path} {RESET}") # TODO 
-        time.sleep(2)   
+        print(f"{YELLOW}TODO: not yet downloaded: {style_path} {RESET}") # TODO 
+        time.sleep(1)   
         
     return urls
 

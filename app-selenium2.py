@@ -291,6 +291,7 @@ document.getElementById("FirstDiv").remove();
 from helpers_web import sq as sq, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
+from helpers_web import add_trailing_slash as ats
 from bs4 import BeautifulSoup, Comment
 import time
 import helpers_web as wh
@@ -308,6 +309,8 @@ from selenium.webdriver.chrome.options import Options
 
 import jsbeautifier
 import cssbeautifier
+
+from urllib.parse import urlparse
 
 import config
 GREEN = config.GREEN
@@ -331,9 +334,9 @@ images_written = []
 #
 # -----------------------------------------
 
-def sanitize_filepath(filepath,  rep = '_'):
+def sanitize_filepath_and_url(filepath,  rep = '_'):
     fixedpath = filepath
-    fixedpath = fixedpath.replace('?',  rep)
+    #fixedpath = fixedpath.replace('?',  rep) # is valid for url
     fixedpath = fixedpath.replace('%',  rep)
     fixedpath = fixedpath.replace('*',  rep)
     fixedpath = fixedpath.replace(':',  rep)
@@ -404,17 +407,17 @@ def get_path_local_root_subdomains(url, base):
         exit(1)
 
     # loc_url:  media.karlsruhe.digital
-    loc_url = wh.url_netloc(url).lstrip("www.")
     # loc_base:       karlsruhe.digital
-    loc_base = wh.url_netloc(base)
-    subdomain = loc_url.replace(loc_base, '').replace('.', '')
-    if subdomain:
-        subdomain = "sub_" + subdomain + '/'
-
-    path = wh.url_path_lstrip_slash(url)
-    rooted = subdomain + path
-    rooted = wh.add_leading_slash(rooted)
-    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
+    loc_url   = wh.url_netloc(url).lstrip("www.")
+    loc_base  = wh.url_netloc(base)
+    subdomain = loc_url.replace(loc_base, '').replace('.', '') # --> media
+    if subdomain: # '' or 'sub_dir/'
+        subdomain = wh.strip_leading_slash(subdomain)
+        subdomain = "sub_" + subdomain
+        subdomain = ats(subdomain)
+        
+    rooted = '/' + subdomain + wh.strip_leading_slash(wh.url_ppqf(url))
+    print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
 # -----------------------------------------
@@ -445,7 +448,7 @@ def assets_save_internals_locally(
     links = sorted(links)
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
-    # append the links to a file NEW
+    # debug append the links to a file
     with open(config.path_data_netloc + suffix + ".txt", mode="a", encoding="utf-8") as fp:
         for link in links:
             fp.write(f"{link}\n")
@@ -453,22 +456,22 @@ def assets_save_internals_locally(
     # loop tze links
     for src in links:
 
-        src = src.strip()
+        ###src = src.strip()
         print(f"{CYAN}\t [{(time.time() - start_secs)/60.0:.1f} m] src: \'{src}\' {RESET}")
 
         # check external
         if wh.url_is_external(src, base):
-            print(
-                f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
-            exit(6)  # TODO DEBUG
+            print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
             continue
 
         abs_src = wh.link_make_absolute(src, base)
         new_src = get_path_local_root_subdomains(abs_src, base)
         if b_strip_ver:
+            # http://mysite.com/some_page/file.css?my_var='foo'#frag
             if wh.url_has_ver(new_src):
-                new_src = wh.strip_query_and_fragment(new_src)
-                print("\t\t stripped ?ver=:", new_src)
+                ###new_src = wh.strip_query_and_fragment(new_src)
+                new_src = wh.strip_query(new_src) # NEW
+                print("\t\t stripped ?ver=1.2.3.4:", new_src)
 
         # is a file? add index.html/get_page_name() to folder-links
         # TODO may not do so wp_json/ and sitemap/
@@ -476,17 +479,22 @@ def assets_save_internals_locally(
             name, ext = os.path.splitext(new_src)
             new_src = name + config.suffix_compressed + ext
             print(MAGENTA, "\t\t file:", RESET, new_src)
-        else:
-            new_src = wh.add_trailing_slash(new_src)
-            if not 'wp_json/' in new_src and not 'sitemap/' in new_src:  # TODO check WP_SPECIAL_DIRS
-                new_src += get_page_name()  # index.html
-                print(MAGENTA, "\t\t dir :", RESET,
-                      new_src, "[added index.html]")
+        else: # assumed dir
+            # dir CAN BE is_a_dir/#section
+            if not 'wp_json/' in wh.url_path(new_src) and not 'sitemap/' in wh.url_path(new_src):  # TODO check WP_SPECIAL_DIRS
+                
+                # ISSUE: /ueber-karlsruhe-digital/#section-4/index.html --> /ueber-karlsruhe-digital/index.html#section-4/
+                #new_src += get_page_name()  # index.html
+                index_src = ats(wh.url_path(new_src)) +  get_page_name() + wh.url_qf(new_src)
+                new_src   = index_src
+    
+                print(MAGENTA, "\t\t dir :", RESET, new_src, "[added index.html]")
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
-        new_src     = sanitize_filepath(new_src)
-        local_path  = project_folder + new_src.lstrip('/')
+        new_src     = sanitize_filepath_and_url(new_src)
+        local_path  = ats(project_folder) + new_src.lstrip('/')
+        local_path  = wh.strip_query_and_fragment(local_path) # has no ?# on disk
 
         # collect local images for a list to save at the end
         le_tuple = (
@@ -622,11 +630,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
-
-    # links_head_css = h.xpath('head//link[@type="text/css"]/@href')
-    # links_head_css = wh.links_strip_query_and_fragment(links_head_css)
-    # links_head_css = wh.links_make_unique(links_head_css)
-    # print("list_head_css", *links_head_css, sep="\n\t")
 
     links_head_href = h.xpath('head//@href')
 

@@ -218,7 +218,7 @@ if __name__ == "__main__":
             exit(0)
             
                     
-        image_exts = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        image_exts = config.image_exts
         #image_exts = ['.png', '.gif']
         
         print("image_exts   :", image_exts)
@@ -442,9 +442,8 @@ if __name__ == "__main__":
     if b_fix_xml_elements:
         
         func=lambda s : True # finds all
-        func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
+        func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
         func=lambda file : file.lower().endswith("index.html")
-        
         files_index_html = wh.collect_files_func(project_folder, func=func)
         #print(*files_index_html, sep="\n\t")
         

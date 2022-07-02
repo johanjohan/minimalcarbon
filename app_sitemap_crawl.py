@@ -135,10 +135,15 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             continue
         # join the URL if it's relative (not absolute link)
         
-        href = urljoin(url, href)
+        href        = urljoin(url, href)
         parsed_href = urlparse(href)
         # remove URL GET parameters, URL fragments, etc.
-        href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
+        #href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
+        # keep frag
+        href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path # NEW
+        if parsed_href.fragment:
+            href += "#" + parsed_href.fragment
+            print(YELLOW, "NEW keeping frag:", href, RESET)
         href = href.rstrip('/')
         
         if not wh.url_is_valid(href):
@@ -161,7 +166,6 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             else:
                 #print("\t\t", f"{YELLOW}skipping external_urls: {href}{RESET}")
                 pass
-            
             continue
                 
         #-----------------------------------------
