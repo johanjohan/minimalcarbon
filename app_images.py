@@ -118,11 +118,11 @@ if __name__ == "__main__":
     #-----------------------------------------
     # append css
     if False:
-        with open(config.style_path, 'a', encoding="utf-8") as outfile:
+        with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
             with open(config.custom_css_path, 'r', encoding="utf-8") as infile:
                 data = infile.read()
                 outfile.write(data)
-        print("appended custom css to", config.style_path)
+        print("appended custom css to", config.path_stylesheet)
         time.sleep(5)
     
     #-----------------------------------------
@@ -136,6 +136,7 @@ if __name__ == "__main__":
     b_perform_replacement       = False
     b_fix_xml_elements          = True
      
+    # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
     conversions = []
     b_delete_conversion_originals   = False

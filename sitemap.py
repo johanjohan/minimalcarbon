@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # write sitemap.xml
     #-----------------------------------------
 
-    sitemap_xml_from_file(in_list_path=config.sitemap_links_internal_path, out_xml_path=config.sitemap_xml_path)
+    sitemap_xml_from_file(in_list_path=config.path_sitemap_links_internal, out_xml_path=config.path_sitemap_xml)
         
 if __name__ == '__main__':
     
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     
     # xmlpath = 'http://www.adidas.it/on/demandware.static/-/Sites-adidas-IT-Library/it_IT/v/sitemap/product/adidas-IT-it-it-product.xml'
     # xmlpath = 'https://1001suns.com/sitemap.xml'
-    xmlpath = config.sitemap_xml_path # a local file or url
+    xmlpath = config.path_sitemap_xml # a local file or url
     
     urls = read_sitemap_xml_to_list(xmlpath)
     print("urls:", *urls, sep="\n\t")

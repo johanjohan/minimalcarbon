@@ -30,6 +30,7 @@ print(MAGENTA)
 #-----------------------------------------
 # Options
 #-----------------------------------------
+# https://stackoverflow.com/questions/54446419/selenium-chrome-options-and-capabilities
 from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument("--headless") # options.headless = config.headless
@@ -46,6 +47,12 @@ options.add_argument('--disable-gpu')
 options.add_argument('--disable-setuid-sandbox')
 options.add_argument('--disable-features=UsePasswordSeparatedSigninFlow')
 options.add_argument("--disable-extensions")
+options.add_experimental_option("prefs", { \
+    'download.default_directory': 'V:/00trash/__chrom',
+    'download.prompt_for_download': False,
+    'download.directory_upgrade': True,
+})
+# "--start-maximized" '--kiosk'
 #-----------------------------------------
 # app-selenium
 #-----------------------------------------
@@ -56,15 +63,17 @@ wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
 project_folder      = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
 base                = ats('https://karlsruhe.digital/')
-style_path          = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
+path_stylesheet     = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css"
 data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
-data_base_path      = data_folder + base_netloc + "_"
+path_data_netloc    = data_folder + base_netloc + "_"
 suffix_compressed   = "_unpowered"
 
 date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
 date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
+
+path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
 #-----------------------------------------
 # init the colorama module
@@ -74,13 +83,13 @@ html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 
-_sitemap_base               = data_base_path + "20220629_131730"
-sitemap_links_internal_path = _sitemap_base + "_internal_links.csv"
-sitemap_links_external_path = _sitemap_base + "_external_links.csv"
-sitemap_xml_path            = _sitemap_base + "_sitemap.xml"
+_sitemap_base               = path_data_netloc + "20220629_131730"
+path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
+path_sitemap_links_external = _sitemap_base + "_external_links.csv"
+path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 
-custom_css_path             = data_base_path + "custom.css"
-image_tuples_written_path   = data_base_path + "images_written.csv"
+custom_css_path             = path_data_netloc + "custom.css"
+path_image_tuples_written   = path_data_netloc + "images_written.csv"
 
 #-----------------------------------------
 # 
@@ -182,7 +191,7 @@ print("replacements_pre", *replacements_pre, sep="\n\t")
 #-----------------------------------------
 print("base          :", base)
 print("project_folder:", project_folder)
-print("style_path    :", style_path)
+print("style_path    :", path_stylesheet)
 print()
 
 print("replacements_pre:")
