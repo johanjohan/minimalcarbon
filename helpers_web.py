@@ -283,6 +283,9 @@ def _sleep(secs=33):
 def url_has_same_netloc(url, base):
     _, loc_url, _  = url_split(url)
     _, loc_base, _ = url_split(base)
+    if not loc_url and loc_base:
+        return True # consider same as url is local
+    #print("url_has_same_netloc: loc_base", loc_base, "loc_url", loc_url)
     return loc_base in loc_url
 
 #https://stackoverflow.com/questions/6690739/high-performance-fuzzy-string-comparison-in-python-use-levenshtein-or-difflib
@@ -539,7 +542,7 @@ def url_is_assumed_file(url):
         return False
 
     url = url_path(url)
-    url = strip_query_and_fragment(url)
+    ###url = strip_query_and_fragment(url)
     url = strip_trailing_slash(url)
     
     return _has_a_dot(url.split('/')[-1]) # last part
@@ -979,32 +982,6 @@ def wait_for_page_has_loaded_hash(driver, sleep_secs=1):
 #-----------------------------------------
 def wait_for_page_has_loaded(driver):
     return wait_for_page_has_loaded_readyState(driver, sleep_secs=1)
-#-----------------------------------------
-# 
-#-----------------------------------------
-def replace_all(content, oldvalue, newvalue):
-    if not content:
-        return content
-    
-    cnt_first = content.count(oldvalue)
-    len_orig = len(content)
-    
-    # while oldvalue in content:
-    #     content = content.replace(oldvalue, newvalue)
-    content = content.replace(oldvalue, newvalue)
-    
-    cnt_last = content.count(oldvalue)
-    
-    if False: # verbose
-        printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
-        print(
-            "replace_all:", 
-            CYAN, dq(printvalue), RESET, 
-            "| replaced", len_orig - len(content), "bytes",
-            "| cnt:", cnt_first, "-->", cnt_last
-        )
-        
-    return content
 
 #-----------------------------------------
 # background_images
@@ -1246,6 +1223,33 @@ def minify_on_disk(filename):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def replace_all(content, oldvalue, newvalue):
+    if not content:
+        return content
+    
+    cnt_first = content.count(oldvalue)
+    len_orig = len(content)
+    
+    # while oldvalue in content:
+    #     content = content.replace(oldvalue, newvalue)
+    content = content.replace(oldvalue, newvalue)
+    
+    cnt_last = content.count(oldvalue)
+    
+    if len_orig - len(content) > 0: # verbose
+        printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
+        print(
+            "replace_all:", 
+            CYAN, dq(printvalue), RESET, 
+            "| replaced", len_orig - len(content), "bytes",
+            "| cnt:", cnt_first, "-->", cnt_last
+        )
+        
+    return content
+
+#-----------------------------------------
+# 
+#-----------------------------------------
 # def replace_in_file(filename, string_from, string_to):
     
 #     fp = open(filename, "rt")
@@ -1258,7 +1262,7 @@ def minify_on_disk(filename):
 #     fp.write(data)
 #     fp.close()
 
-def replace_all_in_file(filename, string_from, string_to):
+def replace_all_in_file_OLD(filename, string_from, string_to):
     
     #print("replace_all_in_file:", filename)
     
@@ -1277,6 +1281,42 @@ def replace_all_in_file(filename, string_from, string_to):
     fp = open(filename, "w", encoding="utf-8")
     fp.write(data)
     fp.close()
+    
+def replace_all_in_file(filename, string_from, string_to):
+    
+    #print("replace_all_in_file:", filename)
+    
+    with open(filename, "r", encoding="utf-8") as fp:
+        data = fp.read()
+        
+    cnt = data.count(string_from)
+    if cnt > 0:
+        print("replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
+    data = replace_all(data, string_from, string_to)  
+    
+    with open(filename, "w", encoding="utf-8") as fp:
+        fp.write(data)
+                
+                
+def replace_all_in_file_tuples(filename, tuples):
+    
+    print("replace_all_in_file_tuples:", filename)
+    
+    with open(filename, "r", encoding="utf-8") as fp:
+        data = fp.read()
+         
+    for conversion in tuples:
+        fr, to = conversion
+        
+        data = replace_all(data, dq(fr), dq(to)) 
+        data = replace_all(data, sq(fr), sq(to)) 
+        data = replace_all(data, pa(fr), pa(to)) 
+        #data = replace_all(data, fr, to) # ?????
+    
+    with open(filename, "w", encoding="utf-8") as fp:
+        fp.write(data)
+                
+                  
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -1314,11 +1354,11 @@ def list_exec(items, func):
 
     
 """ 
-    css = wh.list_from_file(config.style_path)
-    css = cssbeautifier.beautify(wh.list_to_string(css))
-    wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
+    css = list_from_file(config.style_path)
+    css = cssbeautifier.beautify(list_to_string(css))
+    list_to_file(list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
     
-    wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
+    list_exec(image_links, func=lambda s : tuple(s.split(',')))
     
     
 """ 
@@ -1397,6 +1437,87 @@ def collect_files_func(project_folder, func):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def sanitize_filepath_and_url(filepath,  rep = '_'):
+    fixedpath = filepath
+    #fixedpath = fixedpath.replace('?',  rep) # is valid for url
+    fixedpath = fixedpath.replace('%',  rep)
+    fixedpath = fixedpath.replace('*',  rep)
+    fixedpath = fixedpath.replace(':',  rep)
+    fixedpath = fixedpath.replace('|',  rep)
+    fixedpath = fixedpath.replace('\"', rep)
+    fixedpath = fixedpath.replace('\'', rep)
+    fixedpath = fixedpath.replace('<',  rep)
+    fixedpath = fixedpath.replace('>',  rep)
+    return fixedpath
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+def get_page_name(ext=".html", basename="index"):
+    return basename + ext
+
+"""
+get_path_local_root: https://www.karlsruhe.digital/ --> /
+get_path_local_root: https://www.media.karlsruhe.digital/ --> /media/
+get_path_local_root: https://media.karlsruhe.digital/ --> /media/
+get_path_local_root: https://media.karlsruhe.digital/my/folder/this.jpeg --> /media/my/folder/this.jpeg
+get_path_local_root: https://karlsruhe.digital/ --> /
+get_path_local_root: https://karlsruhe.digital/index.html --> /index.html
+get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/folder/image.png
+
+"""
+
+def get_path_local_root_subdomains(url, base):
+
+    # externals should be removed before
+    if not url_has_same_netloc(url, base):
+        print(
+            f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
+        exit(1)
+
+    # loc_url:  media.karlsruhe.digital
+    # loc_base:       karlsruhe.digital
+    loc_url   = url_netloc(url).lstrip("www.")
+    loc_base  = url_netloc(base)
+    subdomain = loc_url.replace(loc_base, '').replace('.', '') # --> media
+    if subdomain: # '' or 'sub_dir/'
+        subdomain = strip_leading_slash(subdomain)
+        subdomain = "sub_" + subdomain
+        subdomain = add_trailing_slash(subdomain)
+        
+    rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url))
+    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
+    return rooted
+
+"""
+TODO maybe deal with de/ en/
+
+get_path_local_root:  https://www.karlsruhe.digital/ -->  /
+get_page_folder    :  https://www.karlsruhe.digital/ --> 
+get_path_local_root:  https://www.media.karlsruhe.digital/ -->  /media/
+get_page_folder    :  https://www.media.karlsruhe.digital/ -->  media/
+get_path_local_root:  https://media.karlsruhe.digital/ -->  /media/
+get_page_folder    :  https://media.karlsruhe.digital/ -->  media/
+get_path_local_root:  https://media.karlsruhe.digital/my/folder/this.jpeg -->  /media/my/folder/this.jpeg
+get_page_folder    :  https://media.karlsruhe.digital/my/folder/this.jpeg -->  media/my/folder/
+get_path_local_root:  https://karlsruhe.digital/ -->  /
+get_page_folder    :  https://karlsruhe.digital/ --> 
+get_path_local_root:  https://karlsruhe.digital/index.html -->  /index.html
+get_page_folder    :  https://karlsruhe.digital/index.html --> 
+get_path_local_root:  https://karlsruhe.digital/some/folder/image.png -->  /some/folder/image.png
+get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/folder/
+"""
+def get_page_folder(url, base):
+    path = get_path_local_root_subdomains(url, base).lstrip('/')
+    path = strip_query_and_fragment(path) # NEW
+    page_folder = ""
+    subs = path.split('/')
+    for folder in subs:
+        if folder and url_is_assumed_folder(folder):
+            page_folder += folder + "/"
+    print("get_page_folder    :", GRAY, url, "-->", RESET, sq(page_folder))
+    return page_folder
+
 
 #-----------------------------------------
 # 

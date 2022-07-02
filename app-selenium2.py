@@ -334,92 +334,12 @@ images_written = []
 #
 # -----------------------------------------
 
-def sanitize_filepath_and_url(filepath,  rep = '_'):
-    fixedpath = filepath
-    #fixedpath = fixedpath.replace('?',  rep) # is valid for url
-    fixedpath = fixedpath.replace('%',  rep)
-    fixedpath = fixedpath.replace('*',  rep)
-    fixedpath = fixedpath.replace(':',  rep)
-    fixedpath = fixedpath.replace('|',  rep)
-    fixedpath = fixedpath.replace('\"', rep)
-    fixedpath = fixedpath.replace('\'', rep)
-    fixedpath = fixedpath.replace('<',  rep)
-    fixedpath = fixedpath.replace('>',  rep)
-    return fixedpath
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
 # -----------------------------------------
 
 # index.html
-
-
-def get_page_name(ext=".html", basename="index"):
-    return basename + ext
-
-
-"""
-TODO maybe deal with de/ en/
-
-get_path_local_root:  https://www.karlsruhe.digital/ -->  /
-get_page_folder    :  https://www.karlsruhe.digital/ --> 
-get_path_local_root:  https://www.media.karlsruhe.digital/ -->  /media/
-get_page_folder    :  https://www.media.karlsruhe.digital/ -->  media/
-get_path_local_root:  https://media.karlsruhe.digital/ -->  /media/
-get_page_folder    :  https://media.karlsruhe.digital/ -->  media/
-get_path_local_root:  https://media.karlsruhe.digital/my/folder/this.jpeg -->  /media/my/folder/this.jpeg
-get_page_folder    :  https://media.karlsruhe.digital/my/folder/this.jpeg -->  media/my/folder/
-get_path_local_root:  https://karlsruhe.digital/ -->  /
-get_page_folder    :  https://karlsruhe.digital/ --> 
-get_path_local_root:  https://karlsruhe.digital/index.html -->  /index.html
-get_page_folder    :  https://karlsruhe.digital/index.html --> 
-get_path_local_root:  https://karlsruhe.digital/some/folder/image.png -->  /some/folder/image.png
-get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/folder/
-"""
-def get_page_folder(url, base):
-    path = get_path_local_root_subdomains(url, base).lstrip('/')
-    path = strip_query_and_fragment(path) # NEW
-    page_folder = ""
-    subs = path.split('/')
-    for folder in subs:
-        if folder and wh.url_is_assumed_folder(folder):
-            page_folder += folder + "/"
-    print("get_page_folder    :", GRAY, url, "-->", RESET, wh.sq(page_folder))
-    return page_folder
-
-
-"""
-get_path_local_root: https://www.karlsruhe.digital/ --> /
-get_path_local_root: https://www.media.karlsruhe.digital/ --> /media/
-get_path_local_root: https://media.karlsruhe.digital/ --> /media/
-get_path_local_root: https://media.karlsruhe.digital/my/folder/this.jpeg --> /media/my/folder/this.jpeg
-get_path_local_root: https://karlsruhe.digital/ --> /
-get_path_local_root: https://karlsruhe.digital/index.html --> /index.html
-get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/folder/image.png
-
-"""
-
-def get_path_local_root_subdomains(url, base):
-
-    # externals should be removed before
-    if not wh.url_has_same_netloc(url, base):
-        print(
-            f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
-        exit(1)
-
-    # loc_url:  media.karlsruhe.digital
-    # loc_base:       karlsruhe.digital
-    loc_url   = wh.url_netloc(url).lstrip("www.")
-    loc_base  = wh.url_netloc(base)
-    subdomain = loc_url.replace(loc_base, '').replace('.', '') # --> media
-    if subdomain: # '' or 'sub_dir/'
-        subdomain = wh.strip_leading_slash(subdomain)
-        subdomain = "sub_" + subdomain
-        subdomain = ats(subdomain)
-        
-    rooted = '/' + subdomain + wh.strip_leading_slash(wh.url_ppqf(url))
-    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
-    return rooted
 
 # -----------------------------------------
 #
@@ -466,7 +386,7 @@ def assets_save_internals_locally(
             continue
 
         abs_src = wh.link_make_absolute(src, base)
-        new_src = get_path_local_root_subdomains(abs_src, base)
+        new_src = wh.get_path_local_root_subdomains(abs_src, base)
         if b_strip_ver:
             # http://mysite.com/some_page/file.css?my_var='foo'#frag
             if wh.url_has_ver(new_src):
@@ -478,7 +398,7 @@ def assets_save_internals_locally(
         # TODO may not do so wp_json/ and sitemap/
         if wh.url_is_assumed_file(new_src):
             name, ext = os.path.splitext(new_src)
-            new_src = name + config.suffix_compressed + ext
+            #new_src = name + config.suffix_compressed + ext # use  config.suffix_compressed
             print(MAGENTA, "\t\t file:", RESET, new_src)
         else: # assumed dir
             # dir CAN BE is_a_dir/#section
@@ -486,14 +406,14 @@ def assets_save_internals_locally(
                 
                 # ISSUE: /ueber-karlsruhe-digital/#section-4/index.html --> /ueber-karlsruhe-digital/index.html#section-4/
                 #new_src += get_page_name()  # index.html
-                index_src = ats(wh.url_path(new_src)) +  get_page_name() + wh.url_qf(new_src)
+                index_src = ats(wh.url_path(new_src)) +  wh.get_page_name() + wh.url_qf(new_src)
                 new_src   = index_src
     
                 print(MAGENTA, "\t\t dir :", RESET, new_src, "[added index.html]")
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
-        new_src     = sanitize_filepath_and_url(new_src)
+        new_src     = wh.sanitize_filepath_and_url(new_src)
         local_path  = ats(project_folder) + new_src.lstrip('/')
         local_path  = wh.strip_query_and_fragment(local_path) # has no ?# on disk
 
@@ -559,9 +479,10 @@ def assets_save_internals_locally(
         for s in [dq(src), sq(src), pa(src)]:
             print(f"{GRAY}\t\t\t replacing: {s}{RESET}")
             
-        content = content.replace(dq(src), dq(new_src))  # "image.png"
-        content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
-        content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
+        if False:
+            content = content.replace(dq(src), dq(new_src))  # "image.png"
+            content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
+            content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
 
         # TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
 
@@ -613,7 +534,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     #
     # -----------------------------------------
-    path_index_base = project_folder + get_page_folder(url, base) + "index"
+    path_index_base = project_folder + wh.get_page_folder(url, base) + "index"
     
     if True or config.DEBUG: 
         path_original = wh.save_html(content, path_index_base + "_original.html")

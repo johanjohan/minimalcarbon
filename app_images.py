@@ -94,11 +94,12 @@ def save_conversions(path_conversions, conversions, mode='w'):
 def load_conversions(path_conversions):
     print("load_conversions:", wh.YELLOW + path_conversions + wh.RESET)
     conversions = []
-    with open(path_conversions, 'r', encoding="utf-8") as fp:
-        for line in fp:
-            subs = line.split(',')
-            if len(subs) >= 2:
-                conversions.append((subs[0].strip(), subs[1].strip()))
+    if os.path.isfile(path_conversions):
+        with open(path_conversions, 'r', encoding="utf-8") as fp:
+            for line in fp:
+                subs = line.split(',')
+                if len(subs) >= 2:
+                    conversions.append((subs[0].strip(), subs[1].strip()))
             
     print("load_conversions: len(conversions):", len(conversions))
     conversions = list(set(conversions)) # unique
@@ -133,10 +134,12 @@ if __name__ == "__main__":
     project_folder              = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
+    b_replace_links_img_txt     = False
     b_perform_pdf_compression   = False 
     b_perform_image_conversion  = False
-    b_perform_replacement       = False
+    b_perform_replacement_conv  = False
     b_fix_xml_elements          = True
+    b_minify                    = False
      
     # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
@@ -152,11 +155,44 @@ if __name__ == "__main__":
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
     
     #-----------------------------------------
-    # minify
+    # replace via karlsruhe.digital_images_written.csv
     #-----------------------------------------
-    for file in wh.collect_files_endswith("V:/00shared/dev8/XAMPP/xampp-php7/htdocs_ok", [".css"]): # "index_pretty.html"
-        wh.minify_on_disk(file)
-    exit(0)
+    if b_replace_links_img_txt:
+        files = wh.collect_files_endswith(project_folder, [ ".css", ".html" ])
+        
+        # # # read triples from data\karlsruhe.digital_images_written.csv
+        # # with open(config.path_image_tuples_written, "r", encoding="utf-8") as fp:
+        # #     lines = fp.read().splitlines() 
+        # #     triples = [tuple(line.split(',')) for line in lines]
+        # #     print(*triples, sep="\n\t")
+        
+        # # for file in files:
+        # #     wh.replace_all_in_file_tuples(file, triples)
+        
+        with open(config.data_folder + "karlsruhe.digital_links_img.txt", "r", encoding="utf-8") as fp:
+            lines = fp.read().splitlines()   
+            lines = wh.links_make_unique(lines)
+            lines = sorted(lines)
+            #print(*lines, sep="\n\t")
+            
+            tuples = []
+            for fr in lines:
+                #print("\t", wh.sq(fr))
+                to = wh.get_path_local_root_subdomains(fr, config.base)  
+                to = wh.sanitize_filepath_and_url(to)
+                tuples.append(tuple([fr, to]))     
+            
+        #print(*tuples, sep="\n\t")
+        print(len(tuples), "tuples")
+        time.sleep(2)
+        
+        for i, file in enumerate(files):
+            print()
+            wh.progress((i+1)/len(files), verbose_string="", VT=wh.MAGENTA, n=66, prefix="")
+            print()
+            wh.replace_all_in_file_tuples(file, tuples)
+        
+
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -164,18 +200,19 @@ if __name__ == "__main__":
         import ghostscript as gs
 
         compression='/screen'
-        compression_path = "_" + compression.lstrip('/')
-        csuffix = config.suffix_compressed + compression_path + ".pdf" # "_unpowered"
+        compression_path = "_" + "cmp_" + compression.lstrip('/')
+        #csuffix = config.suffix_compressed + compression_path + ".pdf" # "_unpowered"
         
         pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
-        pdfs = [pdf for pdf in pdfs if not compression_path in pdf] # no compressed files
+        pdfs = [pdf for pdf in pdfs if not compression_path in pdf] # remove already compressed
         print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
             
             print("-"*88)
             
             orig_path = pdf
-            new_path  = pdf + csuffix
+            ##new_path  = pdf + csuffix
+            new_path  = orig_path + compression_path + ".pdf"
             
             if not wh.file_exists_and_valid(new_path):
                 gs.compress_pdf(orig_path, new_path, compression=compression, res=config.pdf_res)
@@ -411,7 +448,7 @@ if __name__ == "__main__":
         fp.write(html)
         fp.close()
 
-    if b_perform_replacement:
+    if b_perform_replacement_conv:
         conversions = load_conversions(path_conversions)    
         #print(*conversions, sep="\n\t")      
                                 
@@ -426,12 +463,13 @@ if __name__ == "__main__":
             if True:
                 replace_all_conversions_in_file(html_file, conversions)
                 
-            # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
-            if True:
-                conversions_exts = []
-                for q in ["\"", "\'"]:
-                    for ext in image_exts:
-                        wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
+            # # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
+            # # replace image extensions
+            # if True:
+            #     conversions_exts = []
+            #     for q in ["\"", "\'"]:
+            #         for ext in image_exts:
+            #             wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
                 
              
             # # # # # extras replacements_post   
@@ -607,8 +645,9 @@ if __name__ == "__main__":
     #-----------------------------------------
     # minify
     #-----------------------------------------
-    for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
-        wh.minify_on_disk(file)
+    if b_minify:
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+            wh.minify_on_disk(file)
                 
     #-----------------------------------------
     # 

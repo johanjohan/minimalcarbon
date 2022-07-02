@@ -58,7 +58,7 @@ options.add_experimental_option("prefs", { \
 #-----------------------------------------
 DEBUG               = False
 #headless            = True
-suffix_compressed   = "_unpowered"
+#suffix_compressed   = "_unpowered"
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
@@ -68,7 +68,7 @@ data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
 path_data_netloc    = data_folder + base_netloc + "_"
-path_stylesheet     = project_folder + "wp-content/themes/karlsruhe-digital/css/style" + suffix_compressed + ".css"
+path_stylesheet     = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css" # suffix_compressed
 
 date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
 date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
