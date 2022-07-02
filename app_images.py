@@ -150,7 +150,13 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
-
+    
+    #-----------------------------------------
+    # minify
+    #-----------------------------------------
+    for file in wh.collect_files_endswith("V:/00shared/dev8/XAMPP/xampp-php7/htdocs_ok", [".css"]): # "index_pretty.html"
+        wh.minify_on_disk(file)
+    exit(0)
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -598,6 +604,15 @@ if __name__ == "__main__":
                 print("\t", wh.RED, "removing:", os.path.basename(fr_to_delete), wh.RESET)
                 os.remove(fr_to_delete)
                 
+    #-----------------------------------------
+    # minify
+    #-----------------------------------------
+    for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+        wh.minify_on_disk(file)
+                
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
     dir_size_new = wh.get_directory_total_size(config.project_folder)
     print("saved dir_size_new:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   

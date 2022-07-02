@@ -611,7 +611,7 @@ def strip_query(url):
     new_url = strip_query_and_fragment(new_url)
     if parsed.fragment:
         new_url += "#" + parsed.fragment
-    print("strip_query", url, "-->", YELLOW, new_url, RESET)
+    #print("strip_query", url, "-->", YELLOW, new_url, RESET)
     return new_url
 
 def add_trailing(url, to_add):
@@ -1178,6 +1178,9 @@ def load_html_from_string(driver, content, dir='.'):
 #-----------------------------------------
 def html_sanitize(content, vb=False):
     
+    print(YELLOW, "html_sanitize:may be problematic for js --> RETURN", RESET)
+    return content
+    
     length_orig = len(content)
     
     content = replace_all(content, "\n", " ")
@@ -1204,20 +1207,23 @@ def html_minify(content, vb=True):
         
         import htmlmin
         try:
+            # https://htmlmin.readthedocs.io/en/latest/reference.html
             content = htmlmin.minify(
                 content, 
                 remove_comments=True, 
                 remove_empty_space=True,
-                remove_all_empty_space=True,
+                remove_all_empty_space=False,
                 reduce_boolean_attributes=True,
                 reduce_empty_attributes=True,
                 remove_optional_attribute_quotes=False, # ??????? True TODO
                 convert_charrefs=True,
+                keep_pre=False,
                 )
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
-            
-        content = html_sanitize(content)
+         
+        if False:   
+            content = html_sanitize(content, vb)
             
         if vb:
             print(
@@ -1226,6 +1232,17 @@ def html_minify(content, vb=True):
                 "percent_saved:", vt_saved_percent_string(length_orig, len(content)))
     
     return content
+
+def minify_on_disk(filename):
+
+    print("minify_on_disk:", filename)
+    
+    with open(filename, "r", encoding="utf-8") as file:
+        data = file.read()
+                
+    with open(filename, "w", encoding="utf-8") as file:
+        file.write(html_minify(data))
+        file.close()    
 #-----------------------------------------
 # 
 #-----------------------------------------

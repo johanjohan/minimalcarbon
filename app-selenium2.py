@@ -288,7 +288,7 @@ document.getElementById("FirstDiv").remove();
 # -----------------------------------------
 # init the colorama module
 # -----------------------------------------
-from helpers_web import sq as sq, url_path
+from helpers_web import sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
 from helpers_web import add_trailing_slash as ats
@@ -378,6 +378,7 @@ get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/
 """
 def get_page_folder(url, base):
     path = get_path_local_root_subdomains(url, base).lstrip('/')
+    path = strip_query_and_fragment(path) # NEW
     page_folder = ""
     subs = path.split('/')
     for folder in subs:
@@ -417,7 +418,7 @@ def get_path_local_root_subdomains(url, base):
         subdomain = ats(subdomain)
         
     rooted = '/' + subdomain + wh.strip_leading_slash(wh.url_ppqf(url))
-    print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
+    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
 # -----------------------------------------
@@ -469,9 +470,9 @@ def assets_save_internals_locally(
         if b_strip_ver:
             # http://mysite.com/some_page/file.css?my_var='foo'#frag
             if wh.url_has_ver(new_src):
-                ###new_src = wh.strip_query_and_fragment(new_src)
+                q = urlparse(new_src).query
                 new_src = wh.strip_query(new_src) # NEW
-                print("\t\t stripped ?ver=1.2.3.4:", new_src)
+                print("\t\t stripped:", q, "-->", new_src)
 
         # is a file? add index.html/get_page_name() to folder-links
         # TODO may not do so wp_json/ and sitemap/
@@ -574,7 +575,7 @@ def assets_save_internals_locally(
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
     # ensure trailing slash
-    url = wh.add_trailing_slash(url)
+    ####url = wh.add_trailing_slash(url)  NO!!!
     b_use_driver = True
 
     # -----------------------------------------
@@ -696,11 +697,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
-    #
+    # save
     # -----------------------------------------
-    content = wh.html_minify(content)
-    path_minified = wh.save_html(content, path_index_base + ".html")
-    path_pretty = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
+    ####content = wh.html_minify(content) # only at the very end!
+    path_minified   = wh.save_html(content, path_index_base + ".html")
+    path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
     print("make_static: all done.")
     
