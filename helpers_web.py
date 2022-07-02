@@ -244,16 +244,30 @@ def url_is_relative(url):
 
 # https://stackoverflow.com/questions/10772503/check-url-is-a-file-or-directory
 
+""" 
+>> import tldextract
+>> tldextract.extract("http://lol1.domain.com:8888/some/page"
+ExtractResult(subdomain='lol1', domain='domain', suffix='com')
+>> tldextract.extract("http://sub.lol1.domain.com:8888/some/page"
+ExtractResult(subdomain='sub.lol1', domain='domain', suffix='com')
+>> urlparse.urlparse("http://sub.lol1.domain.com:8888/some/page")
+ParseResult(scheme='http', netloc='sub.lol1.domain.com:8888', path='/some/page', params='', query='', fragment='')
+"""
+import tldextract
+
 def url_is_internal(url, base):
     _, loc_url, _  = url_split(url)
     _, loc_base, _ = url_split(base)
     assert loc_base, "loc_base is None"
     
     ret = False
-    if not loc_url:
+    if not loc_url: # local url
         ret = True
-    elif loc_base in loc_url:
-        ret = True
+    else:
+        tld_url  =  tldextract.extract(url) 
+        tld_base =  tldextract.extract(base) 
+        ret = (tld_url.domain == tld_base.domain)
+        
     #print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
     return ret
 
@@ -1234,7 +1248,7 @@ def minify_on_disk(filename):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all(content, oldvalue, newvalue):
+def replace_all(content, oldvalue, newvalue, vb = False):
     if not content:
         return content
     
@@ -1246,15 +1260,17 @@ def replace_all(content, oldvalue, newvalue):
     content = content.replace(oldvalue, newvalue)
     
     cnt_last = content.count(oldvalue)
-    
-    if len_orig - len(content) > 0: # verbose
-        printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
-        print(
-            "replace_all:", 
-            CYAN, dq(printvalue), RESET, 
-            "| replaced", len_orig - len(content), "bytes",
-            "| cnt:", cnt_first, "-->", cnt_last
-        )
+   
+    if vb: 
+        if len_orig - len(content) > 0: # verbose
+            printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
+            print(
+                "replace_all:", 
+                CYAN,       dq( oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_") ), RESET, 
+                "| replaced", len_orig - len(content), "bytes",
+                "| cnt:", cnt_first, "-->", cnt_last,
+                MAGENTA,    dq( newvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_") ), RESET
+            )
         
     return content
 
@@ -1311,13 +1327,18 @@ def replace_all_in_file(filename, string_from, string_to):
                 
 def replace_all_in_file_tuples(filename, tuples):
     
-    print("replace_all_in_file_tuples:", filename)
+    #print("replace_all_in_file_tuples:", filename)
     
     with open(filename, "r", encoding="utf-8") as fp:
         data = fp.read()
          
     for conversion in tuples:
         fr, to = conversion
+        
+        fr = fr.strip()
+        to = to.strip()
+        
+        #print(YELLOW, sq(fr), sq(to), RESET)
         
         data = replace_all(data, dq(fr), dq(to)) 
         data = replace_all(data, sq(fr), sq(to)) 
@@ -1339,6 +1360,7 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
         return ret
     
 def list_to_file(items, path, mode="w", encoding="utf-8"):
+    print("list_to_file", path)
     with open(path, mode=mode, encoding=encoding) as file:
         file.write(list_to_string(items))
  
@@ -1478,12 +1500,12 @@ get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/f
 
 """
 
-def get_path_local_root_subdomains(url, base):
+def get_path_local_root_subdomains(url, base, sanitize=True):
     assert base, "needs a valid base"
     
     base = link_make_absolute(base, base)
     url  = link_make_absolute(url, base)
-    print(f"get_path_local_root_subdomains: {url} | {base}")
+    #print(f"get_path_local_root_subdomains: {url} | {base}")
     
     # externals should be removed before
     if not url_has_same_netloc(url, base):
@@ -1501,7 +1523,11 @@ def get_path_local_root_subdomains(url, base):
         subdomain = add_trailing_slash(subdomain)
         
     rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url))
-    print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
+    
+    if sanitize:
+        rooted = sanitize_filepath_and_url(rooted)
+    
+    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
 """
@@ -1596,10 +1622,13 @@ def to_posix(filepath):
 #-----------------------------------------
 #https://pypi.org/project/art/ 
 import art
-def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
-    filename = os.path.splitext(os.path.basename(filename))[0]
+def logo(text,  font="tarty3", vt=CYAN, npad=2): # tarty3 tarty7 sub-zero
     nl = "\n"*npad
-    print(nl + vt + art.text2art(filename, font=font) + RESET + nl)
+    print(nl + vt + art.text2art(text, font=font) + RESET + nl)
+    
+def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
+    text = os.path.splitext(os.path.basename(filename))[0]
+    logo(text,  font=font, vt=vt, npad=npad)
     
 #-----------------------------------------
 # 

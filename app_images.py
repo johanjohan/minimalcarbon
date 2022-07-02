@@ -106,7 +106,6 @@ def load_conversions(path_conversions):
     print("load_conversions: unique len(conversions):", len(conversions))
     return conversions
 
-
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -114,7 +113,7 @@ if __name__ == "__main__":
     
     wh.logo_filename(__file__)
     
-    pag.alert(text=f"good time to backup htdocs!")
+    #pag.alert(text=f"good time to backup htdocs!")
                 
     #-----------------------------------------
     # 
@@ -134,11 +133,12 @@ if __name__ == "__main__":
     project_folder              = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions            = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
-    b_replace_links_img_txt     = False
-    b_perform_pdf_compression   = False 
+    b_convert_all_links_from_lists_to_local     = False # make all links to local
+    
+    b_perform_pdf_compression   = True 
     b_perform_image_conversion  = False
     b_perform_replacement_conv  = False
-    b_fix_xml_elements          = True
+    b_fix_xml_elements          = False
     b_minify                    = False
      
     # TODO some images have sanitized names like r:xxx --> r_xxx
@@ -157,7 +157,31 @@ if __name__ == "__main__":
     #-----------------------------------------
     # replace via karlsruhe.digital_images_written.csv
     #-----------------------------------------
-    if b_replace_links_img_txt:
+    if b_convert_all_links_from_lists_to_local:
+        wh.logo("b_convert_all_links_from_lists_to_local")
+        
+        func=lambda file : any(file.lower().endswith(ext) and '_links_' in file.lower() for ext in [".txt"])
+        link_files = wh.collect_files_func(config.data_folder, func)        
+        print(link_files)
+
+        links = []
+        for file in link_files:
+            links.extend(wh.list_from_file(file))
+        links = wh.links_make_unique(links)
+        links = wh.links_remove_externals(links, config.base)
+        links = wh.links_remove_nones(links)
+        links  = sorted(links)
+        wh.list_to_file(links, config.data_folder + "__links.txt") 
+        #print(*links, sep="\n\t")
+        
+        tuples = []
+        for fr in links:
+            to = wh.get_path_local_root_subdomains(fr, config.base, True)  
+            tuples.append(tuple([fr.strip(), to.strip()]))  
+            
+        wh.list_to_file(tuples, config.data_folder + "__tuples.txt") 
+
+                        
         files = wh.collect_files_endswith(project_folder, [ ".css", ".html" ])
         
         # # # read triples from data\karlsruhe.digital_images_written.csv
@@ -169,27 +193,27 @@ if __name__ == "__main__":
         # # for file in files:
         # #     wh.replace_all_in_file_tuples(file, triples)
         
-        with open(config.data_folder + "karlsruhe.digital_links_img.txt", "r", encoding="utf-8") as fp:
-            lines = fp.read().splitlines()   
-            lines = wh.links_make_unique(lines)
-            lines = sorted(lines)
-            #print(*lines, sep="\n\t")
+        # # # # # with open(config.data_folder + "karlsruhe.digital_links_img.txt", "r", encoding="utf-8") as fp:
+        # # # # #     lines = fp.read().splitlines()   
+        # # # # #     lines = wh.links_make_unique(lines)
+        # # # # #     lines = sorted(lines)
+        # # # # #     #print(*lines, sep="\n\t")
             
-            tuples = []
-            for fr in lines:
-                #print("\t", wh.sq(fr))
-                to = wh.get_path_local_root_subdomains(fr, config.base)  
-                to = wh.sanitize_filepath_and_url(to)
-                tuples.append(tuple([fr, to]))     
+        # # # # #     tuples = []
+        # # # # #     for fr in lines:
+        # # # # #         #print("\t", wh.sq(fr))
+        # # # # #         to = wh.get_path_local_root_subdomains(fr, config.base, True)  
+        # # # # #         tuples.append(tuple([fr, to]))     
+            
             
         #print(*tuples, sep="\n\t")
         print(len(tuples), "tuples")
         time.sleep(2)
         
         for i, file in enumerate(files):
-            print()
-            wh.progress((i+1)/len(files), verbose_string="", VT=wh.MAGENTA, n=66, prefix="")
-            print()
+            #print()
+            wh.progress((i+1)/len(files), verbose_string="replace_all_in_file_tuples", VT=wh.MAGENTA, n=66, prefix="")
+            #print()
             wh.replace_all_in_file_tuples(file, tuples)
         
 
@@ -197,6 +221,7 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     if b_perform_pdf_compression:
+        wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
 
         compression='/screen'
@@ -217,22 +242,26 @@ if __name__ == "__main__":
             if not wh.file_exists_and_valid(new_path):
                 gs.compress_pdf(orig_path, new_path, compression=compression, res=config.pdf_res)
                 
-            if wh.file_exists_and_valid(new_path):
-                size_orig = os.path.getsize(orig_path)
-                size_new  = os.path.getsize(new_path)
-                print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
-                if size_new < size_orig:
-                    conversions.append((orig_path, new_path))     
-                    print("\t\t", "added to conversions.")    
+                if wh.file_exists_and_valid(new_path):
+                    size_orig = os.path.getsize(orig_path)
+                    size_new  = os.path.getsize(new_path)
+                    print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
                     
-                    if b_delete_conversion_originals:
-                        print("\t\t", "removing orig_path:", wh.RED + orig_path, wh.RESET) 
-                        os.remove(orig_path) 
-                else: # compressed was bigger!
-                    if b_delete_conversion_originals:
-                        print("\t\t", "removing new_path:", wh.CYAN + new_path, wh.RESET) 
-                        os.remove(new_path)                              
-                
+                    if size_new >= size_orig:
+                        import shutil
+                        shutil.copyfile(orig_path, new_path) # restore original
+                        print("\t\t", "copying original:", os.path.basename(orig_path))
+                    
+                    conversions.append((orig_path, new_path))     
+                    print("\t\t", "added to conversions:", os.path.basename(new_path))  
+                    
+                    # delete conv later
+                    # if b_delete_conversion_originals:
+                    #     print("\t\t", "removing orig_path:", wh.RED + orig_path, wh.RESET) 
+                    #     os.remove(orig_path) 
+            else:
+                print("already exists:", os.path.basename(new_path))
+                            
         ### for />
                  
         if conversions:
@@ -243,6 +272,8 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     if b_perform_image_conversion:   
+        
+        wh.logo("b_perform_image_conversion")
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
         quality         = 66 # 66
@@ -260,7 +291,6 @@ if __name__ == "__main__":
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
             exit(0)
             
-                    
         image_exts = config.image_exts
         #image_exts = ['.png', '.gif']
         
@@ -280,10 +310,14 @@ if __name__ == "__main__":
         # # # # # # # func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
         # # # # # # # images = wh.collect_files_func(project_folder, func)
         
-        # remove compressed
-        images_no_compressed = [img for img in images if not config.suffix_compressed in img]
-        removed = [item for item in images if item not in images_no_compressed]
-        print("removed", hw.GRAY, *removed, hw.RESET, sep = "\n\t")
+        # # # remove compressed
+        # # images_no_compressed = [img for img in images if not config.suffix_compressed in img]
+        # # removed = [item for item in images if item not in images_no_compressed]
+        # # print("removed", hw.GRAY, *removed, hw.RESET, sep = "\n\t")
+        # # print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
+        
+        
+        images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
                      
         # convert images
@@ -294,6 +328,7 @@ if __name__ == "__main__":
             path        = os.path.normpath(path) # wh.to_posix(path)
             name, ext   = os.path.splitext(path) # ('my_file', '.txt')
             out_path    = name + config.suffix_compressed + '.webp' 
+            ####out_path    = name + '.webp' 
             out_path    = os.path.normpath(out_path) # wh.to_posix(out_path)
             
             # # # # avoid erasing webp

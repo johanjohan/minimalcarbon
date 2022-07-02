@@ -58,7 +58,7 @@ options.add_experimental_option("prefs", { \
 #-----------------------------------------
 DEBUG               = False
 #headless            = True
-#suffix_compressed   = "_unpowered"
+suffix_compressed   = "_unpowered"
 timeout             = 30
 wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
