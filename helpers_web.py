@@ -283,8 +283,12 @@ def _sleep(secs=33):
 def url_has_same_netloc(url, base):
     _, loc_url, _  = url_split(url)
     _, loc_base, _ = url_split(base)
-    if not loc_url and loc_base:
-        return True # consider same as url is local
+    # # # if not loc_url and loc_base:
+    # # #     return True # consider same as url is local
+    # # # elif not loc_url and not loc_base:
+    # # #     return True
+    if not loc_url or not loc_base:
+        return True
     #print("url_has_same_netloc: loc_base", loc_base, "loc_url", loc_url)
     return loc_base in loc_url
 
@@ -355,12 +359,19 @@ def link_make_absolute(link, base):
     protocol_url,  loc_url,    path_url    = url_split(link)
     protocol_base, loc_base,   path_base   = url_split(base)
     
+    if not loc_base:
+        print(RED, "link_make_absolute:", "not loc_base", RESET)
+        exit(7)        
+    
     if not protocol_url:
-        protocol_url = protocol_base
+        if protocol_base:
+            protocol_url = protocol_base
+        else:
+            protocol_url = "https"
     
     if not loc_url:
         loc_url = loc_base
-        
+
     ret = protocol_url + "://" + loc_url + path_url
     #print("link_make_absolute:", link, "-->", YELLOW, ret, RESET)    
     return ret
@@ -1468,11 +1479,15 @@ get_path_local_root: https://karlsruhe.digital/some/folder/image.png --> /some/f
 """
 
 def get_path_local_root_subdomains(url, base):
-
+    assert base, "needs a valid base"
+    
+    base = link_make_absolute(base, base)
+    url  = link_make_absolute(url, base)
+    print(f"get_path_local_root_subdomains: {url} | {base}")
+    
     # externals should be removed before
     if not url_has_same_netloc(url, base):
-        print(
-            f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
+        print(f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
         exit(1)
 
     # loc_url:  media.karlsruhe.digital
@@ -1486,7 +1501,7 @@ def get_path_local_root_subdomains(url, base):
         subdomain = add_trailing_slash(subdomain)
         
     rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url))
-    #print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
+    print("get_path_local_root_subdomains:", GRAY, url, "-->", RESET, rooted)
     return rooted
 
 """
@@ -1508,13 +1523,16 @@ get_path_local_root:  https://karlsruhe.digital/some/folder/image.png -->  /some
 get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/folder/
 """
 def get_page_folder(url, base):
+    
     path = get_path_local_root_subdomains(url, base).lstrip('/')
     path = strip_query_and_fragment(path) # NEW
+    
     page_folder = ""
     subs = path.split('/')
     for folder in subs:
         if folder and url_is_assumed_folder(folder):
             page_folder += folder + "/"
+            
     print("get_page_folder    :", GRAY, url, "-->", RESET, sq(page_folder))
     return page_folder
 
@@ -1597,23 +1615,35 @@ if __name__ == "__main__":
     logo_filename(__file__)
     print("\n"*3 + "you started the wrong file..." + "\n"*3)
     
-    # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
-    import jellyfish
-    a = "https://domain.com/has/just/forgotten/slash/"
-    b = "https://domain.com/has/just/forgotten/slash"
+    # # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
+    # import jellyfish
+    # a = "https://domain.com/has/just/forgotten/slash/"
+    # b = "https://domain.com/has/just/forgotten/slash"
     
-    a = "https://domain.com/has/just/forgotten/slash/"
-    b = "http://domain.com/has/just/forgotten/slash"
+    # a = "https://domain.com/has/just/forgotten/slash/"
+    # b = "http://domain.com/has/just/forgotten/slash"
     
-    a = "https://google.com"
-    b = "https://apple.de/"
+    # a = "https://google.com"
+    # b = "https://apple.de/"
     
-    print( jellyfish.levenshtein_distance(a, b) )
-    print( jellyfish.jaro_distance(a, b) )
-    print( jellyfish.damerau_levenshtein_distance(a, b) )
-    print( jellyfish.jaro_winkler_similarity(a, b) )
-    print( jellyfish.hamming_distance(a, b) )
-    print( jellyfish.match_rating_comparison(a, b) )
+    # print( jellyfish.levenshtein_distance(a, b) )
+    # print( jellyfish.jaro_distance(a, b) )
+    # print( jellyfish.damerau_levenshtein_distance(a, b) )
+    # print( jellyfish.jaro_winkler_similarity(a, b) )
+    # print( jellyfish.hamming_distance(a, b) )
+    # print( jellyfish.match_rating_comparison(a, b) )
+    
+    
+    #get_path_local_root_subdomains('', '')
+    #get_path_local_root_subdomains('/', '/')
+    get_path_local_root_subdomains('', 'karlsruhe.digital/')
+    get_path_local_root_subdomains('', 'https://karlsruhe.digital/')
+    #get_path_local_root_subdomains('karlsruhe.digital/', '')
+    #get_path_local_root_subdomains('https://karlsruhe.digital/', '')
+    get_path_local_root_subdomains('local/image.png', 'karlsruhe.digital/')
+    get_path_local_root_subdomains('/local/image.png', 'https://karlsruhe.digital/')
+    get_path_local_root_subdomains('karlsruhe.digital/local/image.png', 'https://karlsruhe.digital/')
+    get_path_local_root_subdomains('media.karlsruhe.digital/local/image.png', 'https://karlsruhe.digital/')
 
 
            

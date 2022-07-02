@@ -397,7 +397,7 @@ def assets_save_internals_locally(
         # is a file? add index.html/get_page_name() to folder-links
         # TODO may not do so wp_json/ and sitemap/
         if wh.url_is_assumed_file(new_src):
-            name, ext = os.path.splitext(new_src)
+            #name, ext = os.path.splitext(new_src)
             #new_src = name + config.suffix_compressed + ext # use  config.suffix_compressed
             print(MAGENTA, "\t\t file:", RESET, new_src)
         else: # assumed dir
