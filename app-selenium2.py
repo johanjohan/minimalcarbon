@@ -908,7 +908,7 @@ if __name__ == "__main__":
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
-        # # # # DEBUG TODO
+        # # # # DEBUG TODO save some time
         # # # if count == 3:
         # # #     break
 
