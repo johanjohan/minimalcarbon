@@ -3,8 +3,9 @@ desktop.ini
 folderhighlight*
 *.lnk
 *.URL
-###data/
+#data/
 data/karlsruhe.digital_links_*
+data/karlsruhe.digital_links_body_href.txt
 
 scraped_pywebcopy/
 wget/
@@ -126,3 +127,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
