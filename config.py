@@ -75,6 +75,8 @@ date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
+custom_css_marker   = "appended" # a word in the file
+
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 

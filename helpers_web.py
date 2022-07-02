@@ -383,7 +383,7 @@ def link_make_absolute(link, base):
     
     if not loc_base:
         print(RED, "link_make_absolute:", "not loc_base", RESET)
-        exit(7)        
+        assert False    
     
     if not protocol_url:
         if protocol_base:
@@ -423,7 +423,7 @@ def try_link_make_local(url, base):
         ret = url_path_lstrip_slash(ret)        # "/media.ka.de"
     else:
         print(RED, "try_link_make_local:", "not internal: {}".format(url), RESET)
-        exit(7)
+        assert False
         
     print("NEW try_link_make_local:", url, "-->", ret)
     return ret
@@ -670,7 +670,7 @@ def make_dirs(the_path):
     # debug ONLY
     if dir.strip() in ("https", "sub_send"):
         print(RED, "make_dirs: DEBUG found:", dir, RESET)
-        exit(1)
+        assert False
         
 #-----------------------------------------
 # 
@@ -1159,7 +1159,7 @@ def save_html(content, path, pretty=False):
             print(f"{MAGENTA}\t save_html: file already exists: {os.path.basename(path)} {RESET}")
     except Exception as e:
         print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
-        exit(1) # TODO!!!!!!!!!!!!!!!!!!!!
+        assert False # TODO!!!!!!!!!!!!!!!!!!!!
         
     return path
 
@@ -1257,7 +1257,7 @@ def minify_on_disk(filename):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all(content, oldvalue, newvalue, vb = True):
+def replace_all(content, oldvalue, newvalue, vb = False):
     if not content:
         return content
     
@@ -1334,30 +1334,7 @@ def replace_all_in_file(filename, string_from, string_to):
         fp.write(data)
                 
                 
-def replace_all_in_file_tuples(filename, tuples):
     
-    #print("replace_all_in_file_tuples:", filename)
-    
-    with open(filename, "r", encoding="utf-8") as fp:
-        data = fp.read()
-         
-    for conversion in tuples:
-        #print(YELLOW, conversion, RESET)
-        fr, to = conversion
-        
-        fr = fr.strip()
-        to = to.strip()
-        
-        print(YELLOW, fr, CYAN, "-->", YELLOW, to, RESET)
-        
-        data = replace_all(data, dq(fr), dq(to)) 
-        data = replace_all(data, sq(fr), sq(to)) 
-        data = replace_all(data, pa(fr), pa(to)) 
-        #data = replace_all(data, fr, to) # ?????
-    
-    with open(filename, "w", encoding="utf-8") as fp:
-        fp.write(data)
-                
                   
 # -----------------------------------------
 #
@@ -1520,7 +1497,7 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
     # externals should be removed before
     if not url_has_same_netloc(url, base):
         print(f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
-        exit(1)
+        assert False
 
     # loc_url:  media.karlsruhe.digital
     # loc_base:       karlsruhe.digital

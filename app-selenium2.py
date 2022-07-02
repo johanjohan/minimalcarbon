@@ -488,7 +488,7 @@ def assets_save_internals_locally(
         for s in [dq(src), sq(src), pa(src)]:
             print(f"{GRAY}\t\t\t replacing: {s}{RESET}")
             
-        if False:
+        if True:
             content = content.replace(dq(src), dq(new_src))  # "image.png"
             content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
             content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
@@ -616,6 +616,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(suffix)
         print(RESET, end='')
         # print(GRAY, *links, RESET, sep='\n\t') # will be sorted etc in assets_save_internals_locally
+        
         content = assets_save_internals_locally(
             content,
             url, base,
@@ -875,15 +876,14 @@ if __name__ == "__main__":
     images_written = sorted(list(set(images_written)))
     print("saving images_written:", config.path_image_tuples_written)
     with open(config.path_image_tuples_written, 'w', encoding="utf-8") as fp:
-        fp.write('\n'.join('{},{},{}'.format(
-            x[0], x[1], x[2]) for x in images_written))
+        fp.write('\n'.join('{},{},{}'.format(x[0], x[1], x[2]) for x in images_written))
 
-    # append css
-    print("appending css:", config.path_custom_css)
-    with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
-        with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
-            data = infile.read()
-            outfile.write(data)
+    # # append css
+    # print("appending css:", config.path_custom_css)
+    # with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
+    #     with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
+    #         data = infile.read()
+    #         outfile.write(data)
 
     # all done
     print("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0))
