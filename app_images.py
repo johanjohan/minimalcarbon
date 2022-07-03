@@ -169,13 +169,16 @@ if __name__ == "__main__":
     path_conversions                        = config.data_folder + config.base_netloc + "_image_conversions.csv"
 
     b_append_custom_css                     = True
-    b_perform_pdf_compression               = False 
+    b_perform_pdf_compression               = True 
     b_perform_image_conversion              = True
+    b_perform_replacement_conv              = False
+    b_fix_xml_elements                      = True
+    b_minify                                = True
+        
     b_convert_list_images_written           = False
     b_convert_all_links_from_lists_to_local = False # make all links to local
-    b_perform_replacement_conv  = False
-    b_fix_xml_elements                      = False
-    b_minify                                = False
+    
+
      
     # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
@@ -195,13 +198,15 @@ if __name__ == "__main__":
     #-----------------------------------------
     # append css
     if b_append_custom_css:
-        with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
-            with open(config.path_custom_css, 'r', encoding="utf-8") as infile:
-                data = infile.read()
-                if not config.custom_css_marker in data:
-                    wh.logo("b_append_custom_css")
-                    outfile.write(data)
-                    print("appended custom css to", config.path_stylesheet)
+        wh.logo("b_append_custom_css")
+        data_stylesheet = wh.string_from_file(config.path_stylesheet)
+        if not config.custom_css_marker in data_stylesheet:
+            with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
+                data_custom_css = wh.string_from_file(config.path_custom_css)
+                outfile.write(data_custom_css)
+                print("appended custom css to", config.path_stylesheet)
+        else:
+            print("already appended:", config.path_custom_css)
     
     #-----------------------------------------
     # replace via karlsruhe.digital_images_written.csv
@@ -295,6 +300,8 @@ if __name__ == "__main__":
             return tuple(subs[:3])
         
         tuples = [to_duple_webp(line) for line in lines]
+        print(*tuples, sep="\n\t")
+        exit(0)
         
         files = wh.collect_files_endswith(project_folder, [ ".css", ".html" ])
         for i, file in enumerate(files):
@@ -528,12 +535,12 @@ if __name__ == "__main__":
     def replace_all_conversions_in_file(filename, conversions):
         
         #print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
-        print("\t", wh.GRAY, end='')
         
         fp = open(filename, "r", encoding="utf-8")
         html = fp.read()
         
         # replace
+        print("\t\t", end='')
         for i, conversion in enumerate(conversions):
             fr, to = conversion
             
@@ -543,22 +550,25 @@ if __name__ == "__main__":
                 wp_fr = wh.to_posix('/' + os.path.relpath(fr, project_folder))
                 wp_to = wh.to_posix('/' + os.path.relpath(to, project_folder))
                 
-                # cnt = html.count(wp_fr)
-                # print("\t\t cnt:", cnt, "|", wp_fr)
-                
-                if not (i%11):
-                    #print("\t\t replace:", os.path.basename(fr), wh.CYAN, "with", wh.RESET, os.path.basename(to))    
-                    #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
-                    #print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
-                    print('.', end='')
-                
-                html = wh.replace_all(html, wp_fr, wp_to) 
+                cnt = html.count(wp_fr)
+                if cnt > 0:
+                    
+                    # print(
+                    #     "\t\t", "cnt:", cnt,  
+                    #     wh.CYAN, "wp_fr", wh.GRAY, wp_fr, 
+                    #     wh.CYAN, "wp_to", wh.GRAY, wp_to, 
+                    #     wh.RESET
+                    # )
+                    
+                    if not (i%1):
+                        print(str(cnt) + ' ', end='')
+                    
+                    html = wh.replace_all(html, wp_fr, wp_to) 
                     
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
         ### for conversion />
         
-        print(wh.RESET)   
         fp.close()
         
         #open the input file in write mode
@@ -574,7 +584,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_replacement_conv")
         
         conversions = load_conversions(path_conversions)    
-        #print(*conversions, sep="\n\t")      
+        #print(*conversions, sep="\n\t")     
                                 
         html_files = wh.collect_files_endswith(project_folder, ["index.html", "index_pretty.html", "style.css"])
         for i, html_file in enumerate(html_files):

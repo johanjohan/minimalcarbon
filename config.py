@@ -75,7 +75,7 @@ date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker   = "appended" # a word in the file
+custom_css_marker   = "#appended#" # a word in the file to mark it was updated
 
 #-----------------------------------------
 # init the colorama module
@@ -92,6 +92,7 @@ path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_data_netloc + "images_written.csv"
+path_asset_tuples_written   = path_data_netloc + "assets_written.csv"
 
 #-----------------------------------------
 # 

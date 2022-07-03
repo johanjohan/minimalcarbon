@@ -1,5 +1,9 @@
 """
 TODO
+
+does not load all fonts , get rid of them
+
+
 "https:\/\/karlsruhe.digital\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.2.15"
 https://stackoverflow.com/questions/6076229/escaping-a-forward-slash-in-a-regular-expression
 
@@ -330,6 +334,7 @@ MAGENTA = config.MAGENTA
 # -----------------------------------------
 start_secs = time.time()
 images_written = []
+assets_written = []
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -356,7 +361,7 @@ def assets_save_internals_locally(
     # # links =  wh.links_remove_nones(links)
     # # print("assets_save_internals_locally: AFTER:", links)
 
-    global images_written
+    global images_written, assets_written
 
     links = wh.links_remove_comments(links, '#')
     # links = wh.links_make_absolute(links, base)  NO!!!
@@ -435,6 +440,8 @@ def assets_save_internals_locally(
         assert len(le_tuple) == 3  # images_written saving at very end
         if any(ext in local_path.lower() for ext in config.image_exts):
             images_written.append(le_tuple)
+            
+        assets_written.append(le_tuple)
 
         # get and save link-asset to disk
         wh.make_dirs(local_path)
@@ -485,15 +492,13 @@ def assets_save_internals_locally(
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for s in [dq(src), sq(src), pa(src)]:
-            print(f"{GRAY}\t\t\t replacing: {s}{RESET}")
-            
         if True:
+            for s in [dq(src), sq(src), pa(src)]:
+                print(f"{GRAY}\t\t\t replacing: {s}{RESET}")            
+            
             content = content.replace(dq(src), dq(new_src))  # "image.png"
             content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
             content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
-
-        # TODO must delete <img srcset arg!!!!!!!!!!!!!!!!
 
     return content
 
@@ -555,7 +560,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
         
-    if(config.DEBUG): path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
+    if(config.DEBUG): 
+        path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
 
     # -----------------------------------------
     # make lists
@@ -631,7 +637,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # save
     # -----------------------------------------
     ####content = wh.html_minify(content) # only at the very end!
-    path_minified   = wh.save_html(content, path_index_base + ".html")
+    path_minified   = wh.save_html(content, path_index_base + ".html") # index.html
     path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
     print("make_static: all done.")
@@ -877,6 +883,11 @@ if __name__ == "__main__":
     print("saving images_written:", config.path_image_tuples_written)
     with open(config.path_image_tuples_written, 'w', encoding="utf-8") as fp:
         fp.write('\n'.join('{},{},{}'.format(x[0], x[1], x[2]) for x in images_written))
+        
+        
+    assets_written = sorted(list(set(assets_written)))
+    print("saving assets_written:", config.path_asset_tuples_written)
+    wh.list_to_file(assets_written, config.path_asset_tuples_written)
 
     # # append css
     # print("appending css:", config.path_custom_css)

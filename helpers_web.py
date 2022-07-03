@@ -1354,8 +1354,8 @@ def list_to_file(items, path, mode="w", encoding="utf-8"):
 def list_to_string(items):
     return "\n".join(str(item) for item in items)
 
-def string_from_file(path, sanitize):
-    return list_to_string(list_from_file(path, sanitize=False))
+def string_from_file(path, sanitize=False):
+    return list_to_string(list_from_file(path, sanitize=sanitize))
 
 def list_from_string(s):
     return list(s.split('\n'))
@@ -1609,10 +1609,10 @@ def to_posix(filepath):
 #-----------------------------------------
 #https://pypi.org/project/art/ 
 import art
-def logo(text,  font="tarty3", vt=CYAN, npad=2): # tarty3 tarty7 sub-zero
+def logo(text,  font="tarty3", vt=CYAN, npad=2, secs=2): # tarty3 tarty7 sub-zero
     nl = "\n"*npad
     print(nl + vt + art.text2art(text, font=font) + RESET + nl)
-    time.sleep(4)
+    time.sleep(secs)
     
 def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
     text = os.path.splitext(os.path.basename(filename))[0]
