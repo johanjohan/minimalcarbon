@@ -763,6 +763,7 @@ if __name__ == "__main__":
             Dies ist die Low Carbon Website
             Dies ist die Low Carbon Website
             This is the environmentally aware version of 
+            Dies ist die umweltbewusste Seite
             """
             # https://babel.pocoo.org/en/latest/dates.html
             from babel.dates import format_date, format_datetime, format_time
@@ -774,7 +775,7 @@ if __name__ == "__main__":
                 banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/> saving 23 kWh per year. logo. certificate. codex. mission. <br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die umweltbewusste Seite von {same_page_link}"
+                banner_header_text = f"Dies ist die dekarbonisierte Seite von {same_page_link}"
                 banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>  Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. <br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
