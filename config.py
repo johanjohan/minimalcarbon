@@ -81,17 +81,22 @@ path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.c
 
 custom_css_marker   = "#appended#" # a word in the file to mark it was updated
 
-font_sans   =  "Arial, Helvetica, sans-serif"
-
 #-----------------------------------------
-# init the colorama module
+# font
+#----------------------------------------- 
+# https://www.w3schools.com/css/css_font.asp
+#font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
+font_mono   =  "Monaco, Lucida Console, Courier New, monospace"
+font_sans = font_mono
+#-----------------------------------------
+# html_infossil_link
 #----------------------------------------- 
 #html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
 html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>"""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 
-_sitemap_base               = path_data_netloc + "20220703_200306"
+_sitemap_base               = path_data_netloc + "20220703_204140"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"

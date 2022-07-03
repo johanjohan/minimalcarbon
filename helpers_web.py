@@ -267,9 +267,9 @@ def url_is_internal(url, base):
         tld_url  =  tldextract.extract(url) 
         tld_base =  tldextract.extract(base) 
         ret = (tld_url.domain == tld_base.domain and tld_url.suffix == tld_base.suffix)
-        print("\n", GREEN, tld_url, GRAY, tld_base, RESET)
+        #print("\n", GREEN, tld_url, GRAY, tld_base, RESET)
         
-    print("url_is_internal:", YELLOW, int(ret), GREEN, dq(url), GRAY, dq(base), RESET)
+    #print("url_is_internal:", YELLOW, int(ret), GREEN, dq(url), GRAY, dq(base), RESET)
     return ret
 
 def url_is_external(url, base):
