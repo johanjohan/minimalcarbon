@@ -438,7 +438,12 @@ def links_make_absolute(links, base):
     return ret
 
 def links_remove_excludes(links, excludes):
+    print("links_remove_excludes:", excludes)
+    
+    excludes = list(excludes)
     return [link for link in links if not any(exclude in link for exclude in excludes)]
+
+    ###return links_remove_invalids(links, excludes)
         
 def links_remove_invalids(links, invalids):
     print("links_remove_invalids:", invalids)
@@ -1291,13 +1296,15 @@ def minify_on_disk(filename):
     #     file.write(html_minify(data))
     #     file.close()    
         
-    data = string_from_file(filename)
-    data = html_minify(data)
-    string_to_file(data, filename)
+    data        = string_from_file(filename)
+    mini_data   = html_minify(data)
+    if len(mini_data) < len(data):
+        string_to_file(mini_data, filename)
 #-----------------------------------------
 # 
 #-----------------------------------------
 def replace_all(content, oldvalue, newvalue, vb = False):
+    
     if not content:
         return content
     
@@ -1614,9 +1621,13 @@ def get_directory_total_size(start_path):
 
 def get_project_total_size(project_folder):
     
-    def __get_sizes(func):
+    # TODO list all files,size to csv
+    
+    def __get_sizes(func, excludes=[]):
         total_size = 0
-        for file in collect_files_func(project_folder, func=func):
+        files = collect_files_func(project_folder, func=func)
+        files = links_remove_excludes(files, excludes)
+        for file in files:
             if os.path.isfile(file):
                 total_size += os.path.getsize(file)
         return total_size
@@ -1626,20 +1637,24 @@ def get_project_total_size(project_folder):
         ".pdf", 
         "index_original.html"
     ])
-    total_size_originals = __get_sizes(f_originals)
+    total_size_originals = __get_sizes(f_originals, ["unpowered.webp", "cmp_screen.pdf"])
 
     f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
-        "_unpowered.webp", 
-        "_unpowered_screen.pdf", 
+        "unpowered.webp", 
+        "cmp_screen.pdf", 
         "index.html"
     ])
-    total_size_unpowered = __get_sizes(f_unpowered)
+    total_size_unpowered = __get_sizes(f_unpowered, [])
+
+    print(f"total_size_originals: {total_size_originals:,} bytes | {YELLOW}{total_size_originals/1000000:,.1f} MB{RESET}")
+    print(f"total_size_unpowered: {total_size_unpowered:,} bytes | {YELLOW}{total_size_unpowered/1000000:,.1f} MB{RESET}")
     
-    perc100 = _saved_percent(total_size_originals, total_size_unpowered)
+    
+    perc100_saved = _saved_percent(total_size_originals, total_size_unpowered)
     
     print("get_project_total_size:", vt_saved_percent_string(total_size_originals, total_size_unpowered))
     
-    return perc100
+    return perc100_saved, total_size_originals, total_size_unpowered
 
               
               

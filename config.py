@@ -1,3 +1,9 @@
+""" 
+    the ratio tech vs content
+        chars
+        pixels
+"""
+
 from distutils.log import debug
 from tkinter import font
 from urllib.parse import urlparse, urljoin
@@ -87,7 +93,7 @@ custom_css_marker   = "#appended#" # a word in the file to mark it was updated
 # https://www.w3schools.com/css/css_font.asp
 #font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 font_mono   =  "Monaco, Lucida Console, Courier New, monospace"
-font_sans = font_mono
+font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 #-----------------------------------------
 # html_infossil_link
 #----------------------------------------- 

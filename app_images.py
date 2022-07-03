@@ -94,6 +94,8 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     
     #pag.alert(text=f"good time to backup htdocs!")
+    
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
                 
 
     #-----------------------------------------
@@ -102,14 +104,14 @@ if __name__ == "__main__":
     project_folder                          = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                        = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                     = True
-    b_append_custom_script                  = True
-    b_remove_fonts_css                      = True
+    b_append_custom_css                     = False
+    b_append_custom_script                  = False
+    b_remove_fonts_css                      = False
     
-    b_perform_pdf_compression               = True 
-    b_perform_image_conversion              = True
+    b_perform_pdf_compression               = False 
+    b_perform_image_conversion              = False
     
-    b_replace_conversions                   = True
+    b_replace_conversions                   = False
     b_fix_xml_elements                      = True
     b_minify                                = True
         
@@ -731,14 +733,15 @@ if __name__ == "__main__":
             from babel.dates import format_date, format_datetime, format_time
             dt = config.date_time_now
             format='full' # long
+            saved_string = f"{perc100_saved:-1f}%"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
                 banner_header_text = f"This is the environmentally aware page of {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/> saving 23 kWh per year. logo. certificate. codex. mission. <br/>{dt_string}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>We reduced this site by {saved_string}. <br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
                 banner_header_text = f"Dies ist die dekarbonisierte Seite von {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>  Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. <br/>{dt_string}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>Die Optimierung beträgt {saved_string}. <br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
@@ -922,14 +925,20 @@ if __name__ == "__main__":
             urls.append(
                 wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
             )
-        print(*urls, sep="\n\t")
+        #print(*urls, sep="\n\t")
         import sitemap
-        sitemap.sitemap_xml_from_list(urls, out_xml_path='sitemap.xml')
+        sitemap.sitemap_xml_from_list(urls, out_xml_path=config.project_folder+'sitemap.xml')
+     
+    # rm  xmlrpc.ph   
+    xmlrpc_path = config.project_folder+"xmlrpc.php"
+    if os.path.isfile(xmlrpc_path):
+        os.remove(xmlrpc_path)
         
     #-----------------------------------------
     # 
     #-----------------------------------------
-    wh.get_project_total_size(config.project_folder)
+    wh.logo("GREENR GRNR")
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
 
     #-----------------------------------------
     # 
