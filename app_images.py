@@ -280,7 +280,6 @@ if __name__ == "__main__":
         files = wh.links_remove_excludes(files, [config.suffix_compressed])
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
         
-        
         for file in files:
             b_file_has_changed = False
             #print(file)
