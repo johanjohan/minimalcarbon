@@ -40,6 +40,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver  # pip install selenium
 from selenium.webdriver.chrome.options import Options
+
+import shutil
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -94,26 +96,31 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     
     #pag.alert(text=f"good time to backup htdocs!")
-    
+    #-----------------------------------------
+    # 
+    #-----------------------------------------    
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
                 
-
+ 
+            
     #-----------------------------------------
     # 
     #-----------------------------------------
-    project_folder                          = wh.to_posix(os.path.abspath(config.project_folder))
-    path_conversions                        = config.data_folder + config.base_netloc + "_conversions.csv"
+    project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
+    path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                     = True
-    b_append_custom_script                  = True
-    b_remove_fonts_css                      = True
+    b_append_custom_css                 = True
+    b_append_custom_script              = True
+    b_remove_fonts_css                  = True
     
-    b_perform_pdf_compression               = True 
-    b_perform_image_conversion              = True
+    b_perform_pdf_compression           = True 
+    b_perform_image_conversion          = True
+    b_perform_image_conversion_force    = False
     
-    b_replace_conversions                   = True
-    b_fix_xml_elements                      = True
-    b_minify                                = True
+    b_replace_conversions               = True
+    b_fix_xml_elements                  = True
+    b_minify                            = True
+    b_export_site                       = True
         
     ###b_convert_list_images_written           = False
     ###b_convert_all_links_from_lists_to_local = False # make all links to local
@@ -155,7 +162,6 @@ if __name__ == "__main__":
     if b_append_custom_script:
         wh.logo("b_append_custom_script")
         if config.path_new_script:
-            import shutil
             shutil.copy(config.path_new_script, config.path_script)
             print("copied", config.path_new_script, "to", config.path_script)
     
@@ -430,7 +436,6 @@ if __name__ == "__main__":
                     print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
                     
                     if size_new >= size_orig:
-                        import shutil
                         shutil.copyfile(orig_path, new_path) # restore original
                         print("\t\t", "copying original:", os.path.basename(orig_path))
                     
@@ -463,7 +468,7 @@ if __name__ == "__main__":
         resample        = Image.Resampling.LANCZOS
         halftone        = None # (4, 30) # or None
         b_colorize      = True
-        b_force_write   = False
+        b_force_write   = b_perform_image_conversion_force
         b_blackwhite    = False
         b_use_palette   = False
         blend_alpha     = 0.666
@@ -739,11 +744,11 @@ if __name__ == "__main__":
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
                 banner_header_text = f"This is the environmentally friendly {same_page_link}. {config.open_resource_link}"
-                banner_footer_text = f"We reduced the energy consumption of this site by {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
+                banner_footer_text = f"The energy consumption of this website was reduced by {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist das umweltfreundliche {same_page_link}. {config.open_resource_link}"
-                banner_footer_text = f"Wir reduzierten den Energieverbrauch dieser Website um {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
+                banner_header_text = f"Dies ist die Low Carbon Website {same_page_link}. {config.open_resource_link}"
+                banner_footer_text = f"Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
@@ -935,7 +940,48 @@ if __name__ == "__main__":
     xmlrpc_path = config.project_folder+"xmlrpc.php"
     if os.path.isfile(xmlrpc_path):
         os.remove(xmlrpc_path)
+
+    #-----------------------------------------
+    # export
+    #-----------------------------------------
+   
+    if b_export_site:
         
+        def _export(func, excludes, target_folder):
+            
+            print("_export:", target_folder)
+            wh.make_dirs(target_folder)
+            
+            files = wh.collect_files_func(config.project_folder, func=func)
+            files = wh.links_remove_excludes(files, excludes)
+            total_size = 0
+            
+            for file in files:
+                
+                total_size += os.path.getsize(file)
+                
+                wp_src  = wh.to_posix(os.path.relpath(file, config.project_folder))
+                dst     = wh.add_trailing_slash(target_folder) + wp_src
+                
+                if not os.path.isfile(dst):
+                    print(".", end='', flush=True)
+                    print("\t", dst)
+                    wh.make_dirs(dst)
+                    shutil.copy(file, dst)
+                    
+            print()
+            return total_size
+                    
+        f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
+            ".xml", 
+            ".css", 
+            ".js", 
+            "unpowered.webp", 
+            "cmp_screen.pdf", 
+            "index.html"
+        ])
+        
+        total_size = _export(f_unpowered, [], config.project_folder + "../__exported/")            
     #-----------------------------------------
     # 
     #-----------------------------------------
