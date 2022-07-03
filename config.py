@@ -2,6 +2,12 @@
     the ratio tech vs content
         chars
         pixels
+        
+        
+    NOT found
+    http://localhost/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf_cmp_screen.pdf
+    
+    
 """
 
 from distutils.log import debug
