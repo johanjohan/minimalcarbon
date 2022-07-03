@@ -945,6 +945,22 @@ if __name__ == "__main__":
     print("saved dir_size_new:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
   
     #-----------------------------------------
+    # TODO collect files and make sitemap
+    #-----------------------------------------  
+    b_sitemap_xml = True
+    if b_sitemap_xml:
+        wh.logo("sitemap")
+        
+        urls = []
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+            urls.append(
+                wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
+            )
+        print(*urls, sep="\n\t")
+        import sitemap
+        sitemap.sitemap_xml_from_list(urls, out_xml_path='sitemap.xml')
+        
+    #-----------------------------------------
     # 
     #-----------------------------------------
     wh.get_project_total_size(config.project_folder)

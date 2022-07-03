@@ -262,6 +262,25 @@ def crawl(url, max_urls):
 # main
 #-----------------------------------------
 if __name__ == "__main__":
+    
+    # print(wh.url_is_external("", ""))
+    # print(wh.url_is_external("xxx", ""))
+    print(wh.url_is_external("", "https://karlsruhe.digital/"))
+    print(wh.url_is_external(".path", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("path", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("/path", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("/path/", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("karlsruhe.digital", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("media.karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("media.karlsruhe.digital/folder/index.html", "https://karlsruhe.digital/"))
+    print(wh.url_is_external("zkm.de", "https://karlsruhe.digital/"))
+    
+    exit(0)
+    
     wh.logo_filename(__file__)
 
     # args defaults TODO use config

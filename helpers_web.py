@@ -267,21 +267,25 @@ def url_is_internal(url, base):
         tld_url  =  tldextract.extract(url) 
         tld_base =  tldextract.extract(base) 
         ret = (tld_url.domain == tld_base.domain)
+        print("\n", GREEN, tld_url, GRAY, tld_base, RESET)
         
     #print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
+    print("url_is_internal:", YELLOW, int(ret), GREEN, dq(url), GRAY, dq(base), RESET)
     return ret
 
 def url_is_external(url, base):
-    tld_url  =  tldextract.extract(url) 
-    tld_base =  tldextract.extract(base) 
-    assert tld_base, "loc_base is None"
+    # tld_url  =  tldextract.extract(url) 
+    # tld_base =  tldextract.extract(base) 
+    # assert tld_base, "loc_base is None"
     
-    if not tld_url:
-        ret = False
-    else:
-        ret = (tld_url != tld_base)
+    # if not tld_url:
+    #     ret = False
+    # else:
+    #     ret = (tld_url != tld_base)
+        
+    ret = not url_is_internal(url, base)
     
-    #print("url_is_external:", YELLOW, ret, RESET, "| url:", dq(url), "| base:", dq(base))
+    #print("url_is_external:", YELLOW, int(ret), GREEN, dq(url), GRAY, dq(base), RESET)
     return ret
 
 """

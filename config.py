@@ -65,6 +65,7 @@ wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
 project_folder      = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
 base                = ats('https://karlsruhe.digital/')
+target_base         = ats('https://test.particles.de/')
 data_folder         = ats("data/")
 base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
@@ -90,7 +91,7 @@ html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 
-_sitemap_base               = path_data_netloc + "20220702_143115"
+_sitemap_base               = path_data_netloc + "20220703_200306"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
