@@ -1,4 +1,5 @@
 from distutils.log import debug
+from tkinter import font
 from urllib.parse import urlparse, urljoin
 import os
 import datetime
@@ -69,13 +70,17 @@ base_netloc         = urlparse(base).netloc # for names
 pdf_res             = 96 # dpi
 path_data_netloc    = data_folder + base_netloc + "_"
 path_stylesheet     = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css" # suffix_compressed
+path_script         = project_folder + "wp-content/themes/karlsruhe-digital/js/script.js"
+path_new_script     = data_folder + "karlsruhe.digital_script.js"
 
-date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
-date_time2          = datetime.datetime.now().strftime("%Y %m %d %H:%M")
+###date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
+date_time_now       = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
 custom_css_marker   = "#appended#" # a word in the file to mark it was updated
+
+font_sans   =  "Arial, Helvetica, sans-serif"
 
 #-----------------------------------------
 # init the colorama module

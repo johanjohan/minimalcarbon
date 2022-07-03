@@ -92,7 +92,7 @@ excludes            = ["bunte-nacht-karlsruhe.digital"] # ["/category/", "/autho
 start_secs          = time.time()
 args                = None
 
-date_time           = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+date_time_crawler   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 #-----------------------------------------
 # 
@@ -285,8 +285,8 @@ if __name__ == "__main__":
     # crawl
     #-----------------------------------------
     domain_name = urlparse(args.url).netloc
-    file_internal_path = f"{data_folder}/{domain_name}_{date_time}_internal_links.csv"
-    file_external_path = f"{data_folder}/{domain_name}_{date_time}_external_links.csv"
+    file_internal_path = f"{data_folder}/{domain_name}_{date_time_crawler}_internal_links.csv"
+    file_external_path = f"{data_folder}/{domain_name}_{date_time_crawler}_external_links.csv"
     
     print("\n"*4, wh.CYAN)
     print("domain_name       :", domain_name)
@@ -333,7 +333,7 @@ if __name__ == "__main__":
         print("[+] args.max_urls       :", args.max_urls)
                         
         # write sitemap
-        sitemap_path = f"{data_folder}/{domain_name}_{date_time}_sitemap.xml"
+        sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
         sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
         import shutil
         shutil.copyfile(sitemap_path, config.project_folder + "sitemap.xml")

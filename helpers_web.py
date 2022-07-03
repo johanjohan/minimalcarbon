@@ -1138,6 +1138,35 @@ def get_background_images_from_stylesheet_file(style_path):
         
     return urls
 
+# https://pythonhosted.org/cssutils/
+# https://pythonhosted.org/cssutils/
+# https://github.com/jaraco/cssutils
+# https://cthedot.de/cssutils/
+# https://stackoverflow.com/questions/59648732/replace-uri-value-in-a-font-face-css-rule-with-cssutils
+# https://groups.google.com/g/cssutils?pli=1
+# https://www.fullstackpython.com/cascading-style-sheets.html
+
+def css_sheet_delete_rules(sheet, rules_to_delete):
+    rules_to_delete = list(rules_to_delete)
+    
+    print("css_sheet_delete_rules:", rules_to_delete)
+
+    # indices = []
+    # for i, rule in enumerate(sheet):
+    #     if rule.type in rules_to_delete:
+    #         #print("\t\t", i, "rule", wh.CYAN, rule, wh.RESET)
+    #         indices.append(i)
+            
+    indices = [i for i, rule in enumerate(sheet) if rule.type in rules_to_delete]
+            
+    print("css_sheet_delete_rules:", "indices", indices)
+            
+    for index in reversed(indices): # !!
+        #print("deleteRule", index)
+        sheet.deleteRule(index) 
+        
+    return sheet
+
 #-----------------------------------------
 # 
 #-----------------------------------------   
@@ -1189,8 +1218,8 @@ def load_html_from_string(driver, content, dir='.'):
 #-----------------------------------------
 def html_sanitize(content, vb=False):
     
-    print(YELLOW, "html_sanitize:may be problematic for js --> RETURN", RESET)
-    return content
+    # print(YELLOW, "html_sanitize:may be problematic for js --> RETURN", RESET)
+    # return content
     
     length_orig = len(content)
     
@@ -1203,6 +1232,10 @@ def html_sanitize(content, vb=False):
     content = replace_all(content, "> <", "><") 
     content = replace_all(content, "} }", "}}") 
     content = replace_all(content, "{ {", "{{") 
+    content = replace_all(content, ") )", "))") 
+    content = replace_all(content, "( (", "((") 
+    content = replace_all(content, "[ [", "[[") 
+    content = replace_all(content, "] ]", "]]") 
 
     if vb:
         print("html_sanitize:", "percent_saved:", vt_saved_percent_string(length_orig, len(content)))
@@ -1223,12 +1256,12 @@ def html_minify(content, vb=True):
                 content, 
                 remove_comments=True, 
                 remove_empty_space=True,
-                remove_all_empty_space=False,
+                remove_all_empty_space=True,
                 reduce_boolean_attributes=True,
                 reduce_empty_attributes=True,
                 remove_optional_attribute_quotes=False, # ??????? True TODO
                 convert_charrefs=True,
-                keep_pre=False,
+                keep_pre=True,
                 )
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
@@ -1248,12 +1281,16 @@ def minify_on_disk(filename):
 
     print("minify_on_disk:", filename)
     
-    with open(filename, "r", encoding="utf-8") as file:
-        data = file.read()
+    # with open(filename, "r", encoding="utf-8") as file:
+    #     data = file.read()
                 
-    with open(filename, "w", encoding="utf-8") as file:
-        file.write(html_minify(data))
-        file.close()    
+    # with open(filename, "w", encoding="utf-8") as file:
+    #     file.write(html_minify(data))
+    #     file.close()    
+        
+    data = string_from_file(filename)
+    data = html_minify(data)
+    string_to_file(data, filename)
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -1347,15 +1384,21 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
         return ret
     
 def list_to_file(items, path, mode="w", encoding="utf-8"):
-    print("list_to_file", path)
-    with open(path, mode=mode, encoding=encoding) as file:
-        file.write(list_to_string(items))
+    # # print("list_to_file", path)
+    # # with open(path, mode=mode, encoding=encoding) as file:
+    # #     file.write(list_to_string(items))
+    string_to_file(list_to_string(items), path, mode=mode, encoding=encoding)
  
 def list_to_string(items):
     return "\n".join(str(item) for item in items)
 
 def string_from_file(path, sanitize=False):
     return list_to_string(list_from_file(path, sanitize=sanitize))
+
+def string_to_file(string, path, mode="w", encoding="utf-8"):
+    print("string_to_file", path)
+    with open(path, mode=mode, encoding=encoding) as file:
+        file.write(string)
 
 def list_from_string(s):
     return list(s.split('\n'))
@@ -1621,6 +1664,39 @@ def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7
 #-----------------------------------------
 # 
 #-----------------------------------------
+
+def image_has_transparency(img):
+    if img.info.get("transparency", None) is not None:
+        return True
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+    elif img.mode == "RGBA":
+        extrema = img.getextrema()
+        if extrema[3][0] < 255:
+            return True
+
+    return False
+
+def image_show(path, secs=1):
+    path = os.path.normpath(path)
+    #print("image_show:", path)
+    assert os.path.isfile(path)
+    
+    import subprocess
+    import time
+    # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
+    p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
+    time.sleep(secs)
+    p.kill()
+    
+    # from PIL import Image
+    # img = Image.open(path)
+    # img.show()    
+    
+
 #-----------------------------------------
 # 
 #-----------------------------------------

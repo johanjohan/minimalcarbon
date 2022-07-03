@@ -1,13 +1,14 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 """ 
 font  s .ttf .woff
+style.css
+url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/9be9615e-18d6-4bf7-bb05-068341c85df3.ttf")
+url(../fonts/fontawesome/fa-brands-400.ttf)
+url(../fonts/fontawesome/fa-brands-400.woff)
 
-<div class="footer-social-links d-flex justify-content-center">
-<a href="https://twitter.com/KA_digital" target="_blank" rel="nofollow noopener" class="tgwf_grey"><i class="fab fa-twitter"></i></a><a href="https://www.facebook.com/karlsruhe.digital" target="_blank" rel="nofollow noopener" class="tgwf_green" data-hasqtip="10"><i class="fab fa-facebook-square"></i></a><a href="https://www.instagram.com/karlsruhe.digital/" target="_blank" rel="nofollow noopener" class="tgwf_green" data-hasqtip="11"><i class="fab fa-instagram"></i></a><a href="https://de.linkedin.com/company/karlsruhedigital" target="_blank" rel="nofollow noopener" class="tgwf_grey"><i class="fab fa-linkedin"></i></a><a href="mailto:info@karlsruhe.digital"><i class="fas fa-envelope"></i></a></div>
+https://stackoverflow.com/questions/63195982/what-is-the-correct-way-to-remove-a-font-from-multiple-html-files-without-manual
 
-<i class="fas fa-search"></i>
 
-<div class="owl-nav d-flex justify-content-center align-items-center"><a class="owl-prev d-flex mr-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png"></a><span class="swiper-item-number">01</span><a class="owl-next d-flex ml-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts.png"></a></div>
 
 """
 import glob, os
@@ -46,6 +47,9 @@ from selenium.webdriver.chrome.options import Options
 # 
 #-----------------------------------------
 def save_conversions(path_conversions, conversions, mode='w'):
+    
+    if not conversions:
+        return
     
     # make unique # remove redundancies    
     prev = load_conversions(path_conversions)
@@ -133,7 +137,7 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     project_folder                          = wh.to_posix(os.path.abspath(config.project_folder))
-    path_conversions                        = config.data_folder + config.base_netloc + "_image_conversions.csv"
+    path_conversions                        = config.data_folder + config.base_netloc + "_conversions.csv"
 
     b_append_custom_css                     = True
     b_perform_pdf_compression               = True 
@@ -163,7 +167,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    # append css
+    # append css before fonts will be replaced after
     if b_append_custom_css:
         wh.logo("b_append_custom_css")
         data_stylesheet = wh.string_from_file(config.path_stylesheet)
@@ -175,6 +179,133 @@ if __name__ == "__main__":
         else:
             print("already appended:", config.path_custom_css)
     
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    b_append_custom_script = True
+    if b_append_custom_script:
+        wh.logo("b_append_custom_script")
+        if config.path_new_script:
+            import shutil
+            shutil.copy(config.path_new_script, config.path_script)
+            print("copied", config.path_new_script, "to", config.path_script)
+    
+    #-----------------------------------------
+    # fonts
+    #-----------------------------------------
+    b_remove_fonts_css = True
+    if b_remove_fonts_css:
+        wh.logo("b_remove_fonts_css")
+        # https://pythonhosted.org/cssutils/
+        # https://pythonhosted.org/cssutils/
+        # https://github.com/jaraco/cssutils
+        # https://cthedot.de/cssutils/
+        # https://stackoverflow.com/questions/59648732/replace-uri-value-in-a-font-face-css-rule-with-cssutils
+        # https://groups.google.com/g/cssutils?pli=1
+        # https://www.fullstackpython.com/cascading-style-sheets.html
+        import cssutils
+        import logging
+        import cssbeautifier
+        from lxml import etree
+
+
+        def save_css_changed(orig_path, text, conversions):
+            name, ext = os.path.splitext(orig_path)
+            new_path  = name + config.suffix_compressed + ext
+            wh.string_to_file(
+                text,
+                new_path
+            )
+            conversions.append((orig_path, new_path))     
+            print("\t\t", "added to conversions:", os.path.basename(new_path))  
+                    
+        cssutils.log.setLevel(logging.CRITICAL)
+            
+        #-----------------------------------------
+        # remove fonts from stylesheets
+        #-----------------------------------------
+        files = wh.collect_files_endswith(project_folder, [".css"])
+        files = wh.links_remove_excludes(files, [config.suffix_compressed])
+        print(wh.CYAN, *files, wh.RESET, sep="\n\t")
+
+        for file in files:
+            print("", wh.CYAN, file, wh.RESET)
+            try:
+                sheet = cssutils.parseFile(file)
+                #print("before", wh.GRAY, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)       
+                sheet = wh.css_sheet_delete_rules(
+                    sheet, 
+                    [
+                        cssutils.css.CSSFontFaceRule.FONT_FACE_RULE, 
+                        cssutils.css.CSSFontFaceRule.COMMENT
+                    ])
+
+                # reset fonts
+                for rule in sheet:
+                    
+                    assert rule.type != cssutils.css.CSSFontFaceRule.FONT_FACE_RULE # removed above
+                    
+                    if rule.type in [cssutils.css.CSSFontFaceRule.STYLE_RULE]:
+                        for property in rule.style:
+                            #print("\t\t\t", property.name)
+                            if property.name == 'font-family':
+                                property.value = config.font_sans
+                                
+                            # https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src
+                            assert property.name != 'src'
+                            if property.name == 'src':
+                                property.value = "XXX"
+                                
+                #print("after", wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
+                save_css_changed(file, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), conversions)
+                   
+            except Exception as e:
+                print(f"{wh.RED} css: {e} {wh.RESET}")
+                time.sleep(2)
+        ### for file
+        save_conversions(path_conversions, conversions)  
+            
+        #-----------------------------------------
+        # replace fonts in tag styles   
+        #-----------------------------------------  
+        files = wh.collect_files_endswith(project_folder, ["index.htm","index.html"])
+        files = wh.links_remove_excludes(files, [config.suffix_compressed])
+        #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
+        
+        for file in files:
+            print(file)
+            content = wh.string_from_file(file)
+            tree = lxml.html.fromstring(content)
+            for node in  tree.xpath("//*[@style]"):
+                print("\t", node)
+                style_text = node.attrib['style']
+                print("\t\t", style_text)
+                style = cssutils.parseStyle(style_text) # <<<
+                #print ("\t\t", "style.cssText:", wh.MAGENTA, style.cssText, wh.RESET)
+                for property in style:
+                    if property.name == 'font-family':
+                        property.value = config.font_sans 
+                        print ("\t\t", wh.YELLOW, style.cssText, wh.RESET)   
+                                                  
+                    # # # if property.name == 'background-image':
+                    # # #     print ("\t\t", wh.MAGENTA, style.cssText, wh.RESET) 
+                    # # #     pass
+                        
+                # style back to lxml
+                node.attrib['style'] =  property.cssText 
+                print("\t\t", wh.GREEN, node.attrib['style'], wh.RESET)
+                
+            ### for node
+            
+            content = etree.tostring(tree, pretty_print=True).decode("utf-8")
+            #print(wh.GREEN, content, wh.RESET)
+            save_css_changed(file, content, conversions)
+        ### for file
+                      
+        
+    exit(0)
+     
+
     #-----------------------------------------
     # replace via karlsruhe.digital_images_written.csv
     #-----------------------------------------
@@ -324,8 +455,7 @@ if __name__ == "__main__":
                             
         ### for />
                  
-        if conversions:
-            save_conversions(path_conversions, conversions)  
+        save_conversions(path_conversions, conversions)  
     ### b_perform_pdf_compression />   
 
     #-----------------------------------------
@@ -345,11 +475,11 @@ if __name__ == "__main__":
         b_force_write   = False
         b_blackwhite    = False
         b_use_palette   = False
-        blend_alpha     = 0.7
+        blend_alpha     = 0.9
 
 
-        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
-            exit(0)
+        # if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
+        #     exit(0)
             
         image_exts = config.image_exts
         #image_exts = ['.png', '.gif']
@@ -399,7 +529,7 @@ if __name__ == "__main__":
                 
                 size_orig = os.path.getsize(path)
                 image = Image.open(path)
-                is_transp   = image_has_transparency(image)
+                is_transp   = wh.image_has_transparency(image)
                 #image       = image.convert('RGBA' if is_transp else 'RGB')
                 wh_orig = image.size
                 
@@ -474,7 +604,7 @@ if __name__ == "__main__":
                 perc_avg += wh._saved_percent(size_orig, size_new)
                 
                 if show_nth_image > 0 and not (cnt%show_nth_image):
-                    image_show(out_path, secs=0.5)
+                    wh.image_show(out_path, secs=0.5)
                 
             else:
                 print("\t\t", "already exists:", os.path.basename(out_path))
@@ -602,12 +732,25 @@ if __name__ == "__main__":
             base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
             same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
             
+            """
+            Dies ist die energie-effiziente
+            energie optimierte 
+            Dies ist die Low Carbon Website
+            Dies ist die Low Carbon Website
+            This is the environmentally aware version of 
+            """
+            # https://babel.pocoo.org/en/latest/dates.html
+            from babel.dates import format_date, format_datetime, format_time
+            dt = config.date_time_now
+            format='full' # long
             if "/en/" in wp_path:
-                banner_header_text = f"This is the Low Carbon Website Version of {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link} saving 23 kWh per year. logo. certificate. codex. mission. {config.date_time2}"
+                dt_string = format_date(dt, format=format, locale='en')
+                banner_header_text = f"This is the environmentally aware page of {same_page_link}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/> saving 23 kWh per year. logo. certificate. codex. mission. <br/>{dt_string}"
             else:
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}. Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. {config.date_time2}"
+                dt_string = format_date(dt, format=format, locale='de_DE')
+                banner_header_text = f"Dies ist die umweltbewusste Seite von {same_page_link}"
+                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>  Die Einsparung beträgt 23 kWh pro Jahr. logo. certificate. codex. mission. <br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
@@ -624,13 +767,29 @@ if __name__ == "__main__":
                 # TODO must be /en/ and not depending on wp_path /en/
                 banner_header = hx.banner_header(banner_header_text)
                 hx.remove_by_xpath(tree, "//div[@class='banner_header']")
-                print("\t adding banner_header")                    
-                tree.find(".//header").insert(0, banner_header)    
-                
+                print("\t adding banner_header")    
+                try:                
+                    tree.find(".//header").insert(0, banner_header)    
+                except Exception as e:
+                    print("\t", wh.RED, e, wh.RESET)
+                    exit(1)
+
+                """ 
+                media
+                <footer id="colophon" class="site-footer with-footer-logo" role="contentinfo"><div class="footer-container"><div class="logo-container"><a href="https://media.karlsruhe.digital/" title="" rel="home" class="footer-logo tgwf_green" data-hasqtip="14"><img src="https://kadigital.s3-cdn.welocal.cloud/sources/5ffed45149921.svg" alt=""></a></div><div class="footer-nav"><div class="menu-footer-container"><ul id="menu-footer" class="footer-menu"><li id="menu-item-551" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-551"><a target="_blank" rel="noopener" href="/impressum/index.html">Impressum</a></li><li id="menu-item-550" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-550"><a target="_blank" rel="noopener" href="/datenschutz/index.html">Datenschutz</a></li></ul></div> </div></div><div class="footer-socials-wrapper"><ul class="footer-socials"><li><a href="https://www.facebook.com/karlsruhe.digital" target="" rel="nofollow" class="social ss-facebook tgwf_green" data-hasqtip="15"><span>Facebook</span></a></li><li><a href="https://twitter.com/KA_digital" target="" rel="nofollow" class="social ss-twitter tgwf_grey"><span>Twitter</span></a></li><li><a href="https://www.instagram.com/karlsruhe.digital/" target="" rel="nofollow" class="social ss-instagram tgwf_green" data-hasqtip="16"><span>Instagram</span></a></li><li><a href="mailto:info@karlsruhe.digital" target="" rel="nofollow" class="social ss-mail"><span>Mail</span></a></li></ul></div></footer>
+
+                """                
                 banner_footer = hx.banner_footer(banner_footer_text)
                 hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
                 print("\t adding banner_footer")  
-                tree.find(".//footer").append(banner_footer) # ".//body"
+                try:
+                    footer = tree.find(".//footer") # ".//body"
+                    if not footer:
+                        footer = tree.find(".//body")
+                    footer.append(banner_footer)
+                except Exception as e:
+                    print("\t", wh.RED, e, wh.RESET)    
+                    exit(1)                
 
             # image attributes srcset
             tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
@@ -638,9 +797,10 @@ if __name__ == "__main__":
             # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
             hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
 
-            # search in menu
+            # menu
             if True:
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
+                hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
             else:
                 #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
                 pass

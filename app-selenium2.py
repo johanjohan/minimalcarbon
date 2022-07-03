@@ -590,6 +590,10 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for text in  h.xpath("//div/@style"):
         links_img += wh.get_background_images_from_inline_style_tag(text)
         
+    # a lot of images in media.
+    for text in  h.xpath("//*/@style"):
+        links_img += wh.get_background_images_from_inline_style_tag(text)
+        
     #-----------
     # scripts
     #-----------
