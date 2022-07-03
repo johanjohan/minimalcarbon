@@ -733,7 +733,7 @@ if __name__ == "__main__":
             from babel.dates import format_date, format_datetime, format_time
             dt = config.date_time_now
             format='full' # long
-            saved_string = f"{perc100_saved:-1f}%"
+            saved_string = f"<spa style='color:lime;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
                 banner_header_text = f"This is the environmentally aware page of {same_page_link}"
