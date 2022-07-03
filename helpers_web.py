@@ -1743,4 +1743,20 @@ if __name__ == "__main__":
     get_path_local_root_subdomains('media.karlsruhe.digital/local/image.png', 'https://karlsruhe.digital/')
 
 
-           
+    # print(wh.url_is_external("", ""))
+    # print(wh.url_is_external("xxx", ""))
+    print(url_is_external("", "https://karlsruhe.digital/"))
+    print(url_is_external(".path", "https://karlsruhe.digital/"))
+    print(url_is_external("path", "https://karlsruhe.digital/"))
+    print(url_is_external("/path", "https://karlsruhe.digital/"))
+    print(url_is_external("/path/", "https://karlsruhe.digital/"))
+    print(url_is_external("index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("karlsruhe.digital", "https://karlsruhe.digital/"))
+    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("media.karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("media.karlsruhe.digital/folder/index.html", "https://karlsruhe.digital/"))
+    print(url_is_external("zkm.de", "https://karlsruhe.digital/"))
+    
+    exit(0)           
