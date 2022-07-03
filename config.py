@@ -9,6 +9,14 @@
     
     need find all broken links
     
+    still gtag tracker on site
+    
+    still <script> to delete
+    
+    not found 
+        http://test.particles.de/wp-content/uploads/2022/02/220517_karlsruhe_digital_Broschuere-ENG_WEB.pdf
+        http://test.particles.de/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf
+        http://test.particles.de/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf
     
 """
 

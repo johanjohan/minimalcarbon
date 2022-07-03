@@ -135,8 +135,8 @@ if __name__ == "__main__":
         if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
             
-    if os.path.isfile(path_conversions):
-        os.remove(path_conversions)
+    # # if os.path.isfile(path_conversions):
+    # #     os.remove(path_conversions)
     #-----------------------------------------
     # dir_size_orig
     #-----------------------------------------
@@ -428,6 +428,9 @@ if __name__ == "__main__":
             ##new_path  = pdf + csuffix
             new_path  = orig_path + compression_path + ".pdf"
             
+            conversions.append((orig_path, new_path))     
+            print("\t\t", "added to conversions:", os.path.basename(new_path)) 
+                                
             if not wh.file_exists_and_valid(new_path):
                 gs.compress_pdf(orig_path, new_path, compression=compression, res=config.pdf_res)
                 
@@ -440,8 +443,7 @@ if __name__ == "__main__":
                         shutil.copyfile(orig_path, new_path) # restore original
                         print("\t\t", "copying original:", os.path.basename(orig_path))
                     
-                    conversions.append((orig_path, new_path))     
-                    print("\t\t", "added to conversions:", os.path.basename(new_path))  
+ 
                     
                     # delete conv later
                     # if b_delete_conversion_originals:
@@ -966,7 +968,7 @@ if __name__ == "__main__":
                 force = True
                 if force or not os.path.isfile(dst):
                     print(".", end='', flush=True)
-                    print("\t", dst)
+                    #print("\t", dst)
                     wh.make_dirs(dst)
                     shutil.copy(file, dst)
                     
