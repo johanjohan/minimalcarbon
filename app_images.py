@@ -117,7 +117,6 @@ if __name__ == "__main__":
     ###b_convert_all_links_from_lists_to_local = False # make all links to local
     
 
-     
     # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
     conversions = []
