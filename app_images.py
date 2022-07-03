@@ -30,6 +30,7 @@ from bs4 import BeautifulSoup as bs
 
 import lxml.html
 import helpers_lxml as hx
+import conversions as conv
 
 
 import chromedriver_binary  # pip install chromedriver-binary-auto
@@ -42,44 +43,6 @@ from selenium.webdriver.chrome.options import Options
 #-----------------------------------------
 # 
 #-----------------------------------------
-
-#-----------------------------------------
-# 
-#-----------------------------------------
-def save_conversions(path_conversions, conversions, mode='w'):
-    
-    if not conversions:
-        return
-    
-    # make unique # remove redundancies    
-    prev = load_conversions(path_conversions)
-    conversions.extend(prev) 
-    conversions = wh.links_make_unique(conversions)
-    ################os.remove(path_conversions)
-    
-    if conversions:    
-        print("save_conversions:", wh.YELLOW + path_conversions + wh.RESET)
-        with open(path_conversions, mode, encoding="utf-8") as fp:
-            for conversion in conversions:
-                fr, to = conversion        
-                fp.write(fr.strip() +  "," + to.strip() + "\n")    
-        print("save_conversions: len(conversions):", len(conversions))
-                
-def load_conversions(path_conversions):
-    
-    print("load_conversions:", wh.YELLOW + path_conversions + wh.RESET)
-    
-    conversions = []
-    if os.path.isfile(path_conversions):
-        with open(path_conversions, 'r', encoding="utf-8") as fp:
-            for line in fp:
-                subs = line.split(',')
-                if len(subs) >= 2:
-                    conversions.append(tuple([subs[0].strip(), subs[1].strip()])) # a tuple
-        conversions = wh.links_make_unique(conversions)
-            
-    print("load_conversions: len(conversions):", len(conversions))
-    return conversions
 
 
 #-----------------------------------------
@@ -273,7 +236,7 @@ if __name__ == "__main__":
                 print(f"{wh.RED} css: {e} {wh.RESET}")
                 time.sleep(2)
         ### for file
-        save_conversions(path_conversions, conversions)  
+        conv.save(path_conversions, conversions)  
             
         #-----------------------------------------
         # replace fonts in tag styles   
@@ -319,7 +282,7 @@ if __name__ == "__main__":
                     file
                 )    
         ### for file
-        save_conversions(path_conversions, conversions)  
+        conv.save(path_conversions, conversions)  
         
           
         
@@ -480,7 +443,7 @@ if __name__ == "__main__":
                             
         ### for />
                  
-        save_conversions(path_conversions, conversions)  
+        conv.save(path_conversions, conversions)  
     ### b_perform_pdf_compression />   
 
     #-----------------------------------------
@@ -643,7 +606,7 @@ if __name__ == "__main__":
 
          #print(*conversions, sep="\n\t")
         if conversions:
-            save_conversions(path_conversions, conversions)   
+            conv.save(path_conversions, conversions)   
     ### b_perform_image_conversion />
 
     #-----------------------------------------
@@ -705,7 +668,7 @@ if __name__ == "__main__":
         
         wh.logo("b_replace_conversions")
         
-        conversions = load_conversions(path_conversions)    
+        conversions = conv.load(path_conversions)    
         #print(*conversions, sep="\n\t")     
                                 
         html_files = wh.collect_files_endswith(project_folder, ["index.html", ".css"])
@@ -824,12 +787,16 @@ if __name__ == "__main__":
             hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
 
             # menu
-            if True:
+            b_hide_search = True
+            if b_hide_search:
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
-                hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
             else:
                 #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
                 pass
+            
+            b_hide_media_subdomain = False
+            if b_hide_media_subdomain:
+                hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
 
             # all fa font awesome TODO also gets rid of dates etc...
             # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
@@ -922,7 +889,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     if b_delete_conversion_originals:
         wh.logo("b_delete_conversion_originals")
-        conversions = load_conversions(path_conversions)    
+        conversions = conv.load(path_conversions)    
         
         for conversion in conversions:
             fr_to_delete, __to = conversion
