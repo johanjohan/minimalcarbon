@@ -1396,7 +1396,7 @@ def string_from_file(path, sanitize=False):
     return list_to_string(list_from_file(path, sanitize=sanitize))
 
 def string_to_file(string, path, mode="w", encoding="utf-8"):
-    print("string_to_file", path)
+    print("string_to_file", GRAY, path, RESET)
     with open(path, mode=mode, encoding=encoding) as file:
         file.write(string)
 

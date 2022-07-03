@@ -217,7 +217,7 @@ if __name__ == "__main__":
                 new_path
             )
             conversions.append((orig_path, new_path))     
-            print("\t\t", "added to conversions:", os.path.basename(new_path))  
+            print("\t\t", "added to conversions:", wh.CYAN, os.path.basename(new_path), wh.RESET)  
                     
         cssutils.log.setLevel(logging.CRITICAL)
             
@@ -229,6 +229,7 @@ if __name__ == "__main__":
         print(wh.CYAN, *files, wh.RESET, sep="\n\t")
 
         for file in files:
+            b_file_has_changed = False
             print("", wh.CYAN, file, wh.RESET)
             try:
                 sheet = cssutils.parseFile(file)
@@ -250,14 +251,21 @@ if __name__ == "__main__":
                             #print("\t\t\t", property.name)
                             if property.name == 'font-family':
                                 property.value = config.font_sans
+                                b_file_has_changed = True
                                 
-                            # https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src
-                            assert property.name != 'src'
-                            if property.name == 'src':
-                                property.value = "XXX"
+                            # # https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src
+                            # assert property.name != 'src'
+                            # if property.name == 'src':
+                            #     property.value = "XXX"
+                            #     b_file_has_changed = True
                                 
                 #print("after", wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
-                save_css_changed(file, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), conversions)
+                ###save_css_changed(file, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), conversions)
+                if b_file_has_changed:
+                    wh.string_to_file(
+                        cssbeautifier.beautify(sheet.cssText.decode("utf-8")), 
+                        file
+                    )
                    
             except Exception as e:
                 print(f"{wh.RED} css: {e} {wh.RESET}")
@@ -272,36 +280,47 @@ if __name__ == "__main__":
         files = wh.links_remove_excludes(files, [config.suffix_compressed])
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
         
+        
         for file in files:
-            print(file)
+            b_file_has_changed = False
+            #print(file)
             content = wh.string_from_file(file)
             tree = lxml.html.fromstring(content)
             for node in  tree.xpath("//*[@style]"):
-                print("\t", node)
+                #print("\t", node)
                 style_text = node.attrib['style']
-                print("\t\t", style_text)
+                #print("\t\t", style_text)
                 style = cssutils.parseStyle(style_text) # <<<
                 #print ("\t\t", "style.cssText:", wh.MAGENTA, style.cssText, wh.RESET)
                 for property in style:
                     if property.name == 'font-family':
+                        print(file)
                         property.value = config.font_sans 
+                        b_file_has_changed = True
                         print ("\t\t", wh.YELLOW, style.cssText, wh.RESET)   
                                                   
                     # # # if property.name == 'background-image':
                     # # #     print ("\t\t", wh.MAGENTA, style.cssText, wh.RESET) 
                     # # #     pass
                         
-                # style back to lxml
+                # assign style back to lxml
                 node.attrib['style'] =  property.cssText 
-                print("\t\t", wh.GREEN, node.attrib['style'], wh.RESET)
+                #print("\t\t", wh.GREEN, node.attrib['style'], wh.RESET)
                 
             ### for node
             
             content = etree.tostring(tree, pretty_print=True).decode("utf-8")
             #print(wh.GREEN, content, wh.RESET)
-            save_css_changed(file, content, conversions)
+            ###save_css_changed(file, content, conversions)
+            if b_file_has_changed:
+                wh.string_to_file(
+                    content, 
+                    file
+                )    
         ### for file
-                      
+        save_conversions(path_conversions, conversions)  
+        
+          
         
     exit(0)
      
