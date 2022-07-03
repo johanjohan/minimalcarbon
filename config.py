@@ -7,6 +7,8 @@
     NOT found
     http://localhost/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf_cmp_screen.pdf
     
+    need find all broken links
+    
     
 """
 
@@ -105,6 +107,7 @@ font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 #----------------------------------------- 
 #html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
 html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>"""
+open_resource_link       = f"""<a href="http://openresource.1001suns.com/">Wie bitte?</a>"""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 

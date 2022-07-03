@@ -104,14 +104,14 @@ if __name__ == "__main__":
     project_folder                          = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                        = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                     = False
-    b_append_custom_script                  = False
-    b_remove_fonts_css                      = False
+    b_append_custom_css                     = True
+    b_append_custom_script                  = True
+    b_remove_fonts_css                      = True
     
-    b_perform_pdf_compression               = False 
-    b_perform_image_conversion              = False
+    b_perform_pdf_compression               = True 
+    b_perform_image_conversion              = True
     
-    b_replace_conversions                   = False
+    b_replace_conversions                   = True
     b_fix_xml_elements                      = True
     b_minify                                = True
         
@@ -466,11 +466,11 @@ if __name__ == "__main__":
         b_force_write   = False
         b_blackwhite    = False
         b_use_palette   = False
-        blend_alpha     = 0.9
+        blend_alpha     = 0.666
 
 
-        # if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}"):
-        #     exit(0)
+        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=10):
+            exit(0)
             
         image_exts = config.image_exts
         #image_exts = ['.png', '.gif']
@@ -738,12 +738,12 @@ if __name__ == "__main__":
             saved_string = f"<spa style='color:lime;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the environmentally friendly {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>We reduced the energy consumption of this site by {saved_string}. <br/>{dt_string}"
+                banner_header_text = f"This is the environmentally friendly {same_page_link}. {config.open_resource_link}"
+                banner_footer_text = f"We reduced the energy consumption of this site by {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist das umweltfreundliche {same_page_link}"
-                banner_footer_text = f"Proudly unpowered by {config.html_infossil_link}.<br/>Wir reduzierten den Energieverbrauch dieser Website um {saved_string}. <br/>{dt_string}"
+                banner_header_text = f"Dies ist das umweltfreundliche {same_page_link}. {config.open_resource_link}"
+                banner_footer_text = f"Wir reduzierten den Energieverbrauch dieser Website um {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             

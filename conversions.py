@@ -14,7 +14,6 @@ def save(path_conversions, conversions, mode='w'):
     conversions.extend(prev) 
     conversions = hw.links_make_unique(conversions)
     conversions = sorted(conversions)
-    ################os.remove(path_conversions)
     
     if conversions:    
         print("save_conversions:", hw.YELLOW + path_conversions + hw.RESET)
@@ -23,7 +22,10 @@ def save(path_conversions, conversions, mode='w'):
                 fr, to = conversion        
                 fp.write(fr.strip() +  "," + to.strip() + "\n")    
         print("save_conversions: len(conversions):", len(conversions))
-                
+        
+#-----------------------------------------
+# 
+#-----------------------------------------                
 def load(path_conversions):
     
     print("load_conversions:", hw.YELLOW + path_conversions + hw.RESET)
@@ -41,3 +43,6 @@ def load(path_conversions):
     print("load_conversions: len(conversions):", len(conversions))
     return conversions
 
+#-----------------------------------------
+# 
+#-----------------------------------------   
