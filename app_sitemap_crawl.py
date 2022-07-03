@@ -143,7 +143,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path # NEW
         if parsed_href.fragment:
             href += "#" + parsed_href.fragment
-            print(YELLOW, "NEW keeping frag:", href, RESET)
+            #print(YELLOW, "NEW keeping frag:", href, RESET)
         href = href.rstrip('/')
         
         if not wh.url_is_valid(href):

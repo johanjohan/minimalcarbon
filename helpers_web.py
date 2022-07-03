@@ -258,7 +258,7 @@ import tldextract
 def url_is_internal(url, base):
     _, loc_url, _  = url_split(url)
     _, loc_base, _ = url_split(base)
-    assert loc_base, "loc_base is None"
+    assert loc_base, "loc_base is None!!!"
     
     ret = False
     if not loc_url: # local url
@@ -266,10 +266,9 @@ def url_is_internal(url, base):
     else:
         tld_url  =  tldextract.extract(url) 
         tld_base =  tldextract.extract(base) 
-        ret = (tld_url.domain == tld_base.domain)
+        ret = (tld_url.domain == tld_base.domain and tld_url.suffix == tld_base.suffix)
         print("\n", GREEN, tld_url, GRAY, tld_base, RESET)
         
-    #print("url_is_internal:", GREEN if ret else YELLOW, ret, RESET, "| loc_url:", dq(loc_url), "| loc_base:", dq(loc_base))
     print("url_is_internal:", YELLOW, int(ret), GREEN, dq(url), GRAY, dq(base), RESET)
     return ret
 
@@ -1743,20 +1742,23 @@ if __name__ == "__main__":
     get_path_local_root_subdomains('media.karlsruhe.digital/local/image.png', 'https://karlsruhe.digital/')
 
 
-    # print(wh.url_is_external("", ""))
-    # print(wh.url_is_external("xxx", ""))
-    print(url_is_external("", "https://karlsruhe.digital/"))
-    print(url_is_external(".path", "https://karlsruhe.digital/"))
-    print(url_is_external("path", "https://karlsruhe.digital/"))
-    print(url_is_external("/path", "https://karlsruhe.digital/"))
-    print(url_is_external("/path/", "https://karlsruhe.digital/"))
-    print(url_is_external("index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("karlsruhe.digital", "https://karlsruhe.digital/"))
-    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("media.karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("media.karlsruhe.digital/folder/index.html", "https://karlsruhe.digital/"))
-    print(url_is_external("zkm.de", "https://karlsruhe.digital/"))
+    func = url_is_internal
+    # print(func("", ""))
+    # print(func("xxx", ""))
+    print(func("", "https://karlsruhe.digital/"))
+    print(func(".path", "https://karlsruhe.digital/"))
+    print(func("path", "https://karlsruhe.digital/"))
+    print(func("/path", "https://karlsruhe.digital/"))
+    print(func("/path/", "https://karlsruhe.digital/"))
+    print(func("index.html", "https://karlsruhe.digital/"))
+    print(func("karlsruhe.digital", "https://karlsruhe.digital/"))
+    print(func("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(func("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(func("karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(func("media.karlsruhe.digital/index.html", "https://karlsruhe.digital/"))
+    print(func("media.karlsruhe.digital/folder/index.html", "https://karlsruhe.digital/"))
+    print(func("zkm.de", "https://karlsruhe.digital/"))
+    
+    print(func("karlsruhe.de", "https://karlsruhe.digital/"))
     
     exit(0)           
