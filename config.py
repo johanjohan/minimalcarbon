@@ -106,7 +106,7 @@ font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 # html_infossil_link
 #----------------------------------------- 
 #html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com">infossil.org</a>"""
+html_infossil_link       = f"""<a href="https://1001suns.com">green<sup>4</sup>matics</a>"""
 open_resource_link       = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
 #-----------------------------------------
 # init the colorama module

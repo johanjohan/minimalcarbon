@@ -115,12 +115,13 @@ if __name__ == "__main__":
     
     b_perform_pdf_compression           = True 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force    = False
+    b_perform_image_conversion_force        = False
     
     b_replace_conversions               = True
     b_fix_xml_elements                  = True
+    b_hide_media_subdomain                  = True
     b_minify                            = True
-    b_export_site                       = True
+    b_export_site                       = True 
         
     ###b_convert_list_images_written           = False
     ###b_convert_all_links_from_lists_to_local = False # make all links to local
@@ -743,12 +744,12 @@ if __name__ == "__main__":
             saved_string = f"<spa style='color:lime;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the environmentally friendly {same_page_link}. {config.open_resource_link}"
-                banner_footer_text = f"The energy consumption of this website was reduced by {saved_string}.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
+                banner_header_text = f"This is the environmentally friendly twin of {same_page_link}"
+                banner_footer_text = f"The energy consumption of this website was reduced by {saved_string},<br/>unpowered by {config.html_infossil_link}.<br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die Low Carbon Website {same_page_link}. {config.open_resource_link}"
-                banner_footer_text = f"Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.<br/>Unpowered by {config.html_infossil_link}.<br/>{dt_string}"
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}"
+                banner_footer_text = f"Der Energieverbrauch dieser Website wurde um {saved_string} reduziert,<br/>unpowered by {config.html_infossil_link}.<br/>{dt_string}"
                 
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
@@ -803,7 +804,6 @@ if __name__ == "__main__":
                 #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
                 pass
             
-            b_hide_media_subdomain = False
             if b_hide_media_subdomain:
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
 
@@ -963,7 +963,8 @@ if __name__ == "__main__":
                 wp_src  = wh.to_posix(os.path.relpath(file, config.project_folder))
                 dst     = wh.add_trailing_slash(target_folder) + wp_src
                 
-                if not os.path.isfile(dst):
+                force = True
+                if force or not os.path.isfile(dst):
                     print(".", end='', flush=True)
                     print("\t", dst)
                     wh.make_dirs(dst)
@@ -985,7 +986,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    wh.logo("GREENR GRNR")
+    wh.logo("GREEN4matics")
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
 
     #-----------------------------------------
