@@ -9,7 +9,6 @@ font  s .ttf .woff
 
 <div class="owl-nav d-flex justify-content-center align-items-center"><a class="owl-prev d-flex mr-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png"></a><span class="swiper-item-number">01</span><a class="owl-next d-flex ml-4"><img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts.png"></a></div>
 
-<span class="swiper-item-number">01</span>
 """
 import glob, os
 from posixpath import splitext
@@ -42,38 +41,6 @@ from selenium.webdriver.chrome.options import Options
 #-----------------------------------------
 # 
 #-----------------------------------------
-
-def image_has_transparency(img):
-    if img.info.get("transparency", None) is not None:
-        return True
-    if img.mode == "P":
-        transparent = img.info.get("transparency", -1)
-        for _, index in img.getcolors():
-            if index == transparent:
-                return True
-    elif img.mode == "RGBA":
-        extrema = img.getextrema()
-        if extrema[3][0] < 255:
-            return True
-
-    return False
-
-def image_show(path, secs=1):
-    path = os.path.normpath(path)
-    #print("image_show:", path)
-    assert os.path.isfile(path)
-    
-    import subprocess
-    import time
-    # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
-    p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
-    time.sleep(secs)
-    p.kill()
-    
-    # from PIL import Image
-    # img = Image.open(path)
-    # img.show()    
-    
 
 #-----------------------------------------
 # 
