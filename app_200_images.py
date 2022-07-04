@@ -686,15 +686,19 @@ if __name__ == "__main__":
                     #     wh.RESET
                     # )
                     
-                    if not (i%1):
-                        #print(str(cnt) + ' ', end='')
-                        pass
+                    # if not (i%1):
+                    #     #print(str(cnt) + ' ', end='')
+                    #     pass
                     
                     # NEW try all TODO with quotes
-                    html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
-                    html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
-                    html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
-                    html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) ) # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
+                    for f in [ wh.dq,  wh.sq,  wh.pa,  wh.qu]:
+                        #print(f"{ wh.GRAY}\t\t\t replace_all: {f(wp_fr)} {wh.RESET}") 
+                        html = wh.replace_all(html,  f(wp_fr),  f(wp_to) )
+            
+                    # # # # html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
+                    # # # # html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
+                    # # # # html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
+                    # # # # html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) ) # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
                     
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
