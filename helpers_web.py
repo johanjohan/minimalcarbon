@@ -66,7 +66,8 @@ def vt_code(code):
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
     
 def _saved_percent(size_orig, size_new):
-    assert size_orig > 0
+    if size_orig <= 0:
+        return 0
     perc = 100 - (size_new/size_orig*100)
     return perc
 
@@ -1393,6 +1394,9 @@ def replace_all_in_file(filename, string_from, string_to):
 #
 # -----------------------------------------
 def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
+    if not os.path.isfile(path):
+        return []
+    
     with open(path, mode=mode, encoding=encoding) as file:
         ret = [line.strip() for line in file]
         if sanitize:
@@ -1516,8 +1520,9 @@ def collect_files_func(project_folder, func):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def sanitize_umlauts(filepath):
-    fixedpath = filepath
+def sanitize_umlauts(_orig_path):
+    fixedpath = _orig_path
+    
     fixedpath = fixedpath.replace('ä',  "ae")
     fixedpath = fixedpath.replace('ö',  "oe")
     fixedpath = fixedpath.replace('ü',  "ue")
@@ -1529,10 +1534,13 @@ def sanitize_umlauts(filepath):
     fixedpath = fixedpath.replace('©',  "_c_")
     fixedpath = fixedpath.replace('@',  "_at_")
     
+    # ascii https://pythonguides.com/remove-non-ascii-characters-python/
+    fixedpath = fixedpath.encode("ascii", "ignore").decode()
+    
     return fixedpath    
     
-def sanitize_filepath_and_url(filepath,  rep = '_'):
-    fixedpath = filepath
+def sanitize_filepath_and_url(_orig_path,  rep = '_'):
+    fixedpath = _orig_path
     #fixedpath = fixedpath.replace('?',  rep) # is valid for url
     fixedpath = fixedpath.replace(' ',  rep)
     fixedpath = fixedpath.replace('%',  rep)
@@ -1549,7 +1557,9 @@ def sanitize_filepath_and_url(filepath,  rep = '_'):
     
     
     # change umlauts
-    fixedpath = sanitize_umlauts(filepath)
+    fixedpath = sanitize_umlauts(fixedpath)
+    
+    print("sanitized:", RED, _orig_path, GREEN, fixedpath, RESET)
     
     return fixedpath
 #-----------------------------------------
@@ -1799,5 +1809,10 @@ if __name__ == "__main__":
     print(func("zkm.de", "https://karlsruhe.digital/"))
     
     print(func("karlsruhe.de", "https://karlsruhe.digital/"))
+    
+    
+    sanitize_filepath_and_url("/wp-content/uploads/2019/08/Gründen.jpg")
+    sanitize_filepath_and_url("/wp-content/uploads/2019/08/Grü:nden.jpg")
+    sanitize_filepath_and_url("/wp-content/uploads/2019/08öäüÖÄÜß/Grü:nden.jpg")
     
     exit(0)           
