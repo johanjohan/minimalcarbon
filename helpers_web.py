@@ -1664,13 +1664,14 @@ def to_posix(filepath):
 # 
 #-----------------------------------------
 #https://pypi.org/project/art/ 
+# https://github.com/sepandhaghighi/art/blob/master/FontList.ipynb
 import art
-def logo(text,  font="tarty3", vt=CYAN, npad=2, secs=2): # tarty3 tarty7 sub-zero
+def logo(text,  font="tarty2", vt=CYAN, npad=2, secs=2): # tarty3++ tarty7 sub-zero straight fancy133 fancy13 tarty2 
     nl = "\n"*npad
     print(nl + vt + art.text2art(text, font=font) + RESET + nl)
     time.sleep(secs)
     
-def logo_filename(filename,  font="tarty3", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
+def logo_filename(filename,  font="tarty2", vt=MAGENTA, npad=2): # tarty3 tarty7 sub-zero
     text = os.path.splitext(os.path.basename(filename))[0]
     logo(text,  font=font, vt=vt, npad=npad)
     

@@ -1,110 +1,45 @@
-
-
 /*
     #appended#
     karlsruhe.digital_custom.css
 */
 
-
-/*
-This CSS resource incorporates links to font software which is the valuable copyrighted property of Monotype and/or its suppliers. You may not attempt to copy, install, redistribute, convert, modify or reverse engineer this font software. Please contact Monotype with any questions regarding Web Fonts: http://www.fontshop.com
-*/
-/* DIN W01 light */
-
-/* @font-face {
-  font-family: "DIN W01";
-  font-weight: 300;
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/25df6f92-ec41-4f60-91af-bddc19a3adc2.eot?#iefix");
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/25df6f92-ec41-4f60-91af-bddc19a3adc2.eot?#iefix")
-      format("eot"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/e39ef3e7-91b2-45d0-8c2f-cfdcd0c0ab94.woff2")
-      format("woff2"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/83ff78fa-6d76-4fb5-8bff-8af8eec8e368.woff")
-      format("woff"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/9be9615e-18d6-4bf7-bb05-068341c85df3.ttf")
-      format("truetype");
-} */
-
-/* DIN W01 regular */
-
-/* @font-face {
-  font-family: "DIN W01";
-  font-weight: 400;
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591097/9b63158c-0e74-4751-966c-d749c5d31cce.eot?#iefix");
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591097/9b63158c-0e74-4751-966c-d749c5d31cce.eot?#iefix")
-      format("eot"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591097/6ceed230-b2b3-4422-b048-4aa11687430a.woff2")
-      format("woff2"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591097/80b0143f-6f0d-4dce-aafd-f3c81b85d177.woff")
-      format("woff"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591097/247437df-66d2-4605-ac03-1be0e07c31a7.ttf")
-      format("truetype");
-} */
-
-/* DIN W01 bold */
-
-/* @font-face {
-  font-family: "DIN W01";
-  font-weight: 700;
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591154/9cab3d10-a1a9-4145-ab8a-cde6265a011d.eot?#iefix");
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591154/9cab3d10-a1a9-4145-ab8a-cde6265a011d.eot?#iefix")
-      format("eot"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591154/55fa1cf8-baf8-4bf8-9718-b096b1dd231f.woff2")
-      format("woff2"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591154/4cadc2f9-fb32-4b99-b1f2-9ce6d68afbd5.woff")
-      format("woff"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591154/24018d68-3235-4323-9ec0-4a86537b0f30.ttf")
-      format("truetype");
-} */
-
-/* DIN W01 black */
-
-/* @font-face {
-  font-family: "DIN W01";
-  font-weight: 900;
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591175/855cca78-9141-48c7-bc2d-5d78d489f326.eot?#iefix");
-  src: url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591175/855cca78-9141-48c7-bc2d-5d78d489f326.eot?#iefix")
-      format("eot"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591175/d6241c0e-d7b5-46c2-8d41-524b7a7c86d1.woff2")
-      format("woff2"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591175/b02e1860-f927-4d9a-9f4f-e66d2a5760d9.woff")
-      format("woff"),
-    url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5591175/2e5b5154-6c68-4104-b8b3-fde29e396482.ttf")
-      format("truetype");
-} */
+#appended_from_custom_css {
+    /* font-family: "DIN W01", sans-serif; */
+    font-family: unset;
+}
 
 /* Fonts */
 body {
     /* font-family: "DIN W01", sans-serif; */
     font-family: sans-serif;
-  }
-  
-  .tab-link::after {
+}
+
+.tab-link::after {
     /* font-family: "Font Awesome 5 Free"; */
     font-family: unset;
-  }
-  
-  .tab-content ul > li::before {
+}
+
+.tab-content ul>li::before {
     /* font-family: "Font Awesome 5 Free"; */
     font-family: unset;
-  }
-  
-  .fts-twitter-reply:before,
-  .fts-comment-instagram:after,
-  .fts-mashup-post-wrap.fts-feed-type-facebook .fts-jal-fb-see-more:before {
+}
+
+.fts-twitter-reply:before,
+.fts-comment-instagram:after,
+.fts-mashup-post-wrap.fts-feed-type-facebook .fts-jal-fb-see-more:before {
     /* font-family: "DIN W01", sans-serif !important; */
     font-family: sans-serif !important;
-  }
-  
-  
-  /*  fix height of sections  */
-  
-  .bg-cover {
-      height: unset;
-  }
-  
-  
-  /* 
+}
+
+
+/*  fix height of sections  */
+
+.bg-cover {
+    height: unset;
+}
+
+
+/* 
   header.scrolled {
       background-color: unset;
   }
@@ -113,8 +48,8 @@ body {
       background-color: rgba(24, 38, 43, 0.8);
   }
   */
-  
-  /*      
+
+/*      
   
   <div id="simple-banner" class="simple-banner">
       <div class="simple-banner-text">
@@ -130,58 +65,84 @@ body {
   
   
   */
-  /* navbar */
-  
-  header.scrolled {
-      background-color: rgba(24, 38, 43, 0.8);
-  }
-   
-  header .navbar {
-      padding-top: 30px;
-  }
-  
-  /* #banner_header {
+/* navbar */
+
+header.scrolled {
+    background-color: rgba(24, 38, 43, 0.8);
+}
+
+header .navbar {
+    padding-top: 30px;
+}
+
+/* #banner_header {
       background-color: rgba(24, 38, 43, 0.0);
   } */
-  /* #banner_header.scrolled {
+/* #banner_header.scrolled {
       background-color: rgba(117, 29, 29, 0.8);
   } */
-  
-  #banner_footer {
-      background: #18262b;
-      background: #142024;
-      width: 100%;
-      text-align: center;
-      z-index: 99999;
-      display: block;
+
+
+
+#banner_footer {
+    background: #18262b;
+    background: #142024;
+    width: 100%;
+    text-align: center;
+    z-index: 99999;
+    display: block;
+}
+
+/* color=#7a7d80; */
+
+/* #banner_footer a:link {
+    color: green;
   }
-  
-  .banner_header_text,  .banner_footer_text {
-      font-family: sans-serif;
-      text-align: center;
-      color: #ccc;
-      font-size: 0.8rem;
-      font-weight: 400;
-  
-      line-height: 1.5;
-  
+  #banner_footer a:visited {
+    color: green;
   }
-  .banner_header_text {
-      padding-top: 10px;
-      padding-bottom: 0px;
-      padding-left: 20%;
-      padding-right: 20%;
-  }
-  .banner_footer_text {
-      padding-top: 20px;
-      padding-bottom: 20px;
-      padding-left: 20%;
-      padding-right: 20%;
-  }
-  
-  
+  #banner_footer a:hover {
+    color: red;
+  } */
+
+#banner_footer img {
+    color: green;
+}
+
+.banner_header_text,
+.banner_footer_text {
+    font-family: sans-serif;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.8rem;
+    font-weight: 400;
+
+    line-height: 1.5;
+
+}
+
+.banner_header_text {
+    padding-top: 10px;
+    padding-bottom: 0px;
+    padding-left: 20%;
+    padding-right: 20%;
+}
+
+.banner_footer_text {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20%;
+    padding-right: 20%;
+}
+
+
 /* font awesome */
-.fa, .fab, .fad, .fal, .far, .fas {
+.fa,
+.fab,
+.fad,
+.fal,
+.far,
+.fas {
     font-family: unset;
     display: none;
 }
@@ -201,15 +162,38 @@ body {
 
 #unpowered-social-media-footer a {
     margin-left: 1rem;
-    margin-right: 1rem;    
+    margin-right: 1rem;
 }
 
 /* no nav on hero-swiper */
-#hero-swiper .owl-nav{
+#hero-swiper .owl-nav {
     display: none !important;
 }
 
 /* media consent */
 .cmms_cookie_consent_manager {
     display: none;
+}
+
+
+/* social footer icons */
+.icon {
+    display: inline-block;
+    height: 20px;
+    background-size: cover;
+    filter: brightness(55%) contrast(97%)
+}
+
+.icon-twitter:hover,
+.icon-twitter:focus,
+.icon-facebook:hover,
+.icon-facebook:focus,
+.icon-linkedin:hover,
+.icon-linkedin:focus,
+.icon-instagram:hover,
+.icon-instagram:focus,
+.icon-mailto:hover,
+.icon-mailto:focus {
+    /* filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%); */
+    filter: brightness(104%)
 }
