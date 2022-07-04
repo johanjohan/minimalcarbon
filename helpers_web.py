@@ -1559,7 +1559,7 @@ def sanitize_filepath_and_url(_orig_path,  rep = '_'):
     # change umlauts
     fixedpath = sanitize_umlauts(fixedpath)
     
-    print("sanitized:", RED, _orig_path, GREEN, fixedpath, RESET)
+    #print("sanitized:", RED, _orig_path, GREEN, fixedpath, RESET)
     
     return fixedpath
 #-----------------------------------------

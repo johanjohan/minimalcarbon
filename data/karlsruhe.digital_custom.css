@@ -1,12 +1,5 @@
-/*
-    #appended#
-    karlsruhe.digital_custom.css
-*/
-
-#appended_from_custom_css {
-    /* font-family: "DIN W01", sans-serif; */
-    font-family: unset;
-}
+/*#appended*/
+/* start of karlsruhe.digital_custom.css */
 
 /* Fonts */
 body {
@@ -177,11 +170,13 @@ header .navbar {
 
 
 /* social footer icons */
+
 .icon {
     display: inline-block;
-    height: 20px;
+    height: 3vw;
     background-size: cover;
-    filter: brightness(55%) contrast(97%)
+    filter: brightness(55%) contrast(97%);
+    XXXmargin: 0 10vw
 }
 
 .icon-twitter:hover,

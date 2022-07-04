@@ -3,24 +3,14 @@
         chars
         pixels
         
+     
+    find videos in    
+        <div id="mep_0" class="mejs-container wp-video-shortcode mejs-video"
+        src="https://s3.welocal.world/kadigital/media/407/videos/407.mp4?_=1"
+
         
-    öäü
-    src="/wp-content/uploads/2019/09/Gru%CC%88nderIcon-1.webp"
         
-        
-    NOT found
-    http://localhost/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf_cmp_screen.pdf
-    
     need find all broken links
-    
-    still gtag tracker on site
-    
-    still <script> to delete
-    
-    not found 
-        http://test.particles.de/wp-content/uploads/2022/02/220517_karlsruhe_digital_Broschuere-ENG_WEB.pdf
-        http://test.particles.de/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf
-        http://test.particles.de/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf
     
 """
 
@@ -111,7 +101,7 @@ date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker       = "#appended_from_custom_css" # a word in the file to mark it was updated
+custom_css_marker       = "/*#appended*/" # a word in the file to mark it was updated
 
 #-----------------------------------------
 # lambdas for collecting files
@@ -216,10 +206,11 @@ footer_social_html_TEXT = """
 # # """
 
 # https://css-tricks.com/change-color-of-svg-on-hover/
-_params = """ rel="nofollow noopener" target="_blank" style="margin: 0 3%; "  """
+_params = """ rel="nofollow noopener" target="_blank"   """ # style="margin: 0 10vw;"
 
-_ps     = lambda s : f"""<object type="image/svg+xml" data="{path_root_icons+str(s)+'.svg'}" alt="{s}" class="icon icon-{s}"> </object> """
-_ps     = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" class="icon icon-{s}" />"""
+#_ps     = lambda s : f"""<object type="image/svg+xml" data="{path_root_icons+str(s)+'.svg'}" alt="{s}" class="icon icon-{s}"> </object> """
+#_ps     = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" class="icon icon-{s}" />"""
+_ps     = lambda s : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="icon icon-{s}" /> """
 footer_social_html= f"""
 <div id="unpowered-social-media-footer">
     <a href="https://twitter.com/KA_digital" {_params} >

@@ -100,7 +100,7 @@ if __name__ == "__main__":
     project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                 = True
+    b_append_custom_css                 = False
     b_append_custom_script              = True
     b_remove_fonts_css                  = True
     
@@ -146,14 +146,13 @@ if __name__ == "__main__":
     if b_append_custom_css:
         wh.logo("b_append_custom_css")
         data_stylesheet = wh.string_from_file(config.path_stylesheet)
-        if not config.custom_css_marker in data_stylesheet:
-            with open(config.path_stylesheet, 'a', encoding="utf-8") as outfile:
-                data_custom_css = wh.string_from_file(config.path_custom_css)
-                outfile.write(data_custom_css)
-                print("appended custom css to", config.path_stylesheet)
-        else:
-            print("already appended:", config.path_custom_css)
-    
+        print("count:", data_stylesheet.count(config.custom_css_marker))
+        data_stylesheet = data_stylesheet.split(config.custom_css_marker)[0]
+        data_stylesheet += wh.string_from_file(config.path_custom_css)
+        wh.string_to_file(data_stylesheet, config.path_stylesheet)
+        print("appended custom css to", config.path_stylesheet)
+        print("count:", data_stylesheet.count(config.custom_css_marker))
+        
     #-----------------------------------------
     # b_append_custom_script
     #-----------------------------------------
@@ -256,7 +255,7 @@ if __name__ == "__main__":
                     sheet, 
                     [
                         cssutils.css.CSSFontFaceRule.FONT_FACE_RULE, 
-                        cssutils.css.CSSFontFaceRule.COMMENT
+                        ###cssutils.css.CSSFontFaceRule.COMMENT
                     ])
 
                 # reset fonts
@@ -788,12 +787,12 @@ if __name__ == "__main__":
             saved_string = f"<span style='color:#ffffff;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the Low Carbon version of {same_page_link}"
+                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>"
                 banner_footer_text = f"The energy consumption of this website was reduced by {saved_string},<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}"
-                banner_footer_text = f"Der Energieverbrauch dieser Website wurde um {saved_string} reduziert,<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert"
+                banner_footer_text = f"unpowered by {config.html_infossil_link}" # <br/>{dt_string}
                 
             #---------------------------
             # lxml
@@ -870,9 +869,10 @@ if __name__ == "__main__":
             #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
             #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
             
+
             #---------------------------
             # scripts
-            #---------------------------                
+            #---------------------------                      
             # //script[normalize-space(text())]
             hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
             hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
@@ -921,7 +921,11 @@ if __name__ == "__main__":
             hx.remove_by_xpath(tree, "//div[contains(@id, 'testimonial-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
             hx.remove_by_xpath(tree, "//div[contains(@id, 'theses-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
             
-            
+            #---------------------------
+            # video/media player
+            #---------------------------          
+            hx.remove_by_xpath(tree, "//div[contains(@class, 'wp-video' )]")            
+            #hx.remove_by_xpath(tree, "//div[contains(@class, 'mejs-video' )]")            
 
             #---------------------------
             # save
