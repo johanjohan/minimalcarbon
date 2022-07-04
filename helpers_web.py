@@ -70,10 +70,14 @@ def _saved_percent(size_orig, size_new):
     perc = 100 - (size_new/size_orig*100)
     return perc
 
+def saved_percent_string(size_orig, size_new, vt=""):
+    pct = _saved_percent(size_orig, size_new)
+    return "{}{:+.1f}%{}".format(vt, pct, RESET)
+
 def vt_saved_percent_string(size_orig, size_new):
     pct = _saved_percent(size_orig, size_new)
     vt  = RED if pct <= 0 else GREEN
-    return "{}{:+.1f}%{}".format(vt, pct, RESET)
+    return saved_percent_string(size_orig, size_new, vt=vt)
 #-----------------------------------------
 # 
 #-----------------------------------------
