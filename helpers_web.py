@@ -45,13 +45,14 @@ MAGENTA = colorama.Fore.MAGENTA
 #-----------------------------------------
 # dq
 #-----------------------------------------
-_wrap = lambda s, delim : delim if not s else delim + str(s).strip() + delim
+_no_esc = lambda s : s.replace('\/', '/')
+_wrap = lambda s, delim : delim if not s else delim + str(_no_esc(s)).strip() + delim
 def dq(s=""):
     return _wrap(s, delim="\"")
 def sq(s=""):
     return _wrap(s, delim="\'")
 def pa(s=""):
-    return "(" + str(s).strip() + ")"
+    return "(" + str(_no_esc(s)).strip() + ")"
 def qu(s=""):
     return _wrap(s, delim="&quot;")
 #-----------------------------------------

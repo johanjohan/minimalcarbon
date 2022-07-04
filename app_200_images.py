@@ -694,7 +694,7 @@ if __name__ == "__main__":
                     html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
                     html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
                     html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
-                    html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) )
+                    html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) ) # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
                     
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
