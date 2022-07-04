@@ -893,8 +893,9 @@ if __name__ == "__main__":
             # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
             # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
             
-            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'bootstrap' )]")
-            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'owl.carousel' )]")
+            #hx.remove_by_xpath(tree, "//body//script[contains(@src, 'bootstrap' )]")
+            #hx.remove_by_xpath(tree, "//body//script[contains(@src, 'owl.carousel' )]")
+            ####hx.remove_by_xpath(tree, "//body//script[contains(@src, 'script.js' )]") NO!!
             hx.remove_by_xpath(tree, "//body//script[contains(@src, 'wp-embed' )]")
             hx.remove_by_xpath(tree, "//body//script[contains(@src, 'googletagmanager' )]")
             hx.remove_by_xpath(tree, "//body//script[contains(text(), 'gtag' )]")
