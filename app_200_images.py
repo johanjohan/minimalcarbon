@@ -779,6 +779,7 @@ if __name__ == "__main__":
             Dies ist die Low Carbon Website
             This is the environmentally aware version of 
             Dies ist die umweltbewusste Seite
+            This is the environmentally friendly twin of 
             """
             # https://babel.pocoo.org/en/latest/dates.html
             from babel.dates import format_date, format_datetime, format_time
@@ -787,13 +788,16 @@ if __name__ == "__main__":
             saved_string = f"<spa style='color:lime;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the environmentally friendly twin of {same_page_link}"
+                banner_header_text = f"This is the Low Carbon version of {same_page_link}"
                 banner_footer_text = f"The energy consumption of this website was reduced by {saved_string},<br/>unpowered by {config.html_infossil_link}.<br/>{dt_string}"
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
                 banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}"
                 banner_footer_text = f"Der Energieverbrauch dieser Website wurde um {saved_string} reduziert,<br/>unpowered by {config.html_infossil_link}.<br/>{dt_string}"
                 
+            #---------------------------
+            # lxml
+            #---------------------------    
             tree = lxml.html.parse(file) # lxml.html.fromstring(content)
             
             # start the hocus pocus in focus
@@ -805,6 +809,9 @@ if __name__ == "__main__":
                     "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
                 )
             
+            #---------------------------
+            # banners
+            #---------------------------    
             if True: # +++
                 # TODO must be /en/ and not depending on wp_path /en/
                 banner_header = hx.banner_header(banner_header_text)
@@ -833,13 +840,17 @@ if __name__ == "__main__":
                     print("\t", wh.RED, e, wh.RESET)    
                     exit(1)                
 
+            #---------------------------
             # image attributes srcset
+            #---------------------------    
             tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
 
             # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
             hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
 
+            #---------------------------
             # menu
+            #---------------------------    
             b_hide_search = True
             if b_hide_search:
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
@@ -859,7 +870,9 @@ if __name__ == "__main__":
             #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
             #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
             
-            
+            #---------------------------
+            # scripts
+            #---------------------------                
             # //script[normalize-space(text())]
             hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
             hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
@@ -880,14 +893,26 @@ if __name__ == "__main__":
             # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
             # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
             
+            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'bootstrap' )]")
+            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'owl.carousel' )]")
+            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'wp-embed' )]")
+            hx.remove_by_xpath(tree, "//body//script[contains(@src, 'googletagmanager' )]")
+            hx.remove_by_xpath(tree, "//body//script[contains(text(), 'gtag' )]")
+            
+            #---------------------------
             # twitter feeds
+            #---------------------------   
             hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
             
+            #---------------------------
             # social media footer
+            #--------------------------- 
             hx.replace_xpath_with_fragment(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", config.footer_social_html)
             hx.replace_xpath_with_fragment(tree, "//div[@id='unpowered-social-media-footer']", config.footer_social_html)
 
+            #---------------------------
             # swipers
+            #--------------------------- 
             # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
             ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
             hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
@@ -897,7 +922,9 @@ if __name__ == "__main__":
             
             
 
-            # save to html
+            #---------------------------
+            # save
+            #--------------------------- 
             out_path = file # + "__test.html"
             print("writing:", out_path)
             tree.write(
