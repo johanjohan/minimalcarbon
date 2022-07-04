@@ -1,5 +1,13 @@
-
 /*#appended*/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
 /* start of karlsruhe.digital_custom.css */
 /* Fonts */
 body {
@@ -61,6 +69,10 @@ header.scrolled {
 
 header .navbar {
     padding-top: 30px
+}
+
+footer .footer-bottom {
+    padding: 10px 0 0px 0;  
 }
 
 /* #banner_header {
@@ -127,11 +139,11 @@ color: red;
     display: none
 }
 
-/* 
+/*
 #section-1 .swiper-item-number, #section-1 .color-white {
 
 display: none;
-} 
+}
 */
 /* new social media */
 #unpowered-social-media-footer {
@@ -179,7 +191,7 @@ display: none;
 
 .percircle {
     display: inline-block;
-    width: 4rem;
+    width: 5rem;
     height: auto;
     background-size: cover;
     margin: 10px 10px
