@@ -1000,9 +1000,12 @@ if __name__ == "__main__":
     if b_export_site:
         wh.logo("b_export_site")
         
-        def _export(func, excludes, target_folder):
+        force_write = False
+        
+        def _export(func, excludes, target_folder, force_write):
             
             print("_export:", target_folder)
+            print("_export:", "force_write", force_write)
             wh.make_dirs(target_folder)
             
             files = wh.collect_files_func(config.project_folder, func=func)
@@ -1017,8 +1020,8 @@ if __name__ == "__main__":
                 wp_src  = wh.to_posix(os.path.relpath(file, config.project_folder))
                 dst     = wh.add_trailing_slash(target_folder) + wp_src
                 
-                force = True
-                if force or not os.path.isfile(dst):
+                
+                if force_write or not os.path.isfile(dst):
                     print(".", end='', flush=True)
                     #print("\t", dst)
                     wh.make_dirs(dst)
@@ -1036,7 +1039,12 @@ if __name__ == "__main__":
         # # #     "index.html"
         # # # ])
         
-        total_size = _export(config.f_unpowered, [], config.project_folder + "../__exported/")            
+        total_size = _export(
+            config.f_unpowered, 
+            [], 
+            config.project_folder + "../__exported/",
+            force_write=force_write
+        )            
     #-----------------------------------------
     # 
     #-----------------------------------------

@@ -1516,9 +1516,25 @@ def collect_files_func(project_folder, func):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def sanitize_umlauts(filepath):
+    fixedpath = filepath
+    fixedpath = fixedpath.replace('ä',  "ae")
+    fixedpath = fixedpath.replace('ö',  "oe")
+    fixedpath = fixedpath.replace('ü',  "ue")
+    fixedpath = fixedpath.replace('Ä',  "Ae")
+    fixedpath = fixedpath.replace('Ö',  "Oe")
+    fixedpath = fixedpath.replace('Ü',  "Ue")
+    fixedpath = fixedpath.replace('ß',  "ss")
+    
+    fixedpath = fixedpath.replace('©',  "_c_")
+    fixedpath = fixedpath.replace('@',  "_at_")
+    
+    return fixedpath    
+    
 def sanitize_filepath_and_url(filepath,  rep = '_'):
     fixedpath = filepath
     #fixedpath = fixedpath.replace('?',  rep) # is valid for url
+    fixedpath = fixedpath.replace(' ',  rep)
     fixedpath = fixedpath.replace('%',  rep)
     fixedpath = fixedpath.replace('*',  rep)
     fixedpath = fixedpath.replace(':',  rep)
@@ -1527,6 +1543,14 @@ def sanitize_filepath_and_url(filepath,  rep = '_'):
     fixedpath = fixedpath.replace('\'', rep)
     fixedpath = fixedpath.replace('<',  rep)
     fixedpath = fixedpath.replace('>',  rep)
+    
+    fixedpath = fixedpath.replace('\'',  rep)
+    fixedpath = fixedpath.replace('\"',  rep)
+    
+    
+    # change umlauts
+    fixedpath = sanitize_umlauts(filepath)
+    
     return fixedpath
 #-----------------------------------------
 # 

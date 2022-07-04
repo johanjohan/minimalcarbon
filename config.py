@@ -4,6 +4,10 @@
         pixels
         
         
+    öäü
+    src="/wp-content/uploads/2019/09/Gru%CC%88nderIcon-1.webp"
+        
+        
     NOT found
     http://localhost/wp-content/uploads/2020/08/karlsruhe_digital_factsheet-WEB_EN_DEF.pdf_cmp_screen.pdf_cmp_screen.pdf
     
