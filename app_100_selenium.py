@@ -376,19 +376,16 @@ def assets_save_internals_locally(
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
     # append the links to a file
-    suffix_file_path = config.path_data_netloc + suffix + ".txt" 
-    wh.list_to_file(links, suffix_file_path, mode="a")
-    # minimize that file
-    if os.path.isfile(suffix_file_path):
-        stored_links = wh.list_from_file(suffix_file_path)
-        stored_links = wh.links_make_unique(stored_links)
-        stored_links = sorted(stored_links)
-    wh.list_to_file(stored_links, suffix_file_path)      
+    if False:
+        suffix_file_path = config.path_data_netloc + suffix + ".txt" 
+        wh.list_to_file(links, suffix_file_path, mode="a")
+        # minimize that file
+        if os.path.isfile(suffix_file_path):
+            stored_links = wh.list_from_file(suffix_file_path)
+            stored_links = wh.links_make_unique(stored_links)
+            stored_links = sorted(stored_links)
+        wh.list_to_file(stored_links, suffix_file_path)      
     
-    # # # # with open(suffix_file_path, mode="a", encoding="utf-8") as fp:
-    # # # #     for link in links:
-    # # # #         fp.write(f"{link}\n")
-
     # loop tze links
     for src in links:
 
@@ -493,15 +490,14 @@ def assets_save_internals_locally(
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if True:
-            for s in [dq(src), sq(src), pa(src)]:
-                print(f"{GRAY}\t\t\t replacing: {s}{RESET}") 
-                
-            
-            content = content.replace(dq(src), dq(new_src))  # "image.png"
-            content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
-            content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
-            content = content.replace(qu(src), qu(new_src))  # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
+        for f in [dq, sq, pa, qu]:
+            print(f"{GRAY}\t\t\t replacing: {f(src)} {RESET}") 
+            content = content.replace(f(src), f(new_src))
+
+        # # # content = content.replace(dq(src), dq(new_src))  # "image.png"
+        # # # content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
+        # # # content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
+        # # # content = content.replace(qu(src), qu(new_src))  # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
 
     return content
 
