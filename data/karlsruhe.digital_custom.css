@@ -1,133 +1,120 @@
+
 /*#appended*/
 /* start of karlsruhe.digital_custom.css */
-
 /* Fonts */
 body {
     /* font-family: "DIN W01", sans-serif; */
-    font-family: sans-serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif
 }
 
 .tab-link::after {
     /* font-family: "Font Awesome 5 Free"; */
-    font-family: unset;
+    font-family: Verdana, Arial, Helvetica, sans-serif
 }
 
 .tab-content ul>li::before {
     /* font-family: "Font Awesome 5 Free"; */
-    font-family: unset;
+    font-family: Verdana, Arial, Helvetica, sans-serif
 }
 
 .fts-twitter-reply:before,
 .fts-comment-instagram:after,
 .fts-mashup-post-wrap.fts-feed-type-facebook .fts-jal-fb-see-more:before {
     /* font-family: "DIN W01", sans-serif !important; */
-    font-family: sans-serif !important;
+    font-family: Verdana, Arial, Helvetica, sans-serif !important
 }
-
 
 /*  fix height of sections  */
-
 .bg-cover {
-    height: unset;
+    height: unset
 }
 
-
-/* 
-  header.scrolled {
-      background-color: unset;
-  }
-   
-  header .navbar {
-      background-color: rgba(24, 38, 43, 0.8);
-  }
-  */
-
-/*      
-  
-  <div id="simple-banner" class="simple-banner">
-      <div class="simple-banner-text">
-          <span>This site is run on sustainable energy and reduces image quality &amp; quantity for a low carbon footprint. <br>Videos load after clicking to avoid tracking. <a href="http://openresource.1001suns.com/pyramis-niger.php">Why?</a><!--br/>Access the low carbon version of this site <a href="http://static.1001suns.com/">here</a--></span>
-      </div>
-  </div>
-  
-  CSS will be applied directly to the simple-banner class, 
-  the simple-banner-scrolling class for scrolling styles, 
-  the simple-banner-text class for text specific styles, 
-  and the simple-banner-button class for close button specific styles. 
-  Be very careful, bad CSS can break the banner.
-  
-  
-  */
-/* navbar */
-
+/*
 header.scrolled {
-    background-color: rgba(24, 38, 43, 0.8);
+background-color: unset;
 }
 
 header .navbar {
-    padding-top: 30px;
+background-color: rgba(24, 38, 43, 0.8);
+}
+*/
+/*
+
+<div id="simple-banner" class="simple-banner">
+<div class="simple-banner-text">
+<span>This site is run on sustainable energy and reduces image quality &amp; quantity for a low carbon footprint. <br>Videos load after clicking to avoid tracking. <a href="http://openresource.1001suns.com/pyramis-niger.php">Why?</a><!--br/>Access the low carbon version of this site <a href="http://static.1001suns.com/">here</a--></span>
+</div>
+</div>
+
+CSS will be applied directly to the simple-banner class,
+the simple-banner-scrolling class for scrolling styles,
+the simple-banner-text class for text specific styles,
+and the simple-banner-button class for close button specific styles.
+Be very careful, bad CSS can break the banner.
+
+
+*/
+/* navbar */
+header.scrolled {
+    background-color: rgba(24, 38, 43, 0.8)
+}
+
+header .navbar {
+    padding-top: 30px
 }
 
 /* #banner_header {
-      background-color: rgba(24, 38, 43, 0.0);
-  } */
+background-color: rgba(24, 38, 43, 0.0);
+} */
 /* #banner_header.scrolled {
-      background-color: rgba(117, 29, 29, 0.8);
-  } */
-
-
-
+background-color: rgba(117, 29, 29, 0.8);
+} */
 #banner_footer {
-    background: #18262b;
+    /* background: #18262b; */
     background: #142024;
     width: 100%;
     text-align: center;
     z-index: 99999;
-    display: block;
+    display: block
 }
 
 /* color=#7a7d80; */
-
 /* #banner_footer a:link {
-    color: green;
-  }
-  #banner_footer a:visited {
-    color: green;
-  }
-  #banner_footer a:hover {
-    color: red;
-  } */
-
+color: green;
+}
+#banner_footer a:visited {
+color: green;
+}
+#banner_footer a:hover {
+color: red;
+} */
 #banner_footer img {
-    color: green;
+    color: green
 }
 
 .banner_header_text,
 .banner_footer_text {
-    font-family: sans-serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     text-align: center;
     color: #ccc;
     font-size: 0.8rem;
     font-weight: 400;
-
-    line-height: 1.5;
-
+    line-height: 1.5
 }
 
 .banner_header_text {
     padding-top: 10px;
-    padding-bottom: 0px;
+    padding-bottom: 0;
     padding-left: 20%;
-    padding-right: 20%;
+    padding-right: 20%
 }
 
 .banner_footer_text {
     padding-top: 20px;
     padding-bottom: 20px;
     padding-left: 20%;
-    padding-right: 20%;
+    padding-right: 20%
 }
-
 
 /* font awesome */
 .fa,
@@ -136,47 +123,44 @@ header .navbar {
 .fal,
 .far,
 .fas {
-    font-family: unset;
-    display: none;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    display: none
 }
 
+/* 
+#section-1 .swiper-item-number, #section-1 .color-white {
 
-/*  */
-/* #section-1 .swiper-item-number, #section-1 .color-white {
-
-    display: none;
-} */
-
+display: none;
+} 
+*/
 /* new social media */
 #unpowered-social-media-footer {
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.8rem
 }
 
 #unpowered-social-media-footer a {
     margin-left: 1rem;
-    margin-right: 1rem;
+    margin-right: 1rem
 }
 
 /* no nav on hero-swiper */
 #hero-swiper .owl-nav {
-    display: none !important;
+    display: none !important
 }
 
 /* media consent */
 .cmms_cookie_consent_manager {
-    display: none;
+    display: none
 }
 
-
 /* social footer icons */
-
 .icon {
     display: inline-block;
-    height: 3vw;
+    height: 1.6rem;
     background-size: cover;
     filter: brightness(55%) contrast(97%);
-    padding: 0 3vw
+    padding: 0 2vw
 }
 
 .icon-twitter:hover,
@@ -198,5 +182,5 @@ header .navbar {
     width: 3rem;
     height: auto;
     background-size: cover;
-    padding: 20px 20px;
+    margin: 10px 10px
 }

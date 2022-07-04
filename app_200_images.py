@@ -802,15 +802,15 @@ if __name__ == "__main__":
             from babel.dates import format_date, format_datetime, format_time
             dt = config.date_time_now
             format='full' # long
-            saved_string = f"<span style='color:#ffffff;'>{perc100_saved:.1f}%</span>"
+            saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>The energy consumption of this website was reduced by {saved_string}.<br/>{svg_percircle}"
-                banner_footer_text = f"unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>The energy consumption of this website was reduced by {saved_string}." # <br/>{svg_percircle}
+                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.<br/>{svg_percircle}"
-                banner_footer_text = f"unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert."
+                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
                 
             #---------------------------
             # lxml
