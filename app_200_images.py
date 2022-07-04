@@ -14,6 +14,7 @@ https://stackoverflow.com/questions/63195982/what-is-the-correct-way-to-remove-a
 import glob, os
 from posixpath import splitext
 from re import X
+from urllib.parse import urljoin
 import PIL
 from PIL import Image, ImageOps
 import halftone as ht # https://pypi.org/project/halftone/
@@ -109,8 +110,8 @@ if __name__ == "__main__":
     project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                 = True
-    b_append_custom_script              = True
+    b_append_custom_css                 = False
+    b_append_custom_script              = False
     b_remove_fonts_css                  = True
     
     b_perform_pdf_compression           = True 
@@ -197,12 +198,56 @@ if __name__ == "__main__":
         cssutils.log.setLevel(logging.CRITICAL)
             
         #-----------------------------------------
-        # remove fonts from stylesheets
+        # download fonts from stylesheets
         #-----------------------------------------
+        # TODO save fonts locally
+        print("downloading fonts...")
         files = wh.collect_files_endswith(project_folder, [".css"])
         files = wh.links_remove_excludes(files, [config.suffix_compressed])
-        print(wh.CYAN, *files, wh.RESET, sep="\n\t")
+        #print(wh.CYAN, *files, wh.RESET, sep="\n\t")
+        
+        font_urls = []
+        for file in files:
+            print("", wh.CYAN, file, wh.RESET)
+            try:
+                sheet = cssutils.parseFile(file)
+                for rule in sheet:                    
+                    if rule.type in [cssutils.css.CSSFontFaceRule.FONT_FACE_RULE]:
+                        for property in rule.style:
+                            if property.name == 'src': # 'font-family':
+                                #print("\t\t", property.name, property.value)  
+                                if "url" in property.value:
+                                    url = property.value.replace("(", "").replace(")", "")
+                                    url = url.strip().lstrip("url")
+                                    #print("\t\t\t", hw.CYAN, url, hw.RESET)
+                                    subs = url.split(',')
+                                    for sub in subs:
+                                        sub = sub.strip().lstrip("url")
+                                        font_url = sub.split(" ")[0]
+                                        font_url = hw.strip_query_and_fragment(font_url)
+                                        font_url = font_url.replace("../", "/wp-content/themes/karlsruhe-digital/")
+                                        font_url = urljoin(config.base, font_url)
+                                        
+                                        local_path = config.project_folder + wh.get_path_local_root_subdomains(font_url, config.base).lstrip('/')
+                                        
+                                        if not os.path.isfile(local_path):
+                                            wh.make_dirs(local_path)
+                                            response = hw.get_response(font_url)
+                                            with open(local_path, "wb") as fp:
+                                                fp.write(response.read())
+                                        
+                                        font_urls.append((font_url, local_path))
+                                                              
+            except Exception as e:
+                print(f"{wh.RED} css: {e} {wh.RESET}")
+                time.sleep(2)
+                
+        ### for file   
+        #print(*font_urls, sep="\n\t")
 
+        #-----------------------------------------
+        # remove fonts from stylesheets
+        #-----------------------------------------
         for file in files:
             b_file_has_changed = False
             print("", wh.CYAN, file, wh.RESET)
@@ -636,7 +681,7 @@ if __name__ == "__main__":
         html = fp.read()
         
         # replace
-        print("\t\t", end='')
+        #print("\t\t", end='')
         for i, conversion in enumerate(conversions):
             fr, to = conversion
             
@@ -657,7 +702,8 @@ if __name__ == "__main__":
                     # )
                     
                     if not (i%1):
-                        print(str(cnt) + ' ', end='')
+                        #print(str(cnt) + ' ', end='')
+                        pass
                     
                     html = wh.replace_all(html, wp_fr, wp_to) 
                     
@@ -685,10 +731,11 @@ if __name__ == "__main__":
         html_files = wh.collect_files_endswith(project_folder, ["index.html", ".css"])
         for i, html_file in enumerate(html_files):
             #print("\t", "-"*88)
-            print("\n"*1)
-            wh.progress(i / len(html_files), verbose_string="TOTAL", VT=wh.CYAN, n=80, prefix="\t ")
-            print("\n"*1)
-            print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
+            ###print("\n"*1)
+            verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
+            wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
+            ###print("\n"*1)
+            ###print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
             
             if True:
                 replace_all_conversions_in_file(html_file, conversions)

@@ -1635,6 +1635,7 @@ def get_project_total_size(project_folder):
     f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
         ".jpg", ".jpeg", ".png", ".gif", 
         ".pdf", 
+        ".ttf",
         "index_original.html"
     ])
     total_size_originals = __get_sizes(f_originals, ["unpowered.webp", "cmp_screen.pdf"])
