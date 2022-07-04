@@ -108,12 +108,12 @@ if __name__ == "__main__":
     b_perform_image_conversion          = True
     b_perform_image_conversion_force        = False
     
-    b_replace_conversions               = True
+    b_replace_conversions               = False
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
-    b_minify                            = True
+    b_minify                            = False
     b_export_site                       = True 
-    b_export_site_force                     = False
+    b_export_site_force                     = True
         
     ###b_convert_list_images_written           = False
     ###b_convert_all_links_from_lists_to_local = False # make all links to local
