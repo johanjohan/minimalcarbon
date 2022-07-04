@@ -108,7 +108,7 @@ if __name__ == "__main__":
     b_perform_image_conversion          = True
     b_perform_image_conversion_force        = False
     
-    b_replace_conversions               = True
+    b_replace_conversions               = False
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
     b_minify                            = True
@@ -132,6 +132,12 @@ if __name__ == "__main__":
     # dir_size_orig
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
+
+    #-----------------------------------------
+    # copy icons
+    #-----------------------------------------
+    hw.make_dirs(config.path_dst_icons)
+    shutil.copytree(config.path_src_icons, config.path_dst_icons, dirs_exist_ok=True)
 
     #-----------------------------------------
     # b_append_custom_css
@@ -878,27 +884,8 @@ if __name__ == "__main__":
             hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
             
             # social media footer
-            footer_social_html = """
-            <div id="unpowered-social-media-footer">
-                <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
-                twitter
-                </a>
-                <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="8" aria-describedby="qtip-8">
-                facebook
-                </a>
-                <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="9">
-                instagram
-                </a>
-                <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
-                linkedin
-                </a>
-                <a href="mailto:info@karlsruhe.digital">
-                mail
-                </a>
-            </div>
-            """
-            hx.replace_xpath_with_fragment(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", footer_social_html)
-            hx.replace_xpath_with_fragment(tree, "//div[@id='unpowered-social-media-footer']", footer_social_html)
+            hx.replace_xpath_with_fragment(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", config.footer_social_html)
+            hx.replace_xpath_with_fragment(tree, "//div[@id='unpowered-social-media-footer']", config.footer_social_html)
 
             # swipers
             # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]

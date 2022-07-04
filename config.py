@@ -91,6 +91,9 @@ target_base             = ats('https://test.particles.de/')
 base_netloc             = urlparse(base).netloc # for names
 data_folder             = ats("data/")
 #data_folder            = ats("data/" + base_netloc)
+path_src_icons          = ats(data_folder + "icons/")
+path_root_icons         = ats("/data/icons/")
+path_dst_icons          = ats(project_folder + path_root_icons.lstrip('/'))
 pdf_res                 = 96 # dpi
 pdf_compression         = '/screen'
 pdf_compression_suffix  = suffix_compressed + "_" + pdf_compression.lstrip('/')
@@ -147,6 +150,59 @@ path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_data_netloc + "images_written.csv"
 path_asset_tuples_written   = path_data_netloc + "assets_written.csv"
+#-----------------------------------------
+# footer_social_html
+#----------------------------------------- 
+footer_social_html_TEXT = """
+<div id="unpowered-social-media-footer">
+    <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+    twitter
+    </a>
+    <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="8" aria-describedby="qtip-8">
+    facebook
+    </a>
+    <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" class="tgwf_green" data-hasqtip="9">
+    instagram
+    </a>
+    <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" class="tgwf_grey">
+    linkedin
+    </a>
+    <a href="mailto:info@karlsruhe.digital">
+    mail
+    </a>
+</div>
+"""
+
+_ps = lambda s : "<img src=" + sq(path_root_icons + str(s) + suffix_compressed + ".webp") + " alt=" + sq(s) + " />"
+_ps = lambda s : "<img src=" + sq(path_root_icons + str(s) + ".png") + " alt=" + sq(s) + " />"
+_ps = lambda s : f"""<image xlink:href="{path_root_icons + str(s) + ".svg"}" height="20"></image>"""
+_ps = lambda s : f"""<object data="{path_root_icons+str(s)+'.svg'}" height="20"></object>"""
+footer_social_html_AA = f"""
+<div id="unpowered-social-media-footer">
+    <a href="https://twitter.com/KA_digital" rel="nofollow noopener" target="_blank">
+    {_ps("twitter")}
+    </a>
+    <a href="https://www.facebook.com/karlsruhe.digital" rel="nofollow noopener" target="_blank">
+    {_ps("facebook")}
+    </a>
+    <a href="https://www.instagram.com/karlsruhe.digital/" rel="nofollow noopener" target="_blank" >
+    {_ps("instagram")}
+    </a>
+    <a href="https://de.linkedin.com/company/karlsruhedigital" rel="nofollow noopener" target="_blank" >
+    {_ps("linkedin")}
+    </a>
+    <a href="mailto:info@karlsruhe.digital">
+    {_ps("envelope")}
+    </a>
+</div>
+"""
+
+_ps = lambda s : f"""<object data="{path_root_icons+str(s)+'.svg'}" height="20"> </object>"""
+footer_social_html = f"""
+<div id="unpowered-social-media-footer">
+    {_ps("twitter")}{_ps("facebook")}{_ps("instagram")}{_ps("linkedin")}{_ps("envelope")}
+</div>
+"""
 
 #-----------------------------------------
 # 
