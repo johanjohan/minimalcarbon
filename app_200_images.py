@@ -100,7 +100,7 @@ if __name__ == "__main__":
     project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                 = False
+    b_append_custom_css                 = True
     b_append_custom_script              = True
     b_remove_fonts_css                  = True
     
@@ -108,11 +108,12 @@ if __name__ == "__main__":
     b_perform_image_conversion          = True
     b_perform_image_conversion_force        = False
     
-    b_replace_conversions               = False
+    b_replace_conversions               = True
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
     b_minify                            = True
     b_export_site                       = True 
+    b_export_site_force                     = False
         
     ###b_convert_list_images_written           = False
     ###b_convert_all_links_from_lists_to_local = False # make all links to local
@@ -1022,12 +1023,10 @@ if __name__ == "__main__":
     if b_export_site:
         wh.logo("b_export_site")
         
-        force_write = False
-        
-        def _export(func, excludes, target_folder, force_write):
+        def _export(func, excludes, target_folder, b_export_site_force):
             
             print("_export:", target_folder)
-            print("_export:", "force_write", force_write)
+            print("_export:", "b_export_site_force", b_export_site_force)
             wh.make_dirs(target_folder)
             
             files = wh.collect_files_func(config.project_folder, func=func)
@@ -1043,7 +1042,7 @@ if __name__ == "__main__":
                 dst     = wh.add_trailing_slash(target_folder) + wp_src
                 
                 
-                if force_write or not os.path.isfile(dst):
+                if b_export_site_force or not os.path.isfile(dst):
                     print(".", end='', flush=True)
                     #print("\t", dst)
                     wh.make_dirs(dst)
@@ -1065,7 +1064,7 @@ if __name__ == "__main__":
             config.f_unpowered, 
             [], 
             config.project_folder + "../__exported/",
-            force_write=force_write
+            b_export_site_force=b_export_site_force
         )            
     #-----------------------------------------
     # 
