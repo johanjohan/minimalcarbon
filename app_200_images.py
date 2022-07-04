@@ -457,8 +457,7 @@ if __name__ == "__main__":
         import ghostscript as gs
 
         compression='/screen'
-        compression_path = "_" + "cmp_" + compression.lstrip('/')
-        #csuffix = config.suffix_compressed + compression_path + ".pdf" # "_unpowered"
+        compression_path = config.suffix_compressed + "_" + compression.lstrip('/')
         
         pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
         pdfs = [pdf for pdf in pdfs if not compression_path in pdf] # remove already compressed
@@ -468,8 +467,8 @@ if __name__ == "__main__":
             print("-"*88)
             
             orig_path = pdf
-            ##new_path  = pdf + csuffix
-            new_path  = orig_path + compression_path + ".pdf"
+            name, ext = os.path.splitext(orig_path)
+            new_path  = name + compression_path + ext
             
             conversions.append((orig_path, new_path))     
             print("\t\t", "added to conversions:", os.path.basename(new_path)) 
