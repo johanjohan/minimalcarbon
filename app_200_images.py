@@ -101,7 +101,7 @@ if __name__ == "__main__":
     path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
     b_append_custom_css                 = True
-    b_append_custom_script              = True
+    b_copy_custom_script                = True
     b_remove_fonts_css                  = True
     
     b_perform_pdf_compression           = True 
@@ -155,10 +155,10 @@ if __name__ == "__main__":
         print("count:", data_stylesheet.count(config.custom_css_marker))
         
     #-----------------------------------------
-    # b_append_custom_script
+    # b_copy_custom_script
     #-----------------------------------------
-    if b_append_custom_script:
-        wh.logo("b_append_custom_script")
+    if b_copy_custom_script:
+        wh.logo("b_copy_custom_script")
         if config.path_new_script:
             shutil.copy(config.path_new_script, config.path_script)
             print("copied", config.path_new_script, "to", config.path_script)
