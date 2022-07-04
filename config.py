@@ -118,6 +118,10 @@ f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
     ".ttf",
     "index_original.html"
 ])
+f_originals_excludes = [
+    suffix_compressed       + ".webp", 
+    pdf_compression_suffix  + ".pdf"
+]
 
 f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
     suffix_compressed       + ".webp", 
@@ -138,6 +142,7 @@ font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 #----------------------------------------- 
 #html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
 html_infossil_link       = f"""<a href="https://1001suns.com">green<sup>4</sup>matics</a>"""
+html_infossil_link       = f"""<a href="https://1001suns.com"><sup>4</sup>matics</a>"""
 open_resource_link       = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
 #-----------------------------------------
 # init the colorama module
@@ -197,12 +202,37 @@ footer_social_html_TEXT = """
 # </div>
 # """
 
-_ps = lambda s : f"""<object data="{path_root_icons+str(s)+'.svg'}" height="20" style="padding: 0 3%;"></object>"""
-footer_social_html = f"""
+# # _ps = lambda s : f"""<object data="{path_root_icons+str(s)+'.svg'}" height="20" style="padding: 0 3%;"></object>"""
+# # _ps = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" style="padding: 0 3%;" />"""
+# # footer_social_html_OBJ = f"""
+# # <div id="unpowered-social-media-footer">
+# #     {_ps("twitter")}{_ps("facebook")}{_ps("instagram")}{_ps("linkedin")}{_ps("envelope")}
+# # </div>
+# # """
+
+
+_ps     = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" />"""
+_params = """ rel="nofollow noopener" target="_blank" style="margin: 0 3%;" """
+footer_social_html= f"""
 <div id="unpowered-social-media-footer">
-    {_ps("twitter")}{_ps("facebook")}{_ps("instagram")}{_ps("linkedin")}{_ps("envelope")}
+    <a href="https://twitter.com/KA_digital" {_params} >
+        {_ps("twitter")}
+    </a>
+    <a href="https://www.facebook.com/karlsruhe.digital" {_params} >
+        {_ps("facebook")}
+    </a>
+    <a href="https://www.instagram.com/karlsruhe.digital/" {_params} >
+        {_ps("instagram")}
+    </a>
+    <a href="https://de.linkedin.com/company/karlsruhedigital" {_params} >
+        {_ps("linkedin")}
+    </a>
+    <a href="mailto:info@karlsruhe.digital">
+        {_ps("mailto")}
+    </a>
 </div>
 """
+
 
 #-----------------------------------------
 # 

@@ -1637,7 +1637,7 @@ def get_project_total_size(project_folder):
      
     # recursive import             
     import config
-    total_size_originals = __get_sizes(config.f_originals, ["unpowered.webp", "cmp_screen.pdf"])
+    total_size_originals = __get_sizes(config.f_originals, config.f_originals_excludes)
     total_size_unpowered = __get_sizes(config.f_unpowered, [])
     del config
 
