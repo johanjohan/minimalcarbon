@@ -1,13 +1,5 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 """ 
-font  s .ttf .woff
-style.css
-url("/wp-content/themes/karlsruhe-digital/fonts/DIN-W01/5590868/9be9615e-18d6-4bf7-bb05-068341c85df3.ttf")
-url(../fonts/fontawesome/fa-brands-400.ttf)
-url(../fonts/fontawesome/fa-brands-400.woff)
-
-https://stackoverflow.com/questions/63195982/what-is-the-correct-way-to-remove-a-font-from-multiple-html-files-without-manual
-
 
 
 """
@@ -98,7 +90,7 @@ if __name__ == "__main__":
     
     #pag.alert(text=f"good time to backup htdocs!")
     #-----------------------------------------
-    # 
+    # get sizes
     #-----------------------------------------    
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
                 
@@ -211,20 +203,22 @@ if __name__ == "__main__":
                 sheet = cssutils.parseFile(file)
                 for rule in sheet:                    
                     if rule.type in [cssutils.css.CSSFontFaceRule.FONT_FACE_RULE]:
+                        print("\t", rule)  
                         for property in rule.style:
                             if property.name == 'src': # 'font-family':
-                                #print("\t\t", property.name, property.value)  
+                                print("\t\t", hw.CYAN, property.name, property.value, hw.RESET)  
                                 if "url" in property.value:
                                     url = property.value.replace("(", "").replace(")", "")
                                     url = url.strip().lstrip("url")
-                                    #print("\t\t\t", hw.CYAN, url, hw.RESET)
+                                    print("\t\t\t", hw.CYAN, url, hw.RESET)
                                     subs = url.split(',')
                                     for sub in subs:
-                                        sub = sub.strip().lstrip("url")
-                                        font_url = sub.split(" ")[0]
+                                        font_url = sub.strip().lstrip("url")
+                                        font_url = font_url.split(" ")[0]
                                         font_url = hw.strip_query_and_fragment(font_url)
                                         font_url = font_url.replace("../", "/wp-content/themes/karlsruhe-digital/")
                                         font_url = urljoin(config.base, font_url)
+                                        print("\t\t\t\t", hw.MAGENTA, font_url, hw.RESET)
                                         
                                         local_path = config.project_folder + wh.get_path_local_root_subdomains(font_url, config.base).lstrip('/')
                                         
@@ -455,12 +449,9 @@ if __name__ == "__main__":
     if b_perform_pdf_compression:
         wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
-
-        compression='/screen'
-        compression_path = config.suffix_compressed + "_" + compression.lstrip('/')
         
         pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
-        pdfs = [pdf for pdf in pdfs if not compression_path in pdf] # remove already compressed
+        pdfs = [pdf for pdf in pdfs if not config.pdf_compression_suffix in pdf] # remove already compressed
         print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
             
@@ -468,13 +459,13 @@ if __name__ == "__main__":
             
             orig_path = pdf
             name, ext = os.path.splitext(orig_path)
-            new_path  = name + compression_path + ext
+            new_path  = name + config.pdf_compression_suffix + ext
             
             conversions.append((orig_path, new_path))     
             print("\t\t", "added to conversions:", os.path.basename(new_path)) 
                                 
             if not wh.file_exists_and_valid(new_path):
-                gs.compress_pdf(orig_path, new_path, compression=compression, res=config.pdf_res)
+                gs.compress_pdf(orig_path, new_path, compression=config.pdf_compression, res=config.pdf_res)
                 
                 if wh.file_exists_and_valid(new_path):
                     size_orig = os.path.getsize(orig_path)
@@ -699,10 +690,11 @@ if __name__ == "__main__":
                         #print(str(cnt) + ' ', end='')
                         pass
                     
-                    # NEW try all TODO
+                    # NEW try all TODO with quotes
                     html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
                     html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
                     html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
+                    html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) )
                     
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
@@ -987,6 +979,7 @@ if __name__ == "__main__":
     #-----------------------------------------
    
     if b_export_site:
+        wh.logo("b_export_site")
         
         def _export(func, excludes, target_folder):
             
@@ -995,6 +988,7 @@ if __name__ == "__main__":
             
             files = wh.collect_files_func(config.project_folder, func=func)
             files = wh.links_remove_excludes(files, excludes)
+            files = wh.links_sanitize(files)
             total_size = 0
             
             for file in files:
@@ -1014,16 +1008,16 @@ if __name__ == "__main__":
             print()
             return total_size
                     
-        f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
-            ".xml", 
-            ".css", 
-            ".js", 
-            "unpowered.webp", 
-            "cmp_screen.pdf", 
-            "index.html"
-        ])
+        # # # f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
+        # # #     ".xml", 
+        # # #     ".css", 
+        # # #     ".js", 
+        # # #     config.suffix_compressed + ".webp", 
+        # # #     config.pdf_compression_suffix + ".pdf", 
+        # # #     "index.html"
+        # # # ])
         
-        total_size = _export(f_unpowered, [], config.project_folder + "../__exported/")            
+        total_size = _export(config.f_unpowered, [], config.project_folder + "../__exported/")            
     #-----------------------------------------
     # 
     #-----------------------------------------

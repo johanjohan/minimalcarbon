@@ -79,30 +79,50 @@ options.add_experimental_option("prefs", { \
 #-----------------------------------------
 # app-selenium
 #-----------------------------------------
-DEBUG               = False
-#headless            = True
-suffix_compressed   = "_unpowered"
-timeout             = 30
-wait_secs           = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
-#project_folder      = ats("page/__KD__09/") # os.path.abspath # raw has 
-project_folder      = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
-base                = ats('https://karlsruhe.digital/')
-target_base         = ats('https://test.particles.de/')
-data_folder         = ats("data/")
-base_netloc         = urlparse(base).netloc # for names
-pdf_res             = 96 # dpi
-path_data_netloc    = data_folder + base_netloc + "_"
-path_stylesheet     = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css" # suffix_compressed
-path_script         = project_folder + "wp-content/themes/karlsruhe-digital/js/script.js"
-path_new_script     = data_folder + "karlsruhe.digital_script.js"
+DEBUG                   = False
+#headless               = True
+suffix_compressed       = "_unpowered"
+timeout                 = 30
+wait_secs               = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
+#project_folder         = ats("page/__KD__09/") # os.path.abspath # raw has 
+project_folder          = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
+base                    = ats('https://karlsruhe.digital/')
+target_base             = ats('https://test.particles.de/')
+base_netloc             = urlparse(base).netloc # for names
+data_folder             = ats("data/")
+#data_folder            = ats("data/" + base_netloc)
+pdf_res                 = 96 # dpi
+pdf_compression         = '/screen'
+pdf_compression_suffix  = suffix_compressed + "_" + pdf_compression.lstrip('/')
+path_data_netloc        = data_folder + base_netloc + "_"
+path_stylesheet         = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css" # suffix_compressed
+path_script             = project_folder + "wp-content/themes/karlsruhe-digital/js/script.js"
+path_new_script         = data_folder + "karlsruhe.digital_script.js"
 
 ###date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
-date_time_now       = datetime.datetime.now()
+date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
 custom_css_marker   = "#appended#" # a word in the file to mark it was updated
 
+#-----------------------------------------
+# lambdas for collecting files
+#----------------------------------------- 
+f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
+    ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".svg", 
+    ".js",".css",".xml",
+    ".ttf",
+    "index_original.html"
+])
+
+f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
+    suffix_compressed       + ".webp", 
+    pdf_compression_suffix  + ".pdf", 
+    ".svg", 
+    ".js",".css",".xml",
+    "index.html"
+])
 #-----------------------------------------
 # font
 #----------------------------------------- 

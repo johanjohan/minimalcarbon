@@ -45,14 +45,15 @@ MAGENTA = colorama.Fore.MAGENTA
 #-----------------------------------------
 # dq
 #-----------------------------------------
-_wrap = lambda s, delim : delim if not s else delim + str(s) + delim
+_wrap = lambda s, delim : delim if not s else delim + str(s).strip() + delim
 def dq(s=""):
     return _wrap(s, delim="\"")
 def sq(s=""):
     return _wrap(s, delim="\'")
 def pa(s=""):
-    return "(" + str(s) + ")"
-
+    return "(" + str(s).strip() + ")"
+def qu(s=""):
+    return _wrap(s, delim="&quot;")
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -1627,25 +1628,17 @@ def get_project_total_size(project_folder):
         total_size = 0
         files = collect_files_func(project_folder, func=func)
         files = links_remove_excludes(files, excludes)
+        files = links_sanitize(files)
         for file in files:
             if os.path.isfile(file):
                 total_size += os.path.getsize(file)
         return total_size
-                  
-    f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
-        ".jpg", ".jpeg", ".png", ".gif", 
-        ".pdf", 
-        ".ttf",
-        "index_original.html"
-    ])
-    total_size_originals = __get_sizes(f_originals, ["unpowered.webp", "cmp_screen.pdf"])
-
-    f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
-        "unpowered.webp", 
-        "cmp_screen.pdf", 
-        "index.html"
-    ])
-    total_size_unpowered = __get_sizes(f_unpowered, [])
+     
+    # recursive import             
+    import config
+    total_size_originals = __get_sizes(config.f_originals, ["unpowered.webp", "cmp_screen.pdf"])
+    total_size_unpowered = __get_sizes(config.f_unpowered, [])
+    del config
 
     print(f"total_size_originals: {total_size_originals:,} bytes | {YELLOW}{total_size_originals/1000000:,.1f} MB{RESET}")
     print(f"total_size_unpowered: {total_size_unpowered:,} bytes | {YELLOW}{total_size_unpowered/1000000:,.1f} MB{RESET}")

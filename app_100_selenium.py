@@ -295,6 +295,7 @@ document.getElementById("FirstDiv").remove();
 from helpers_web import sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
+from helpers_web import qu as qu
 from helpers_web import add_trailing_slash as ats
 from bs4 import BeautifulSoup, Comment
 import time
@@ -494,11 +495,13 @@ def assets_save_internals_locally(
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if True:
             for s in [dq(src), sq(src), pa(src)]:
-                print(f"{GRAY}\t\t\t replacing: {s}{RESET}")            
+                print(f"{GRAY}\t\t\t replacing: {s}{RESET}") 
+                
             
             content = content.replace(dq(src), dq(new_src))  # "image.png"
             content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
             content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
+            content = content.replace(qu(src), qu(new_src))  # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
 
     return content
 
@@ -589,10 +592,18 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     
     for text in  h.xpath("//div/@style"):
         links_img += wh.get_background_images_from_inline_style_tag(text)
-        
+    for text in  h.xpath("//video/@style"):
+        links_img += wh.get_background_images_from_inline_style_tag(text)        
     # a lot of images in media.
     for text in  h.xpath("//*/@style"):
         links_img += wh.get_background_images_from_inline_style_tag(text)
+        
+    import json
+    for jstring in  h.xpath("//*/@data-vjs_setup"):
+        j = json.loads(jstring)
+        #print(json.dumps(j, indent=4), sep="\n\t\t")
+        print("\t\t\t", j.get("poster", None))
+        links_img.append(j.get("poster", None))
 
 
     #-----------
@@ -639,8 +650,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             project_folder
         )
         
-        if(config.DEBUG): 
-            wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
+        # if False and config.DEBUG: 
+        #     wh.save_html(content, path_index_base + "_" + suffix + ".html", pretty=True)
 
     # -----------------------------------------
     # save
