@@ -176,7 +176,7 @@ header .navbar {
     height: 3vw;
     background-size: cover;
     filter: brightness(55%) contrast(97%);
-    XXXmargin: 0 10vw
+    padding: 0 3vw
 }
 
 .icon-twitter:hover,
@@ -191,4 +191,12 @@ header .navbar {
 .icon-mailto:focus {
     /* filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%); */
     filter: brightness(104%)
+}
+
+.percircle {
+    display: inline-block;
+    width: 3rem;
+    height: auto;
+    background-size: cover;
+    padding: 20px 20px;
 }

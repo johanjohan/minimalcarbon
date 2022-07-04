@@ -108,7 +108,7 @@ if __name__ == "__main__":
     b_perform_image_conversion          = True
     b_perform_image_conversion_force        = False
     
-    b_replace_conversions               = True
+    b_replace_conversions               = False
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
     b_minify                            = True
@@ -762,6 +762,24 @@ if __name__ == "__main__":
         files_index_html = wh.collect_files_func(project_folder, func=func)
         #print(*files_index_html, sep="\n\t")
         
+        color = "darkseagreen"
+        svg_percircle = f"""<div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
+            <g id="myid">
+                <circle stroke="{color}"
+                        stroke-width="30px"
+                        fill="none"
+                        cx="250"
+                        cy="250"
+                        r="222" />
+                <text style="font: bold 12rem sans-serif;"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    x="50%"
+                    y="50%"
+                    fill="{color}">{perc100_saved:.0f}%</text> 
+            </g>     
+        </svg></div>"""
+
 
         for file in files_index_html:
             
@@ -787,11 +805,11 @@ if __name__ == "__main__":
             saved_string = f"<span style='color:#ffffff;'>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>"
-                banner_footer_text = f"The energy consumption of this website was reduced by {saved_string},<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>The energy consumption of this website was reduced by {saved_string}.<br/>{svg_percircle}"
+                banner_footer_text = f"unpowered by {config.html_infossil_link}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert"
+                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.<br/>{svg_percircle}"
                 banner_footer_text = f"unpowered by {config.html_infossil_link}" # <br/>{dt_string}
                 
             #---------------------------
@@ -925,7 +943,7 @@ if __name__ == "__main__":
             # video/media player
             #---------------------------          
             hx.remove_by_xpath(tree, "//div[contains(@class, 'wp-video' )]")            
-            #hx.remove_by_xpath(tree, "//div[contains(@class, 'mejs-video' )]")            
+            hx.remove_by_xpath(tree, "//div[contains(@class, 'mejs-video' )]")            
 
             #---------------------------
             # save
