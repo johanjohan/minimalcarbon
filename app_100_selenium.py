@@ -553,8 +553,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     path_index_base = project_folder + wh.get_page_folder(url, base) + "index"
     
-    if True or config.DEBUG: 
-        path_original = wh.save_html(content, path_index_base + "_original.html")
+    #if config.DEBUG: 
+    path_original = wh.save_html(content, path_index_base + "_original.html")
 
     # -----------------------------------------
     #
@@ -597,7 +597,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # a lot of images in media.
     for text in  h.xpath("//*/@style"):
         links_img += wh.get_background_images_from_inline_style_tag(text)
-        
+    
+    # media.ka    
     import json
     for jstring in  h.xpath("//*/@data-vjs_setup"):
         j = json.loads(jstring)
@@ -658,7 +659,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     ####content = wh.html_minify(content) # only at the very end!
     path_minified   = wh.save_html(content, path_index_base + ".html") # index.html
-    path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
+    ###path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
     print("make_static: all done.")
     
