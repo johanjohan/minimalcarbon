@@ -702,7 +702,10 @@ if __name__ == "__main__":
                         #print(str(cnt) + ' ', end='')
                         pass
                     
-                    html = wh.replace_all(html, wp_fr, wp_to) 
+                    # NEW try all TODO
+                    html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
+                    html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
+                    html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
                     
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
