@@ -102,8 +102,6 @@ if __name__ == "__main__":
     #-----------------------------------------    
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
                 
- 
-            
     #-----------------------------------------
     # 
     #-----------------------------------------
