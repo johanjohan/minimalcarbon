@@ -131,7 +131,8 @@ path_asset_tuples_written   = path_data_netloc + "assets_written.csv"
 #-----------------------------------------
 # 
 #-----------------------------------------
-image_exts = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+image_exts_no_webp  = ['.jpg', '.jpeg', '.png', '.gif']
+image_exts          = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
 #-----------------------------------------
 # 
 #-----------------------------------------

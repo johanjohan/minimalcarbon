@@ -110,8 +110,8 @@ if __name__ == "__main__":
     project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
     path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                 = False
-    b_append_custom_script              = False
+    b_append_custom_css                 = True
+    b_append_custom_script              = True
     b_remove_fonts_css                  = True
     
     b_perform_pdf_compression           = True 
@@ -525,10 +525,7 @@ if __name__ == "__main__":
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=10):
             exit(0)
             
-        image_exts = config.image_exts
-        #image_exts = ['.png', '.gif']
-        
-        print("image_exts   :", image_exts)
+        print("image_exts   :", config.image_exts)
         print("quality      :", quality)
         print("max_dim      :", max_dim)
         print("b_force_write:", b_force_write)
@@ -540,7 +537,7 @@ if __name__ == "__main__":
         #-----------------------------------------
         # 
         #-----------------------------------------
-        images = wh.collect_files_endswith(project_folder, image_exts)
+        images = wh.collect_files_endswith(project_folder, config.image_exts)
         # # # # # # # func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
         # # # # # # # images = wh.collect_files_func(project_folder, func)
         
@@ -737,21 +734,16 @@ if __name__ == "__main__":
             ###print("\n"*1)
             ###print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
             
-            if True:
-                replace_all_conversions_in_file(html_file, conversions)
+            replace_all_conversions_in_file(html_file, conversions)
                 
-            # # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
-            # # replace image extensions
-            # if True:
-            #     conversions_exts = []
-            #     for q in ["\"", "\'"]:
-            #         for ext in image_exts:
-            #             wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
+            # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
+            # replace image extensions
+            for q in ["\"", "\'"]:
+                for ext in config.image_exts_no_webp:
+                    wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
                 
              
-            # # # # # extras replacements_post   
-            # # # # wh.replace_all_in_file(html_file, " srcset=", " XXXsrcset=")
-            # # # # wh.replace_all_in_file(html_file, " sizes=", " XXXsizes=")
+
                                               
         ### for /> 
     ### b_perform_replacement />            
