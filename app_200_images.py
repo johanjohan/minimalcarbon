@@ -38,47 +38,47 @@ import shutil
 #-----------------------------------------
 # 
 #-----------------------------------------
-
-
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all_in_file_tuples(filename, tuples):
+# def replace_all_in_file_tuples(filename, tuples):
     
-    #print("replace_all_in_file_tuples:", filename)
+#     print("replace_all_in_file_tuples:", filename)
     
-    with open(filename, "r", encoding="utf-8") as fp:
-        data = fp.read()
+#     # # with open(filename, "r", encoding="utf-8") as fp:
+#     # #     data = fp.read()
+        
+#     data = wh.string_from_file(filename)
          
-    for conversion in tuples:
-        #print(YELLOW, conversion, RESET)
-        fr, to = conversion
+#     for conversion in tuples:
+#         #print(YELLOW, conversion, RESET)
+#         fr, to = conversion
         
-        fr = fr.strip()
-        to = to.strip()
-        print("replace_all_in_file_tuples: fr to", fr, to)
+#         fr = fr.strip()
+#         to = to.strip()
+#         print("replace_all_in_file_tuples: fr to", fr, to)
         
-        name, ext = os.path.splitext(to)
-        print("replace_all_in_file_tuples: name ext", name, ext)
-        # assert name, "no name"
-        # assert ext, "no ext"
+#         name, ext = os.path.splitext(to)
+#         print("replace_all_in_file_tuples: name ext", name, ext)
+#         # assert name, "no name"
+#         # assert ext, "no ext"
         
-        if ext in config.image_exts:
-            to = wh.get_path_local_root_subdomains(name + config.suffix_compressed + ".webp", config.base)
-        else:
-            to = wh.get_path_local_root_subdomains(to, config.base)
+#         if ext in config.image_exts:
+#             to = wh.get_path_local_root_subdomains(name + config.suffix_compressed + ".webp", config.base)
+#         else:
+#             to = wh.get_path_local_root_subdomains(to, config.base)
         
-        return tuple([fr, to])
+#         return tuple([fr, to])
         
-        #print(YELLOW, fr, CYAN, "-->", YELLOW, to, RESET)
+#         #print(YELLOW, fr, CYAN, "-->", YELLOW, to, RESET)
         
-        data = replace_all(data, dq(fr), dq(to)) 
-        data = replace_all(data, sq(fr), sq(to)) 
-        data = replace_all(data, pa(fr), pa(to)) 
-        #data = replace_all(data, fr, to) # ?????
+#         data = replace_all(data, dq(fr), dq(to)) 
+#         data = replace_all(data, sq(fr), sq(to)) 
+#         data = replace_all(data, pa(fr), pa(to)) 
+#         #data = replace_all(data, fr, to) # ?????
     
-    with open(filename, "w", encoding="utf-8") as fp:
-        fp.write(data)
+#     with open(filename, "w", encoding="utf-8") as fp:
+#         fp.write(data)
             
             
 #-----------------------------------------
@@ -699,13 +699,7 @@ if __name__ == "__main__":
                     # NEW try all TODO with quotes
                     for f in [ wh.dq,  wh.sq,  wh.pa,  wh.qu]:
                         #print(f"{ wh.GRAY}\t\t\t replace_all: {f(wp_fr)} {wh.RESET}") 
-                        html = wh.replace_all(html,  f(wp_fr),  f(wp_to) )
-            
-                    # # # # html = wh.replace_all(html,  wh.sq(wp_fr),  wh.sq(wp_to) ) 
-                    # # # # html = wh.replace_all(html,  wh.dq(wp_fr),  wh.dq(wp_to) )
-                    # # # # html = wh.replace_all(html,  wh.pa(wp_fr),  wh.pa(wp_to) )
-                    # # # # html = wh.replace_all(html,  wh.qu(wp_fr),  wh.qu(wp_to) ) # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
-                    
+                        html = wh.replace_all(html,  f(wp_fr),  f(wp_to) )    
             else:
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
         ### for conversion />
@@ -798,6 +792,8 @@ if __name__ == "__main__":
             This is the environmentally aware version of 
             Dies ist die umweltbewusste Seite
             This is the environmentally friendly twin of 
+            .<br/>The energy consumption of this website was reduced by {saved_string}.
+            .<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.
             """
             # https://babel.pocoo.org/en/latest/dates.html
             from babel.dates import format_date, format_datetime, format_time
@@ -806,12 +802,12 @@ if __name__ == "__main__":
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the Low Carbon version of {same_page_link}.<br/>The energy consumption of this website was reduced by {saved_string}." # <br/>{svg_percircle}
-                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
+                banner_header_text = f"This is the Low Carbon proxy of {same_page_link}" # <br/>{svg_percircle}
+                banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist die Low Carbon Website von {same_page_link}.<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert."
-                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
+                banner_header_text = f"Dies ist der Low Carbon Proxy von {same_page_link}"
+                banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
                 
             #---------------------------
             # lxml
