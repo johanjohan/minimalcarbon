@@ -101,7 +101,7 @@ date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker       = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
+custom_css_marker       = "#marker_appended" # a word in the file to mark it was updated
 
 svg_color               = "darkseagreen"
 #-----------------------------------------
@@ -136,12 +136,13 @@ font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 #-----------------------------------------
 # html_infossil_link
 #----------------------------------------- 
-#html_infossil       = f"""<a href="https://infossil.org">infossil.org</a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com">green<sup>4</sup>matics</a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com">on<sup>4</sup>matics<sup>.ai</sup></a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com"><sup>infossil</sup></a>"""
-html_infossil_link       = f"""<a href="https://1001suns.com">infossil</a>"""
-open_resource_link       = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
+#html_infossil          = f"""<a href="https://infossil.org">infossil.org</a>"""
+html_infossil_link      = f"""<a href="https://1001suns.com">green<sup>4</sup>matics</a>"""
+html_infossil_link      = f"""<a href="https://1001suns.com">on<sup>4</sup>matics<sup>.ai</sup></a>"""
+html_infossil_link      = f"""<a href="https://1001suns.com"><sup>infossil</sup></a>"""
+html_infossil_link      = f"""<a href="https://1001suns.com">infossil</a>"""
+html_by_infossil_link   = f"""<a href="https://1001suns.com">by infossil</a>"""
+open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
 #-----------------------------------------
 # init the colorama module
 #----------------------------------------- 

@@ -973,11 +973,11 @@ if __name__ == "__main__":
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"{config.svg_leaf_img} This is the Low Carbon Gateway of {same_page_link}" # <br/>{svg_percircle}
+                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> This is the Low Carbon Gateway of {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
                 banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"{config.svg_leaf_img} Dies ist der Low Carbon Gateway von {same_page_link}"
+                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> Dies ist der Low Carbon Gateway von {same_page_link}"
                 banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
                 
             #---------------------------
