@@ -68,7 +68,7 @@ if __name__ == "__main__":
     
     b_perform_pdf_compression           = False 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = True
+    b_perform_image_conversion_force        = False
     
     b_replace_conversions               = False
     
@@ -925,11 +925,10 @@ if __name__ == "__main__":
         files_index_html = wh.collect_files_func(project_folder, func=func)
         #print(*files_index_html, sep="\n\t")
         
-        color = "darkseagreen"
         svg_percircle = f"""
         <div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
             <g id="myid">
-                <circle stroke="{color}"
+                <circle stroke="{config.svg_color}"
                         stroke-width="30px"
                         fill="none"
                         cx="250"
@@ -940,7 +939,7 @@ if __name__ == "__main__":
                     dominant-baseline="central"
                     x="50%"
                     y="50%"
-                    fill="{color}">
+                    fill="{config.svg_color}">
                     <tspan font-size="1.0em">{perc100_saved:.0f}</tspan><tspan font-size="0.9em">％</tspan>
                 </text> 
             </g>     
@@ -973,11 +972,11 @@ if __name__ == "__main__":
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"This is the Low Carbon proxy of {same_page_link}" # <br/>{svg_percircle}
+                banner_header_text = f"{config.svg_leaf_img} This is the Low Carbon proxy of {same_page_link}" # <br/>{svg_percircle}
                 banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"Dies ist der Low Carbon Proxy von {same_page_link}"
+                banner_header_text = f"{config.svg_leaf_img} Dies ist der Low Carbon Proxy von {same_page_link}"
                 banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
                 
             #---------------------------

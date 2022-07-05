@@ -101,8 +101,9 @@ date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker       = "#marker_for_custom_css" # a word in the file to mark it was updated
+custom_css_marker       = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 
+svg_color               = "darkseagreen"
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
@@ -139,6 +140,7 @@ font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
 html_infossil_link       = f"""<a href="https://1001suns.com">green<sup>4</sup>matics</a>"""
 html_infossil_link       = f"""<a href="https://1001suns.com">on<sup>4</sup>matics<sup>.ai</sup></a>"""
 html_infossil_link       = f"""<a href="https://1001suns.com"><sup>infossil</sup></a>"""
+html_infossil_link       = f"""<a href="https://1001suns.com">infossil</a>"""
 open_resource_link       = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
 #-----------------------------------------
 # init the colorama module
@@ -209,29 +211,32 @@ footer_social_html_TEXT = """
 # https://css-tricks.com/change-color-of-svg-on-hover/
 _params = """ rel="nofollow noopener" target="_blank"   """ # style="margin: 0 10vw;"
 
-#_ps     = lambda s : f"""<object type="image/svg+xml" data="{path_root_icons+str(s)+'.svg'}" alt="{s}" class="icon icon-{s}"> </object> """
-#_ps     = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" class="icon icon-{s}" />"""
-_ps     = lambda s : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="icon icon-{s}" /> """
-footer_social_html= f"""
+#_ps    = lambda s : f"""<object type="image/svg+xml" data="{path_root_icons+str(s)+'.svg'}" alt="{s}" class="icon icon-{s}"> </object> """
+#_ps    = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" class="icon icon-{s}" />"""
+###_ps  = lambda s : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="icon icon-{s}" /> """
+_ps_scs = lambda s, c, sty : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="{c}" style="{sty}" /> """
+_icon   = lambda s : _ps_scs(s, f"icon icon-{s}", "")
+footer_social_html = f"""
 <div id="unpowered-social-media-footer">
     <a href="https://twitter.com/KA_digital" {_params} >
-        {_ps("twitter")}
+        {_icon("twitter")}
     </a>
     <a href="https://www.facebook.com/karlsruhe.digital" {_params} >
-        {_ps("facebook")}
+        {_icon("facebook")}
     </a>
     <a href="https://www.instagram.com/karlsruhe.digital/" {_params} >
-        {_ps("instagram")}
+        {_icon("instagram")}
     </a>
     <a href="https://de.linkedin.com/company/karlsruhedigital" {_params} >
-        {_ps("linkedin")}
+        {_icon("linkedin")}
     </a>
     <a href="mailto:info@karlsruhe.digital">
-        {_ps("mailto")}
+        {_icon("mailto")}
     </a>
 </div>
 """
 
+svg_leaf_img = _ps_scs("leaf", "svg-leaf", "")
 
 #-----------------------------------------
 # 

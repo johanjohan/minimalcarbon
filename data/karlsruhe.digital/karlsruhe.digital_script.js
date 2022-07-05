@@ -111,7 +111,7 @@ $(document).ready(function () {
         dots: false,
         margin: 0,
         autoplay: true, // 3j
-        autoplayTimeout: 10000, // 3j 5000
+        autoplayTimeout: 5000, // 3j 5000
         checkVisible: false,
         onInitialized: addItemNumberToNavigation,
         onChanged: changeItemNumber
@@ -189,7 +189,19 @@ $(document).ready(function () {
         var countNumber = '';
 
         if (idEl == '#hero-swiper') {
-            e.item.count = my_hero_count // 3j fixes the blank shit
+            //console.log("addItemNumberToNavigation", idEl, e.item);
+            my_hero_count = e.item.count - 3
+            e.item.count = my_hero_count
+
+            if(my_hero_count == 1) {
+                $('.owl-carousel').trigger('stop.owl.autoplay');  
+            }
+
+            //console.log("addItemNumberToNavigation", "my_hero_count", my_hero_count);
+        }
+
+        if (idEl == '#hero-swiper') {
+            //e.item.count = my_hero_count // 3j fixes the blank shit
             itemNumber = '1';
             countNumber = '<span class="color-white">/' + e.item.count + endSpanEl;
         }
@@ -205,18 +217,30 @@ $(document).ready(function () {
     }
 
     function changeItemNumber(e) {
+
         var idEl = '#' + e.target.id;
         var item = e.item.index - 1;
         var count = e.item.count;
+
+        if (idEl == '#hero-swiper') {
+
+            // console.log("changeItemNumber", idEl);
+            // console.log("\t", e.item, e.page, e.property, e.isTrigger);
+
+            // fix the ugly white slide
+            if (e.item.index > e.item.count) {
+                //console.log("BAD e.item.index", e.item.index);
+                $('#hero-swiper').trigger('to.owl.carousel', 0); // LIVE SAVER 0
+            }
+        }
 
         if (idEl == '#blog-swiper' || idEl == '#theses-swiper') {
             item = e.page.index + 1;
         } 
         else if (idEl == '#hero-swiper') {
 
-            // console.log("item", item);
-            // console.log("e.item.count", e.item.count);
-            // console.log("e.item.index", e.item.index);
+            //my_hero_count = count - 3 // differs on various pages: 5, 4
+            //console.log("my_hero_count", my_hero_count);
 
             item = item % my_hero_count;
             item += 1;
@@ -231,9 +255,6 @@ $(document).ready(function () {
                 item -= count;
             }
         }
-
-
-
 
         if (idEl != '#hero-swiper' && item < 10) {
             item = '0' + item;
