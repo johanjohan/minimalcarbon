@@ -66,14 +66,15 @@ if __name__ == "__main__":
     b_copy_custom_script                = True
     b_remove_fonts_css                  = False
     
-    b_perform_pdf_compression           = True 
-    b_perform_image_conversion          = True
+    b_perform_pdf_compression           = False 
+    b_perform_image_conversion          = False
     b_perform_image_conversion_force        = False
     
     b_replace_conversions               = False
+    
+    b_minify1                           = True
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
-    b_minify1                           = True
     b_minify2                           = True
     b_export_site                       = True 
     b_export_site_force                     = True
@@ -351,7 +352,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_image_conversion")
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 55 # 66
+        quality         = 55 # 66 55
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = 30 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
@@ -895,10 +896,21 @@ if __name__ == "__main__":
     #-----------------------------------------
     # b_minify1
     #-----------------------------------------
-    if b_minify1:
-        wh.logo("b_minify1")
+    def minify(title="minify"):
+        
+        wh.logo(title)
+        
         for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
-            wh.minify_on_disk(file)
+            wh.html_minify_on_disk(file)
+            
+        for file in wh.collect_files_endswith(config.project_folder, [".css"]):
+            wh.css_minify_on_disk(file)
+            
+        for file in wh.collect_files_endswith(config.project_folder, [".js"]):
+            wh.js_minify_on_disk(file)
+            
+    if b_minify1:
+        minify("b_minify1")
 
     #-----------------------------------------
     # get_project_total_size
@@ -934,8 +946,7 @@ if __name__ == "__main__":
                     x="50%"
                     y="50%"
                     fill="{color}">
-                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan>
-                    <tspan font-size="0.5em">%</tspan>
+                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan><tspan font-size="0.5em">%</tspan>
                 </text> 
             </g>     
         </svg></div>"""
@@ -986,6 +997,29 @@ if __name__ == "__main__":
                     "//section[@id='section-1']", 
                     "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
                 )
+                
+            # # section 1 unneeded
+            # hx.remove_by_xpath(tree, "//section[@id='section-1']//div[contains(@class, 'owl-dots' )]")
+            # hx.remove_by_xpath(tree, "//section[@id='section-1']//div[contains(@class, 'owl-nav'  )]")
+            
+            # set first item zo 07
+            # //div[@id='testimonial-swiper']//span[contains(@class, 'swiper-item-number' )]
+            hx.set_text_by_xpath(
+                tree, 
+                "//div[@id='testimonial-swiper']//span[contains(@class, 'swiper-item-number' )]", 
+                "07"
+            )
+            
+            # ###OK!!!!!!!!!!!
+            # hx.set_text_by_xpath(
+            #     tree, 
+            #     "//li[@id='menu-item-2675']/a", 
+            #     "was struktur now replaced yyyy<<<<<"
+            # )
+            
+            # # last slide from hero-swiper
+            # # //section[@id='section-1']//div[contains(@class, 'owl-item'  )][last()]
+            # hx.remove_by_xpath(tree, "//section[@id='section-1']//div[contains(@class, 'owl-item'  )][last()]")
             
             #---------------------------
             # banners
@@ -1132,9 +1166,7 @@ if __name__ == "__main__":
     # b_minify2
     #-----------------------------------------
     if b_minify2:
-        wh.logo("b_minify2")
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
-            wh.minify_on_disk(file)
+        minify("b_minify2")
        
     #-----------------------------------------
     # export

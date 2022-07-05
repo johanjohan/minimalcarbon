@@ -1257,7 +1257,7 @@ def html_sanitize(content, vb=False):
     
     return content
     
-def html_minify(content, vb=True):
+def html_minify(content, vb=False):
     
     length_orig = len(content)
     
@@ -1292,21 +1292,30 @@ def html_minify(content, vb=True):
     
     return content
 
-def minify_on_disk(filename):
-
-    print("minify_on_disk:", GRAY, os.path.basename(filename), RESET, end=' ')
-    
-    # with open(filename, "r", encoding="utf-8") as file:
-    #     data = file.read()
-                
-    # with open(filename, "w", encoding="utf-8") as file:
-    #     file.write(html_minify(data))
-    #     file.close()    
-        
+def __minify_on_disk(filename, func_mini):
+    print("__minify_on_disk:", GRAY, os.path.basename(filename), RESET, end= ' ')
     data        = string_from_file(filename)
-    mini_data   = html_minify(data)
+    mini_data   = func_mini(data)
+    print(vt_saved_percent_string(len(data), len(mini_data)))
     if len(mini_data) < len(data):
         string_to_file(mini_data, filename)
+    
+def html_minify_on_disk(filename):
+    assert filename.endswith(".html"), filename
+    __minify_on_disk(filename, html_minify)
+  
+# http://opensource.perlig.de/rcssmin/  
+import rcssmin    
+def css_minify_on_disk(filename): 
+    assert filename.endswith(".css"), filename
+    __minify_on_disk(filename, rcssmin.cssmin)      
+ 
+import rjsmin   
+def js_minify_on_disk(filename): 
+    assert filename.endswith(".js"), filename
+    __minify_on_disk(filename, rjsmin.jsmin)      
+    
+    
 #-----------------------------------------
 # 
 #-----------------------------------------

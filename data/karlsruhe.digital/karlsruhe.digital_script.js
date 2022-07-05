@@ -191,6 +191,11 @@ $(document).ready(function () {
             countNumber = '<span class="color-white">/' + e.item.count + endSpanEl;
         }
 
+        if (idEl == '#testimonial-swiper') { // 3j
+            itemNumber = '07';
+        }
+
+
         html += openSpanEl + itemNumber + endSpanEl + countNumber;
 
         $(idEl + ' .owl-prev').after(html);

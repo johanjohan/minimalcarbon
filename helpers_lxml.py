@@ -65,6 +65,12 @@ def remove_by_xpath(tree, sxpath):
         print("\t removing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().remove(item)     
 
+def set_text_by_xpath(tree, sxpath, text):
+    #print("remove_by_xpath", sxpath)
+    for item in tree.xpath(sxpath):
+        print("\t set text:", text, hw.CYAN + sxpath + hw.RESET)
+        item.text = text     
+
 def replace_xpath_with_fragment(tree, sxpath, html_string):
     #print("replace_by_xpath", sxpath)
     for item in tree.xpath(sxpath):
