@@ -67,8 +67,8 @@ if __name__ == "__main__":
     b_remove_fonts_css                  = False
     
     b_perform_pdf_compression           = False 
-    b_perform_image_conversion          = False
-    b_perform_image_conversion_force        = False
+    b_perform_image_conversion          = True
+    b_perform_image_conversion_force        = True
     
     b_replace_conversions               = False
     
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_image_conversion")
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 55 # 66 55
+        quality         = 60 # 66 55
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = 30 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
@@ -466,12 +466,12 @@ if __name__ == "__main__":
                             
                     return image
                             
-                if is_transp:
+                force_transp = False # does not colorize transp
+                print("\t\t", "force_transp:", wh.CYAN, force_transp, wh.RESET)
+                if force_transp:
                     mask  = get_mask(image) # after resizing
-                    #mask.save(out_path + "__mask__.png", 'png', optimize=True, lossless=True)
                 else:
                     mask = None
-                
                 
 
                 if halftone and not is_transp:
@@ -479,7 +479,7 @@ if __name__ == "__main__":
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                 
-                if b_colorize: # and not is_transp: 
+                if force_transp or (b_colorize and not is_transp): 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -490,7 +490,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
-                if blend_alpha < 1.0: # (not is_transp) and (blend_alpha < 1.0): 
+                if force_transp or ((not is_transp) and (blend_alpha < 1.0)): 
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -498,9 +498,7 @@ if __name__ == "__main__":
                         blend_alpha
                     )
 
-                if is_transp:
-                    #image = Image.alpha_composite(image.convert("RGBA"), alpha)
-                    #####image = Image.composite(im1, im2, mask)
+                if force_transp:
                     image = image.convert("RGBA")
                     image = apply_mask(image, mask)
                                             
@@ -519,13 +517,10 @@ if __name__ == "__main__":
                 ###image = image.convert(rgb_mode)
                     
                 if is_transp:
-                    # # # # print("\t\t", wh.YELLOW, "experimental: forcing PA on png !", wh.RESET)
-                    # # # # image = image.convert("PA")
                     image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
                 else:
                     image.save(out_path, 'webp', optimize=True, quality=quality) 
-                # print("\t\t", "is_transp:", is_transp)
-                # print("\t\t", "mode     :", image.mode)
+
                 print("\t\t", "quality  :", quality)
                 print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 
@@ -940,16 +935,17 @@ if __name__ == "__main__":
                         cx="250"
                         cy="250"
                         r="230" />
-                <text style="font: bold 15.1rem sans-serif;"
+                <text style="font: bold 11.1rem sans-serif;"
                     text-anchor="middle"
                     dominant-baseline="central"
                     x="50%"
                     y="50%"
                     fill="{color}">
-                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan><tspan font-size="0.5em">%</tspan>
+                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan><tspan font-size="0.9em">％</tspan>
                 </text> 
             </g>     
         </svg></div>"""
+        # % ﹪ ％ # 15.1rem 1.0em 0.5em # 11.1rem 1 1 #
 
         for file in files_index_html:
             

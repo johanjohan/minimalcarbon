@@ -223,10 +223,24 @@ body {
     margin: 10px 10px
     }
     
+    /* all links color */
+    /* h1, h2, h3, a, span {
+        color: #55baef !important;
+        color: #6a9f9d !important;
+    }
+     */
+    /* button ramp */
+    /* .button {
+        background-image: linear-gradient(to right,#2caad7,#1380b2);
+        background-image: linear-gradient(to right,#6a9f9d,#558381);
+    }
     
-    
-    
-    
+     */
+
+     /* button border issue */
+     .button {
+        border: 0px solid transparent;
+    }
     
     
     

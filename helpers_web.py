@@ -1299,6 +1299,8 @@ def __minify_on_disk(filename, func_mini):
     print(vt_saved_percent_string(len(data), len(mini_data)))
     if len(mini_data) < len(data):
         string_to_file(mini_data, filename)
+    else:
+        print("\t", "useless compressions: undo...")
     
 def html_minify_on_disk(filename):
     assert filename.endswith(".html"), filename

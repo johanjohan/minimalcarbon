@@ -6,11 +6,13 @@
                 cx="250"
                 cy="250"
                 r="222" />
-        <text style="font: bold 12rem sans-serif;"
+        <text style="font: bold 11.1rem sans-serif;"
               text-anchor="middle"
               dominant-baseline="central"
               x="50%"
               y="50%"
-              fill="darkseagreen">88%</text> 
+              fill="darkseagreen">
+			  <tspan font-size="1.0em">99</tspan><tspan font-size="0.9em">％</tspan>
+			  </text> 
     </g>     
 </svg>
