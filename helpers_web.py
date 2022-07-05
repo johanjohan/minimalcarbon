@@ -1294,7 +1294,7 @@ def html_minify(content, vb=True):
 
 def minify_on_disk(filename):
 
-    print("minify_on_disk:", GRAY, filename, RESET, end=' ')
+    print("minify_on_disk:", GRAY, os.path.basename(filename), RESET, end=' ')
     
     # with open(filename, "r", encoding="utf-8") as file:
     #     data = file.read()
