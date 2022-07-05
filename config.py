@@ -114,7 +114,8 @@ f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
 ])
 f_originals_excludes = [
     suffix_compressed       + ".webp", 
-    pdf_compression_suffix  + ".pdf"
+    pdf_compression_suffix  + ".pdf",
+    "sub_media"
 ]
 
 f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [

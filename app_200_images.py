@@ -42,13 +42,20 @@ import shutil
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
+
+            
+    #-----------------------------------------
+    # dir_size_orig
+    #-----------------------------------------
+    dir_size_orig = wh.get_directory_total_size(config.project_folder)
+
     
     #pag.alert(text=f"good time to backup htdocs!")
     #-----------------------------------------
     # get sizes
     #-----------------------------------------    
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
-                
+    #exit(0)            
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -57,13 +64,13 @@ if __name__ == "__main__":
 
     b_append_custom_css                 = True
     b_copy_custom_script                = True
-    b_remove_fonts_css                  = True
+    b_remove_fonts_css                  = False
     
     b_perform_pdf_compression           = True 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = False
+    b_perform_image_conversion_force        = True
     
-    b_replace_conversions               = True
+    b_replace_conversions               = False
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
     b_minify                            = True
@@ -76,11 +83,13 @@ if __name__ == "__main__":
     if b_delete_conversion_originals:
         if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
-            
+    
     #-----------------------------------------
-    # dir_size_orig
+    # remove path_conversions
     #-----------------------------------------
-    dir_size_orig = wh.get_directory_total_size(config.project_folder)
+    wh.logo("remove path_conversions")        
+    if os.path.isfile(path_conversions):
+        os.remove(path_conversions)
 
     #-----------------------------------------
     # copy icons
@@ -341,7 +350,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_image_conversion")
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 66 # 66
+        quality         = 55 # 66
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = 30 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
@@ -388,16 +397,23 @@ if __name__ == "__main__":
                 print("\t", "{}/{}:".format(cnt+1, len(images)), os.path.basename(path))
                 print("\t\t", wh.progress_string(cnt / len(images), verbose_string="", VT=wh.CYAN, n=33))
                 
-                size_orig = os.path.getsize(path)
-                image = Image.open(path)
+                size_orig   = os.path.getsize(path)
+                image       = Image.open(path)
                 is_transp   = wh.image_has_transparency(image)
-                #image       = image.convert('RGBA' if is_transp else 'RGB')
-                wh_orig = image.size
+                #image      = image.convert('RGBA' if is_transp else 'RGB')
+                wh_orig     = image.size
                 
+                old_mode    = image.mode
+                
+                if is_transp:
+                    image = image.convert("RGBA")
+                else:
+                    image = image.convert("RGB")
+
                 print("\t\t", "is_transp:", is_transp)
-                print("\t\t", "mode     :", image.mode)
+                print("\t\t", "mode     :", old_mode, "-->", image.mode)
                 print("\t\t", "size     :", image.size)
-                
+                                
                 if False:
                     w, h = image.size
                     print("\t\t", "size:", image.size)
@@ -412,13 +428,56 @@ if __name__ == "__main__":
                     image.thumbnail(max_dim, resample=resample)
                     image_orig = image.copy()
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
+                    
+                def get_mask(image):
+                    
+                    if image.mode != "RGBA":
+                        return None
+                    
+                    mask    = image.copy()
+                    mixels  = mask.load() # TODO needs copy?
+                    
+                    width, height   = image.size
+                    for x in range(width):
+                        for y in range(height):
+                            r,g,b,a     = tuple(mixels[x,y])
+                            mixels[x,y] = tuple([a,a,a,a])
                             
+                    return mask
+                    
+                def apply_mask(image, mask):
+                    
+                    assert image.size == mask.size   
+                    assert image.mode == "RGBA",  image.mode 
+                    assert mask.mode  == "RGBA",  mask.mode 
+                    
+                    image   = image.convert("RGBA")
+                    pixels  = image.load() # this is not a list, nor is it list()'able
+                    mixels  = mask.load()      
+                    
+                    width, height = image.size    
+                    for x in range(width):
+                        for y in range(height):
+                            r,g,b,a     = tuple(pixels[x,y])
+                            a           = mixels[x,y][0]
+                            pixels[x,y] = tuple([r,g,b,a])
+                            
+                    return image
+                            
+                if is_transp:
+                    mask  = get_mask(image) # after resizing
+                    #mask.save(out_path + "__mask__.png", 'png', optimize=True, lossless=True)
+                else:
+                    mask = None
+                
+                
+
                 if halftone and not is_transp:
                     image = image.convert("L")
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                 
-                if b_colorize and not is_transp: 
+                if b_colorize: # and not is_transp: 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -429,14 +488,20 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
-                if (not is_transp) and( blend_alpha < 1.0): 
+                if blend_alpha < 1.0: # (not is_transp) and (blend_alpha < 1.0): 
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
                         image.convert("RGB"), 
                         blend_alpha
                     )
-                    
+
+                if is_transp:
+                    #image = Image.alpha_composite(image.convert("RGBA"), alpha)
+                    #####image = Image.composite(im1, im2, mask)
+                    image = image.convert("RGBA")
+                    image = apply_mask(image, mask)
+                                            
                 if b_blackwhite:
                     if is_transp:
                         image = image.convert("LA")
@@ -452,6 +517,8 @@ if __name__ == "__main__":
                 ###image = image.convert(rgb_mode)
                     
                 if is_transp:
+                    # # # # print("\t\t", wh.YELLOW, "experimental: forcing PA on png !", wh.RESET)
+                    # # # # image = image.convert("PA")
                     image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
                 else:
                     image.save(out_path, 'webp', optimize=True, quality=quality) 
@@ -565,6 +632,278 @@ if __name__ == "__main__":
         ### for /> 
     ### b_perform_replacement />            
             
+                
+    # # # # #-----------------------------------------
+    # # # # # b_fix_xml
+    # # # # #-----------------------------------------
+    # # # # if b_fix_xml_elements:
+    # # # #     wh.logo("b_fix_xml_elements")
+        
+    # # # #     func=lambda s : True # finds all
+    # # # #     func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
+    # # # #     func=lambda file : file.lower().endswith("index.html")
+    # # # #     files_index_html = wh.collect_files_func(project_folder, func=func)
+    # # # #     #print(*files_index_html, sep="\n\t")
+        
+    # # # #     color = "darkseagreen"
+    # # # #     svg_percircle = f"""<div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
+    # # # #         <g id="myid">
+    # # # #             <circle stroke="{color}"
+    # # # #                     stroke-width="12px"
+    # # # #                     fill="none"
+    # # # #                     cx="250"
+    # # # #                     cy="250"
+    # # # #                     r="222" />
+    # # # #             <text style="font: bold 12rem sans-serif;"
+    # # # #                 text-anchor="middle"
+    # # # #                 dominant-baseline="central"
+    # # # #                 x="50%"
+    # # # #                 y="50%"
+    # # # #                 fill="{color}">{perc100_saved:.0f}%</text> 
+    # # # #         </g>     
+    # # # #     </svg></div>"""
+
+
+    # # # #     for file in files_index_html:
+            
+    # # # #         print("-"*80)
+    # # # #         print("file", wh.CYAN + file + wh.RESET)
+    # # # #         wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
+    # # # #         base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
+    # # # #         same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
+            
+    # # # #         """
+    # # # #         Dies ist die energie-effiziente
+    # # # #         energie optimierte 
+    # # # #         Dies ist die Low Carbon Website
+    # # # #         Dies ist die Low Carbon Website
+    # # # #         This is the environmentally aware version of 
+    # # # #         Dies ist die umweltbewusste Seite
+    # # # #         This is the environmentally friendly twin of 
+    # # # #         .<br/>The energy consumption of this website was reduced by {saved_string}.
+    # # # #         .<br/>Der Energieverbrauch dieser Website wurde um {saved_string} reduziert.
+    # # # #         """
+    # # # #         # https://babel.pocoo.org/en/latest/dates.html
+    # # # #         from babel.dates import format_date, format_datetime, format_time
+    # # # #         dt = config.date_time_now
+    # # # #         format='full' # long
+    # # # #         saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
+    # # # #         if "/en/" in wp_path:
+    # # # #             dt_string = format_date(dt, format=format, locale='en')
+    # # # #             banner_header_text = f"This is the Low Carbon proxy of {same_page_link}" # <br/>{svg_percircle}
+    # # # #             banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+    # # # #         else:
+    # # # #             dt_string = format_date(dt, format=format, locale='de_DE')
+    # # # #             banner_header_text = f"Dies ist der Low Carbon Proxy von {same_page_link}"
+    # # # #             banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                
+    # # # #         #---------------------------
+    # # # #         # lxml
+    # # # #         #---------------------------    
+    # # # #         tree = lxml.html.parse(file) # lxml.html.fromstring(content)
+            
+    # # # #         # start the hocus pocus in focus
+    # # # #         # use section-1 from original site as frag
+    # # # #         if False and False:
+    # # # #             hx.replace_xpath_with_fragment_from_file(
+    # # # #                 tree, 
+    # # # #                 "//section[@id='section-1']", 
+    # # # #                 "data/karlsruhe.digital_fragment_section1.html" # frag_file_path
+    # # # #             )
+            
+    # # # #         #---------------------------
+    # # # #         # banners
+    # # # #         #---------------------------    
+    # # # #         if True: # +++
+    # # # #             # TODO must be /en/ and not depending on wp_path /en/
+    # # # #             banner_header = hx.banner_header(banner_header_text)
+    # # # #             hx.remove_by_xpath(tree, "//div[@class='banner_header']")
+    # # # #             print("\t adding banner_header")    
+    # # # #             try:                
+    # # # #                 tree.find(".//header").insert(0, banner_header)    
+    # # # #             except Exception as e:
+    # # # #                 print("\t", wh.RED, e, wh.RESET)
+    # # # #                 exit(1)
+
+    # # # #             """ 
+    # # # #             media
+    # # # #             <footer id="colophon" class="site-footer with-footer-logo" role="contentinfo"><div class="footer-container"><div class="logo-container"><a href="https://media.karlsruhe.digital/" title="" rel="home" class="footer-logo tgwf_green" data-hasqtip="14"><img src="https://kadigital.s3-cdn.welocal.cloud/sources/5ffed45149921.svg" alt=""></a></div><div class="footer-nav"><div class="menu-footer-container"><ul id="menu-footer" class="footer-menu"><li id="menu-item-551" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-551"><a target="_blank" rel="noopener" href="/impressum/index.html">Impressum</a></li><li id="menu-item-550" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-550"><a target="_blank" rel="noopener" href="/datenschutz/index.html">Datenschutz</a></li></ul></div> </div></div><div class="footer-socials-wrapper"><ul class="footer-socials"><li><a href="https://www.facebook.com/karlsruhe.digital" target="" rel="nofollow" class="social ss-facebook tgwf_green" data-hasqtip="15"><span>Facebook</span></a></li><li><a href="https://twitter.com/KA_digital" target="" rel="nofollow" class="social ss-twitter tgwf_grey"><span>Twitter</span></a></li><li><a href="https://www.instagram.com/karlsruhe.digital/" target="" rel="nofollow" class="social ss-instagram tgwf_green" data-hasqtip="16"><span>Instagram</span></a></li><li><a href="mailto:info@karlsruhe.digital" target="" rel="nofollow" class="social ss-mail"><span>Mail</span></a></li></ul></div></footer>
+
+    # # # #             """                
+    # # # #             banner_footer = hx.banner_footer(banner_footer_text)
+    # # # #             hx.remove_by_xpath(tree, "//div[@class='banner_footer']")
+    # # # #             print("\t adding banner_footer")  
+    # # # #             try:
+    # # # #                 footer = tree.find(".//footer") # ".//body"
+    # # # #                 if not footer:
+    # # # #                     footer = tree.find(".//body")
+    # # # #                 footer.append(banner_footer)
+    # # # #             except Exception as e:
+    # # # #                 print("\t", wh.RED, e, wh.RESET)    
+    # # # #                 exit(1)                
+
+    # # # #         #---------------------------
+    # # # #         # image attributes srcset
+    # # # #         #---------------------------    
+    # # # #         tree = hx.remove_attributes(tree, "img", ["srcset", "sizes", "xxxsrcset", "xxxsizes", "XXXsrcset", "XXXsizes"])
+
+    # # # #         # remove logo in footer: body > footer > div.footer-top > div > div > div.col-xl-4
+    # # # #         hx.remove_by_xpath(tree, "//div[@class='footer-top']//a[@class='logo']")
+
+    # # # #         #---------------------------
+    # # # #         # menu
+    # # # #         #---------------------------    
+    # # # #         b_hide_search = True
+    # # # #         if b_hide_search:
+    # # # #             hx.remove_by_xpath(tree, "//li[@id='menu-item-136']") # search in menu
+    # # # #         else:
+    # # # #             #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
+    # # # #             pass
+            
+    # # # #         if b_hide_media_subdomain:
+    # # # #             hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
+
+    # # # #         # all fa font awesome TODO also gets rid of dates etc...
+    # # # #         # hx.remove_by_xpath(tree, "//i[contains(@class, 'fa-')]")
+
+    # # # #         # <span class="swiper-item-number">6</span>
+    # # # #         # if True:
+    # # # #         #     #hx.remove_by_xpath(tree, "//span[@class='swiper-item-number']")
+    # # # #         #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='swiper-item-number']")
+    # # # #         #     hx.remove_by_xpath(tree, "//div[@id='hero-swiper']//span[@class='color-white']")
+            
+
+    # # # #         #---------------------------
+    # # # #         # scripts
+    # # # #         #---------------------------                      
+    # # # #         # //script[normalize-space(text())]
+    # # # #         hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), '_wpemojiSettings' )]")
+    # # # #         hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'ftsAjax' )]")
+    # # # #         hx.remove_by_xpath(tree, "//script[contains(normalize-space(text()), 'checkCookie' )]")
+            
+    # # # #         hx.remove_by_xpath(tree, "//head//script[contains(@src, 'google-analytics' )]")
+    # # # #         hx.remove_by_xpath(tree, "//head//script[contains(@src, 'wp-emoji-release' )]")
+    # # # #         hx.remove_by_xpath(tree, "//head//script[contains(@src, 'feed-them-social' )]")
+            
+    # # # #         hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery-migrate' )]")
+    # # # #         #hx.remove_by_xpath(tree, "//head//script[contains(@src, 'jquery.js' )]") >> needed for menu !!!
+            
+    # # # #         hx.remove_by_xpath(tree, "//head//script[@async]")
+    # # # #         hx.remove_by_xpath(tree, "//head//script[@defer]")
+            
+    # # # #         # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+    # # # #         # hx.remove_by_xpath(tree, "//head//script[@src='https://www.google-analytics.com/analytics.js']")
+    # # # #         # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+    # # # #         # hx.remove_by_xpath(tree, "//head//script[@src='/wp-includes/js/wp-emoji-release.min.js']")
+            
+    # # # #         #hx.remove_by_xpath(tree, "//body//script[contains(@src, 'bootstrap' )]")
+    # # # #         #hx.remove_by_xpath(tree, "//body//script[contains(@src, 'owl.carousel' )]")
+    # # # #         ####hx.remove_by_xpath(tree, "//body//script[contains(@src, 'script.js' )]") NO!!
+    # # # #         hx.remove_by_xpath(tree, "//body//script[contains(@src, 'wp-embed' )]")
+    # # # #         hx.remove_by_xpath(tree, "//body//script[contains(@src, 'googletagmanager' )]")
+    # # # #         hx.remove_by_xpath(tree, "//body//script[contains(text(), 'gtag' )]")
+            
+    # # # #         #---------------------------
+    # # # #         # twitter feeds
+    # # # #         #---------------------------   
+    # # # #         hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
+            
+    # # # #         #---------------------------
+    # # # #         # social media footer
+    # # # #         #--------------------------- 
+    # # # #         hx.replace_xpath_with_fragment(tree, "//div[contains(@class, 'footer-bottom' )]//div[contains(@class, 'footer-social-links' )]", config.footer_social_html)
+    # # # #         hx.replace_xpath_with_fragment(tree, "//div[@id='unpowered-social-media-footer']", config.footer_social_html)
+
+    # # # #         #---------------------------
+    # # # #         # swipers
+    # # # #         #--------------------------- 
+    # # # #         # //div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]
+    # # # #         ###hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][last()]")
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@id, 'blog-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@id, 'hero-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@id, 'testimonial-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@id, 'theses-swiper' )]//div[contains(@class, 'owl-nav' )][1]")
+            
+    # # # #         #---------------------------
+    # # # #         # video/media player
+    # # # #         #---------------------------          
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@class, 'wp-video' )]")            
+    # # # #         hx.remove_by_xpath(tree, "//div[contains(@class, 'mejs-video' )]")            
+
+    # # # #         #---------------------------
+    # # # #         # save
+    # # # #         #--------------------------- 
+    # # # #         out_path = file # + "__test.html"
+    # # # #         print("writing:", out_path)
+    # # # #         tree.write(
+    # # # #             out_path, 
+    # # # #             pretty_print=True, 
+    # # # #             xml_declaration=False,   
+    # # # #             encoding="utf-8",   # !!!!
+    # # # #             method='html'       # !!!!
+    # # # #         )
+        
+    
+    # # # #     # files_index_html = wh.collect_files_endswith(project_folder, ["index.html"])
+    # # # #     # for file in files_index_html:
+    # # # #     #     print("-"*80)
+    # # # #     #     content = wh.string_from_file(file, sanitize=False)
+    # # # #     #     soup    = bs(content)
+    # # # #     #     content = soup.prettify()
+    # # # #     #     print(content)
+                      
+    #-----------------------------------------
+    # 
+    #-----------------------------------------
+    if b_delete_conversion_originals:
+        wh.logo("b_delete_conversion_originals")
+        conversions = conv.load(path_conversions)    
+        
+        for conversion in conversions:
+            fr_to_delete, __to = conversion
+            if wh.file_exists_and_valid(fr_to_delete):
+                print("\t", wh.RED, "removing:", os.path.basename(fr_to_delete), wh.RESET)
+                os.remove(fr_to_delete)
+                
+
+    #-----------------------------------------
+    # TODO collect files and make sitemap
+    #-----------------------------------------  
+    b_sitemap_xml = True
+    if b_sitemap_xml:
+        wh.logo("sitemap")
+        
+        urls = []
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+            urls.append(
+                wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
+            )
+        #print(*urls, sep="\n\t")
+        import sitemap
+        sitemap.sitemap_xml_from_list(urls, out_xml_path=config.project_folder+'sitemap.xml')
+     
+    #-----------------------------------------
+    # 
+    #-----------------------------------------  
+    # rm xmlrpc.ph   
+    wh.logo("rm xmlrpc.ph")
+    xmlrpc_path = config.project_folder+"xmlrpc.php"
+    if os.path.isfile(xmlrpc_path):
+        os.remove(xmlrpc_path)
+
+    #-----------------------------------------
+    # minify
+    #-----------------------------------------
+    if b_minify:
+        wh.logo("b_minify")
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+            wh.minify_on_disk(file)
+
+    #-----------------------------------------
+    # get_project_total_size
+    #-----------------------------------------
+    wh.logo("get_project_total_size")
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
                 
     #-----------------------------------------
     # b_fix_xml
@@ -784,59 +1123,10 @@ if __name__ == "__main__":
         #     soup    = bs(content)
         #     content = soup.prettify()
         #     print(content)
-                      
-    #-----------------------------------------
-    # 
-    #-----------------------------------------
-    if b_delete_conversion_originals:
-        wh.logo("b_delete_conversion_originals")
-        conversions = conv.load(path_conversions)    
-        
-        for conversion in conversions:
-            fr_to_delete, __to = conversion
-            if wh.file_exists_and_valid(fr_to_delete):
-                print("\t", wh.RED, "removing:", os.path.basename(fr_to_delete), wh.RESET)
-                os.remove(fr_to_delete)
-                
-    #-----------------------------------------
-    # minify
-    #-----------------------------------------
-    if b_minify:
-        wh.logo("b_minify")
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
-            wh.minify_on_disk(file)
-                
-    #-----------------------------------------
-    # 
-    #-----------------------------------------
-    dir_size_new = wh.get_directory_total_size(config.project_folder)
-    print("saved dir_size_new:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
-  
-    #-----------------------------------------
-    # TODO collect files and make sitemap
-    #-----------------------------------------  
-    b_sitemap_xml = True
-    if b_sitemap_xml:
-        wh.logo("sitemap")
-        
-        urls = []
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
-            urls.append(
-                wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
-            )
-        #print(*urls, sep="\n\t")
-        import sitemap
-        sitemap.sitemap_xml_from_list(urls, out_xml_path=config.project_folder+'sitemap.xml')
-     
-    # rm  xmlrpc.ph   
-    xmlrpc_path = config.project_folder+"xmlrpc.php"
-    if os.path.isfile(xmlrpc_path):
-        os.remove(xmlrpc_path)
-
+       
     #-----------------------------------------
     # export
     #-----------------------------------------
-   
     if b_export_site:
         wh.logo("b_export_site")
         
@@ -883,12 +1173,19 @@ if __name__ == "__main__":
             config.project_folder + "../__exported/",
             b_export_site_force=b_export_site_force
         )            
+
     #-----------------------------------------
     # 
     #-----------------------------------------
-    wh.logo("GREEN4matics")
+    dir_size_new = wh.get_directory_total_size(config.project_folder)
+    print("saved dir_size_new:", wh.vt_saved_percent_string(dir_size_orig, dir_size_new), config.project_folder)
+  
+    #-----------------------------------------
+    # get_project_total_size
+    #-----------------------------------------
+    wh.logo("get_project_total_size")
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
-
+       
     #-----------------------------------------
     # 
     #-----------------------------------------   

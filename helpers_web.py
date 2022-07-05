@@ -1643,7 +1643,7 @@ def get_project_total_size(project_folder, prefix=""):
     
     
     def __get_sizes(func, excludes, csv_out_path):
-        collected = []
+        collected = [["file","fsize","dt_m"]]
         total_size = 0
         files = collect_files_func(project_folder, func=func)
         files = links_remove_excludes(files, excludes)
@@ -1670,7 +1670,7 @@ def get_project_total_size(project_folder, prefix=""):
     )
     total_size_unpowered = __get_sizes(
         config.f_unpowered, 
-        excludes=[],
+        excludes=["font", "sub_media", "real3d-flipbook"], # some svg are fontawesome yakk
         csv_out_path=config.data_folder + prefix + "_export_unpowered_files.csv"
     )
     
