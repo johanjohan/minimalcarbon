@@ -137,7 +137,8 @@ footer .footer-bottom {
 }
 
 .button {
-    border: 0px solid transparent
+    /* border: 0px solid transparent; */
+    border: 2px solid #00a5e7;
 }
 
 .svg-leaf {
