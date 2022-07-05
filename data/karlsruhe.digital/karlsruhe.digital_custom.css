@@ -1,14 +1,19 @@
 /*#appended*/
+
+
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/******************************************************/
+/*      start of karlsruhe.digital_custom.css         */
 /******************************************************/
 /******************************************************/
 /******************************************************/
 /******************************************************/
 /******************************************************/
-/******************************************************/
-/******************************************************/
-/******************************************************/
-/******************************************************/
-/* start of karlsruhe.digital_custom.css */
+
+
+
 /* Fonts */
 body {
     /* font-family: "DIN W01", sans-serif; */
@@ -37,15 +42,8 @@ body {
     height: unset
 }
 
-/*
-header.scrolled {
-background-color: unset;
-}
 
-header .navbar {
-background-color: rgba(24, 38, 43, 0.8);
-}
-*/
+
 /*
 
 <div id="simple-banner" class="simple-banner">
@@ -62,17 +60,40 @@ Be very careful, bad CSS can break the banner.
 
 
 */
-/* navbar */
+
+
+/* header.scrolled {
+background-color: unset;
+}
+
+header .navbar {
+background-color: rgba(24, 38, 43, 0.8);
+background-color: rgba(143, 188, 143, 0.784);
+} */
+
+
 header.scrolled {
-    background-color: rgba(24, 38, 43, 0.8)
+    background-color: rgba(24, 38, 43, 0.8);
+    background-color: rgba(31, 86, 31, 0.85);
 }
 
 header .navbar {
     padding-top: 30px
 }
 
+header .banner_header {
+    background-color: rgba(31, 86, 31, 0.85);
+}
+
+header.scrolled .banner_header {
+    background-color: unset;
+}
+
+
+
+
 footer .footer-bottom {
-    padding: 10px 0 0px 0;  
+    padding: 10px 0 0 0
 }
 
 /* #banner_header {
@@ -100,9 +121,9 @@ color: green;
 #banner_footer a:hover {
 color: red;
 } */
-#banner_footer img {
+/* #banner_footer img {
     color: green
-}
+} */
 
 .banner_header_text,
 .banner_footer_text {
@@ -115,14 +136,14 @@ color: red;
 }
 
 .banner_header_text {
-    padding-top: 10px;
-    padding-bottom: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
     padding-left: 20%;
     padding-right: 20%
 }
 
 .banner_footer_text {
-    padding-top: 20px;
+    padding-top: 5px;
     padding-bottom: 20px;
     padding-left: 20%;
     padding-right: 20%
@@ -196,3 +217,12 @@ display: none;
     background-size: cover;
     margin: 10px 10px
 }
+
+
+
+
+
+
+
+
+
