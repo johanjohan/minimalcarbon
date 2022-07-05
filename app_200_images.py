@@ -68,12 +68,13 @@ if __name__ == "__main__":
     
     b_perform_pdf_compression           = True 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = True
+    b_perform_image_conversion_force        = False
     
     b_replace_conversions               = False
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
-    b_minify                            = True
+    b_minify1                           = True
+    b_minify2                           = True
     b_export_site                       = True 
     b_export_site_force                     = True
         
@@ -892,10 +893,10 @@ if __name__ == "__main__":
         os.remove(xmlrpc_path)
 
     #-----------------------------------------
-    # minify
+    # b_minify1
     #-----------------------------------------
-    if b_minify:
-        wh.logo("b_minify")
+    if b_minify1:
+        wh.logo("b_minify1")
         for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
             wh.minify_on_disk(file)
 
@@ -918,23 +919,26 @@ if __name__ == "__main__":
         #print(*files_index_html, sep="\n\t")
         
         color = "darkseagreen"
-        svg_percircle = f"""<div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
+        svg_percircle = f"""
+        <div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
             <g id="myid">
                 <circle stroke="{color}"
-                        stroke-width="12px"
+                        stroke-width="30px"
                         fill="none"
                         cx="250"
                         cy="250"
-                        r="222" />
-                <text style="font: bold 12rem sans-serif;"
+                        r="230" />
+                <text style="font: bold 15.1rem sans-serif;"
                     text-anchor="middle"
                     dominant-baseline="central"
                     x="50%"
                     y="50%"
-                    fill="{color}">{perc100_saved:.0f}%</text> 
+                    fill="{color}">
+                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan>
+                    <tspan font-size="0.5em">%</tspan>
+                </text> 
             </g>     
         </svg></div>"""
-
 
         for file in files_index_html:
             
@@ -1123,6 +1127,14 @@ if __name__ == "__main__":
         #     soup    = bs(content)
         #     content = soup.prettify()
         #     print(content)
+
+    #-----------------------------------------
+    # b_minify2
+    #-----------------------------------------
+    if b_minify2:
+        wh.logo("b_minify2")
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+            wh.minify_on_disk(file)
        
     #-----------------------------------------
     # export

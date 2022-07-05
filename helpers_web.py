@@ -1286,7 +1286,7 @@ def html_minify(content, vb=True):
             
         if vb:
             print(
-                "html_minify: final len(content)", len(content), 
+                "html_minify:", len(content), 
                 "|", 
                 "percent_saved:", vt_saved_percent_string(length_orig, len(content)))
     
@@ -1294,7 +1294,7 @@ def html_minify(content, vb=True):
 
 def minify_on_disk(filename):
 
-    print("minify_on_disk:", filename)
+    print("minify_on_disk:", GRAY, filename, RESET, end=' ')
     
     # with open(filename, "r", encoding="utf-8") as file:
     #     data = file.read()
