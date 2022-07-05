@@ -101,7 +101,7 @@ date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker       = "/*__do not delete or change this marker__*/" # a word in the file to mark it was updated
+custom_css_marker       = "#marker_for_custom_css" # a word in the file to mark it was updated
 
 #-----------------------------------------
 # lambdas for collecting files

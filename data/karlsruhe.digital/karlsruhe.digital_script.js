@@ -10,6 +10,8 @@ $(document).ready(function () {
     /* header scroll functionality */
     let $scrolled = 150;
 
+    var my_hero_count = 2; // 3j
+
     if ($('#program-nav').length) {
         var programNav = $('#program-nav')
         var programNavTop = Math.floor(programNav.offset().top - 74);
@@ -100,16 +102,16 @@ $(document).ready(function () {
     /* hero-swiper initialization */
     $(".hero-swiper .owl-carousel").owlCarousel({
         items: 1,
-        loop: false, // 3j
-        nav: true,
+        loop: true, // 3j
+        nav: true, // 3j
         navContainerClass: 'owl-nav d-flex justify-content-end align-items-center container',
-        navElement: 'a',
+        navElement: 'a', // a 3j
         navClass: ['owl-prev d-flex mr-md-5 mr-3', 'owl-next d-flex ml-md-5 ml-3'],
         navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
         dots: false,
         margin: 0,
-        autoplay: false, // 3j
-        autoplayTimeout: 5000000, // 3j
+        autoplay: true, // 3j
+        autoplayTimeout: 10000, // 3j 5000
         checkVisible: false,
         onInitialized: addItemNumberToNavigation,
         onChanged: changeItemNumber
@@ -187,6 +189,7 @@ $(document).ready(function () {
         var countNumber = '';
 
         if (idEl == '#hero-swiper') {
+            e.item.count = my_hero_count // 3j fixes the blank shit
             itemNumber = '1';
             countNumber = '<span class="color-white">/' + e.item.count + endSpanEl;
         }
@@ -208,7 +211,18 @@ $(document).ready(function () {
 
         if (idEl == '#blog-swiper' || idEl == '#theses-swiper') {
             item = e.page.index + 1;
-        } else {
+        } 
+        else if (idEl == '#hero-swiper') {
+
+            // console.log("item", item);
+            // console.log("e.item.count", e.item.count);
+            // console.log("e.item.index", e.item.index);
+
+            item = item % my_hero_count;
+            item += 1;
+            //console.log("final item", item);
+        }        
+        else {
             if (item == 0) {
                 item = count;
             } else if (item == -1) {
@@ -217,6 +231,9 @@ $(document).ready(function () {
                 item -= count;
             }
         }
+
+
+
 
         if (idEl != '#hero-swiper' && item < 10) {
             item = '0' + item;
