@@ -35,52 +35,7 @@ from selenium import webdriver  # pip install selenium
 from selenium.webdriver.chrome.options import Options
 
 import shutil
-#-----------------------------------------
-# 
-#-----------------------------------------
-#-----------------------------------------
-# 
-#-----------------------------------------
-# def replace_all_in_file_tuples(filename, tuples):
-    
-#     print("replace_all_in_file_tuples:", filename)
-    
-#     # # with open(filename, "r", encoding="utf-8") as fp:
-#     # #     data = fp.read()
-        
-#     data = wh.string_from_file(filename)
-         
-#     for conversion in tuples:
-#         #print(YELLOW, conversion, RESET)
-#         fr, to = conversion
-        
-#         fr = fr.strip()
-#         to = to.strip()
-#         print("replace_all_in_file_tuples: fr to", fr, to)
-        
-#         name, ext = os.path.splitext(to)
-#         print("replace_all_in_file_tuples: name ext", name, ext)
-#         # assert name, "no name"
-#         # assert ext, "no ext"
-        
-#         if ext in config.image_exts:
-#             to = wh.get_path_local_root_subdomains(name + config.suffix_compressed + ".webp", config.base)
-#         else:
-#             to = wh.get_path_local_root_subdomains(to, config.base)
-        
-#         return tuple([fr, to])
-        
-#         #print(YELLOW, fr, CYAN, "-->", YELLOW, to, RESET)
-        
-#         data = replace_all(data, dq(fr), dq(to)) 
-#         data = replace_all(data, sq(fr), sq(to)) 
-#         data = replace_all(data, pa(fr), pa(to)) 
-#         #data = replace_all(data, fr, to) # ?????
-    
-#     with open(filename, "w", encoding="utf-8") as fp:
-#         fp.write(data)
-            
-            
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -92,7 +47,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # get sizes
     #-----------------------------------------    
-    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
                 
     #-----------------------------------------
     # 
@@ -108,18 +63,13 @@ if __name__ == "__main__":
     b_perform_image_conversion          = True
     b_perform_image_conversion_force        = False
     
-    b_replace_conversions               = False
+    b_replace_conversions               = True
     b_fix_xml_elements                  = True
     b_hide_media_subdomain                  = True
-    b_minify                            = False
+    b_minify                            = True
     b_export_site                       = True 
     b_export_site_force                     = True
         
-    ###b_convert_list_images_written           = False
-    ###b_convert_all_links_from_lists_to_local = False # make all links to local
-    
-
-    # TODO some images have sanitized names like r:xxx --> r_xxx
     # del with warning
     conversions = []
     b_delete_conversion_originals   = False
@@ -127,8 +77,6 @@ if __name__ == "__main__":
         if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
             
-    # # if os.path.isfile(path_conversions):
-    # #     os.remove(path_conversions)
     #-----------------------------------------
     # dir_size_orig
     #-----------------------------------------
@@ -137,6 +85,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # copy icons
     #-----------------------------------------
+    wh.logo("copy icons")
     hw.make_dirs(config.path_dst_icons)
     shutil.copytree(config.path_src_icons, config.path_dst_icons, dirs_exist_ok=True)
 
@@ -336,119 +285,7 @@ if __name__ == "__main__":
                 )    
         ### for file
         conv.save(path_conversions, conversions)  
-        
-          
-        
-    # # # # # #-----------------------------------------
-    # # # # # # replace via karlsruhe.digital_images_written.csv
-    # # # # # #-----------------------------------------
-    # # # # # if b_convert_all_links_from_lists_to_local:
-    # # # # #     wh.logo("b_convert_all_links_from_lists_to_local")
-        
-    # # # # #     # load ALL lists
-    # # # # #     func=lambda file : any(file.lower().endswith(ext) and '_links_' in file.lower() for ext in [".txt"])
-    # # # # #     link_files = wh.collect_files_func(config.data_folder, func)        
-    # # # # #     print(link_files)
-
-    # # # # #     # read into links
-    # # # # #     links = []
-    # # # # #     for file in link_files:
-    # # # # #         links.extend(wh.list_from_file(file))
-            
-    # # # # #     links = wh.links_make_unique(links)
-    # # # # #     links = wh.links_remove_externals(links, config.base)
-    # # # # #     links = wh.links_remove_nones(links)
-    # # # # #     links  = sorted(links)
-    # # # # #     wh.list_to_file(links, config.data_folder + "__links.txt") 
-    # # # # #     #print(*links, sep="\n\t")
-        
-    # # # # #     tuples = []
-    # # # # #     for fr in links:
-    # # # # #         to = wh.get_path_local_root_subdomains(fr, config.base, True)  
-    # # # # #         tuples.append(tuple([fr.strip(), to.strip()]))  
-            
-    # # # # #     wh.list_to_file(tuples, config.data_folder + "__tuples.txt") 
-
-    # # # # #     # collect html                
-    # # # # #     files = wh.collect_files_endswith(project_folder, [ ".css", ".html" ])
-        
-    # # # # #     # # # read triples from data\karlsruhe.digital_images_written.csv
-    # # # # #     # # with open(config.path_image_tuples_written, "r", encoding="utf-8") as fp:
-    # # # # #     # #     lines = fp.read().splitlines() 
-    # # # # #     # #     triples = [tuple(line.split(',')) for line in lines]
-    # # # # #     # #     print(*triples, sep="\n\t")
-        
-    # # # # #     # # for file in files:
-    # # # # #     # #     wh.replace_all_in_file_tuples(file, triples)
-        
-    # # # # #     # # # # # with open(config.data_folder + "karlsruhe.digital_links_img.txt", "r", encoding="utf-8") as fp:
-    # # # # #     # # # # #     lines = fp.read().splitlines()   
-    # # # # #     # # # # #     lines = wh.links_make_unique(lines)
-    # # # # #     # # # # #     lines = sorted(lines)
-    # # # # #     # # # # #     #print(*lines, sep="\n\t")
-            
-    # # # # #     # # # # #     tuples = []
-    # # # # #     # # # # #     for fr in lines:
-    # # # # #     # # # # #         #print("\t", wh.sq(fr))
-    # # # # #     # # # # #         to = wh.get_path_local_root_subdomains(fr, config.base, True)  
-    # # # # #     # # # # #         tuples.append(tuple([fr, to]))     
-            
-            
-    # # # # #     #print(*tuples, sep="\n\t")
-    # # # # #     print(len(tuples), "tuples")
-    # # # # #     time.sleep(2)
-        
-    # # # # #     for i, file in enumerate(files):
-    # # # # #         #print()
-    # # # # #         wh.progress((i+1)/len(files), verbose_string="replace_all_in_file_tuples", VT=wh.MAGENTA, n=66, prefix="")
-    # # # # #         #print()
-    # # # # #         replace_all_in_file_tuples(file, tuples)
-    # # # # #     pass
-
-
-                
-    #-----------------------------------------
-    # 
-    #-----------------------------------------
-
-
-
-    # # # if b_convert_list_images_written:
-    # # #     wh.logo("b_convert_images_written")
-    # # #     lines = wh.list_from_file(config.path_image_tuples_written)
-    # # #     lines = wh.links_sanitize(lines)
-        
-    # # #     def to_duple(line):
-    # # #         subs = line.split(',')
-    # # #         assert len(subs) >= 2
-    # # #         return tuple(subs[:2])
-        
-    # # #     def to_duple_webp(line):
-    # # #         subs = line.split(',')
-    # # #         if len(subs) < 2:
-    # # #             return None
-            
-    # # #         fr = subs[0]
-    # # #         name, ext = os.path.splitext(subs[1])
-    # # #         to = wh.get_path_local_root_subdomains(name + config.suffix_compressed + ".webp", config.base)
-    # # #         return tuple([fr, to])
-        
-    # # #     def to_triple(line):
-    # # #         subs = line.split(',')
-    # # #         assert len(subs) >= 3
-    # # #         return tuple(subs[:3])
-        
-    # # #     tuples = [to_duple_webp(line) for line in lines]
-    # # #     print(*tuples, sep="\n\t")
-    # # #     exit(0)
-        
-    # # #     files = wh.collect_files_endswith(project_folder, [ ".css", ".html" ])
-    # # #     for i, file in enumerate(files):
-    # # #         #print()
-    # # #         wh.progress((i+1)/len(files), verbose_string="replace_all_in_file_tuples", VT=wh.MAGENTA, n=66, prefix="")
-    # # #         #print()
-    # # #         replace_all_in_file_tuples(file, tuples)    
-                
+         
     #-----------------------------------------
     # 
     #-----------------------------------------
@@ -515,7 +352,6 @@ if __name__ == "__main__":
         b_use_palette   = False
         blend_alpha     = 0.666
 
-
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=10):
             exit(0)
             
@@ -531,17 +367,7 @@ if __name__ == "__main__":
         #-----------------------------------------
         # 
         #-----------------------------------------
-        images = wh.collect_files_endswith(project_folder, config.image_exts)
-        # # # # # # # func=lambda file : any(file.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".svg"])
-        # # # # # # # images = wh.collect_files_func(project_folder, func)
-        
-        # # # remove compressed
-        # # images_no_compressed = [img for img in images if not config.suffix_compressed in img]
-        # # removed = [item for item in images if item not in images_no_compressed]
-        # # print("removed", hw.GRAY, *removed, hw.RESET, sep = "\n\t")
-        # # print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
-        
-        
+        images = wh.collect_files_endswith(project_folder, config.image_exts)        
         images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
                      
@@ -668,8 +494,10 @@ if __name__ == "__main__":
         
         #print("\t", "replace_all_conversions_in_file:", wh.CYAN, filename, wh.RESET)
         
-        fp = open(filename, "r", encoding="utf-8")
-        html = fp.read()
+        # # fp = open(filename, "r", encoding="utf-8")
+        # # html = fp.read()
+        
+        html = wh.string_from_file(filename)
         
         # replace
         #print("\t\t", end='')
@@ -704,12 +532,14 @@ if __name__ == "__main__":
                 print("\t\t\t", wh.RED, "does not exist: to:", to, wh.RESET, end='\r')
         ### for conversion />
         
-        fp.close()
+        wh.string_to_file(html, filename)
         
-        #open the input file in write mode
-        fp = open(filename, "w", encoding="utf-8")
-        fp.write(html)
-        fp.close()
+        # # # fp.close()
+        
+        # # # #open the input file in write mode
+        # # # fp = open(filename, "w", encoding="utf-8")
+        # # # fp.write(html)
+        # # # fp.close()
 
     #-----------------------------------------
     # 
@@ -723,24 +553,15 @@ if __name__ == "__main__":
                                 
         html_files = wh.collect_files_endswith(project_folder, ["index.html", ".css"])
         for i, html_file in enumerate(html_files):
-            #print("\t", "-"*88)
-            ###print("\n"*1)
             verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
-            ###print("\n"*1)
-            ###print("\t", i+1, "/", len(html_files), os.path.basename(html_file))
             
             replace_all_conversions_in_file(html_file, conversions)
                 
-            # whatever is left like /wp-content/themes/karlsruhe-digital/images/Pfeil_Links.png
-            # replace image extensions
+            # replace left over image extensions
             for q in ["\"", "\'"]:
                 for ext in config.image_exts_no_webp:
-                    wh.replace_all_in_file(html_file, ext + q, ".webp" + q)
-                
-             
-
-                                              
+                    wh.replace_all_in_file(html_file, ext + q, ".webp" + q)                     
         ### for /> 
     ### b_perform_replacement />            
             
@@ -761,7 +582,7 @@ if __name__ == "__main__":
         svg_percircle = f"""<div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
             <g id="myid">
                 <circle stroke="{color}"
-                        stroke-width="30px"
+                        stroke-width="12px"
                         fill="none"
                         cx="250"
                         cy="250"
@@ -1066,7 +887,7 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     wh.logo("GREEN4matics")
-    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder)
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
 
     #-----------------------------------------
     # 

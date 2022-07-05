@@ -26,7 +26,7 @@ import ssl
 import requests
 import time
 import pathlib
-
+import datetime
 
 #-----------------------------------------
 # 
@@ -1340,56 +1340,26 @@ def replace_all(content, oldvalue, newvalue, vb = False):
 #-----------------------------------------
 # 
 #-----------------------------------------
-# def replace_in_file(filename, string_from, string_to):
-    
-#     fp = open(filename, "rt")
-#     data = fp.read()
-#     data = data.replace(string_from, string_to)
-#     fp.close()
-    
-#     #open the input file in write mode
-#     fp = open(filename, "wt")
-#     fp.write(data)
-#     fp.close()
-
-def replace_all_in_file_OLD(filename, string_from, string_to):
-    
-    #print("replace_all_in_file:", filename)
-    
-    # read and replace
-    fp = open(filename, "r", encoding="utf-8")
-    data = fp.read()
-    
-    cnt = data.count(string_from)
-    if cnt > 0:
-        print("replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
-    
-    data = replace_all(data, string_from, string_to)
-    fp.close()
-    
-    # write changes
-    fp = open(filename, "w", encoding="utf-8")
-    fp.write(data)
-    fp.close()
-    
 def replace_all_in_file(filename, string_from, string_to):
     
     #print("replace_all_in_file:", filename)
     
-    with open(filename, "r", encoding="utf-8") as fp:
-        data = fp.read()
+    # with open(filename, "r", encoding="utf-8") as fp:
+    #     data = fp.read()
+        
+    data = string_from_file(filename)
         
     cnt = data.count(string_from)
     if cnt > 0:
         print("replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
     data = replace_all(data, string_from, string_to)  
     
-    with open(filename, "w", encoding="utf-8") as fp:
-        fp.write(data)
-                
-                
+    string_to_file(data, filename)
     
-                  
+    # # # with open(filename, "w", encoding="utf-8") as fp:
+    # # #     fp.write(data)
+                
+                
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -1410,13 +1380,21 @@ def list_to_file(items, path, mode="w", encoding="utf-8"):
     string_to_file(list_to_string(items), path, mode=mode, encoding=encoding)
  
 def list_to_string(items):
+    s = ""
+    for item in items:
+        if type(item) in [list, set]:
+            s += ",".join(str(part) for part in item) + "\n"
+        else:
+            s += str(item) + "\n"
+    return s
+        
     return "\n".join(str(item) for item in items)
 
 def string_from_file(path, sanitize=False):
     return list_to_string(list_from_file(path, sanitize=sanitize))
 
 def string_to_file(string, path, mode="w", encoding="utf-8"):
-    print("string_to_file", GRAY, path, RESET)
+    #print("string_to_file", GRAY, path, RESET)
     with open(path, mode=mode, encoding=encoding) as file:
         file.write(string)
 
@@ -1659,24 +1637,43 @@ def get_directory_total_size(start_path):
     print("get_size: total_size:", round(total_size / (1024*1024), 1), "MB")
     return total_size
 
-def get_project_total_size(project_folder):
+def get_project_total_size(project_folder, prefix=""):
     
     # TODO list all files,size to csv
     
-    def __get_sizes(func, excludes=[]):
+    
+    def __get_sizes(func, excludes, csv_out_path):
+        collected = []
         total_size = 0
         files = collect_files_func(project_folder, func=func)
         files = links_remove_excludes(files, excludes)
         files = links_sanitize(files)
         for file in files:
             if os.path.isfile(file):
-                total_size += os.path.getsize(file)
+                fsize = os.path.getsize(file)
+                m_time = os.path.getmtime(file)
+                dt_m = datetime.datetime.fromtimestamp(m_time).isoformat()
+                total_size += fsize
+                collected.append([
+                    file,fsize, dt_m
+                ])
+        list_to_file(collected, csv_out_path)
         return total_size
      
     # recursive import             
     import config
-    total_size_originals = __get_sizes(config.f_originals, config.f_originals_excludes)
-    total_size_unpowered = __get_sizes(config.f_unpowered, [])
+    
+    total_size_originals = __get_sizes(
+        config.f_originals, 
+        excludes=config.f_originals_excludes,
+        csv_out_path=config.data_folder + prefix + "_export_original_files.csv"
+    )
+    total_size_unpowered = __get_sizes(
+        config.f_unpowered, 
+        excludes=[],
+        csv_out_path=config.data_folder + prefix + "_export_unpowered_files.csv"
+    )
+    
     del config
 
     print(f"total_size_originals: {total_size_originals:,} bytes | {YELLOW}{total_size_originals/1000000:,.1f} MB{RESET}")
