@@ -625,7 +625,7 @@ if __name__ == "__main__":
             # replace left over image extensions
             for q in ["\"", "\'"]:
                 for ext in config.image_exts_no_webp:
-                    wh.replace_all_in_file(html_file, ext + q, ".webp" + q)                     
+                    wh.file_replace_all(html_file, ext + q, ".webp" + q)                     
         ### for /> 
     ### b_perform_replacement />            
             

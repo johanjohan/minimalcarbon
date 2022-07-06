@@ -885,6 +885,7 @@ if __name__ == "__main__":
     # scan for new links:
     # -----------------------------------------         
     links_a_href = []
+    urls_len_orig = len(urls)
     b_force_rescan = True
     if b_force_rescan:   
         valid_exts = [".html", ".htm", ".php", ""]
@@ -901,6 +902,7 @@ if __name__ == "__main__":
             print()
             wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
             if content := wh.get_content(url):
+                links_a_href.append(url)
                 tree    = lxml.html.fromstring(content)
                 hrefs   = tree.xpath('//a/@href')
                 print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
@@ -914,19 +916,27 @@ if __name__ == "__main__":
             else:
                 print(RED, "error logged:", config.path_links_errors)
                 wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
-            #break # debug
+            ###break # debug
         ### for />
     else:
         pag.alert(text=f"not rescanning urls...", timeout=5000)  
+        
+    # errs
+    if os.path.isfile(config.path_links_errors):
+        wh.file_make_unique(config.path_links_errors, sort=True)
               
     # add to urls
-    len_orig = len(urls)
-    urls.extend(links_a_href)
+    print("len(links_a_href):", len(links_a_href))
+    print("urls_len_orig    :", urls_len_orig)
+    urls = links_a_href
+    
+    ####urls.extend(links_a_href)
     urls = wh.links_remove_externals(urls, config.base)
     urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
+    urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_sanitize(urls)
-    print("urls:", GRAY, *urls, RESET, sep="\n\t")
-    print("len(urls) after:", len(urls), "added:", len(urls) - len_orig)
+    print("urls:", GREEN, *urls, RESET, sep="\n\t")
+    print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)
     
     # save back
     wh.list_to_file(urls, config.path_sitemap_links_internal)

@@ -150,7 +150,7 @@ _sitemap_base               = path_data_netloc + "20220703_204140"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
-path_links_errors           = _sitemap_base + "_error_links.xml"
+path_links_errors           = _sitemap_base + "_error_links.csv"
 
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_data_netloc + "images_written.csv"

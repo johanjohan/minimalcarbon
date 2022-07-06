@@ -237,7 +237,7 @@ if __name__ == "__main__":
                     #print("\t\t replaced:", os.path.basename(fr), wh.CYAN, "-->", wh.RESET, wp_to)    
                     print("\t\t replaced:", wh.CYAN, wp_to, wh.RESET)    
                     
-                    wh.replace_all_in_file(html, wp_fr, wp_to) 
+                    wh.file_replace_all(html, wp_fr, wp_to) 
                       
                     if b_delete_replacement and wh.file_exists_and_valid(fr):
                         print("\t\t\t", wh.RED, "removing:", os.path.basename(fr), wh.RESET)

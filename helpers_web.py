@@ -1377,7 +1377,7 @@ def replace_all(content, oldvalue, newvalue, vb = False):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all_in_file(filename, string_from, string_to):
+def file_replace_all(filename, string_from, string_to):
     
     #print("replace_all_in_file:", filename)
     
@@ -1400,6 +1400,19 @@ def replace_all_in_file(filename, string_from, string_to):
 # -----------------------------------------
 #
 # -----------------------------------------
+def file_make_unique(filename, sort):
+    lines       = list_from_file(filename)
+    len_orig    = len(lines)
+    lines       = links_make_unique(lines)
+    if sort:
+        lines = sorted(lines)
+    print("file_make_unique: elements removed:", len_orig -len(lines))
+    list_to_file(lines, filename)
+    
+# -----------------------------------------
+#
+# -----------------------------------------
+
 def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
     if not os.path.isfile(path):
         return []
@@ -1411,7 +1424,7 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
         return ret
     
 def list_to_file(items, path, mode="w", encoding="utf-8"):
-    # # print("list_to_file", path)
+    print("list_to_file", path)
     # # with open(path, mode=mode, encoding=encoding) as file:
     # #     file.write(list_to_string(items))
     string_to_file(list_to_string(items), path, mode=mode, encoding=encoding)
