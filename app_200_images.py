@@ -64,13 +64,14 @@ if __name__ == "__main__":
 
     b_append_custom_css                 = True
     b_copy_custom_script                = True
-    b_remove_fonts_css                  = False
+    b_remove_fonts_css                  = True
     
-    b_perform_pdf_compression           = False 
+    b_perform_pdf_compression           = True 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = False
+    b_perform_image_conversion_force        = True
+    b_perform_image_colorize_png            = True
     
-    b_replace_conversions               = False
+    b_replace_conversions               = True
     
     b_minify1                           = True
     b_fix_xml_elements                  = True
@@ -362,7 +363,7 @@ if __name__ == "__main__":
         b_blackwhite    = False
         b_use_palette   = False
         blend_alpha     = 0.8 # 0.666 0.8
-
+        colorize_png    = b_perform_image_colorize_png # force transp png to be colorized
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
             exit(0)
             
@@ -374,6 +375,7 @@ if __name__ == "__main__":
         print("halftone     :", halftone)
         print("b_use_palette:", b_use_palette)
         print("blend_alpha  :", blend_alpha)
+        print("colorize_png :", wh.YELLOW, colorize_png, wh.RESET)
         
         #-----------------------------------------
         # 
@@ -466,9 +468,8 @@ if __name__ == "__main__":
                             
                     return image
                             
-                force_transp = False # does not colorize transp
-                print("\t\t", "force_transp:", wh.CYAN, force_transp, wh.RESET)
-                if force_transp:
+
+                if colorize_png:
                     mask  = get_mask(image) # after resizing
                 else:
                     mask = None
@@ -479,7 +480,7 @@ if __name__ == "__main__":
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                 
-                if force_transp or (b_colorize and not is_transp): 
+                if colorize_png or (b_colorize and not is_transp): 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -490,7 +491,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
-                if force_transp or ((not is_transp) and (blend_alpha < 1.0)): 
+                if colorize_png or ((not is_transp) and (blend_alpha < 1.0)): 
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -498,7 +499,7 @@ if __name__ == "__main__":
                         blend_alpha
                     )
 
-                if force_transp:
+                if colorize_png:
                     image = image.convert("RGBA")
                     image = apply_mask(image, mask)
                                             
@@ -940,7 +941,7 @@ if __name__ == "__main__":
                     x="50%"
                     y="50%"
                     fill="{config.svg_color}">
-                    <tspan font-size="1.0em">{perc100_saved:.0f}</tspan><tspan font-size="0.9em">％</tspan>
+                    <tspan font-size="1.0em">{round(perc100_saved):.0f}</tspan><tspan font-size="0.9em">％</tspan>
                 </text> 
             </g>     
         </svg></div>"""
