@@ -860,15 +860,10 @@ if __name__ == "__main__":
     # -----------------------------------------
     urls = wh.list_from_file(config.path_sitemap_links_internal)
     urls = wh.links_remove_comments(urls, '#')
-
-
-    
     urls = wh.links_replace(urls, config.replacements_pre)
     urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_sanitize(urls)
-    
-    print("urls:", GRAY, *urls, RESET, sep="\n\t")
-    exit(0)
+    print("urls:", GREEN, *urls, RESET, sep="\n\t")
 
     # -----------------------------------------
     # chrome init
@@ -887,24 +882,38 @@ if __name__ == "__main__":
             time.sleep(3)
 
     # -----------------------------------------
-    # b_force_rescan
+    # scan for new links:
     # -----------------------------------------         
     links_a_href = []
-    b_force_rescan = False
+    b_force_rescan = True
     if b_force_rescan:   
-        # scan for new links:
+        valid_exts = [".html", ".htm", ".php", ""]
         print("re-scanning for new links in given urls...")
         for count, url in enumerate(urls):
+            print()
+            name, ext = os.path.splitext(url)
+            print(name, ext)
+            if not ext in valid_exts:
+                print("\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
+                continue
+            
             wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16)
             print()
-            # get the content
             wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
             if content := wh.get_content(url):
-                tree = lxml.html.fromstring(content)
-                hrefs = tree.xpath('//a/@href')
-                #print("\t hrefs", GRAY, *hrefs, RESET, sep="\n\t\t")
+                tree    = lxml.html.fromstring(content)
+                hrefs   = tree.xpath('//a/@href')
                 print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
-                links_a_href.extend(hrefs) 
+                for href in hrefs:
+                    href = href.strip()
+                    name, ext = os.path.splitext(href)
+                    if ext in valid_exts:
+                        if not href in links_a_href:
+                            print("\t\t append:", GREEN, href, RESET)
+                            links_a_href.append(href)
+            else:
+                print(RED, "error logged:", config.path_links_errors)
+                wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
             #break # debug
         ### for />
     else:

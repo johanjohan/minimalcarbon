@@ -508,7 +508,7 @@ def links_replace(links, replacements):
             assert len(rep) >= 2
             new_link = link.replace(rep[0], rep[1])  
             if new_link != link:
-                print("\t", "replaced:", YELLOW, wh.dq(new_link), RESET)
+                #print("\t", "replaced:", YELLOW, dq(new_link), RESET)
                 return True, new_link
         return False, link
 
@@ -516,7 +516,7 @@ def links_replace(links, replacements):
     for link in links:
         b_replaced, new_link = was_replaced(link, replacements)
         if not new_link in ret:
-            print("\t", "adding  :", GREEN, wh.dq(new_link), RESET)
+            #print("\t", "adding  :", GREEN, dq(new_link), RESET)
             ret.append(new_link)
     return ret
     

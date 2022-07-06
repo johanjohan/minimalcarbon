@@ -150,6 +150,7 @@ _sitemap_base               = path_data_netloc + "20220703_204140"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
+path_links_errors           = _sitemap_base + "_error_links.xml"
 
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_data_netloc + "images_written.csv"
@@ -259,25 +260,7 @@ print("sitemap_links_ignore", sitemap_links_ignore)
 replacements_pre = []
 for q in ['\"', '\'']:
     print("\t", "using", q)
-    # # # replacements_pre.append(
-    # # #     (
-    # # #         'http:// https://',
-    # # #         'https://'
-    # # #     )
-    # # # )
-    # # # replacements_pre.append(
-    # # #     (
-    # # #         q + 'http:// ', # has a trailing space
-    # # #         q + 'http://'
-    # # #     )
-    # # # )
-    # # # replacements_pre.append(
-    # # #     (
-    # # #         q + 'https:// ', # has a trailing space
-    # # #         q + 'https://'
-    # # #     )
-    # # # )
-
+    
 
     replacements_pre.append(
         (
@@ -291,6 +274,27 @@ for q in ['\"', '\'']:
             ''
         )
     )
+    
+    
+    replacements_pre.append(
+        (
+            'http:// https://',
+            'https://'
+        )
+    )
+    replacements_pre.append(
+        (
+            q + 'http:// ', # has a trailing space
+            q + 'http://'
+        )
+    )
+    replacements_pre.append(
+        (
+            q + 'https:// ', # has a trailing space
+            q + 'https://'
+        )
+    )
+
     
     # replacements_pre.append(
     #     (
