@@ -557,7 +557,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     #
     # -----------------------------------------
     for fr, to in replacements_pre:
-        print(GRAY, "\t replace:", fr, "-->", to, RESET)
+        #print(GRAY, "\t replace:", fr, "-->", to, RESET)
         content = content.replace(fr, to)
         
     if(config.DEBUG): 
@@ -967,8 +967,8 @@ if __name__ == "__main__":
                 config.replacements_pre,
                 wait_secs=config.wait_secs
             )
-            print("found links_a_href_from_url:", YELLOW, *links_a_href_from_url, RESET, sep="\n\t")
-            # TODO how to append these
+            #print("found links_a_href_from_url:", YELLOW, *links_a_href_from_url, RESET, sep="\n\t") 
+            # not using links_a_href_from_url as we are pre-scanning above...
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
 
