@@ -68,10 +68,10 @@ if __name__ == "__main__":
     
     b_perform_pdf_compression           = True 
     b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = True
-    b_perform_image_colorize_png            = True
+    b_perform_image_conversion_force        = False
+    b_perform_image_colorize_transp            = True
     
-    b_replace_conversions               = True
+    b_replace_conversions               = False
     
     b_minify1                           = True
     b_fix_xml_elements                  = True
@@ -363,9 +363,11 @@ if __name__ == "__main__":
         b_blackwhite    = False
         b_use_palette   = False
         blend_alpha     = 0.8 # 0.666 0.8
-        colorize_png    = b_perform_image_colorize_png # force transp png to be colorized
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
             exit(0)
+            
+            
+
             
         print("image_exts   :", config.image_exts)
         print("quality      :", quality)
@@ -375,7 +377,6 @@ if __name__ == "__main__":
         print("halftone     :", halftone)
         print("b_use_palette:", b_use_palette)
         print("blend_alpha  :", blend_alpha)
-        print("colorize_png :", wh.YELLOW, colorize_png, wh.RESET)
         
         #-----------------------------------------
         # 
@@ -409,12 +410,15 @@ if __name__ == "__main__":
                 
                 old_mode    = image.mode
                 
-                if is_transp:
-                    image = image.convert("RGBA")
-                else:
-                    image = image.convert("RGB")
+                colorize_transp = True if (b_perform_image_colorize_transp and is_transp) else False
+                print("\t\t", "colorize_transp:", wh.YELLOW, colorize_transp, wh.RESET)
+                
+                # if is_transp:
+                #     image = image.convert("RGBA")
+                # else:
+                #     image = image.convert("RGB")
 
-                print("\t\t", "is_transp:", is_transp)
+                print("\t\t", "is_transp:", wh.vt_b(is_transp))
                 print("\t\t", "mode     :", old_mode, "-->", image.mode)
                 print("\t\t", "size     :", image.size)
                                 
@@ -433,13 +437,15 @@ if __name__ == "__main__":
                     image_orig = image.copy()
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
                     
+                # https://jdhao.github.io/2019/03/07/pillow_image_alpha_channel/
                 def get_mask(image):
                     
-                    if image.mode != "RGBA":
+                    if not wh.image_has_transparency(image):
+                        print(wh.YELLOW, "image has no tranparency...None", wh.RESET)
                         return None
                     
-                    mask    = image.copy()
-                    mixels  = mask.load() # TODO needs copy?
+                    mask    = image.convert("RGBA").copy()
+                    mixels  = mask.load() 
                     
                     width, height   = image.size
                     for x in range(width):
@@ -451,8 +457,10 @@ if __name__ == "__main__":
                     
                 def apply_mask(image, mask):
                     
+                    assert image
+                    assert mask
+                    
                     assert image.size == mask.size   
-                    assert image.mode == "RGBA",  image.mode 
                     assert mask.mode  == "RGBA",  mask.mode 
                     
                     image   = image.convert("RGBA")
@@ -467,10 +475,13 @@ if __name__ == "__main__":
                             pixels[x,y] = tuple([r,g,b,a])
                             
                     return image
+                
+                    #return image.putalpha(mask.convert("L"))
                             
 
-                if colorize_png:
+                if colorize_transp:
                     mask  = get_mask(image) # after resizing
+                    ###mask.save(path + "__mask__.png", 'png', optimize=True, lossless=True) # debug
                 else:
                     mask = None
                 
@@ -480,7 +491,7 @@ if __name__ == "__main__":
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                 
-                if colorize_png or (b_colorize and not is_transp): 
+                if colorize_transp or (b_colorize and not is_transp): 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -491,7 +502,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
-                if colorize_png or ((not is_transp) and (blend_alpha < 1.0)): 
+                if colorize_transp or ((not is_transp) and (blend_alpha < 1.0)): 
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -499,7 +510,7 @@ if __name__ == "__main__":
                         blend_alpha
                     )
 
-                if colorize_png:
+                if colorize_transp:
                     image = image.convert("RGBA")
                     image = apply_mask(image, mask)
                                             
@@ -975,11 +986,11 @@ if __name__ == "__main__":
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
                 banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> This is the Low Carbon Gateway of {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
-                banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
                 banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> Dies ist der Low Carbon Gateway von {same_page_link}"
-                banner_footer_text = f"{svg_percircle}<br/>unpowered by {config.html_infossil_link}" # <br/>{dt_string}
+                banner_footer_text = f"unpowered by {config.html_infossil_link}<br/>{svg_percircle}" # <br/>{dt_string}
                 
             #---------------------------
             # lxml

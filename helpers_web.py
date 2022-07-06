@@ -61,7 +61,7 @@ def qu(s=""):
 def vt_b(b_val):
     return (GREEN if b_val else RED) + str(b_val)[0] + RESET
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
-def vt_code(code):
+def vt_http_status_code(code): # http status
     return (GREEN if code < 400 else RED) + str(code) + RESET
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
     
@@ -789,7 +789,7 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         context     = ssl._create_unverified_context()
         response    = urllib.request.urlopen(req, context=context, timeout=timeout)
         #print("get_response:", url)
-        print(pre, vt_code(response.status), "|", vt_b(url != response.url), response.url)
+        print(pre, vt_http_status_code(response.status), "|", vt_b(url != response.url), response.url)
         
         if False:
             #print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
@@ -1763,21 +1763,49 @@ def logo_filename(filename,  font="tarty2", vt=MAGENTA, npad=2): # tarty3 tarty7
 #-----------------------------------------
 # 
 #-----------------------------------------
-
+# https://stackoverflow.com/questions/43864101/python-pil-check-if-image-is-transparent
 def image_has_transparency(img):
-    if img.info.get("transparency", None) is not None:
-        return True
-    if img.mode == "P":
-        transparent = img.info.get("transparency", -1)
-        for _, index in img.getcolors():
-            if index == transparent:
-                return True
-    elif img.mode == "RGBA":
-        extrema = img.getextrema()
-        if extrema[3][0] < 255:
-            return True
+    
+    # # # if img.info.get("transparency", None) is not None:
+    # # #     return True
+    # # # if img.mode == "P":
+    # # #     transparent = img.info.get("transparency", -1)
+    # # #     for _, index in img.getcolors():
+    # # #         if index == transparent:
+    # # #             return True
+    # # # elif img.mode == "RGBA":
+    # # #     extrema = img.getextrema()
+    # # #     if extrema[3][0] < 255:
+    # # #         return True
+    # # # return False
 
-    return False
+    # # def im_has_alpha(np_image):
+    # #     '''
+    # #     returns True for Image with alpha channel
+    # #     '''
+    # #     h,w,c = np_image.shape
+    # #     return True if c ==4 else False
+    
+    # #     # # # https://stackoverflow.com/questions/51417774/how-to-determine-if-a-png-picture-has-a-transparency-layer-in-python
+    # #     # # print("np_image.shape:", np_image.shape) # shapetuple of ints
+    # #     # # nchannels = np_image.shape[2]
+    # #     # # return nchannels in [2, 4]
+
+
+    # # # import numpy as np
+    # # # return im_has_alpha(np.array(img))
+    
+    # # https://pillow.readthedocs.io/en/stable/handbook/concepts.html
+    # return img.mode in ["RGBA", "LA", "PA", "RGBa", "La"]
+    
+    #https://stackoverflow.com/questions/65615059/check-if-an-image-is-transparent-or-not
+    
+    alpha_range = img.convert('RGBA').getextrema()[-1]
+    if alpha_range == (255,255):
+        return False
+    else:
+        return True
+ 
 
 def image_show(path, secs=1):
     path = os.path.normpath(path)
