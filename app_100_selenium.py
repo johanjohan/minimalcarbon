@@ -855,7 +855,7 @@ if __name__ == "__main__":
                     config.project_folder + "sitemap.xml")
 
     # -----------------------------------------
-    #
+    # 
     # -----------------------------------------
     urls = wh.list_from_file(config.path_sitemap_links_internal)
     urls = wh.links_remove_comments(urls, '#')
@@ -873,7 +873,10 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
-         
+
+    # -----------------------------------------
+    # b_force_rescan
+    # -----------------------------------------         
     b_force_rescan = True
     if b_force_rescan:   
         # scan for new links:
@@ -884,16 +887,31 @@ if __name__ == "__main__":
             print()
             # get the content
             wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
-            content = wh.get_content(url)
-            tree = lxml.html.fromstring(content)
-            links_a_href.extend(tree.xpath('//a/@href')) 
-            links_a_href = wh.links_sanitize(links_a_href)
-        print("links_a_href:", YELLOW, *links_a_href, RESET, sep="\n\t")
+            if content := wh.get_content(url):
+                tree = lxml.html.fromstring(content)
+                hrefs = tree.xpath('//a/@href')
+                #print("\t hrefs", GRAY, *hrefs, RESET, sep="\n\t\t")
+                print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
+                links_a_href.extend(hrefs) 
+            
+            break
+        ### for />
+        links_a_href = wh.links_sanitize(links_a_href)
+        links_a_href = wh.links_remove_externals(links_a_href, config.base)
+        links_a_href = wh.links_remove_excludes(links_a_href, ["whatsapp:", " mailto:", "javascript:"])
+        #print("links_a_href:", YELLOW, *links_a_href, RESET, sep="\n\t")
         
-        print("len(urls) before", len(urls))
+        # add to urls
+        len_orig = len(urls)
         urls.extend(links_a_href)
+        urls = wh.links_remove_externals(urls, config.base)
+        urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
         urls = wh.links_sanitize(urls)
-        print("len(urls) after", len(urls))
+        print("urls:", GRAY, *urls, RESET, sep="\n\t")
+        print("len(urls) after:", len(urls), "added:", len(urls) - len_orig)
+        
+        # save back
+        wh.list_to_file(urls, config.path_sitemap_links_internal)
     exit(0)
 
     # loop urls from internal_urls file

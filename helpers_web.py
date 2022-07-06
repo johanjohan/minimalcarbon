@@ -446,9 +446,8 @@ def links_make_absolute(links, base):
 
 def links_remove_excludes(links, excludes):
     print("links_remove_excludes:", excludes)
-    
     excludes = list(excludes)
-    return [link for link in links if not any(exclude in link for exclude in excludes)]
+    return [link for link in links if not any(exclude.strip() in link for exclude in excludes)]
 
     ###return links_remove_invalids(links, excludes)
         
@@ -503,7 +502,8 @@ def links_sanitize(links):
     links = links_remove_comments(links, delim='#')
     links = links_remove_similar(links)
     links = links_remove_nones(links)
-    return sorted(links)
+    links = sorted(links)
+    return links
 
 # def links_make_absolute_internals_only(links, base):
 #     links = links_make_absolute(links, base)
