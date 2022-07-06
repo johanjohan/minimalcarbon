@@ -859,6 +859,7 @@ if __name__ == "__main__":
     # -----------------------------------------
     urls = wh.list_from_file(config.path_sitemap_links_internal)
     urls = wh.links_remove_comments(urls, '#')
+    urls = wh.links_make_absolute(urls, config.base)
 
     # chrome init
     for tries in range(10):
@@ -893,14 +894,8 @@ if __name__ == "__main__":
                 #print("\t hrefs", GRAY, *hrefs, RESET, sep="\n\t\t")
                 print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
                 links_a_href.extend(hrefs) 
-            
-            break
+            break # debug
         ### for />
-        links_a_href = wh.links_sanitize(links_a_href)
-        links_a_href = wh.links_remove_externals(links_a_href, config.base)
-        links_a_href = wh.links_remove_excludes(links_a_href, ["whatsapp:", " mailto:", "javascript:"])
-        #print("links_a_href:", YELLOW, *links_a_href, RESET, sep="\n\t")
-        
         # add to urls
         len_orig = len(urls)
         urls.extend(links_a_href)
