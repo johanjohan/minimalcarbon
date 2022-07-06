@@ -50,7 +50,7 @@ if __name__ == "__main__":
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
     
-    #pag.alert(text=f"good time to backup htdocs!")
+    #pag.alert(text=f"good time to backup htdocs!", timeout=5000)
     #-----------------------------------------
     # get sizes
     #-----------------------------------------    
@@ -363,7 +363,7 @@ if __name__ == "__main__":
         b_use_palette   = False
         blend_alpha     = 0.8 # 0.666 0.8
 
-        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=10):
+        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
             exit(0)
             
         print("image_exts   :", config.image_exts)

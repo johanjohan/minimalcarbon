@@ -316,6 +316,7 @@ import jsbeautifier
 import cssbeautifier
 
 from urllib.parse import urlparse
+import pyautogui as pag
 
 import config
 GREEN = config.GREEN
@@ -861,7 +862,9 @@ if __name__ == "__main__":
     urls = wh.links_remove_comments(urls, '#')
     urls = wh.links_make_absolute(urls, config.base)
 
+    # -----------------------------------------
     # chrome init
+    # -----------------------------------------            
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
@@ -878,7 +881,7 @@ if __name__ == "__main__":
     # -----------------------------------------
     # b_force_rescan
     # -----------------------------------------         
-    b_force_rescan = True
+    b_force_rescan = False
     if b_force_rescan:   
         # scan for new links:
         print("scanning for new links in given urls...")
@@ -894,7 +897,7 @@ if __name__ == "__main__":
                 #print("\t hrefs", GRAY, *hrefs, RESET, sep="\n\t\t")
                 print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
                 links_a_href.extend(hrefs) 
-            break # debug
+            #break # debug
         ### for />
         # add to urls
         len_orig = len(urls)
@@ -907,6 +910,8 @@ if __name__ == "__main__":
         
         # save back
         wh.list_to_file(urls, config.path_sitemap_links_internal)
+    else:
+        pag.alert(text=f"not rescanning urls...", timeout=5000)
     exit(0)
 
     # loop urls from internal_urls file
