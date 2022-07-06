@@ -863,7 +863,8 @@ if __name__ == "__main__":
     urls = wh.links_replace(urls, config.replacements_pre)
     urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_sanitize(urls)
-    print("urls:", GREEN, *urls, RESET, sep="\n\t")
+    ###print("urls:", GREEN, *urls, RESET, sep="\n\t")
+    urls_len_orig = len(urls)
 
     # -----------------------------------------
     # chrome init
@@ -884,11 +885,10 @@ if __name__ == "__main__":
     # -----------------------------------------
     # scan for new links:
     # -----------------------------------------         
-    links_a_href = []
-    urls_len_orig = len(urls)
-    b_force_rescan = True
-    if b_force_rescan:   
-        valid_exts = [".html", ".htm", ".php", ""]
+    b_extend_rescan_urls = False
+    if b_extend_rescan_urls:   
+        links_a_href    = []
+        valid_exts      = [".html", ".htm", ".php", ""]
         print("re-scanning for new links in given urls...")
         for count, url in enumerate(urls):
             print()
@@ -918,30 +918,28 @@ if __name__ == "__main__":
                 wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
             ###break # debug
         ### for />
-    else:
-        pag.alert(text=f"not rescanning urls...", timeout=5000)  
         
-    # errs
-    if os.path.isfile(config.path_links_errors):
-        wh.file_make_unique(config.path_links_errors, sort=True)
-              
-    # add to urls
-    print("len(links_a_href):", len(links_a_href))
-    print("urls_len_orig    :", urls_len_orig)
-    urls = links_a_href
-    
-    ####urls.extend(links_a_href)
-    urls = wh.links_remove_externals(urls, config.base)
-    urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
-    urls = wh.links_make_absolute(urls, config.base)
-    urls = wh.links_sanitize(urls)
-    print("urls:", GREEN, *urls, RESET, sep="\n\t")
-    print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)
-    
-    # save back
-    wh.list_to_file(urls, config.path_sitemap_links_internal)
+        # errs
+        if os.path.isfile(config.path_links_errors):
+            wh.file_make_unique(config.path_links_errors, sort=True)    
 
-    exit(0)
+        # add to urls
+        print("len(links_a_href):", len(links_a_href))
+        print("urls_len_orig    :", urls_len_orig)
+        urls = links_a_href
+        urls = wh.links_remove_externals(urls, config.base)
+        urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
+        urls = wh.links_make_absolute(urls, config.base)
+        urls = wh.links_sanitize(urls)   
+        print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
+        
+        # save back to file 
+        wh.list_to_file(urls, config.path_sitemap_links_internal)             
+    else:
+        pag.alert(text=f"not rescanning urls...", timeout=2222)  
+      
+    print("urls:", GREEN, *urls, RESET, sep="\n\t")
+    print("len(urls):", len(urls))
     
     # loop urls from internal_urls file
     for count, url in enumerate(urls):

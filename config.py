@@ -275,6 +275,13 @@ for q in ['\"', '\'']:
         )
     )
     
+    replacements_pre.append(
+        (
+            'http://karlsruhe.digital/ https', 
+            'http://karlsruhe.digital/'
+        )
+    )
+    
     
     replacements_pre.append(
         (
