@@ -497,11 +497,35 @@ def links_make_relative(links, base):
 def links_make_unique(links):
     return list(set(links))
 
+def links_strip(links):
+    return [u.strip() for u in links]
+
+def links_replace(links, replacements):
+    
+    def was_replaced(link, replacements):
+        link = link.strip()      
+        for rep in replacements:
+            assert len(rep) >= 2
+            new_link = link.replace(rep[0], rep[1])  
+            if new_link != link:
+                print("\t", "replaced:", YELLOW, wh.dq(new_link), RESET)
+                return True, new_link
+        return False, link
+
+    ret = []
+    for link in links:
+        b_replaced, new_link = was_replaced(link, replacements)
+        if not new_link in ret:
+            print("\t", "adding  :", GREEN, wh.dq(new_link), RESET)
+            ret.append(new_link)
+    return ret
+    
 def links_sanitize(links):
-    links = links_make_unique(links)
     links = links_remove_comments(links, delim='#')
     links = links_remove_similar(links)
     links = links_remove_nones(links)
+    links = links_strip(links)
+    links = links_make_unique(links)
     links = sorted(links)
     return links
 

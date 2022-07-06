@@ -259,24 +259,39 @@ print("sitemap_links_ignore", sitemap_links_ignore)
 replacements_pre = []
 for q in ['\"', '\'']:
     print("\t", "using", q)
+    # # # replacements_pre.append(
+    # # #     (
+    # # #         'http:// https://',
+    # # #         'https://'
+    # # #     )
+    # # # )
+    # # # replacements_pre.append(
+    # # #     (
+    # # #         q + 'http:// ', # has a trailing space
+    # # #         q + 'http://'
+    # # #     )
+    # # # )
+    # # # replacements_pre.append(
+    # # #     (
+    # # #         q + 'https:// ', # has a trailing space
+    # # #         q + 'https://'
+    # # #     )
+    # # # )
+
+
     replacements_pre.append(
         (
-            'http:// https://',
-            'https://'
+            'http:// ', # has a trailing space
+            ''
         )
     )
     replacements_pre.append(
         (
-            q + 'http:// ', # has a trailing space
-            q + 'http://'
+            'https:// ', # has a trailing space
+            ''
         )
     )
-    replacements_pre.append(
-        (
-            q + 'https:// ', # has a trailing space
-            q + 'https://'
-        )
-    )
+    
     # replacements_pre.append(
     #     (
     #         q + 'http://',
