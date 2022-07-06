@@ -1238,8 +1238,10 @@ def html_sanitize(content, vb=False):
     
     length_orig = len(content)
     
-    content = replace_all(content, "\n", " ")
+    #content = replace_all(content, "\n", " ")
+    content = replace_all(content, "\n\n", "\n")
     content = replace_all(content, "\t", " ")
+    content = replace_all(content, "\t\t", " ")
     content = replace_all(content, "\r", " ")
     content = replace_all(content, "  ", " ")
     content = replace_all(content, "< ", "<") # assume that all <> are tags and NOT lt gt

@@ -110,8 +110,8 @@ $(document).ready(function () {
         navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
         dots: false,
         margin: 0,
-        autoplay: true, // 3j
-        autoplayTimeout: 5000, // 3j 5000
+        autoplay: false, // 3j
+        autoplayTimeout: 5000000, // 3j 5000
         checkVisible: false,
         onInitialized: addItemNumberToNavigation,
         onChanged: changeItemNumber

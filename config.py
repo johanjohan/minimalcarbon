@@ -101,7 +101,7 @@ date_time_now           = datetime.datetime.now()
 
 path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
 
-custom_css_marker       = "#marker_appended" # a word in the file to mark it was updated
+custom_css_marker       = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 
 svg_color               = "darkseagreen"
 #-----------------------------------------

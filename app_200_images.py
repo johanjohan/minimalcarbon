@@ -352,7 +352,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_image_conversion")
         
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 60 # 66 55
+        quality         = 66 # 66 55
         max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = 30 # 0 is off, 1 all
         resample        = Image.Resampling.LANCZOS
@@ -361,7 +361,7 @@ if __name__ == "__main__":
         b_force_write   = b_perform_image_conversion_force
         b_blackwhite    = False
         b_use_palette   = False
-        blend_alpha     = 0.666
+        blend_alpha     = 0.8 # 0.666 0.8
 
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=10):
             exit(0)
@@ -952,7 +952,7 @@ if __name__ == "__main__":
             print("file", wh.CYAN + file + wh.RESET)
             wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
             base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
-            same_page_link = f"""<a href="{base_path}">{config.base_netloc}</a>"""
+            same_page_link = f""" <a href="{base_path}" class="same_page_link">{config.base_netloc}</a> """
             
             """
             Dies ist die energie-effiziente

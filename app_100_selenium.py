@@ -566,6 +566,15 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
+    
+    # -----------------------------------------
+    # all urls a links
+    # -----------------------------------------
+    links_a_href = h.xpath('//a/@href')
+    
+    # -----------------------------------------
+    # make lists
+    # -----------------------------------------
 
     links_head_href = h.xpath('head//@href')
 
@@ -658,6 +667,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     ###path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
     print("make_static: all done.")
+    
+    return wh.links_sanitize(links_a_href)
     
 # make_static />
 # -----------------------------------------
@@ -862,6 +873,28 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
+         
+    b_force_rescan = True
+    if b_force_rescan:   
+        # scan for new links:
+        print("scanning for new links in given urls...")
+        links_a_href = []
+        for count, url in enumerate(urls):
+            wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16)
+            print()
+            # get the content
+            wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
+            content = wh.get_content(url)
+            tree = lxml.html.fromstring(content)
+            links_a_href.extend(tree.xpath('//a/@href')) 
+            links_a_href = wh.links_sanitize(links_a_href)
+        print("links_a_href:", YELLOW, *links_a_href, RESET, sep="\n\t")
+        
+        print("len(urls) before", len(urls))
+        urls.extend(links_a_href)
+        urls = wh.links_sanitize(urls)
+        print("len(urls) after", len(urls))
+    exit(0)
 
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
@@ -870,8 +903,8 @@ if __name__ == "__main__":
         # # # if count == 3:
         # # #     break
 
-        print("\n"*1)
-        wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=80)
+        ###print("\n"*1)
+        wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
         print()
         ######print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
         ###print(f"{CYAN}url: {url}{RESET}")
@@ -880,7 +913,7 @@ if __name__ == "__main__":
         #print("\n"*1)
 
         if not (url in config.sitemap_links_ignore):
-            make_static(
+            links_a_href_from_url = make_static(
                 driver,
                 url,
                 config.base,
@@ -889,6 +922,8 @@ if __name__ == "__main__":
                 config.replacements_pre,
                 wait_secs=config.wait_secs
             )
+            print("found links_a_href_from_url:", YELLOW, *links_a_href_from_url, RESET, sep="\n\t")
+            # TODO how to append these
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
 

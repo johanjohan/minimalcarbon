@@ -337,7 +337,9 @@ if __name__ == "__main__":
         sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
         sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
         import shutil
-        shutil.copyfile(sitemap_path, config.project_folder + "sitemap.xml")
+        dst = config.project_folder + "sitemap.xml"
+        wh.make_dirs(dst)
+        shutil.copyfile(sitemap_path, dst)
 
         # all done
         secs = time.time() - start_secs

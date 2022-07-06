@@ -112,7 +112,8 @@ footer .footer-bottom {
     height: 1.6rem;
     background-size: cover;
     filter: brightness(55%) contrast(97%);
-    padding: 0 2vw
+    filter: brightness(45%) sepia(100%) saturate(100%) hue-rotate(77deg);
+    padding: 0 1vw
 }
 
 .icon-twitter:hover,
@@ -130,7 +131,7 @@ footer .footer-bottom {
 
 .percircle {
     display: inline-block;
-    width: 5rem;
+    width: 3rem;
     height: auto;
     background-size: cover;
     margin: 10px 10px
@@ -148,4 +149,13 @@ footer .footer-bottom {
     background-size: cover;
     padding: 0 7;
     fill: green;
+}
+
+/* hero hide arrows nav */
+.hero-swiper .owl-nav {
+    display: none !important;
+}
+
+.same_page_link:hover, .same_page_link:focus {
+    filter: brightness(104%)
 }
