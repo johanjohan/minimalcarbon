@@ -44,19 +44,32 @@ import scipy
 import scipy.misc
 import scipy.cluster
 
-div_start   = lambda id : f"<div id='{id}' class='parent'>"
+import cssbeautifier
+
+pfx = "ascii-"
+
+body_start  = lambda : f"""
+    <html>
+        <head>
+            <title>test</title>
+        </head>
+        <body>
+    """
+body_end    = lambda : """</body></html>"""
+
+div_start   = lambda id : f"<div id='{id}' class='{pfx}parent'>"
 div_end     = lambda : "</div>"
+
 cdata_start = lambda : "<![CDATA["
 cdata_end   = lambda : "]]>"
-pre_start   = lambda n : f"<pre class='child child-{n} ascii-art' id='layer-{n}'>"
-pre_end     = lambda : "</pre>"
-#sanitize_cdata = lambda s : s.replace(cdata_end(), "}}>")
 
-html_illegal    = ('&', '<', '>', ']')
+pre_start   = lambda n : f"<pre class='{pfx}child {pfx}child-{n} {pfx}art' id='{pfx}layer-{n}'>"
+pre_end     = lambda : "</pre>"
+
 
 def sanitize_cdata(s):
     s = s.replace(cdata_end(), "??i") # "]]>"
-    for c in html_illegal:
+    for c in ('&', '<', '>', ']'):
         s = s.replace(c, "?")
     return s
 
@@ -64,55 +77,123 @@ def sanitize_cdata(s):
 #  however, I can't use the CEND sequence. 
 # If I need to use CEND I must escape one of the brackets or the greater-than sign using concatenated CDATA sections
 
+
+def style(colors, font_size="2vw", line_height="1.2em"):
+    
+    def child(num, top, left, color):
+        return f"""
+            .{pfx}child-{num} {{
+                color:  {rgb_to_hex(color)};
+            }}  
+
+            """
+        return f"""
+            .{pfx}child-{num} {{
+                left:   {left};
+                top:    {top};
+                color:  {rgb_to_hex(color)};
+            }}  
+
+            """
+    
+    colors = list(colors)
+    html = f"""
+    <style>
     
     
-script = r"""
+    body {{
 
-<script>
-
-    var fps = 25 // change on mobile
-    var startTime = new Date();
-    var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
-
-    //let l = window.screen.width;
+        background-color: black; 
+        margin:0; padding:0;
+        color:white;
+        font-family: sans-serif;
+    }}
     
-
-    function div_set_pos() {
-
-        elapsed = (new Date() - startTime) / 1000.0; // secs
-        fade    = Math.min(1, elapsed / 3.0)
-        
-        for (let i = 1; i <= __max_layer__; i++) {
-
-            let speed   = 0.99;
-            let wid     = 11
-
-            layer_id    = "layer-" + int(i)
-            let layer   = document.getElementById(layer_id);
-
-            x = elapsed * speed / (i * 3)
-            if (i%2) {
-                soff = Math.sin(x)
-            }
-            else {
-                soff = Math.cos(x)
-            }
+    
+            .{pfx}parent {{
+                position:   relative;
+                margin:     0;   
+                padding:    0;
+                width:      11px;
+            }}
             
-            layer.style.position    = "absolute";
-            layer.style.left        = (fade * soff * wid)+'px';
-            layer.style.top         = (fade * soff * wid)+'px';
-
-            console.log(elapsed, fade, layer_id, soff);
-        }
-
-
-    }
-  </script>
-
-""".replace("__max_layer__", str(3)).replace("__max_layer__", str(3))
-print(script)
-
+            .{pfx}art {{
+                font-family:    monospace;
+                white-space:    pre;
+                font-size:      {font_size};
+                font-weight:    700;
+                line-height:    {line_height};
+                z-index:        -1000;
+            }}
+        
+            .{pfx}child {{
+                margin:0;   padding:0;
+                position:   absolute;
+                left:       0;
+                top:        0;
+            }}
+        
+    """
     
+    for i, color in enumerate(colors):
+        html += child(i, 0, 0, color) # i*2, i*2
+        
+    html += """
+    
+    </style>
+    
+    """
+    
+    return cssbeautifier.beautify(html)
+ 
+def script(num_layers, start_layer=0, fps=12):
+    
+    assert start_layer < num_layers
+        
+    html = f"""
+
+    <script>
+
+        var fps = {fps} // change on mobile
+        var startTime = new Date();
+        var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
+        
+        function div_set_pos() {{
+
+            elapsed = (new Date() - startTime) / 1000.0; // secs
+            fade    = Math.min(1, elapsed / 3.0)
+            
+            for (let i = {start_layer}; i < {num_layers}; i++) {{
+
+                let speed   = 0.99;
+                let wid     = 8 + i*2
+
+                layer_id    = "{pfx}layer-" + parseInt(i)
+                let layer   = document.getElementById(layer_id);
+
+                x = elapsed * speed / (i * 3)
+                if (i%2) {{
+                    soff = Math.sin(x)
+                }}
+                else {{
+                    soff = Math.cos(x)
+                }}
+                
+                layer.style.position    = "absolute";
+                layer.style.left        = (fade * soff * wid)+'px';
+                layer.style.top         = (fade * soff * wid)+'px';
+
+                console.log(elapsed, fade, layer_id, soff);
+            }}
+
+
+        }}
+    </script>
+
+    """
+    #print(html)
+    return html
+
 # gray scale level values from:
 # http://paulbourke.net/dataformats/asciiart/
 # 70 levels of gray
@@ -121,7 +202,14 @@ gNoCDATA    = "$@B%8WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}?-_+~i!lI;:,\"^`'.
 g70         = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # 70 levels
 g10         = '@%#*+=-:. ' # 10 levels of gray
 g95         = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it[] {}?j|()=~!-/<>\"^_';,:`. " # 96 levels
+g2          = '@*+-. '
+gXX         = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it{}?j|()=~!-/\"^_';,:`. " # 90 levels
 
+g = g70
+g = g2
+g = gXX
+g = "01010101010101010101010101010101010101010101010101010101010101010101010101 "
+g = "KARLSRUHE."
 
 def clamp(x): 
   return max(0, min(x, 255))
@@ -159,44 +247,49 @@ def get_average_l(image):
     # get average
     return np.average(im.reshape(w*h))
 
-def convert_image_to_ascii(image, cols, scale, gscale=gNoCDATA):
+# full_image may be None
+def convert_image_to_ascii(layer, cols, scale, gscale=gNoCDATA, reverse_gscale=False, full_image=None):
     """
     Given Image and dims (rows, cols) returns an m*n list of Images
     """
-    assert scale > 0
-    assert cols > 0
-    
+
     print("convert_image_to_ascii:", "cols  :", cols)
     print("convert_image_to_ascii:", "scale :", scale)
     print("convert_image_to_ascii:", "gscale:", len(gscale), gscale)
+    
+    if full_image:
+        ####full_image = full_image.convert('L')
+        print("\t", "using full_image as avg ref!!!!")
         
     # declare globals
     len_gscale_1 = len(gscale) - 1
     
-    image = image.convert('L')
+    layer = layer.convert('L')
     # store dimensions
-    W, H = image.size[0], image.size[1]
-    print("input image dims: %d x %d" % (W, H))
+    W, H = layer.size ### [0], layer.size[1]
+    print("\t", "input layer dims: %d x %d" % (W, H))
 
     # compute width of tile
+    assert cols > 0
     w = W/cols
 
     # compute tile height based on aspect ratio and scale
+    assert scale > 0
     h = w/scale
 
     # compute number of rows
     assert h > 0
     rows = int(H/h)
 
-    print("cols: %d, rows: %d" % (cols, rows))
-    print("tile dims: %d x %d" % (w, h))
+    print("\t", "cols: %d, rows: %d" % (cols, rows))
+    print("\t", "tile dims: %d x %d" % (w, h))
 
-    # check if image size is too small
+    # check if layer size is too small
     if cols > W or rows > H:
-        print("Image too small for specified cols!")
+        print("ERROR: Image layer too small for specified cols!")
         exit(0)
 
-    # ascii image is a list of character strings
+    # ascii layer is a list of character strings
     aimg = []
     # generate list of dimensions
     for j in range(rows):
@@ -212,25 +305,42 @@ def convert_image_to_ascii(image, cols, scale, gscale=gNoCDATA):
 
         for i in range(cols):
 
-            # crop image to tile
+            # crop layer to tile
             x1 = int(i*w)
             x2 = int((i+1)*w)
 
             # correct last tile
             if i == cols-1:
                 x2 = W
-
-            # crop image to extract tile
-            img = image.crop((x1, y1, x2, y2))
+                
+            # crop layer to extract tile
+            # # if full_image:
+            # #     img = full_image.crop((x1, y1, x2, y2))
+            # # else:
+            img = layer.crop((x1, y1, x2, y2))
 
             # get average luminance
             avg = int(get_average_l(img))
-
-            # look up ascii char
-            gsval = gscale[int((avg * len_gscale_1) / 255)]
+                        
+            g       = gscale
+            g_index = -1 # last
+            if reverse_gscale:
+                g       = ''.join(reversed(gscale))
+                g_index = 0 # first
+            
+            # look up
+            if full_image:
+                # look up instead in full_image
+                gsval = g[int((avg * len_gscale_1) / 255)]
+                if gsval != g[g_index]: # the last & empty element
+                    gsval = full_image[j][i]
+            else:
+                # look up ascii char
+                gsval = g[int((avg * len_gscale_1) / 255)]
 
             # append ascii char to string
             aimg[j] += gsval
+            #print("\t\t", j, aimg[j]) # row, aimg[j] is growing
 
     # return txt image
     return aimg
@@ -284,6 +394,7 @@ def pil_image_segmentation(image, num_clusters):
             c[scipy.r_[np.where(vecs==i)],:] = color
             PIL_image = scipy_to_pil(c, shape, 'RGB') 
             layers.append(PIL_image)
+            PIL_image.save("__layer_" + str(i) + ".png")
             
         # composite
         c = ar.copy()
@@ -301,35 +412,52 @@ def pil_image_segmentation(image, num_clusters):
 # call main
 if __name__ == '__main__':
     
-    def image_show(image, secs=1):
-        
+    def image_show(image, secs=1.7):
         path = "__tmp.png"
         image.save(path)
-        
         import subprocess
         import time
         # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
         p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
         time.sleep(secs)
         p.kill()
+        import os
+        os.remove(path)
     
-    #julia_mantel = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
-    rainbow = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
+    image_path = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
+    image_path = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
+    image_path = "Header-1.jpg"
+    image_path = "bunte_nacht_der_digitalisierung_hero_slider.jpg"
+
     descStr = "This program converts an image into ASCII art."
+    
+    
     
     parser = argparse.ArgumentParser(description=descStr)
     # add expected arguments
-    parser.add_argument('--file', dest='imgFile', type=str, default=rainbow, required=False)
+    parser.add_argument('--file', dest='imgFile', type=str, default=image_path, required=False)
     parser.add_argument('--scale', dest='scale', type=float, default=0.5, required=False) # 0.43 aspect
     parser.add_argument('--out', dest='outFile', default="__out.txt", required=False)
-    parser.add_argument('--cols', dest='cols', type=int, default=100, required=False) # 80
-    parser.add_argument('--num_clusters', type=int, default=5, required=False) # 80
+    parser.add_argument('--cols', dest='cols', type=int, default=120, required=False) # 80
+    parser.add_argument('--num_clusters', type=int, default=len(g), required=False) # 80
     args = parser.parse_args()
+    
+
+    if args.num_clusters > len(g):
+        args.num_clusters = min(args.num_clusters, len(g))
+        print("args.num_clusters: fced to:", args.num_clusters)
 
     print(descStr)
     root_image = Image.open(args.imgFile)
+    #root_image = ImageOps.equalize(root_image, mask = None)
+    root_image = ImageOps.autocontrast(root_image, mask = None)
+    root_aimg = convert_image_to_ascii(root_image, args.cols, args.scale, gscale=g)        
+    root_aimg_string = "\n".join(root_aimg)
+    with open("__out_root.html", mode="w", encoding="utf-8") as fp:
+        fp.write("<pre>" + root_aimg_string + "</pre>")
     #root_image.show()
     image_show(root_image)
+    ##print(root_aimg) # list of row strings
     
     if False:
         
@@ -366,13 +494,22 @@ if __name__ == '__main__':
     sort_by_color = lambda x : x[1]
     sort_by_lum   = lambda x : rgb_to_luminance(x[1])
     
-
+    zipped = zip(layers, colors, counts)
+    # # zipped = list(zipped) # needed for sorting
+    # # zipped = sorted(zipped, key = sort_by_count, reverse=False)
+    # # print("before sort:", *zipped, sep="\n\t")
+    # # zipped = sorted(zipped, key = sort_by_lum, reverse=False)
+    # # print("after sort:", *zipped, sep="\n\t")
     
-    html = div_start("my_id") + "\n"
-    zipped = sorted( zip(layers, colors, counts), key = sort_by_lum, reverse=False)
+    html = body_start()
+    html += style(colors, font_size="1.3vw", line_height="1.2em")
+    html += div_start(id="ascii-div") + "\n"
+    
     for i, (layer, color, count) in enumerate(zipped):
         
-        print(i/(args.num_clusters-1), "-"*88)
+        print("\n"*3)
+        print(round(i/(args.num_clusters-1),2), "-"*88)
+        print("\t", i, count, color)
         
         html += pre_start(i) 
         
@@ -380,14 +517,12 @@ if __name__ == '__main__':
         ##layer = pil_image_threshold(layer.convert("RGB"), 0)
         
         threshold = 0
-        layer_inv = layer.copy().point( lambda p: 0 if p > threshold else 255 )
+        layer_neg = layer #.copy().point( lambda p: 0 if p > threshold else 255 )
         
-        aimg = convert_image_to_ascii(layer_inv, args.cols, args.scale, gscale=gNoCDATA)        
+        aimg = convert_image_to_ascii(layer_neg, args.cols, args.scale, gscale=g, reverse_gscale=True, full_image=root_aimg) # root_image       
         aimg_string = "\n".join(aimg)
         aimg_string = sanitize_cdata(aimg_string)
         print(aimg_string)
-        # for row in aimg:
-        #     print(row)
             
         ###html += cdata_start()+ "\n" + aimg_string + cdata_end() + "\n"
         html += "\n" + aimg_string + "\n"
@@ -396,9 +531,17 @@ if __name__ == '__main__':
         
         html += pre_end() + "\n"
     ### for />
-    html += div_end() + "\n"
     
-    print(html)
+    html += div_end() + "\n"
+    #html += script(args.num_clusters, start_layer=0, fps=10)
+    html += body_end()
+    
+    if True:
+        from bs4 import BeautifulSoup as bs
+        soup = bs(html, 'html.parser')  
+        html = soup.prettify()
+    
+    #print(html)
     
     with open("__out.html", mode="w", encoding="utf-8") as fp:
         fp.write(html)

@@ -2,65 +2,6 @@
 
 <head>
 
-    <style>
-
-        body {
-    
-            background-color: #000000; 
-            margin:0; padding:0;
-            color:white;
-            font-family: sans-serif;
-        }
-    
-        .parent {
-        position: relative;
-            margin:0; padding:0;
-            border: 10px;
-            color: red;
-            width: 800px;
-        }
-    
-        .child {
-        margin:0; padding:0;
-        position: absolute;
-        left: 0;
-        top: 0;
-        }
-    
-        .child-1 {
-        left: 0;
-        top: 0;
-        color:blueviolet;
-        }
-    
-        .child-2 {
-        left: 2;
-        top: 2;
-        color:yellowgreen;
-        }
-    
-        .child-3 {
-            left: 4;
-        top: 4;
-        color:blue;
-        }
-    
-        .ascii-art {
-            font-family: monospace;
-            white-space: pre;
-            font-size: 2vw;
-            /* font-size: 2vh; */
-            font-weight: 700;
-            line-height: 1.2em;
-            z-index: -1000;
-        }
-    
-        .content {
-            position: relative;
-        }
-    
-    </style>
-
 
 </head>
 <body>
@@ -76,10 +17,69 @@ https://www.geeksforgeeks.org/how-to-create-a-moving-div-using-javascript/
 
 <h1>DO NOT MINIFY THIS ONE!!!!</h1>
 
+<style>
+
+    body {
+
+        background-color: #000000; 
+        margin:0; padding:0;
+        color:white;
+        font-family: sans-serif;
+    }
+
+    .ascii-parent {
+    position: relative;
+        margin:0; padding:0;
+        border: 10px;
+        color: red;
+        width: 800px;
+    }
+
+    .ascii-child {
+    margin:0; padding:0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    }
+
+    .ascii-child-1 {
+    left: 0;
+    top: 0;
+    color:blueviolet;
+    }
+
+    .ascii-child-2 {
+    left: 2;
+    top: 2;
+    color:yellowgreen;
+    }
+
+    .ascii-child-3 {
+        left: 4;
+    top: 4;
+    color:blue;
+    }
+
+    .ascii-art {
+        font-family: monospace;
+        white-space: pre;
+        font-size: 2vw;
+        /* font-size: 2vh; */
+        font-weight: 700;
+        line-height: 1.2em;
+        z-index: -1000;
+    }
+
+    .content {
+        position: relative;
+    }
+
+</style>
 
 
-<div id="container" class="parent">
-<pre class="child child-1 ascii-art" id="layer1">
+
+<div id="container" class="ascii-parent">
+<pre class="ascii-child ascii-child-1 ascii-art" id="ascii-layer-1">
 ..;:,,:c;''''...,::,.'l;.'..';.,:'....'........',,,...'....;:;'.....':;...'..','........,'... ...;:,
 ..;:,,'',''''.,,';:;..:;.'..';.':,...''.......'',,;'..'....;:;'.....':;......',,'.....'.''.......;:,
 ..,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclldxdoloooddxxddxxxxkOOkl,...,..........,:,
@@ -131,7 +131,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 ......';:'.''...'.';.'c,...''','';;cl:,,,;,',;,,;;;;'cxdcccllcodlc::lllllloooool,...............','.
 .......,:...'...'..,..;,...,'.,'';,,'.','''..'..''...lxlccccc:col:,,clccc:;;;,,;......'..........,'.
 </pre>
-<pre class="child child-2 ascii-art" id="layer2">
+<pre class="ascii-child ascii-child-2 ascii-art" id="ascii-layer-2">
 ..;:,,:c;''''...,::,.'l;.'..';.,:'....'........',,,...'....;:;'.....':;...'..','........,'... ...;:,
 ..;:,,'',''''.,,';:;..:;.'..';.':,...''.......'',,;'..'....;:;'.....':;......',,'.....'.''.......;:,
 ..,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclldxdoloooddxxddxxxxkOOkl,...,..........,:,
@@ -184,7 +184,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 .......,:...'...'..,..;,...,'.,'';,,'.','''..'..''...lxlccccc:col:,,clccc:;;;,,;......'..........,'.
 </pre>
 
-<pre class="child child-3 ascii-art" id="layer3">
+<pre class="ascii-child ascii-child-3 ascii-art" id="ascii-layer-3">
   ;:,,:c;''''   ,::, 'l; '  '; ,:'    '        ',,,   '    ;:;'     ':;   '  ','        ,'       ;:,
   ;:,,'','''' ,,';:;  :; '  '; ':,   ''       '',,;'  '    ;:;'     ':;      ',,'     ' ''       ;:,
   ,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclld dolooodd  dd     OO l,   ,          ,:,
@@ -257,7 +257,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
             let speed   = 0.99;
             let wid     = 11
 
-            layer_id    = "layer-" + int(i)
+            layer_id    = "ascii-layer-" + parseInt(i)
             let layer   = document.getElementById(layer_id);
 
             x = elapsed * speed / (i * 3)
@@ -274,8 +274,6 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 
             console.log(elapsed, fade, layer_id, soff);
         }
-
-
     }
   </script>
 
