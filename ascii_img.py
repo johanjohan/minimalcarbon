@@ -44,13 +44,21 @@ import scipy
 import scipy.misc
 import scipy.cluster
 
-div_start   = lambda id : f"<div id='{id}' class='parent' >"
+div_start   = lambda id : f"<div id='{id}' class='parent'>"
 div_end     = lambda : "</div>"
 cdata_start = lambda : "<![CDATA["
 cdata_end   = lambda : "]]>"
-pre_start   = lambda n : f"<pre class='child child-{n} ascii-art' id='layer-{n}' >"
+pre_start   = lambda n : f"<pre class='child child-{n} ascii-art' id='layer-{n}'>"
 pre_end     = lambda : "</pre>"
-sanitize_cdata = lambda s : s.replace(cdata_end(), "}}>")
+#sanitize_cdata = lambda s : s.replace(cdata_end(), "}}>")
+
+html_illegal    = ('&', '<', '>', ']')
+
+def sanitize_cdata(s):
+    s = s.replace(cdata_end(), "??i") # "]]>"
+    for c in html_illegal:
+        s = s.replace(c, "?")
+    return s
 
 # https://stackoverflow.com/questions/2784183/what-does-cdata-in-xml-mean
 #  however, I can't use the CEND sequence. 
@@ -108,7 +116,7 @@ print(script)
 # gray scale level values from:
 # http://paulbourke.net/dataformats/asciiart/
 # 70 levels of gray
-html_illegal    = ('&', '<', '>', ']')
+
 gNoCDATA    = "$@B%8WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}?-_+~i!lI;:,\"^`'. " # no []
 g70         = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # 70 levels
 g10         = '@%#*+=-:. ' # 10 levels of gray
@@ -381,7 +389,8 @@ if __name__ == '__main__':
         # for row in aimg:
         #     print(row)
             
-        html += cdata_start()+ "\n" + aimg_string + cdata_end() + "\n"
+        ###html += cdata_start()+ "\n" + aimg_string + cdata_end() + "\n"
+        html += "\n" + aimg_string + "\n"
         
         image_show(layer)
         
