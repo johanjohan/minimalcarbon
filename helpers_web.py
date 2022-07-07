@@ -1294,21 +1294,23 @@ def html_minify(content, vb=False):
         try:
             # https://htmlmin.readthedocs.io/en/latest/reference.html
             content = htmlmin.minify(
-                content, 
+                input=content, 
                 remove_comments=True, 
-                remove_empty_space=True,
-                remove_all_empty_space=True,
+                remove_empty_space=False,
+                remove_all_empty_space=False,
                 reduce_boolean_attributes=True,
                 reduce_empty_attributes=True,
-                remove_optional_attribute_quotes=False, # ??????? True TODO
+                remove_optional_attribute_quotes=True, # ??????? False TODO
                 convert_charrefs=True,
                 keep_pre=True,
+                pre_tags=['pre', 'textarea'],
+                pre_attr='pre'
                 )
         except:
             print(f"{RED}could not htmlmin.minify!{RESET}")
          
-        if False:   
-            content = html_sanitize(content, vb)
+        # if False:   
+        #     content = html_sanitize(content, vb)
             
         if vb:
             print(
@@ -1989,93 +1991,7 @@ if __name__ == "__main__":
     print(content)
     string_to_file(content, "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/sitemap/scraped/ascii-art/" + "bunte_nacht_der_digitalisierung_hero_slider__not-bad__pre3color.html")
     
-    # great turning ascii earth
-    # https://speckyboy.com/css-javascript-ascii-artwork-snippets/
-    # https://www.jonathan-petitcolas.com/ascii-art-converter/
-    
-    # better overlay several colored pre tags
-    """
----------???}10hO/[[]?]__?]?]}/fxfnzvuznr/jj{}[-?}{(|/zphoo*&W&8B@B%WWak&&&*#WB@%B@8W*dmYUnf/||){[[[[[}(tvUZh88MhdmmQOQznY((){11111))(())((||((
-++++++_____??[Zb0|]????+~][[[111?1/1)|f(){1{){1?[)/tfnzp*#*8#&%@B%%8*aaMWooW%BB%8%8#WdpqCn||()1}]??--__]}/vJm*8obmQw0m0Jvc/(1}}}}{111111))))(((
-__________--]}QbO|]?---++?{{)/|){(|)(//||(){1)(1||(trYm*MM#M&B@%8B8#oo8o*M%@@%8&%&&Wdbb0J|){}}]?-__+~<!i~{txUO*ohO0QLw0zQnc(1}}}{{{1111)))))(()
-__________--?}LbZ|]?---+_?}[]][[]?]]]]?--?][]{)11)fxXLa*WWW8BB%8B%Mo*WkMM%B@8#%M&8*abhwL/({{[[-+~<<<!l;I!?)/xzZkbOQQCOZUYzU|1({{{1{1111))))((((
-__________--]}LbZ|[?--?+~~+++~~+~~+~+_++__?[{))()/ncYaoWWM&B@B888#*#M&MWB@BW88&8B*aa#bmt({}[]?+<<>ii!lI;I~[{|rJOdYZ0QYmJLJn|()1{{{1111))))))()(
-__________--?}CdZ|]?---?_--_--____-_-?---?[{{1|(|nzJa#W&M&@B%B&&M**M%MM@B&8%%%&Wkbbadwv(1[]?-_~>>i!lIIII!~][{|vJOCLOwQ00YYzr{{(1{111111)))(())(
-__________--?[Jbm/]?---------------_-??-?}[1{|({nzCh#MMM%%@%%&W**aW88%BW%8&&8%WhbhobdU(}[?-_++<>>iilI;;;!<?]}|rvCZOQpwCOUUUX|{[1)111))))))()(((
-___________-][Cdw/[??----??--------__?-?}}{{)|{rcOhM*##&BB%%8WW#o%W@888W8%%%8oahaaokm/1]-~++~<>iii!I;:::;i-?]})nJL0OqbCwJJOCn1{{}1)1))((((((|||
-___________-][Cdw/[?-----?]?]}1(/fxcULQOOqqwmqqqb*M*##&%BB%8W##W88@BM%8W%%%%*#haoabmu1{]_+~+~<>>i!II;:,::i~?-]1/xLLmpb0mOC0CJ(1{{}})1((((|((|||
-+_+++_____+-?]YdbddpppddddbbbddbkkkbbbdkaokdhhdboM*W*&B8BW&W##&&B&%WMM%&8&WMddo**pkX|{}]-~++~<ii!II;;;:,:l<---[{rJUOdbdmmOcYCY({[1}}1)(((||||||
-___++++__+_--[vkkhaoooo*****o*#*oakdqm0mOJUXXZboWo#WMBW&MWW*W&%B%%WM8%%WM#oqb#M*doYt|1[?+~++~<!!lI;I;I;:;Ii_-+++tzCpdkbQ00YXCLc)[{{{{1|((||//|/
-___++++_+++_+--?{////||(((((/(11))(()|(||ffjYqo#o*#8&&#M#**W8%@%WMM&&&88W##MMMMbowXn){]-++_+<>l!lI;;I;;;:li+_->~-ULpdbmCpOLXOZCu1}[}1{})(|||///
-+++++++++++++___-][[}[}[[[[[[]][]][[}}11{(xcZo#oM#&Wo**o*M&8BB%%%B&&%8&*qQqp*#khOJzvj1]--_+~<>!i<~-1/tx/)}???]~<]JJkOkwmb00CUmQuc1}}{{{}{)|////
-+++++++++++++++____--------------[[[[]?}(tcm*M#M&M#**o#*M88%B8BBB&%%&8oqbLpooapxuuvnj)}[]_+<>ii>[1/txvzXzvujjr{~[JUZdmwdwm00LQOCxc){{111}})|///
-_++++++++++++++++_______________?][?][{(tcphWMMWM#Mao#W8@W&%BB@%&8&&BMakdba##Ujucnuuxt({[-+!Il>_}{1{{{}-+<~>-)jj(uJQamwZZdOLqOOCJtU{1111{{{{(/t
-+++++++++++++++++++++++++++++_-_]?_?]{)1UdhW&W#&Moo#W88B88B%%&8%8&8%8a#M#8%MkLx/nzuccnt)[->;,Ii?11(fxxrf//}]_--{tXUdhwZwqdpZ0bLJLv|Y|)11{{{{11|
-++++++_+++++++++++++~~~~~~~++_+[?+?{[{(0phMW*MWMooWBBBB8B%%88%8&8MWM*#WM8%#bpwq/QqYUUXr|}->,,!-)fncvzOO0qzr|U(]_+nUZbmppmp*p0kwCUY({X)11{11111{
-_+++++_++++++++++~~~~~~~~~~+++?-~_{[)jOqb#ok#MMo#8@@B@%8B&%8%88&&*WM*##aqOCqbkqpha*aLCn/{-<:;>+}|uu)cUYYXa/OkYv??1X0qwahddakdmdUCLr|tf)1{111111
-_+++++_++++++++++~~~~~~~~+++_???+-)|c0wkadq*&*#&B@@@B%%BB&B%B%8*k#&oOOUvvuccXXXXJJYYUzut)[-il>><vYJmpOLQpZQ/XJqt}[uQwqa*dbh*kawqYZnf/j/(1){{111
-___+++_+++++++++++++~~~~~++_-_]?]{/zXphkqmaMoM%@@@@BBBBBB8BB%&MWh#aqQXxxrrxnuuuvvccXXcnj|}_>><<I](/jucn/)[11/{}1rjYmOwka#ohao#hmU0vzUQO0ZmwqY1)
-___+++_++++++++++_++++~+++__-?_?}(cXqwqpZhM*&BB@@@B@@@@@BB%%WWpqZwh0cj/t/fjxrxxuuxnvvnrf|}_iii>~l>_+??}{{]{)--->>}x0Lqoah#hMoo#mLqCJUXO0OYJOC))
-_______-_+++++?}-+_++++++]}{]-??{cUwmZmZbW#W%B@@@@@@@@@@B&B%#*wUCpqXr||))))(/tffrrrrjjf/(}+II!iiii<~++-??]??-_+ii}{vOqahkoMWWM#hQZLLLLZmOOLZQ))
-_+_--+++_++-}-?[-+-_+_+-?11}--]}rCqJLOZbWM*%B@@@@@@@@@@@BM&MMduuUkZvt)1{}}[{1(|/ttttttt|1]<::l!iiii<+~+~<i!lli>i<-?)wbb*qk#8&***Omczvjjxf/tXX()
-----_-[{?_-]){/([-______}{/)t]{fumXY0mb&W*W%%@@@@@@@@@B88W&WWQxrmpU/({{}[[[{111))(((|||(1]~,"IlIIIII!>>il;;,I;l>~-_)qhbaoqWW8h*hLOju/|/t(11uxf/
-[++_-])|]-][?}[}x1}-_---[[((jtnUZzzz0kW8&*W%%@@@@@@@@B@@B&8W#Utjpwf){}[[][}}{{1)((||||)1}?~:',;Il!I::I!!l;;"",:I+?-)baaoWdwWWM#pOZJCvnff{1[}[ff
-X(---](f-[1/u)_}|[_-]]?]1{)tf/xY0ncCbM8&%#W%%@@@@@@@@@@@@8B8*Jfcdz({[]]]]][}1)|/tt/|()1}?_<I^`;I!~]_<>>>iI:"^,;I~]+(bko#W%WbWa*pqQcf}]}r?(?]?xj
-)[]{{|()(]|xXr/{{[??[-?]}](x|/rJUcLpo#8&M*&8%@@@@@@@@@@@@@%%MLrQpx1}[]]][[{(||//t|1}111]+~>!;:lIli{({]-~<il;::I![~-/hao*W&&WmWpqmCUj1{)t[([[]rr
-1{?]}))|f){fn|1|?-[?[[[]{1/f|/tQXcOhaM#W#M#M8@@@@@@@B%B@@@8%#0xd0r){{}}}{)|||||//|(|c0r1?_+<>~[+>>])(1{[-~>!lIli->]Q#ha#W&WMoZdqmLnx(}t(1/)(|rr
-{1f)]]]1jt/xn|nJ)1}?1?)t/j|//xcQUjmaoMMW&M*M&@@@@@@B&%@@@@B8WOvkYr(11{1)(||()((((((/tfj/){[-{(}[>Ii-{))1}?~>i!i+<<(#&hh*W###okOpw0YXuvzuvvzLJxx
-?11]]?[)/[/uxrxznnr(((t)/(ft|/nQUub#aMW8&WM#8B@B@%@8M8@@@@@&%mJbux/)1))(|()1)1))))))))111}-~!I;::::l~]}{{[?+<><+~+UMoqb*WM#pobpYq0Yzurf|(t1LQnn
-]}1{[[{fuuvczzuvCLxftu}){}/t)1/UUmb#bM%8h&8M8%@@%%&MM%@B@@@8%pZpur/(11)())111)))))111{[][[?~l;:,"",:;>_-}[]_+~+?~-a#dpb#W#hbhkpZQOmzvn(||[}zQvu
-]}ru(fvCYXXzUcqZmZc)jx){{|)f(11vLZbabW%oZB%W8%@B8&#*#B@B@@@@Whddxj/)111({)))((((((()1}_<---<;,,"'",;l!i>-]?-+~+-<|a#qdb*#ahbkdpwpwwqmJYYYYJYzzv
-[|JXrzJJLzUUYvOcjt1|ucj1}r/{]]}xQdhop*&q#&M&8B@BWo#M#%@8B@BB%Madnf|)1{{)1)trjjfft/||()(1}[?_+il;;IllIl!I>~+~<<>-~L*dbwdaqbpdkdwbbpZmmZZQZmwwOXc
-)fuuvcxcQXXLUvJzjt|(tr{(j1]?][(|JpaawM&M8W%8%B%MoM#MM%88@@%@B&WZUx|11{}11)|/rzcnrrjtt/tt/){{}[][[??+>i!l!>i>ii>]+Mow0khphpOhpkmdawpwOZwwmbd*ooh
-xXzvcUXOJZ0OLLXu0XuXccdCmpkruCOUCbo*whMhkW8&BMoMM##&&%&WB@W%@%#mmj/}{1{111)((|tjjft/((jncnrt/(}]--[}){_i>li!!ii]vMmmmqqhbqwbqpppbqbmmO0dZmqbhh#
-11tnjvwmLCJLQCJ0qJYLCU0LmwmcvjucY0aapaMM*&8&Mo#WMMW%B%##B@@%@@WoOct|11{111)))(((((|(11){{1}]-><_~<ii<+><>i>i!!i)WkmZqk*obwpkpbdddpkpZ0QUJLvczcc
-111nkha*Zdw0LQ0LwXuvvYXczccnxfxtnzbaqd*M#&8M##*MWW&BB8*o@@@B@@%Wb0xt|)(()(()111)11)))((||(){?-+<>!llll!>!>>ii~+daZmq*a&kpOhdpbhdpqbdmZLYcUnvXCQ
-))((tLkOOCJLwmw0LLUzCCXzjjfr/|/xUJw*ahoWW&MM*a*WMW8B&Wh*@@@B%@@%&k0r/|()(()))1111))1111))1{[-_>!lIIIlli>~<><<[MMqmphb*8dpdbZphbdbakkqqZZqpwm#M*
-t||/|tfXQLqQLQpbOYUQ0wQJxtft|/tJLOmMpdo*MMWMa*&#&W8B&Mh#@@BB@@@@@Bazx//(||()11111{{}}}}}}[?_~>!II;;ll!><<+<<f&WkpZbpo*opqbdQbpbpbhbkdwmmwqqmOqq
-czYXYCOZwawJLZ0bJJ0qhWOJUu0UULcQv0ZwabWa#WW*a#WM&W%%WMk&@@%B@@@@B@Bkujt|||(()1{{{}}[]??_+++<>ilIIlliii><<+_p&8#mwpw*##kdkbk0pdkdbadbbqpqmZZZObk
-CULQ0kMbmkCOQJwbZwb*hwdW8&&&BB&&#LJJOd*o#WMaa&WWW#8&&&d%%%8@@@@@@@@Bknt|||(()1{}}}[]?--_+<<>i!lll!!iii>i~1&BB*mqdqo#**oqMakOkbhbhh#pppbbwXxuXpW
-JUULOkZpwwbwL0qaZwqpZa#kddobkhwxxxCJ0do*#WWbhW&WWM%W&&dWBo@B@@$@@@@@&aut||||)11}}}]--__+~<>>i!!Illiiii><X%&Whb#*qkM#okhkood0bdkokdo#pbahqUvnLU*
-#hwpbM#0cCQwCZpdhdwo8M&W##*hZjurnnUOwd#**MWbkW&&WW8W%%koWW@@@@$$@@@B8MdCj/||)11{}[[]-_~~~~<>ii!!l!>><<}h%BMa*&Mbha##ohdo*adLbbk#aba***oppqwmmdp
-wOJ0mkoOxvXX0wfYOnnxttt//(|jjxnxuc0QZdW#*W&dk#&WW#BMB%ok&8@@B@$$@@@B&*qqmcjt/|11{}}[[]???-+~>>ii!<>_}CdW#o#&8&*ho*WWopo*M*dqddoohoak*oMkdwLJ00q
-vCQOqhaQxzXJmctvJczXvuxxfrfjrxxuzOQOk*M#M&%dbM8MW*8MB8WO#8BBB@@@@@@@8kwmmwCvrf/)1{}}[[[[]?-_~~~++](zUZk8%%W%%#h*a*M#hdM#&#*kqdb*ao#h#h*okdZwOZZ
-{zUQwbQnvUCOqL(|jrj/(()|fjjjrxnvOJLdh#&#W%8bb#&MMhMWB%BdbW8%8B@@@@@@&apZZmwCcunjt|()111{{{{}}{1/nuucU0oB%%8BM*a*o**ah&#h&Mkawkbh***#wph#ohpzQjj
-zUJQwhoczXJpwZ]cLYLwdmxfjjrrnnuCUJZd*M&#&8&kph&&#h#&B%BkwM%%8&@@B@@@8odmOOppJcnrt|))11)))11{}1(nunncJO#B@8&8*o*a#oa**&Ma*Ma#bbbk*hwMaZhMohkqLxr
-XXUL0ZZvvzJmpZ[CwO0kUtjjjjrrxnvJXLqo&WoWW%Mddk&8ob*W88%&Ow*8&%BBB@@@B#hpmmpwCXur/){{{{{1{}[[}1tnnnucJw&@@M8Woo***8k*W8a#Ma&dhwdkohbkadohmkkpmJx
-zcYC0wZncnnYOU]j|/rrfjffjrjrnc0YCmk&WW*#8&Wbh*MWobaM8&%%q0d*&B8B%@@@@BodqpdmQUcx/)1}}}}}}}[[{(fxxnuXLb%@BW8Wha##M8aW8*#oWo&hkpddhahhahbUvObqZZO
-ZOZQ0kZcvxrvrZ?xfjffftfjjjjxnLcCZhW&W&o#&&W&o*&MOkh*WW8%*dbkM%8W&%@@@BMaddpwCYzrt()1{}}}}[[})/rxxnuz0*B@@W%WhoW*W%h8%*8a8b&&qhwdkahM#kbXxxpOmOZ
-dhh#%B&czxfUzC~JxffttffffrrvJCLOaMWBW**&8&88M8MaphkoM888WbdokW%WWBB@@BModbbqmCUxf/|)1{{}}{1(/rrrxxvCd8@@@M%Wha8*&8o8%**hMb#&opqbbhakkkkYvufwJqO
-qdqphUccznrCJq<n|ftttfffjrnn0YZoo8B8MM&M888%@%#mddddW88BW*ko*#&8*8BB@B8MbqwdqZJujt/()1111))/jnxrruUmWB%@BM%%#a8M&W#%%&obho&MMddZhkbdpkhXX//pCZQ
-%8W&#Yczxzxn0O/tftfftffjjnxY0wphM&WW8&WW&M@B%8aqbodko&%88#M#&#&%W&%@BB8#*dmwqmCzxjf/|(((((|fxxxxuY0*B@BBBW%BWM#&M8MM%%ahbho#&MqdwkpphhhJzxjCYL0
-JOqb#8muvvXU0jtft/tjfjjrxnzOZwpW#o&W8*&W8*B@%8W&aMkk#&%&%W&#&W88M*8B@B&W*oqqdwQXurjt/|((||tjxrxuUQ*BB@@BB%%%%8o8o%M#88oo*dh*WWMwabdhoadQXuxCYYO
-dmmk#MxcnncCrjfttffffjjrncC00qMkhWMW&#8M&W@@@BMBWo*doW%%&W#*#M&%Wa*%%@8M*hkpdwQJcnjt/|||//trnnvYw#%@@BB%B&%%B8&8#88oM%#*odooW&&bkkkk*adbJvxOYCZ
-Yh*#MBpYczvrffftttjjffrxuzY0bhpq*W#MMWWM&8@@@B%%Wa#kd*8B&#Woaa*#Mhp&&888M#akkpOCUvxfjftttfrncXLp#B@@BB%BB#&BB88%&MBW8W8oo#dMM%8#bhpb##ZmmbCpqLc
-voMW&@*zXvfttfffjjjjjrnncXZw0Omd*o#W8W&WW@B@@@@@8WM*Wp#WWMM*bqdbakdk&W888WohkbZLJJYcvvunxxvXCZk#%@@@%&&BB8&@%8B8B%M&M&WWooMdoW8Wohhk*oOOQ0m#ohz
-B8&W8%#czjfftttjfffjxucJQCJJQmZa*aa&W&W&&@%@@@@@B8%WWMhWWW#aoqOOOoqad#W&&WobbdZQLJJJYXXzczYQpaM8B@B8%BWBBM*BB8@BBB8W#8&#MM8ah*%%WbodobQOQJakqCX
-ukWM&%kYrffftttfjxnuvcccXUULQqb*kk##WM#8&88%@@@@%B%&%&aoMM**ahbLLqbmbdo#&WMohdmQ0QLQLCUUUJ0p*M888&BBBWB88&##WB%%%@B8MoB&*WW%aho8Mahd#qQ00pWdpuv
-cbo*WBpr/tt/tttfffjxxnuczYUCOq*pkba#oo*8%%%8%BB@%8B88&*o#MoMohaam0mdpph#W#MoodqZwqmmmmO00OwhoW&8%@%B%&B88&M*#88BBB@8&*M&%MM&8#h&M*hb#pLmp#kkcvn
-npbkWhnfttttftfjjrxrxnvXcXULO*dpbpa#hh#&&8%8&BB%B%8&8&M***#Mokka*dpdmwwhM&&*kpmpwpwqdqqmmwd#M888@%88WBB8WB&MMM#BBB&&%%ha%%&MW&oaMd*kodZw#MdUucx
-ndW#qrftt///ttttfjrxxnvvzUCLboqpko*bb*#M*&88W&%8%8%WW&M**o**oahbahahkpqdhM8MkpqpdqwwqqdqmpkWWWW%%BM8&%@B&B@M%#M&%B8&&%BokoBB#&&MbkokhbqoWOQzcvx
-udMOfffft/tttttttjjxxnvzXYCwhwqba#*aooaao&8&8MWWWW&WW###o*okoo*khoa#oakbk***obdpqqwwpqbwqdhM&W&%8Bh&BB@BW@B%WWWWW&&8Woo8BWoMB*W##hhkabhoZCcucxr
-fpYjtftt////t//tfffrrxncXJJwpmqbo**Wabdb*&MMW8*oMM8&#*a*oo#owhkbhkhWMM#d*o##akkdbdqqpdqqpdhM*W%&%&kM@@@%%WBBB*%o&%%W8%%&M&8Wh*a#aahpboaLJcvcvnx
-xxjfttt/||||///|ttfjrxnczXUL0wpba**#Mbwda**#M8WhoM&WMWMoMooahppkqhoo88&Mhako##akbdddkdwwpba*oW&8BMh8%%@8%&WBB&&&#W&%&W%BBB&&&*ohaahhkdQXzvvcuxx
-jjftt/|||((((|||/tfjrxnvccXJL0pbkka#M*mqoao**MWMao&M8&#ooMo#bbhbkaab&B&%W#Waa**aabbkdwwqpboa#W&BBkWWBB8B8%M%%%88oM#WM8WB@B&8%WWoaoabaCUYvXznuxx
-jt/|/||((()((((|//ttjrxuvzXUCdpqdkdhoopwkkoaa*#Mok*&#8%#oooa#aaka#o%W%WB%&W8#kaoohkbqwmwwkaaM&8B8b&8B@@B&%&&&W8%M#8#W&8&%B&&&&*ohohakLUYXXzvuun
-t||)1111))111(||||/tfjrnuvzOwOZqbzQwpdbmpobqkk#M**aWWM%%o#*WWhMkkMWa&B%%B88%8#phbokdpZZpwdha#&%%M*88@B@@BB%B8&%88M88#8&8%%8W&*okkab0LJLUYYYXzcz
-)11{}}}}}}}}{{)()(//fjfrxcOCL0ZpvuUQOwppkpmmppaW*M*#MW8%W#o#8#Mab#MWMB%@88%B8Wbo*akqmmmwqdkaW&%&oW&8B%BB%BB8B8%88W%%8#oM8%M&#*hppwUCUXYzUCLLCJU
-1}[[]]]]][[[[][}1)|///tjrvYXC0mYXuYCQZppZmOqpwk*#W&#WM&8W*oMM8a#b#W&MWB@8%W&W&MbkohbLOwpdkboWB&8*&W&BB%B%%@%BB8%88888*8o88W&*akpOYzJUUUQmdkdpmO
-}]]]??-_-?]]?]??{)(|||/jrncJCOOXUYXULOwwm0mmqqk*#W&WW8#8Woa*W%#*haW%#WB%8%&##MMabkkbpmdqhodo8#8#MMWW%B%%%8BBBBW8&&%W%&8o&%W&*h*wCzcUUQqqpbadmmO
-[]]?-_------_-[}[})((|/frxcUOakxxYOXCQZmmZwmpdbo#W&&W%&WWaao#&%kok#8#W%@%8%ad*Whbabpqdoah*hM&a#aWM##8%%%%8@B%B&8888M88M*W%&WaaopLUYQZLqh&BB%WmQ
-]]?-+__-___--[-??]})(||fjnzLZqu1{|tYJLOmmwZmmZd*#&&&&&8M&oa#o%8ooa#*M88B@88&whoahhbddkoM#W*&M##M&###8%B@%%B8BB8%&&&W%&aM&B8WokhoLUZQCkwbhk*%BBk
-?-__--____?-___-??[1(/tfrvYZZhX1((JXYCQ0mwwmLbh*oMW8&&&WM*a**#8#oa#oMWB8%%8&ah#*hhkkkko%&WWWM#M&&&#WW%B@B%%8%888&MMB88oM&B%WobkkJmJXMhb*abZ&B%B
-?-______?]_+~~~_--[{)/tfxcow0UurftxcYJCQZmwqUkpohW8&WMW8&#*h8a8*Mko##WB@B&&8M#*##ahbhMoM8&8WM#WM&%B88%&%B%W8%8&Mk*M8WMa*&8&8oqpdZLvq8W&8&8#WBB%
--__+++___+~~<~+++-?{)|jxnaaQXuuzcX0cXUCQOwmbadqhka&W&WM#&MWa%&boMok*o&BB@B8M####*kahao*&WW*&&WM8B@B@B8&%&8W88#hba#%WWWhaWoo*abbq0Yna8B%%@B8BB@B
--_-++++_+<<~<~~~+-?[1|tnmhJcvxruvuXcXYJL0OCOdddZkd#MW#MMMM&&*B#dM&ohhWB@@@@MM88Mohkhh**MMWo8%M&8%BBBBBWW%8&W#Mkda&8*#aabookpwOhkYcnp&BB%%%8%@BB
-__+++~~~<+~~~~<~+-[})/xzUUUXvucJCu0UzUJCQCCCOdqhhph#h#8MWWWBMW&*o&##Ma@@B@BW&W&&*hokhhbh8MMW%&B%@BB8W%B88B@8hhbo##kpodadadbQ0ZdCcjLoa8M8W##M@%%
-_+++~<~~~<><++~+_-]}|ft/ttffxnuXCCvJJXYCmZLwZqQMohdoW&&8%&&B%&WW8**WW8BB@B%#&&&&Mhhkkbb*###8M&%&BBBB88%8&WW8MkWk#*wdabaddpJYQwUzx|b%8%%&W&W&888
-~~~~<<<<<<><~~++-?})t(((((((|/fruzYXYCQLUCwmQCY0oahoW8%88W&%B8&&&MMoo8@@8%8MW%#WWakokkaMaoM8&8%B%@@@BBB@B%M#ahh#&ZUbbdbZQOXUCCXuj/cW&%%888%%%&8
-    """
+
     
     # "C:/Users/michaelsaup/Downloads/287305871_1050848149176283_8014478396700614358_n.jpg"
     # https://towardsdatascience.com/image-segmentation-using-pythons-scikit-image-module-533a61ecc980

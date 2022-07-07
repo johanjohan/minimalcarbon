@@ -88,10 +88,11 @@ footer .footer-bottom {
 
 .banner_footer_text {
     padding-top: 15px;
-    padding-bottom: 20px;
+    padding-bottom: 25px;
     padding-left: 20%;
     padding-right: 20%
 }
+
 
 .fa,
 .fab,
@@ -174,3 +175,8 @@ footer .footer-bottom {
 footer .navbar-nav li:not(:first-child) a {
     color: rgb(123, 159, 123);
 }
+
+footer .footer-bottom {
+	padding: 20px 0 0 0;
+}
+
