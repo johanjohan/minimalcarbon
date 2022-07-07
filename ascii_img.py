@@ -240,72 +240,136 @@ if __name__ == '__main__':
     import scipy.cluster
     
     def pil_image_segmentation(image, num_clusters):
+        print("pil_image_segmentation: num_clusters:", num_clusters)
         image   = image.convert("RGB")
         ar      = np.asarray(image)
-        shape   = ar.shape
+        shape   = ar.shape # store original
         ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
     
-        # codes are float rgb colors
-        codes, dist = scipy.cluster.vq.kmeans(ar, num_clusters)
-        print('codes: cluster centres:\n', *codes, sep="\n\t")
-        print('codes: dist:', dist)
+        # colors are float rgb colors
+        print("\t", "kmeans")
+        colors, dist = scipy.cluster.vq.kmeans(ar, num_clusters)
+        colors = [[round(num) for num in color] for color in colors] # to ints
+        colors = sorted(colors)
+        print('colors: dist:', dist, *colors, sep="\n\t")
         
+        # convert to 8 bit #rrggbb
+        colors_hex = []
+        for color in colors:
+            r,g,b = color
+            colors_hex.append("#{:02x}{:02x}{:02x}".format(clamp(round(r)), clamp(round(g)), clamp(round(b))))
+        colors_hex = sorted(colors_hex)
+        print("colors_hex", *colors_hex, sep="\n\t")        
+
+        print("\t", "vq")
+        vecs, dist      = scipy.cluster.vq.vq(ar, colors)         # assign colors
+        counts, bins    = np.histogram(vecs, len(colors))
+
+        index_max   = np.argmax(counts)                    # find most frequent
+        peak        = colors[index_max]
+        colour      = binascii.hexlify(bytearray(int(c) for c in peak)).decode('ascii')
+        print('most frequent is %s (#%s)' % (peak, colour))
         
+        # layers
+        layers = []
+        for i, color in enumerate(colors):
+            print("\t\t", "layers", color)
+            c = ar.copy()
+            c.fill(0)
+            c[scipy.r_[np.where(vecs==i)],:] = color
+            PIL_image = scipy_to_pil(c, shape, 'RGB') 
+            layers.append(PIL_image)
+            #layers[-1].show()
+            
+        # bonus: save image using only the NUM_CLUSTERS most common colours
+        # composite
+        c = ar.copy()
+        c.fill(0)
+        for i, color in enumerate(colors):
+            c[scipy.r_[np.where(vecs==i)],:] = color
+            
+        # to pil
+        composite = scipy_to_pil(c, shape, 'RGB') 
+        #composite.show()
+        
+        return composite, layers, colors
+    
+    def scipy_to_pil(np_image, shape, mode='RGB'):
+        print("scipy_to_pil: shape:", shape)
+        print("scipy_to_pil: mode :", mode)
+        image = Image.fromarray(
+            np.uint8(
+               np_image.reshape(*shape).astype(np.uint8) # c.reshape(*shape).astype(np.uint8))
+            )
+        )
+        return image.convert(mode) if mode else image
+
+    
+        #PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')       
     ###########################
+    composite, layers, colors = pil_image_segmentation(Image.open(rainbow), num_clusters=12)
     
-    NUM_CLUSTERS = 32
-
-    print('reading image')
-    im      = Image.open(rainbow)
-    im      = im.convert("RGB")
-    #im = im.resize((150, 150))      # optional, to reduce time
-    ar      = np.asarray(im)
-    shape   = ar.shape
-    ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
+    composite.show()
     
-
-    # PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')
-    # PIL_image = Image.fromarray(numpy_image.astype('uint8'), 'RGB')
-    
-# 0163 8008662 carolin brandl
-
-    print('finding clusters')
-    codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
-    # codes are float rgb colors
-    print("dist:", dist)
-    print("len(codes):", len(codes))
-    print('codes: cluster centres:\n', *codes, sep="\n\t")
-    
-    # convert to 8 bit rgb, TODO could even reduce to #FFF
-    colors = []
-    for code in codes:
-        r,g,b = code
-        colors.append("#{:02x}{:02x}{:02x}".format(clamp(round(r)), clamp(round(g)), clamp(round(b))))
-    colors = sorted(colors)
-    print("colors", *colors, sep="\n\t")
-
-    vecs, dist      = scipy.cluster.vq.vq(ar, codes)         # assign codes
-    counts, bins    = np.histogram(vecs, len(codes))
-
-    index_max   = np.argmax(counts)                    # find most frequent
-    peak        = codes[index_max]
-    colour      = binascii.hexlify(bytearray(int(c) for c in peak)).decode('ascii')
-    print('most frequent is %s (#%s)' % (peak, colour))
-
-    # bonus: save image using only the NUM_CLUSTERS most common colours
-    __cluster_path = '__clusters.png'
-    import imageio
-    c = ar.copy()
-    for i, code in enumerate(codes):
-        c[scipy.r_[np.where(vecs==i)],:] = code
+    for layer in layers:
+        layer.show()
         
-    import os
-    if os.path.isfile(__cluster_path):
-        os.remove(__cluster_path)
-    imageio.imwrite(__cluster_path, c.reshape(*shape).astype(np.uint8))
-    print('saved clustered image')
+    print("", *colors, sep="\n\t")
     
-    im = Image.open(__cluster_path)
-    im.show()
+# #     NUM_CLUSTERS = 4
+
+# #     print('reading image')
+# #     im      = Image.open(rainbow)
+# #     im      = im.convert("RGB")
+# #     #im = im.resize((150, 150))      # optional, to reduce time
+# #     ar      = np.asarray(im)
+# #     shape   = ar.shape
+# #     ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
+    
+
+# #     # PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')
+# #     # PIL_image = Image.fromarray(numpy_image.astype('uint8'), 'RGB')
+    
+# # # 0163 8008662 carolin brandl
+
+# #     print('finding clusters')
+# #     codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
+# #     codes = [[round(num) for num in code] for code in codes] # to ints
+# #     # codes are float rgb colors
+# #     print("dist:", dist)
+# #     print("len(codes):", len(codes))
+# #     print('codes: cluster centres:\n', *codes, sep="\n\t")
+    
+# #     # convert to 8 bit rgb, TODO could even reduce to #FFF
+# #     colors = []
+# #     for code in codes:
+# #         r,g,b = code
+# #         colors.append("#{:02x}{:02x}{:02x}".format(clamp(round(r)), clamp(round(g)), clamp(round(b))))
+# #     colors = sorted(colors)
+# #     print("colors", *colors, sep="\n\t")
+
+# #     vecs, dist      = scipy.cluster.vq.vq(ar, codes)         # assign codes
+# #     counts, bins    = np.histogram(vecs, len(codes))
+
+# #     index_max   = np.argmax(counts)                    # find most frequent
+# #     peak        = codes[index_max]
+# #     colour      = binascii.hexlify(bytearray(int(c) for c in peak)).decode('ascii')
+# #     print('most frequent is %s (#%s)' % (peak, colour))
+
+# #     # bonus: save image using only the NUM_CLUSTERS most common colours
+# #     __cluster_path = '__clusters.png'
+# #     import imageio
+# #     c = ar.copy()
+# #     for i, code in enumerate(codes):
+# #         c[scipy.r_[np.where(vecs==i)],:] = code
+        
+# #     import os
+# #     if os.path.isfile(__cluster_path):
+# #         os.remove(__cluster_path)
+# #     imageio.imwrite(__cluster_path, c.reshape(*shape).astype(np.uint8))
+# #     print('saved clustered image')
+    
+# #     im = Image.open(__cluster_path)
+# #     im.show()
     
     

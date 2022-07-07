@@ -28,20 +28,20 @@
         }
     
         .child-1 {
-            left: 0;
+        left: 0;
         top: 0;
         color:blueviolet;
         }
     
         .child-2 {
-            left: 0;
-        top: 0;
+        left: 2;
+        top: 2;
         color:yellowgreen;
         }
     
         .child-3 {
-            left: 0;
-        top: 0;
+            left: 4;
+        top: 4;
         color:blue;
         }
     
@@ -240,7 +240,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 
 <script>
 
-    var fps = 12
+    var fps = 3 // change on mobile
     var startTime = new Date();
     var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
 
@@ -252,10 +252,10 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
         elapsed = (new Date() - startTime) / 1000.0; // secs
         fade    = Math.min(1, elapsed / 3.0)
         
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 3; i <= 3; i++) {
 
-            let speed   = 2;
-            let wid     = 2
+            let speed   = 0.4;
+            let wid     = 11
 
             layer_id    = "layer" + i
             let layer   = document.getElementById(layer_id);
