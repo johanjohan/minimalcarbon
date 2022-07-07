@@ -62,8 +62,9 @@ footer .footer-bottom {
     color: darkseagreen;
     font-size: 0.8rem;
     font-weight: 400;
-    line-height: 1.5
+    line-height: 2;
 }
+
 
 .banner_header_text a,
 .banner_footer_text a {
@@ -92,6 +93,8 @@ footer .footer-bottom {
     padding-left: 20%;
     padding-right: 20%
 }
+
+
 
 
 .fa,
