@@ -40,22 +40,80 @@ There are various ways you could change this, but for your purposes it may suit 
 (Check out the options on the kmeans2() variant if you need deterministic results.)
 """
 import binascii
-#from PIL import Image
-#import numpy as np
 import scipy
 import scipy.misc
 import scipy.cluster
 
+div_start   = lambda id : f"<div id='{id}' class='parent' >"
+div_end     = lambda : "</div>"
+cdata_start = lambda : "<![CDATA["
+cdata_end   = lambda : "]]>"
+pre_start   = lambda n : f"<pre class='child child-{n} ascii-art' id='layer-{n}' >"
+pre_end     = lambda : "</pre>"
+sanitize_cdata = lambda s : s.replace(cdata_end(), "}}>")
+
+# https://stackoverflow.com/questions/2784183/what-does-cdata-in-xml-mean
+#  however, I can't use the CEND sequence. 
+# If I need to use CEND I must escape one of the brackets or the greater-than sign using concatenated CDATA sections
+
+    
+    
+script = r"""
+
+<script>
+
+    var fps = 25 // change on mobile
+    var startTime = new Date();
+    var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
+
+    //let l = window.screen.width;
+    
+
+    function div_set_pos() {
+
+        elapsed = (new Date() - startTime) / 1000.0; // secs
+        fade    = Math.min(1, elapsed / 3.0)
+        
+        for (let i = 1; i <= __max_layer__; i++) {
+
+            let speed   = 0.99;
+            let wid     = 11
+
+            layer_id    = "layer-" + int(i)
+            let layer   = document.getElementById(layer_id);
+
+            x = elapsed * speed / (i * 3)
+            if (i%2) {
+                soff = Math.sin(x)
+            }
+            else {
+                soff = Math.cos(x)
+            }
+            
+            layer.style.position    = "absolute";
+            layer.style.left        = (fade * soff * wid)+'px';
+            layer.style.top         = (fade * soff * wid)+'px';
+
+            console.log(elapsed, fade, layer_id, soff);
+        }
+
+
+    }
+  </script>
+
+""".replace("__max_layer__", str(3)).replace("__max_layer__", str(3))
+print(script)
+
+    
 # gray scale level values from:
 # http://paulbourke.net/dataformats/asciiart/
 # 70 levels of gray
-gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # 70 levels
+html_illegal    = ('&', '<', '>', ']')
+gNoCDATA    = "$@B%8WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}?-_+~i!lI;:,\"^`'. " # no []
+g70         = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # 70 levels
+g10         = '@%#*+=-:. ' # 10 levels of gray
+g95         = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it[] {}?j|()=~!-/<>\"^_';,:`. " # 96 levels
 
-# 10 levels of gray
-gscale2 = '@%#*+=-:. '
-gscale2 = 'MX#*+=-:. '
-
-gscale0 = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it[] {}?j|()=~!-/<>\"^_';,:`. "
 
 def clamp(x): 
   return max(0, min(x, 255))
@@ -63,6 +121,11 @@ def clamp(x):
 def rgb_to_hex(rgb): # [r,g,b] --> #rrggbb
     r,g,b = rgb
     return "#{:02x}{:02x}{:02x}".format( clamp(round(r)), clamp(round(g)), clamp(round(b)) )
+
+def rgb_to_luminance(rgb):
+    #print("rgb", rgb)
+    r,g,b = rgb
+    return round(0.2126*r + 0.7152*g + 0.0722*b) # / 255.0
 
 def map(value, leftMin, leftMax, rightMin, rightMax):
     # Figure out how 'wide' each range is
@@ -88,12 +151,19 @@ def get_average_l(image):
     # get average
     return np.average(im.reshape(w*h))
 
-def covert_mage_to_ascii(image, cols, scale, moreLevels):
+def convert_image_to_ascii(image, cols, scale, gscale=gNoCDATA):
     """
     Given Image and dims (rows, cols) returns an m*n list of Images
     """
+    assert scale > 0
+    assert cols > 0
+    
+    print("convert_image_to_ascii:", "cols  :", cols)
+    print("convert_image_to_ascii:", "scale :", scale)
+    print("convert_image_to_ascii:", "gscale:", len(gscale), gscale)
+        
     # declare globals
-    global gscale1, gscale2
+    len_gscale_1 = len(gscale) - 1
     
     image = image.convert('L')
     # store dimensions
@@ -107,14 +177,11 @@ def covert_mage_to_ascii(image, cols, scale, moreLevels):
     h = w/scale
 
     # compute number of rows
+    assert h > 0
     rows = int(H/h)
 
     print("cols: %d, rows: %d" % (cols, rows))
     print("tile dims: %d x %d" % (w, h))
-    if moreLevels:
-        print("gscale1")
-    else:
-        print("gscale2")
 
     # check if image size is too small
     if cols > W or rows > H:
@@ -152,10 +219,7 @@ def covert_mage_to_ascii(image, cols, scale, moreLevels):
             avg = int(get_average_l(img))
 
             # look up ascii char
-            if moreLevels:
-                gsval = gscale1[int((avg*69)/255)]
-            else:
-                gsval = gscale2[int((avg*9)/255)]
+            gsval = gscale[int((avg * len_gscale_1) / 255)]
 
             # append ascii char to string
             aimg[j] += gsval
@@ -163,8 +227,6 @@ def covert_mage_to_ascii(image, cols, scale, moreLevels):
     # return txt image
     return aimg
 
-
-##################################################################################
 def scipy_to_pil(np_image, shape, mode='RGB'): # None
     # print("scipy_to_pil: shape:", shape)
     # print("scipy_to_pil: mode :", mode)
@@ -226,120 +288,113 @@ def pil_image_segmentation(image, num_clusters):
         
         return composite, layers, colors, counts
     
-# main() function
-
 # https://www.geeksforgeeks.org/extract-dominant-colors-of-an-image-using-python/
 
-#julia_mantel = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
-rainbow = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
-
-def main():
-    # create parser
+# call main
+if __name__ == '__main__':
+    
+    def image_show(image, secs=1):
+        
+        path = "__tmp.png"
+        image.save(path)
+        
+        import subprocess
+        import time
+        # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
+        p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
+        time.sleep(secs)
+        p.kill()
+    
+    #julia_mantel = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
+    rainbow = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
     descStr = "This program converts an image into ASCII art."
     
     parser = argparse.ArgumentParser(description=descStr)
     # add expected arguments
-    parser.add_argument('--file', dest='imgFile', default=rainbow, required=False)
-    parser.add_argument('--scale', dest='scale', default=0.5, required=False) # 0.43 aspect
+    parser.add_argument('--file', dest='imgFile', type=str, default=rainbow, required=False)
+    parser.add_argument('--scale', dest='scale', type=float, default=0.5, required=False) # 0.43 aspect
     parser.add_argument('--out', dest='outFile', default="__out.txt", required=False)
-    parser.add_argument('--cols', dest='cols', default=100, required=False) # 80
-    parser.add_argument('--morelevels', dest='moreLevels', default=False,action='store_true')
-
-    # parse args
+    parser.add_argument('--cols', dest='cols', type=int, default=100, required=False) # 80
+    parser.add_argument('--num_clusters', type=int, default=5, required=False) # 80
     args = parser.parse_args()
 
-    imgFile = args.imgFile
-
-    # set output file
-    outFile = args.outFile
-
-    # set scale default as 0.43 which suits
-    # a Courier font
-    scale = float(args.scale)
-
-    # set cols
-    cols = int(args.cols)
+    print(descStr)
+    root_image = Image.open(args.imgFile)
+    #root_image.show()
+    image_show(root_image)
     
-    num_layers = 3
-    assert num_layers > 1
-    min_bright = 35
-    max_bright = 210
-    
-    step = math.floor(max_bright/(num_layers))
-    
-    print('generating ASCII art...')
-    # convert image to ascii txt
-    root_image = Image.open(imgFile)
-    root_image = ImageOps.equalize(root_image)
-    root_image.show()
-    
-    cnt = 0
-    for i in range(num_layers):
-        cnt += 1
-        print(cnt, "-"*88)
+    if False:
         
-        #threshold = map(i, 0, num_layers-1, min_bright, max_bright)
-        threshold = map(i, 0, num_layers-1, max_bright, min_bright)
-        print("threshold:", threshold)
+        num_layers = 3
+        assert num_layers > 1
+        min_bright = 35
+        max_bright = 210
+        step = math.floor(max_bright/(num_layers))        
         
-        # ImageOps.posterize(simg, bits=i)
-        
-        image = root_image.copy()
-        
-        image = image.point( lambda p: 255 if p > threshold else 0 )
-        
-    
-        aimg = covert_mage_to_ascii(image, cols, scale, args.moreLevels)
-        for row in aimg:
-            print(row)
-        print()
-        image.show()
-
-    # # open file
-    # with open(outFile, 'w') as f:
-    #     # write to file
-    #     for row in aimg:
-    #         f.write(row + '\n')
+        cnt = 0
+        for i in range(num_layers):
+            cnt += 1
+            print(cnt, "-"*88)
             
-    #     print("ASCII art written to %s" % outFile)
+            #threshold = map(i, 0, num_layers-1, min_bright, max_bright)
+            threshold = map(i, 0, num_layers-1, max_bright, min_bright)
+            print("threshold:", threshold)
+            
+            # ImageOps.posterize(simg, bits=i)
+            
+            image = root_image.copy()
+            image = image.point( lambda p: 255 if p > threshold else 0 )
+            aimg = convert_image_to_ascii(image, args.cols, args.scale)
+            for row in aimg:
+                print(row)
+            print()
+            image.show()
 
 
-
-# call main
-if __name__ == '__main__':
-    pass
-    
-    ##main()
-    
-    image = Image.open(rainbow)
-    
-    composite, layers, colors, counts = pil_image_segmentation(image, num_clusters=11)
-    composite.show()
-    
-    w,h = composite.size
-    print("num pixels", w*h)
-    
-    
-    total_count = 0
-    
-    def luminance01(rgb):
-        print("rgb", rgb)
-        r,g,b = rgb
-        return (0.2126*r + 0.7152*g + 0.0722*b) / 255.0
+    composite, layers, colors, counts = pil_image_segmentation(root_image, num_clusters=args.num_clusters)
+    image_show(composite)
     
     sort_by_count = lambda x : x[2]
     sort_by_color = lambda x : x[1]
-    sort_by_lum   = lambda x : luminance01(x[1])
+    sort_by_lum   = lambda x : rgb_to_luminance(x[1])
     
+
+    
+    html = div_start("my_id") + "\n"
     zipped = sorted( zip(layers, colors, counts), key = sort_by_lum, reverse=False)
-    for layer, color, count in zipped:
-        print("\t", "luminance01:", round(luminance01(color), 3), rgb_to_hex(color), color, "count:", count)
-        #layer = pil_image_threshold(layer.convert("RGB"), 0)
-        layer.show()
-        total_count += count
+    for i, (layer, color, count) in enumerate(zipped):
         
-    print("total_count", total_count)
-    print("colors", *colors, sep="\n\t")
+        print(i/(args.num_clusters-1), "-"*88)
+        
+        html += pre_start(i) 
+        
+        print("rgb_to_luminance:", round(rgb_to_luminance(color), 3), rgb_to_hex(color), color, "count:", count)
+        ##layer = pil_image_threshold(layer.convert("RGB"), 0)
+        
+        threshold = 0
+        layer_inv = layer.copy().point( lambda p: 0 if p > threshold else 255 )
+        
+        aimg = convert_image_to_ascii(layer_inv, args.cols, args.scale, gscale=gNoCDATA)        
+        aimg_string = "\n".join(aimg)
+        aimg_string = sanitize_cdata(aimg_string)
+        print(aimg_string)
+        # for row in aimg:
+        #     print(row)
+            
+        html += cdata_start()+ "\n" + aimg_string + cdata_end() + "\n"
+        
+        image_show(layer)
+        
+        html += pre_end() + "\n"
+    ### for />
+    html += div_end() + "\n"
+    
+    print(html)
+    
+    with open("__out.html", mode="w", encoding="utf-8") as fp:
+        fp.write(html)
+    
+    print("\n"*3)
     
 
 

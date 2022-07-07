@@ -257,7 +257,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
             let speed   = 0.99;
             let wid     = 11
 
-            layer_id    = "layer" + i
+            layer_id    = "layer-" + int(i)
             let layer   = document.getElementById(layer_id);
 
             x = elapsed * speed / (i * 3)
