@@ -28,20 +28,20 @@
         }
     
         .child-1 {
-        left: 0vw;
-        top: 0vw;
+            left: 0;
+        top: 0;
         color:blueviolet;
         }
     
         .child-2 {
-        left: 1vw;
-        top:1vw;
+            left: 0;
+        top: 0;
         color:yellowgreen;
         }
     
         .child-3 {
-            left: 2vw;
-        top: 2vw;
+            left: 0;
+        top: 0;
         color:blue;
         }
     
@@ -240,19 +240,21 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 
 <script>
 
+    var fps = 12
     var startTime = new Date();
-    var myVar = setInterval(div_set_pos, (1.0/2) * 1000);
+    var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
 
     //let l = window.screen.width;
     
 
     function div_set_pos() {
 
-        elapsed = (new Date() - startTime) / 1000.0;
+        elapsed = (new Date() - startTime) / 1000.0; // secs
+        fade    = Math.min(1, elapsed / 3.0)
         
         for (let i = 1; i <= 3; i++) {
 
-            let speed   = 0.3;
+            let speed   = 2;
             let wid     = 2
 
             layer_id    = "layer" + i
@@ -267,10 +269,10 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
             }
             
             layer.style.position    = "absolute";
-            layer.style.left        = (soff * wid)+'px';
-            layer.style.top         = (soff * wid)+'px';
+            layer.style.left        = (fade * soff * wid)+'px';
+            layer.style.top         = (fade * soff * wid)+'px';
 
-            console.log(elapsed, layer_id, soff);
+            console.log(elapsed, fade, layer_id, soff);
         }
 
 
