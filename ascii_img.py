@@ -4,6 +4,9 @@ this creates
 a python file or raw string
 holding the layers of the main color clustrers
 which will be css/html to replace images
+
+https://stackoverflow.com/questions/30097953/ascii-art-sorting-an-array-of-ascii-characters-by-brightness-levels-c-c
+$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'.
 """
 
 # great turning ascii earth
