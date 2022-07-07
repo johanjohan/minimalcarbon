@@ -240,7 +240,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 
 <script>
 
-    var fps = 3 // change on mobile
+    var fps = 25 // change on mobile
     var startTime = new Date();
     var myVar = setInterval(div_set_pos, (1.0/fps) * 1000);
 
@@ -252,9 +252,9 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
         elapsed = (new Date() - startTime) / 1000.0; // secs
         fade    = Math.min(1, elapsed / 3.0)
         
-        for (let i = 3; i <= 3; i++) {
+        for (let i = 1; i <= 3; i++) {
 
-            let speed   = 0.4;
+            let speed   = 0.99;
             let wid     = 11
 
             layer_id    = "layer" + i

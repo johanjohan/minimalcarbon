@@ -46,7 +46,7 @@ def map(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
-def getAverageL(image):
+def get_average_l(image):
     """
     Given PIL Image, return average value of grayscale value
     """
@@ -59,8 +59,7 @@ def getAverageL(image):
     # get average
     return np.average(im.reshape(w*h))
 
-
-def covertImageToAscii(image, cols, scale, moreLevels):
+def covert_mage_to_ascii(image, cols, scale, moreLevels):
     """
     Given Image and dims (rows, cols) returns an m*n list of Images
     """
@@ -121,7 +120,7 @@ def covertImageToAscii(image, cols, scale, moreLevels):
             img = image.crop((x1, y1, x2, y2))
 
             # get average luminance
-            avg = int(getAverageL(img))
+            avg = int(get_average_l(img))
 
             # look up ascii char
             if moreLevels:
@@ -139,8 +138,8 @@ def covertImageToAscii(image, cols, scale, moreLevels):
 
 # https://www.geeksforgeeks.org/extract-dominant-colors-of-an-image-using-python/
 
-#julia_mantel    = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
-rainbow         = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
+#julia_mantel = "V:/00download/manteljulia_271367352_343627254254777_2341924037822352416_n.jpg"
+rainbow = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
 
 def main():
     # create parser
@@ -198,7 +197,7 @@ def main():
         image = image.point( lambda p: 255 if p > threshold else 0 )
         
     
-        aimg = covertImageToAscii(image, cols, scale, args.moreLevels)
+        aimg = covert_mage_to_ascii(image, cols, scale, args.moreLevels)
         for row in aimg:
             print(row)
         print()
@@ -229,16 +228,26 @@ if __name__ == '__main__':
     For simplicity I've hardcoded the filename as "image.jpg". Resizing the image is for speed: if you don't mind the wait, comment out the resize call. When run on this sample image of blue peppers it usually says the dominant colour is #d8c865, which corresponds roughly to the bright yellowish area to the lower left of the two peppers. I say "usually" because the clustering algorithm used has a degree of randomness to it. There are various ways you could change this, but for your purposes it may suit well. (Check out the options on the kmeans2() variant if you need deterministic results.)
 
     """
-    
-    #from __future__ import print_function
     import binascii
-    import struct
     from PIL import Image
     import numpy as np
     import scipy
     import scipy.misc
     import scipy.cluster
+  
+    def scipy_to_pil(np_image, shape, mode='RGB'): # None
+        # print("scipy_to_pil: shape:", shape)
+        # print("scipy_to_pil: mode :", mode)
+        image = Image.fromarray(
+            np.uint8(
+                np_image.reshape(*shape).astype(np.uint8) # c.reshape(*shape).astype(np.uint8))
+            )
+        )
+        return image.convert(mode) if mode else image
     
+    def pil_image_threshold(image, threshold):
+        return image.point( lambda p: 255 if p > threshold else 0 )
+      
     def pil_image_segmentation(image, num_clusters):
         print("pil_image_segmentation: num_clusters:", num_clusters)
         image   = image.convert("RGB")
@@ -247,10 +256,10 @@ if __name__ == '__main__':
         ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
     
         # colors are float rgb colors
-        print("\t", "kmeans")
+        print("\t", "kmeans...")
         colors, dist = scipy.cluster.vq.kmeans(ar, num_clusters)
         colors = [[round(num) for num in color] for color in colors] # to ints
-        colors = sorted(colors)
+        ###colors = sorted(colors)
         print('colors: dist:', dist, *colors, sep="\n\t")
         
         # convert to 8 bit #rrggbb
@@ -258,13 +267,17 @@ if __name__ == '__main__':
         for color in colors:
             r,g,b = color
             colors_hex.append("#{:02x}{:02x}{:02x}".format(clamp(round(r)), clamp(round(g)), clamp(round(b))))
-        colors_hex = sorted(colors_hex)
+        ###colors_hex = sorted(colors_hex)
         print("colors_hex", *colors_hex, sep="\n\t")        
 
-        print("\t", "vq")
-        vecs, dist      = scipy.cluster.vq.vq(ar, colors)         # assign colors
+        print("\t", "vq...")
+        vecs,   dist    = scipy.cluster.vq.vq(ar, colors)         # assign colors
+        print("\t", "vecs", len(vecs), vecs)
+        print("\t", "dist", len(dist), dist)
         counts, bins    = np.histogram(vecs, len(colors))
-
+        print("\t", "counts", len(counts), counts)
+        print("\t", "bins  ", len(bins), bins)
+     
         index_max   = np.argmax(counts)                    # find most frequent
         peak        = colors[index_max]
         colour      = binascii.hexlify(bytearray(int(c) for c in peak)).decode('ascii')
@@ -273,103 +286,44 @@ if __name__ == '__main__':
         # layers
         layers = []
         for i, color in enumerate(colors):
-            print("\t\t", "layers", color)
+            print("\t\t", "color:", color)
             c = ar.copy()
             c.fill(0)
             c[scipy.r_[np.where(vecs==i)],:] = color
             PIL_image = scipy_to_pil(c, shape, 'RGB') 
             layers.append(PIL_image)
-            #layers[-1].show()
             
-        # bonus: save image using only the NUM_CLUSTERS most common colours
         # composite
         c = ar.copy()
         c.fill(0)
         for i, color in enumerate(colors):
             c[scipy.r_[np.where(vecs==i)],:] = color
-            
-        # to pil
         composite = scipy_to_pil(c, shape, 'RGB') 
-        #composite.show()
         
-        return composite, layers, colors
+        return composite, layers, colors, counts
     
-    def scipy_to_pil(np_image, shape, mode='RGB'):
-        print("scipy_to_pil: shape:", shape)
-        print("scipy_to_pil: mode :", mode)
-        image = Image.fromarray(
-            np.uint8(
-               np_image.reshape(*shape).astype(np.uint8) # c.reshape(*shape).astype(np.uint8))
-            )
-        )
-        return image.convert(mode) if mode else image
-
+    composite, layers, colors, counts = pil_image_segmentation(Image.open(rainbow), num_clusters=4)
     
-        #PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')       
-    ###########################
-    composite, layers, colors = pil_image_segmentation(Image.open(rainbow), num_clusters=12)
-    
+    w,h = composite.size
+    print("num pixels", w*h)
     composite.show()
     
-    for layer in layers:
+    print("\n"*2)
+    print("len(layers)", len(layers))
+    print("len(colors)", len(colors))
+    print("len(counts)", len(counts))
+    
+    total_count = 0
+    for layer, color, count in sorted(zip(layers, colors, counts), key = lambda x:x[-1], reverse=True):
+        print("\t", color, count)
+        layer = pil_image_threshold(layer.convert("RGB"), 0)
         layer.show()
         
-    print("", *colors, sep="\n\t")
-    
-# #     NUM_CLUSTERS = 4
-
-# #     print('reading image')
-# #     im      = Image.open(rainbow)
-# #     im      = im.convert("RGB")
-# #     #im = im.resize((150, 150))      # optional, to reduce time
-# #     ar      = np.asarray(im)
-# #     shape   = ar.shape
-# #     ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
-    
-
-# #     # PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')
-# #     # PIL_image = Image.fromarray(numpy_image.astype('uint8'), 'RGB')
-    
-# # # 0163 8008662 carolin brandl
-
-# #     print('finding clusters')
-# #     codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
-# #     codes = [[round(num) for num in code] for code in codes] # to ints
-# #     # codes are float rgb colors
-# #     print("dist:", dist)
-# #     print("len(codes):", len(codes))
-# #     print('codes: cluster centres:\n', *codes, sep="\n\t")
-    
-# #     # convert to 8 bit rgb, TODO could even reduce to #FFF
-# #     colors = []
-# #     for code in codes:
-# #         r,g,b = code
-# #         colors.append("#{:02x}{:02x}{:02x}".format(clamp(round(r)), clamp(round(g)), clamp(round(b))))
-# #     colors = sorted(colors)
-# #     print("colors", *colors, sep="\n\t")
-
-# #     vecs, dist      = scipy.cluster.vq.vq(ar, codes)         # assign codes
-# #     counts, bins    = np.histogram(vecs, len(codes))
-
-# #     index_max   = np.argmax(counts)                    # find most frequent
-# #     peak        = codes[index_max]
-# #     colour      = binascii.hexlify(bytearray(int(c) for c in peak)).decode('ascii')
-# #     print('most frequent is %s (#%s)' % (peak, colour))
-
-# #     # bonus: save image using only the NUM_CLUSTERS most common colours
-# #     __cluster_path = '__clusters.png'
-# #     import imageio
-# #     c = ar.copy()
-# #     for i, code in enumerate(codes):
-# #         c[scipy.r_[np.where(vecs==i)],:] = code
+        total_count += count
         
-# #     import os
-# #     if os.path.isfile(__cluster_path):
-# #         os.remove(__cluster_path)
-# #     imageio.imwrite(__cluster_path, c.reshape(*shape).astype(np.uint8))
-# #     print('saved clustered image')
+    print("total_count", total_count)
+    print("colors", *colors, sep="\n\t")
     
-# #     im = Image.open(__cluster_path)
-# #     im.show()
-    
+
+
     
