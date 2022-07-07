@@ -71,13 +71,15 @@ https://stackoverflow.com/questions/1702559/ascii-art-in-html
 
 https://css-tricks.com/how-to-stack-elements-in-css/
 
+https://www.geeksforgeeks.org/how-to-create-a-moving-div-using-javascript/
+
 
 <h1>DO NOT MINIFY THIS ONE!!!!</h1>
 
 
 
-<div class="parent">
-<pre class="child child-1 ascii-art">
+<div id="container" class="parent">
+<pre class="child child-1 ascii-art" id="layer1">
 ..;:,,:c;''''...,::,.'l;.'..';.,:'....'........',,,...'....;:;'.....':;...'..','........,'... ...;:,
 ..;:,,'',''''.,,';:;..:;.'..';.':,...''.......'',,;'..'....;:;'.....':;......',,'.....'.''.......;:,
 ..,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclldxdoloooddxxddxxxxkOOkl,...,..........,:,
@@ -129,7 +131,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 ......';:'.''...'.';.'c,...''','';;cl:,,,;,',;,,;;;;'cxdcccllcodlc::lllllloooool,...............','.
 .......,:...'...'..,..;,...,'.,'';,,'.','''..'..''...lxlccccc:col:,,clccc:;;;,,;......'..........,'.
 </pre>
-<pre class="child child-2 ascii-art">
+<pre class="child child-2 ascii-art" id="layer2">
 ..;:,,:c;''''...,::,.'l;.'..';.,:'....'........',,,...'....;:;'.....':;...'..','........,'... ...;:,
 ..;:,,'',''''.,,';:;..:;.'..';.':,...''.......'',,;'..'....;:;'.....':;......',,'.....'.''.......;:,
 ..,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclldxdoloooddxxddxxxxkOOkl,...,..........,:,
@@ -182,7 +184,7 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
 .......,:...'...'..,..;,...,'.,'';,,'.','''..'..''...lxlccccc:col:,,clccc:;;;,,;......'..........,'.
 </pre>
 
-<pre class="child child-3 ascii-art">
+<pre class="child child-3 ascii-art" id="layer3">
   ;:,,:c;''''   ,::, 'l; '  '; ,:'    '        ',,,   '    ;:;'     ':;   '  ','        ,'       ;:,
   ;:,,'','''' ,,';:;  :; '  '; ':,   ''       '',,;'  '    ;:;'     ':;      ',,'     ' ''       ;:,
   ,:,''',,'',,;:,:c:'':;';,';:,,c:,;;;;;;;;;:ccccllc:clcclld dolooodd  dd     OO l,   ,          ,:,
@@ -235,6 +237,45 @@ xdl:'.'.'clx00XNNNNNNNNNNNX0doxkO00000000K00kk0K0kxddxOOOOOkkkkkxo:,;okO0XXXXXXK
        ,:   '   '  ,  ;,   ,' ,'';,,' ','''  '  ''   l lccccc:col:,,clccc:;;;,,;      '          ,' 
 </pre>
 </div>
+
+<script>
+
+    var startTime = new Date();
+    var myVar = setInterval(div_set_pos, (1.0/2) * 1000);
+
+    //let l = window.screen.width;
+    
+
+    function div_set_pos() {
+
+        elapsed = (new Date() - startTime) / 1000.0;
+        
+        for (let i = 1; i <= 3; i++) {
+
+            let speed   = 0.3;
+            let wid     = 2
+
+            layer_id    = "layer" + i
+            let layer   = document.getElementById(layer_id);
+
+            x = elapsed * speed / (i * 3)
+            if (i%2) {
+                soff = Math.sin(x)
+            }
+            else {
+                soff = Math.cos(x)
+            }
+            
+            layer.style.position    = "absolute";
+            layer.style.left        = (soff * wid)+'px';
+            layer.style.top         = (soff * wid)+'px';
+
+            console.log(elapsed, layer_id, soff);
+        }
+
+
+    }
+  </script>
 
 <!--div class="content">
     Sunt quis nostrud excepteur esse irure excepteur. Duis nostrud esse enim sunt exercitation laborum. Aliqua quis cillum eu minim pariatur non cillum nulla occaecat. Minim occaecat cillum et Lorem magna nisi. Pariatur qui ex do dolor sit ut mollit do exercitation in pariatur nulla. Velit irure commodo pariatur commodo veniam elit proident dolor officia. Anim enim enim irure cillum proident occaecat et occaecat fugiat consequat commodo eu veniam mollit.

@@ -238,7 +238,21 @@ if __name__ == '__main__':
     import scipy
     import scipy.misc
     import scipy.cluster
-
+    
+    def pil_image_segmentation(image, num_clusters):
+        image   = image.convert("RGB")
+        ar      = np.asarray(image)
+        shape   = ar.shape
+        ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
+    
+        # codes are float rgb colors
+        codes, dist = scipy.cluster.vq.kmeans(ar, num_clusters)
+        print('codes: cluster centres:\n', *codes, sep="\n\t")
+        print('codes: dist:', dist)
+        
+        
+    ###########################
+    
     NUM_CLUSTERS = 32
 
     print('reading image')
@@ -248,10 +262,17 @@ if __name__ == '__main__':
     ar      = np.asarray(im)
     shape   = ar.shape
     ar      = ar.reshape(np.product(shape[:2]), shape[2]).astype(float)
+    
+
+    # PIL_image = Image.fromarray(np.uint8(numpy_image)).convert('RGB')
+    # PIL_image = Image.fromarray(numpy_image.astype('uint8'), 'RGB')
+    
+# 0163 8008662 carolin brandl
 
     print('finding clusters')
     codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
     # codes are float rgb colors
+    print("dist:", dist)
     print("len(codes):", len(codes))
     print('codes: cluster centres:\n', *codes, sep="\n\t")
     
