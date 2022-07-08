@@ -42,7 +42,7 @@ import shutil
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
-
+    wh.log("__file__:", __file__, filepath=config.path_log_params)
             
     #-----------------------------------------
     # dir_size_orig
@@ -59,26 +59,53 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
-    path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
+    # project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
+    # path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
 
-    b_append_custom_css                 = True
-    b_copy_custom_script                = True
-    b_remove_fonts_css                  = True
+    # b_append_custom_css                 = True
+    # b_copy_custom_script                = True
+    # b_remove_fonts_css                  = True
     
-    b_perform_pdf_compression           = True 
-    b_perform_image_conversion          = True
-    b_perform_image_conversion_force        = False
-    b_perform_image_colorize_transp            = True
+    # b_perform_pdf_compression           = True 
+    # b_perform_image_conversion          = True
+    # b_perform_image_conversion_force        = False
+    # b_perform_image_colorize_transp         = True
     
-    b_replace_conversions               = False
+    # b_replace_conversions               = False
     
-    b_minify1                           = True
-    b_fix_xml_elements                  = True
-    b_hide_media_subdomain                  = True
-    b_minify2                           = True
-    b_export_site                       = True 
-    b_export_site_force                     = True
+    # b_minify1                           = True
+    # b_fix_xml_elements                  = True
+    # b_hide_media_subdomain                  = True
+    # b_minify2                           = True
+    # b_export_site                       = True 
+    # b_export_site_force                     = True
+    
+    
+    params = {
+        "project_folder":                       wh.to_posix(os.path.abspath(config.project_folder)),
+        "path_conversions":                     config.data_folder + config.base_netloc + "_conversions.csv",
+
+        "b_append_custom_css":                  True,
+        "b_copy_custom_script":                 True,
+        "b_remove_fonts_css":                   True,
+        
+        "b_perform_pdf_compression":            True ,
+        "b_perform_image_conversion":           True,
+        "b_perform_image_conversion_force":         False,
+        "b_perform_image_colorize_transp":          True,
+        
+        "b_replace_conversions":                False,
+        
+        "b_minify1":                            True,
+        "b_fix_xml_elements":                   True,
+        "b_hide_media_subdomain":                   True,
+        "b_minify2":                            True,
+        "b_export_site":                        True, 
+        "b_export_site_force":                      True,        
+    }
+    
+    import json
+    wh.log(json.dumps(params, indent=4), filepath=config.path_log_params)
         
     # del with warning
     conversions = []
@@ -91,8 +118,8 @@ if __name__ == "__main__":
     # remove path_conversions
     #-----------------------------------------
     wh.logo("remove path_conversions")        
-    if os.path.isfile(path_conversions):
-        os.remove(path_conversions)
+    if os.path.isfile(params.get("path_conversions")):
+        os.remove(params.get("path_conversions"))
 
     #-----------------------------------------
     # copy icons
@@ -105,7 +132,7 @@ if __name__ == "__main__":
     # b_append_custom_css
     #-----------------------------------------
     # append css before fonts will be replaced after
-    if b_append_custom_css:
+    if params.get("b_append_custom_css"):
         wh.logo("b_append_custom_css")
         data_stylesheet = wh.string_from_file(config.path_stylesheet)
         print("count:", data_stylesheet.count(config.custom_css_marker))
@@ -118,7 +145,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # b_copy_custom_script
     #-----------------------------------------
-    if b_copy_custom_script:
+    if params.get("b_copy_custom_script"):
         wh.logo("b_copy_custom_script")
         if config.path_new_script:
             shutil.copy(config.path_new_script, config.path_script)
@@ -127,7 +154,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # fonts
     #-----------------------------------------
-    if b_remove_fonts_css:
+    if params.get("b_remove_fonts_css"):
         wh.logo("b_remove_fonts_css")
         # https://pythonhosted.org/cssutils/
         # https://pythonhosted.org/cssutils/
@@ -159,7 +186,7 @@ if __name__ == "__main__":
         #-----------------------------------------
         # TODO save fonts locally
         print("downloading fonts...")
-        files = wh.collect_files_endswith(project_folder, [".css"])
+        files = wh.collect_files_endswith(params.get("project_folder"), [".css"])
         files = wh.links_remove_excludes(files, [config.suffix_compressed])
         #print(wh.CYAN, *files, wh.RESET, sep="\n\t")
         
@@ -250,12 +277,12 @@ if __name__ == "__main__":
                 print(f"{wh.RED} css: {e} {wh.RESET}")
                 time.sleep(2)
         ### for file
-        conv.save(path_conversions, conversions)  
+        conv.save(params.get("path_conversions"), conversions)  
             
         #-----------------------------------------
         # replace fonts in tag styles   
         #-----------------------------------------  
-        files = wh.collect_files_endswith(project_folder, ["index.htm","index.html"])
+        files = wh.collect_files_endswith(params.get("project_folder"), ["index.htm","index.html"])
         files = wh.links_remove_excludes(files, [config.suffix_compressed])
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
         
@@ -296,16 +323,16 @@ if __name__ == "__main__":
                     file
                 )    
         ### for file
-        conv.save(path_conversions, conversions)  
+        conv.save(params.get("path_conversions"), conversions)  
          
     #-----------------------------------------
     # 
     #-----------------------------------------
-    if b_perform_pdf_compression:
+    if params.get("b_perform_pdf_compression"):
         wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
         
-        pdfs = wh.collect_files_endswith(project_folder, [".pdf"])
+        pdfs = wh.collect_files_endswith(params.get("project_folder"), [".pdf"])
         pdfs = [pdf for pdf in pdfs if not config.pdf_compression_suffix in pdf] # remove already compressed
         print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
@@ -325,7 +352,11 @@ if __name__ == "__main__":
                 if wh.file_exists_and_valid(new_path):
                     size_orig = os.path.getsize(orig_path)
                     size_new  = os.path.getsize(new_path)
-                    print("\t", "saved:", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(new_path))
+                    wh.log("\t", "saved:", 
+                           wh.vt_saved_percent_string(size_orig, size_new), 
+                           os.path.basename(new_path), 
+                           filepath=config.path_log_params
+                    )
                     
                     if size_new >= size_orig:
                         shutil.copyfile(orig_path, new_path) # restore original
@@ -342,13 +373,13 @@ if __name__ == "__main__":
                             
         ### for />
                  
-        conv.save(path_conversions, conversions)  
+        conv.save(params.get("path_conversions"), conversions)  
     ### b_perform_pdf_compression />   
 
     #-----------------------------------------
     # 
     #-----------------------------------------
-    if b_perform_image_conversion:   
+    if params.get("b_perform_image_conversion"):   
         
         wh.logo("b_perform_image_conversion")
         
@@ -359,7 +390,7 @@ if __name__ == "__main__":
         resample        = Image.Resampling.LANCZOS
         halftone        = None # (4, 30) # or None
         b_colorize      = True
-        b_force_write   = b_perform_image_conversion_force
+        b_force_write   = params.get("b_perform_image_conversion_force")
         b_blackwhite    = False
         b_use_palette   = False
         blend_alpha     = 0.8 # 0.666 0.8
@@ -369,21 +400,23 @@ if __name__ == "__main__":
             
 
             
-        print("image_exts   :", config.image_exts)
-        print("quality      :", quality)
-        print("max_dim      :", max_dim)
-        print("b_force_write:", b_force_write)
-        print("b_colorize   :", b_colorize)
-        print("halftone     :", halftone)
-        print("b_use_palette:", b_use_palette)
-        print("blend_alpha  :", blend_alpha)
+        wh.log("image_exts   :", config.image_exts, filepath=config.path_log_params)
+        wh.log("quality      :", quality,           filepath=config.path_log_params)
+        wh.log("max_dim      :", max_dim,           filepath=config.path_log_params)
+        wh.log("b_force_write:", b_force_write,     filepath=config.path_log_params)
+        wh.log("b_colorize   :", b_colorize,        filepath=config.path_log_params)
+        wh.log("halftone     :", halftone,          filepath=config.path_log_params)
+        wh.log("b_use_palette:", b_use_palette,     filepath=config.path_log_params)
+        wh.log("blend_alpha  :", blend_alpha,       filepath=config.path_log_params)
+        
         
         #-----------------------------------------
         # 
         #-----------------------------------------
-        images = wh.collect_files_endswith(project_folder, config.image_exts)        
+        images = wh.collect_files_endswith(params.get("project_folder"), config.image_exts)        
         images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
+        #wh.log("images", *[f"\n\t{x}" for x in images], filepath=config.path_log_params, echo=False)
                      
         # convert images
         perc_avg = 0.0
@@ -410,7 +443,7 @@ if __name__ == "__main__":
                 
                 old_mode    = image.mode
                 
-                colorize_transp = True if (b_perform_image_colorize_transp and is_transp) else False
+                colorize_transp = True if (params.get("b_perform_image_colorize_transp") and is_transp) else False
                 print("\t\t", "colorize_transp:", wh.YELLOW, colorize_transp, wh.RESET)
                 
                 # if is_transp:
@@ -555,7 +588,7 @@ if __name__ == "__main__":
 
          #print(*conversions, sep="\n\t")
         if conversions:
-            conv.save(path_conversions, conversions)   
+            conv.save(params.get("path_conversions"), conversions)   
     ### b_perform_image_conversion />
 
     #-----------------------------------------
@@ -583,8 +616,8 @@ if __name__ == "__main__":
             if wh.file_exists_and_valid(to):    
                 
                 # rel paths from root /
-                wp_fr = wh.to_posix('/' + os.path.relpath(fr, project_folder))
-                wp_to = wh.to_posix('/' + os.path.relpath(to, project_folder))
+                wp_fr = wh.to_posix('/' + os.path.relpath(fr, params.get("project_folder")))
+                wp_to = wh.to_posix('/' + os.path.relpath(to, params.get("project_folder")))
                 
                 cnt = html.count(wp_fr)
                 if cnt > 0:
@@ -620,14 +653,14 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    if b_replace_conversions:
+    if params.get("b_replace_conversions"):
         
         wh.logo("b_replace_conversions")
         
-        conversions = conv.load(path_conversions)    
+        conversions = conv.load(params.get("path_conversions"))    
         #print(*conversions, sep="\n\t")     
                                 
-        html_files = wh.collect_files_endswith(project_folder, ["index.html", ".css"])
+        html_files = wh.collect_files_endswith(params.get("project_folder"), ["index.html", ".css"])
         for i, html_file in enumerate(html_files):
             verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
@@ -865,9 +898,11 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     if b_delete_conversion_originals:
+        if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
+            exit(0)
+            
         wh.logo("b_delete_conversion_originals")
-        conversions = conv.load(path_conversions)    
-        
+        conversions = conv.load(params.get("path_conversions"))    
         for conversion in conversions:
             fr_to_delete, __to = conversion
             if wh.file_exists_and_valid(fr_to_delete):
@@ -916,7 +951,7 @@ if __name__ == "__main__":
         for file in wh.collect_files_endswith(config.project_folder, [".js"]):
             wh.js_minify_on_disk(file)
             
-    if b_minify1:
+    if params.get("b_minify1"):
         minify("b_minify1")
 
     #-----------------------------------------
@@ -928,13 +963,13 @@ if __name__ == "__main__":
     #-----------------------------------------
     # b_fix_xml
     #-----------------------------------------
-    if b_fix_xml_elements:
+    if params.get("b_fix_xml_elements"):
         wh.logo("b_fix_xml_elements")
         
         func=lambda s : True # finds all
         func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
         func=lambda file : file.lower().endswith("index.html")
-        files_index_html = wh.collect_files_func(project_folder, func=func)
+        files_index_html = wh.collect_files_func(params.get("project_folder"), func=func)
         #print(*files_index_html, sep="\n\t")
         
         svg_percircle = f"""
@@ -962,8 +997,8 @@ if __name__ == "__main__":
             
             print("-"*80)
             print("file", wh.CYAN + file + wh.RESET)
-            wp_path     = wh.to_posix('/' + os.path.relpath(file, project_folder))
-            base_path   = config.base + wh.to_posix(os.path.relpath(file, project_folder)).replace("index.html", "")
+            wp_path     = wh.to_posix('/' + os.path.relpath(file, params.get("project_folder")))
+            base_path   = config.base + wh.to_posix(os.path.relpath(file, params.get("project_folder"))).replace("index.html", "")
             same_page_link = f""" <a href="{base_path}" class="same_page_link">{config.base_netloc}</a> """
             
             """
@@ -1078,7 +1113,7 @@ if __name__ == "__main__":
                 #hx.replace_by_xpath(tree, "//i[contains(@class, 'fa-search')]", "<span>SUCHE</span")
                 pass
             
-            if b_hide_media_subdomain:
+            if params.get("b_hide_media_subdomain"):
                 hx.remove_by_xpath(tree, "//li[@id='menu-item-3988']") # media submenu --> no media.
 
             # all fa font awesome TODO also gets rid of dates etc...
@@ -1173,13 +1208,13 @@ if __name__ == "__main__":
     #-----------------------------------------
     # b_minify2
     #-----------------------------------------
-    if b_minify2:
+    if params.get("b_minify2"):
         minify("b_minify2")
        
     #-----------------------------------------
     # export
     #-----------------------------------------
-    if b_export_site:
+    if params.get("b_export_site"):
         wh.logo("b_export_site")
         
         def _export(func, excludes, target_folder, b_export_site_force):
@@ -1218,13 +1253,15 @@ if __name__ == "__main__":
         # # #     config.pdf_compression_suffix + ".pdf", 
         # # #     "index.html"
         # # # ])
-        
+                
         total_size = _export(
             config.f_unpowered, 
             [], 
-            config.project_folder + "../__exported/",
-            b_export_site_force=b_export_site_force
-        )            
+            config.path_exported,
+            b_export_site_force=params.get("b_export_site_force")
+        )     
+        
+        shutil.copy(config.path_log_params, config.path_exported)       
 
     #-----------------------------------------
     # 
@@ -1238,6 +1275,9 @@ if __name__ == "__main__":
     wh.logo("get_project_total_size")
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
        
+    wh.log("perc100_saved       :", perc100_saved,           filepath=config.path_log_params, echo=True)
+    wh.log("total_size_originals:", total_size_originals,    filepath=config.path_log_params, echo=True)
+    wh.log("total_size_unpowered:", total_size_unpowered,    filepath=config.path_log_params, echo=True)
     #-----------------------------------------
     # 
     #-----------------------------------------   

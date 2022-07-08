@@ -99,25 +99,29 @@ $(document).ready(function () {
         });
     }
 
+    /************************************************************************** */
+    /************************************************************************** */
+    /************************************************************************** */
+    /************************************************************************** */
+    /************************************************************************** */
+    // https://owlcarousel2.github.io/OwlCarousel2/docs/api-options.html
     /* hero-swiper initialization */
     $(".hero-swiper .owl-carousel").owlCarousel({
         items: 1,
         loop: true, // 3j
-        nav: true, // 3j
+        nav: false, // 3j Show next/prev buttons.
         navContainerClass: 'owl-nav d-flex justify-content-end align-items-center container',
         navElement: 'a', // a 3j
         navClass: ['owl-prev d-flex mr-md-5 mr-3', 'owl-next d-flex ml-md-5 ml-3'],
         navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
         dots: false,
-        margin: 0,
-        autoplay: false, // 3j
+        margin: 0, // margin-right(px) on item.
+        autoplay: false, // 3j 
         autoplayTimeout: 5000000, // 3j 5000
-        checkVisible: false,
-
+        checkVisible: false, // If you know the carousel will always be visible you can set `checkVisibility` to `false` to prevent the expensive browser layout forced reflow the $element.is(':visible') does.
 
         touchDrag: false,   // 3j
-        mouseDrag: false,
-
+        mouseDrag: false,   // 3j
 
         onInitialized: addItemNumberToNavigation,
         onChanged: changeItemNumber
@@ -212,7 +216,6 @@ $(document).ready(function () {
             //     mouseDrag  : false
             // });
             // //console.log("disabled .owl-carousel")
-
         }
 
         if (idEl == '#hero-swiper') {
@@ -247,6 +250,7 @@ $(document).ready(function () {
                 //console.log("BAD e.item.index", e.item.index);
                 $('#hero-swiper').trigger('to.owl.carousel', 0); // LIVE SAVER 0
             }
+
         }
 
         if (idEl == '#blog-swiper' || idEl == '#theses-swiper') {
@@ -276,6 +280,14 @@ $(document).ready(function () {
         }
 
         $(idEl + ' .swiper-item-number').text(item);
+
+        // if (idEl == '#hero-swiper') {
+        //     $('.owl-carousel').reinit({
+        //         touchDrag  : true,
+        //         mouseDrag  : true
+        //     });
+        // }
+
     }
 
 });

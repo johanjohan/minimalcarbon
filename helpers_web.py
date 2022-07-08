@@ -77,7 +77,7 @@ def saved_percent_string(size_orig, size_new, vt=""):
 
 def vt_saved_percent_string(size_orig, size_new):
     pct = _saved_percent(size_orig, size_new)
-    vt  = RED if pct <= 0 else GREEN
+    vt  = RED if pct < 0 else GREEN
     return saved_percent_string(size_orig, size_new, vt=vt)
 #-----------------------------------------
 # 
@@ -1693,7 +1693,6 @@ def get_project_total_size(project_folder, prefix=""):
     
     # TODO list all files,size to csv
     
-    
     def __get_sizes(func, excludes, csv_out_path):
         collected = [["file","fsize","dt_m"]]
         total_size = 0
@@ -1720,6 +1719,7 @@ def get_project_total_size(project_folder, prefix=""):
         excludes=config.f_originals_excludes,
         csv_out_path=config.data_folder + prefix + "_export_original_files.csv"
     )
+    
     total_size_unpowered = __get_sizes(
         config.f_unpowered, 
         excludes=["font", "sub_media", "real3d-flipbook"], # some svg are fontawesome yakk
@@ -1838,6 +1838,36 @@ def color_hex6_to_hex3(hex6):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def log(*values, filepath, mode="a", echo=True):
+    
+    with open(filepath, mode=mode, encoding="utf-8") as fp:
+        
+        string = ' '.join(str(x) for x in values)
+        string = string.strip()
+        string = string.rstrip('\n') 
+        
+        if '__file__' in string:
+            n   = len(string) + 1
+            nls = 2
+            lines = [
+                "\n" * nls,
+                "+" + "-" * n,
+                "|",
+               f"| {string}",
+                "|",
+                "+" + "-" * n,
+                "\n" * nls,
+            ]
+            line = '\n'.join(lines)
+
+            print(line)
+        else:
+            date = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
+            line = f"{date}: {string}"
+            if echo: print(line)
+        
+        fp.write(line + '\n')
+    
 #-----------------------------------------
 # 
 #-----------------------------------------

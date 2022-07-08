@@ -682,6 +682,7 @@ if __name__ == "__main__":
     # print(__file__)
     # print(os.path.basename(__file__))
     wh.logo_filename(__file__)
+    wh.log("__file__", __file__, filepath=config.path_log_params)
 
     if True:
         # LOG: "C:\Users\michaelsaup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
@@ -884,12 +885,13 @@ if __name__ == "__main__":
 
     # -----------------------------------------
     # scan for new links:
-    # -----------------------------------------         
+    # -----------------------------------------     
+        
     b_extend_rescan_urls = False
     if b_extend_rescan_urls:   
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""]
-        print("re-scanning for new links in given urls...")
+        wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
         for count, url in enumerate(urls):
             print()
             name, ext = os.path.splitext(url)
@@ -941,6 +943,12 @@ if __name__ == "__main__":
     print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))
     
+    wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
+
+    # -----------------------------------------
+    # make_static
+    # -----------------------------------------  
+        
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
@@ -994,6 +1002,6 @@ if __name__ == "__main__":
     #         outfile.write(data)
 
     # all done
-    print("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0))
+    wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
 
     exit(0)

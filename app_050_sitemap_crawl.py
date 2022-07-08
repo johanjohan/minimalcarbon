@@ -264,6 +264,9 @@ def crawl(url, max_urls):
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
+    
+    wh.log("__file__", __file__, filepath=config.path_log_params)
+    
 
     # args defaults TODO use config
     # def_url = "https://1001suns.com/sitemap_post/" # for args
@@ -280,7 +283,9 @@ if __name__ == "__main__":
     #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
     for arg in vars(args):
-        print(str(arg).rjust(15) + ':', getattr(args, arg))
+        #print(str(arg).rjust(15) + ':', getattr(args, arg))
+        wh.log(str(arg).rjust(15) + ':', getattr(args, arg), filepath=config.path_log_params)
+    wh.log("args:", args, filepath=config.path_log_params)
             
     #-----------------------------------------
     # crawl
@@ -327,12 +332,12 @@ if __name__ == "__main__":
             for external_link in external_urls:
                 f.write(external_link.strip() + "\n")
 
-        print("[+] Total Internal links:", len(internal_urls))
-        print("[+] Total External links:", len(external_urls))
-        print("[+] Total URLs          :", len(external_urls) + len(internal_urls))
-        print("[+] Total crawled URLs  :", total_urls_visited)
-        print("[+] args.max_urls       :", args.max_urls)
-                        
+        wh.log("[+] Total Internal links:", len(internal_urls), filepath=config.path_log_params)
+        wh.log("[+] Total External links:", len(external_urls), filepath=config.path_log_params)
+        wh.log("[+] Total URLs          :", len(external_urls) + len(internal_urls), filepath=config.path_log_params)
+        wh.log("[+] Total crawled URLs  :", total_urls_visited, filepath=config.path_log_params)
+        wh.log("[+] args.max_urls       :", args.max_urls, filepath=config.path_log_params)
+                                
         # write sitemap
         sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
         sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
@@ -343,7 +348,8 @@ if __name__ == "__main__":
 
         # all done
         secs = time.time() - start_secs
-        print("all done:", "duration:", round(secs/60.0, 1), "m")
+        wh.log("all done:", "duration:", round(secs/60.0, 1), "m", filepath=config.path_log_params)
+        wh.log("\n"*4, filepath=config.path_log_params) 
     
     #-----------------------------------------
     # END

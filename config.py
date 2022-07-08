@@ -144,7 +144,7 @@ html_infossil_link      = f"""<a href="https://1001suns.com">infossil</a>"""
 html_by_infossil_link   = f"""<a href="https://1001suns.com">by infossil</a>"""
 open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
 #-----------------------------------------
-# init the colorama module
+# 
 #----------------------------------------- 
 _sitemap_base               = path_data_netloc + "20220703_204140"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
@@ -155,6 +155,9 @@ path_links_errors           = _sitemap_base + "_error_links.csv"
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_data_netloc + "images_written.csv"
 path_asset_tuples_written   = path_data_netloc + "assets_written.csv"
+
+path_log_params             = data_folder + "parameters_log.txt"
+path_exported               = project_folder + "../__exported/"
 #-----------------------------------------
 # footer_social_html
 #----------------------------------------- 
