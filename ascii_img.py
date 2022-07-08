@@ -7,6 +7,32 @@ which will be css/html to replace images
 
 https://stackoverflow.com/questions/30097953/ascii-art-sorting-an-array-of-ascii-characters-by-brightness-levels-c-c
 $@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'.
+
+could do RLE
+https://stackoverflow.com/questions/18948382/run-length-encoding-in-python
+
+from re import sub
+
+def encode(text):
+    '''
+    Doctest:
+        >>> encode('WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW')
+        '12W1B12W3B24W1B14W'    
+    '''
+    return sub(r'(.)\1*', lambda m: str(len(m.group(0))) + m.group(1),
+               text)
+
+def decode(text):
+    '''
+    Doctest:
+        >>> decode('12W1B12W3B24W1B14W')
+        'WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW'
+    '''
+    return sub(r'(\d+)(\D)', lambda m: m.group(2) * int(m.group(1)),
+               text)
+
+textin = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW"
+assert decode(encode(textin)) == textin
 """
 
 # great turning ascii earth
@@ -23,6 +49,7 @@ import argparse
 import numpy as np
 import math
 
+import PIL
 from PIL import Image, ImageOps
 
 """
@@ -45,6 +72,17 @@ import scipy.misc
 import scipy.cluster
 
 import cssbeautifier
+
+from re import sub
+
+def rle_encode(text):
+    return sub(r'(.)\1*', lambda m: str(len(m.group(0))) + m.group(1),
+               text)
+
+def rle_decode(text):
+    return sub(r'(\d+)(\D)', lambda m: m.group(2) * int(m.group(1)),
+               text)
+    
 
 pfx = "ascii-"
 
@@ -78,7 +116,7 @@ def sanitize_cdata(s):
 # If I need to use CEND I must escape one of the brackets or the greater-than sign using concatenated CDATA sections
 
 
-def style(colors, font_size="2vw", line_height="1.2em"):
+def style(colors, bg_color=[0,255,0], font_size="2vw", line_height="1.2em"):
     
     def child(num, top, left, color):
         return f"""
@@ -114,7 +152,10 @@ def style(colors, font_size="2vw", line_height="1.2em"):
                 position:   relative;
                 margin:     0;   
                 padding:    0;
-                width:      11px;
+                width:      100%;
+                height:     700;
+                background-color: {rgb_to_hex(bg_color)};
+                z-index:        -2000;
             }}
             
             .{pfx}art {{
@@ -165,25 +206,21 @@ def script(num_layers, start_layer=0, fps=12):
             
             for (let i = {start_layer}; i < {num_layers}; i++) {{
 
-                let speed   = 0.99;
-                let wid     = 8 + i*2
+                let speed   = 2; // 0.44
+                let radius  = Math.sin(i/3.0); //1 + i*0.333
 
                 layer_id    = "{pfx}layer-" + parseInt(i)
                 let layer   = document.getElementById(layer_id);
 
-                x = elapsed * speed / (i * 3)
-                if (i%2) {{
-                    soff = Math.sin(x)
-                }}
-                else {{
-                    soff = Math.cos(x)
-                }}
+                x = elapsed * speed / (({num_layers}-1-i) * 1)
+                posx = Math.cos(x) * radius
+                posy = Math.sin(x) * radius;
                 
                 layer.style.position    = "absolute";
-                layer.style.left        = (fade * soff * wid)+'px';
-                layer.style.top         = (fade * soff * wid)+'px';
+                layer.style.left        = (fade * posx)+'px';
+                layer.style.top         = (fade * posy)+'px';
 
-                console.log(elapsed, fade, layer_id, soff);
+                console.log(elapsed, fade, layer_id, x, layer.style.left, layer.style.top);
             }}
 
 
@@ -209,7 +246,8 @@ g = g70
 g = g2
 g = gXX
 g = "01010101010101010101010101010101010101010101010101010101010101010101010101 "
-g = "KARLSRUHE."
+g = "KARLSRUHEdigital."
+g = gNoCDATA
 
 def clamp(x): 
   return max(0, min(x, 255))
@@ -343,7 +381,7 @@ def convert_image_to_ascii(layer, cols, scale, gscale=gNoCDATA, reverse_gscale=F
             #print("\t\t", j, aimg[j]) # row, aimg[j] is growing
 
     # return txt image
-    return aimg
+    return aimg, cols, rows
 
 def scipy_to_pil(np_image, shape, mode='RGB'): # None
     # print("scipy_to_pil: shape:", shape)
@@ -405,6 +443,8 @@ def pil_image_segmentation(image, num_clusters):
         
         assert (len(layers) == len(colors) == len(counts))
         
+        print("pil_image_segmentation: all done.")
+        
         return composite, layers, colors, counts
     
 # https://www.geeksforgeeks.org/extract-dominant-colors-of-an-image-using-python/
@@ -412,7 +452,7 @@ def pil_image_segmentation(image, num_clusters):
 # call main
 if __name__ == '__main__':
     
-    def image_show(image, secs=1.7):
+    def image_show(image, secs=0.25):
         path = "__tmp.png"
         image.save(path)
         import subprocess
@@ -428,6 +468,8 @@ if __name__ == '__main__':
     image_path = "D:/__BUP_V_KOMPLETT/X/111_BUP/33projects/2022/2022-karlsruhe.digital/2022/beautiful-girl-flower-rainbow-background-22116179.jpg"
     image_path = "Header-1.jpg"
     image_path = "bunte_nacht_der_digitalisierung_hero_slider.jpg"
+    image_path = "bunte_nacht_der_digitalisierung_hero_slider_unpowered.webp"
+    image_path = "kai.jpg"
 
     descStr = "This program converts an image into ASCII art."
     
@@ -438,8 +480,8 @@ if __name__ == '__main__':
     parser.add_argument('--file', dest='imgFile', type=str, default=image_path, required=False)
     parser.add_argument('--scale', dest='scale', type=float, default=0.5, required=False) # 0.43 aspect
     parser.add_argument('--out', dest='outFile', default="__out.txt", required=False)
-    parser.add_argument('--cols', dest='cols', type=int, default=120, required=False) # 80
-    parser.add_argument('--num_clusters', type=int, default=len(g), required=False) # 80
+    parser.add_argument('--cols', dest='cols', type=int, default=150, required=False) # 80
+    parser.add_argument('--num_clusters', type=int, default=16, required=False) # 80 len(g)
     args = parser.parse_args()
     
 
@@ -449,15 +491,19 @@ if __name__ == '__main__':
 
     print(descStr)
     root_image = Image.open(args.imgFile)
+    root_image.thumbnail((args.cols, args.cols), resample=Image.Resampling.LANCZOS) # save time, look better!
     #root_image = ImageOps.equalize(root_image, mask = None)
     root_image = ImageOps.autocontrast(root_image, mask = None)
-    root_aimg = convert_image_to_ascii(root_image, args.cols, args.scale, gscale=g)        
+    root_aimg, cols, rows = convert_image_to_ascii(root_image, args.cols, args.scale, gscale=g)  
     root_aimg_string = "\n".join(root_aimg)
     with open("__out_root.html", mode="w", encoding="utf-8") as fp:
         fp.write("<pre>" + root_aimg_string + "</pre>")
     #root_image.show()
     image_show(root_image)
     ##print(root_aimg) # list of row strings
+    
+   
+   
     
     if False:
         
@@ -489,11 +535,18 @@ if __name__ == '__main__':
 
     composite, layers, colors, counts = pil_image_segmentation(root_image, num_clusters=args.num_clusters)
     image_show(composite)
+ 
+
+    def color_darkest(colors, key=lambda x:rgb_to_luminance(x), reverse=False):
+        print(*colors, sep="\n\t")
+        colors = sorted(colors, key=key, reverse=reverse)
+        print(*colors, sep="\n\t")
+        return colors[0]
     
     sort_by_count = lambda x : x[2]
     sort_by_color = lambda x : x[1]
     sort_by_lum   = lambda x : rgb_to_luminance(x[1])
-    
+        
     zipped = zip(layers, colors, counts)
     # # zipped = list(zipped) # needed for sorting
     # # zipped = sorted(zipped, key = sort_by_count, reverse=False)
@@ -502,7 +555,7 @@ if __name__ == '__main__':
     # # print("after sort:", *zipped, sep="\n\t")
     
     html = body_start()
-    html += style(colors, font_size="1.3vw", line_height="1.2em")
+    html += style(colors, bg_color=color_darkest(colors), font_size="1.3vw", line_height="1.2em")
     html += div_start(id="ascii-div") + "\n"
     
     for i, (layer, color, count) in enumerate(zipped):
@@ -519,10 +572,11 @@ if __name__ == '__main__':
         threshold = 0
         layer_neg = layer #.copy().point( lambda p: 0 if p > threshold else 255 )
         
-        aimg = convert_image_to_ascii(layer_neg, args.cols, args.scale, gscale=g, reverse_gscale=True, full_image=root_aimg) # root_image       
+        aimg, cols, rows = convert_image_to_ascii(layer_neg, args.cols, args.scale, gscale=g, reverse_gscale=True, full_image=root_aimg) # root_image       
+        #print(aimg)
         aimg_string = "\n".join(aimg)
         aimg_string = sanitize_cdata(aimg_string)
-        print(aimg_string)
+        #print(aimg_string)
             
         ###html += cdata_start()+ "\n" + aimg_string + cdata_end() + "\n"
         html += "\n" + aimg_string + "\n"
@@ -533,7 +587,7 @@ if __name__ == '__main__':
     ### for />
     
     html += div_end() + "\n"
-    #html += script(args.num_clusters, start_layer=0, fps=10)
+    html += script(args.num_clusters, start_layer=0, fps=25)
     html += body_end()
     
     if True:
@@ -545,6 +599,9 @@ if __name__ == '__main__':
     
     with open("__out.html", mode="w", encoding="utf-8") as fp:
         fp.write(html)
+    
+    with open("__out_RLE.html", mode="w", encoding="utf-8") as fp:
+        fp.write(rle_encode(html))
     
     print("\n"*3)
     
