@@ -205,14 +205,18 @@ def script(num_layers, start_layer=0, fps=12):
             fade    = Math.min(1, elapsed / 3.0)
             
             for (let i = {start_layer}; i < {num_layers}; i++) {{
+                
+                irev = {start_layer} -1 - i;
 
+                let scale   = 1;
                 let speed   = 2; // 0.44
-                let radius  = Math.sin(i/3.0); //1 + i*0.333
+                //let radius  = Math.sin(i/3.0) * scale; //1 + i*0.333
+                let radius  = i * scale; // 1 + i*0.333
 
                 layer_id    = "{pfx}layer-" + parseInt(i)
                 let layer   = document.getElementById(layer_id);
 
-                x = elapsed * speed / (({num_layers}-1-i) * 1)
+                x = elapsed * speed / (irev * 1)
                 posx = Math.cos(x) * radius
                 posy = Math.sin(x) * radius;
                 
@@ -248,6 +252,7 @@ g = gXX
 g = "01010101010101010101010101010101010101010101010101010101010101010101010101 "
 g = "KARLSRUHEdigital."
 g = gNoCDATA
+g = g10
 
 def clamp(x): 
   return max(0, min(x, 255))
