@@ -91,8 +91,7 @@ if __name__ == "__main__":
         
         "b_perform_pdf_compression":            True ,
         "b_perform_image_conversion":           True,
-        "b_perform_image_conversion_force":         False,
-        "b_perform_image_colorize_transp":          True,
+        
         
         "b_replace_conversions":                False,
         
@@ -101,11 +100,27 @@ if __name__ == "__main__":
         "b_hide_media_subdomain":                   True,
         "b_minify2":                            True,
         "b_export_site":                        True, 
-        "b_export_site_force":                      True,        
+        "b_export_site_force":                      True,    
+        
+        "images": {
+            "quality":              66, # 66 55
+            "max_dim":              (1000, 1000), # (1280, 720) # (1200, 600)
+            "show_nth_image":       30, # 0 is off, 1 all
+            "resample":             Image.Resampling.LANCZOS, 
+            "resample_verbose":     "Image.Resampling.LANCZOS", 
+            "halftone":             None, # (4, 30) # or None
+            "b_colorize":           True,
+            "b_colorize_transp":    True,         
+            "b_force_write":        False, # params.get("b_perform_image_conversion_force"),
+            "b_blackwhite":         False,
+            "b_use_palette":        False,
+            "blend_alpha":          0.8, # 0.666 0.8   
+        }    
     }
     
     import json
-    wh.log(json.dumps(params, indent=4), filepath=config.path_log_params)
+    wh.log(json.dumps(params, indent=4), filepath=config.path_log_params, echo=False)
+    wh.log(wh.format_dict(params), filepath=config.path_log_params)
         
     # del with warning
     conversions = []
@@ -383,22 +398,33 @@ if __name__ == "__main__":
         
         wh.logo("b_perform_image_conversion")
         
-        # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
-        quality         = 66 # 66 55
-        max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
-        show_nth_image  = 30 # 0 is off, 1 all
-        resample        = Image.Resampling.LANCZOS
-        halftone        = None # (4, 30) # or None
-        b_colorize      = True
-        b_force_write   = params.get("b_perform_image_conversion_force")
-        b_blackwhite    = False
-        b_use_palette   = False
-        blend_alpha     = 0.8 # 0.666 0.8
+        # # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#webp
+        # quality         = 66 # 66 55
+        # max_dim         = (1000, 1000) # (1280, 720) # (1200, 600)
+        # show_nth_image  = 30 # 0 is off, 1 all
+        # resample        = Image.Resampling.LANCZOS
+        # halftone        = None # (4, 30) # or None
+        # b_colorize      = True
+        # b_force_write   = params.get("b_perform_image_conversion_force")
+        # b_blackwhite    = False
+        # b_use_palette   = False
+        # blend_alpha     = 0.8 # 0.666 0.8
+        
+        pimages = params.get("images")
+        quality         = pimages.get("quality")  # 66 # 66 55
+        max_dim         = pimages.get("max_dim")  # (1000, 1000) # (1280, 720) # (1200, 600)
+        show_nth_image  = pimages.get("show_nth_image")  # 30 # 0 is off, 1 all
+        resample        = pimages.get("resample")  # Image.Resampling.LANCZOS
+        halftone        = pimages.get("halftone")  # None # (4, 30) # or None
+        b_colorize      = pimages.get("b_colorize")  # True
+        b_force_write   = pimages.get("b_force_write")  # params.get("b_perform_image_conversion_force")
+        b_blackwhite    = pimages.get("b_blackwhite")  # False
+        b_use_palette   = pimages.get("b_use_palette")  # False
+        blend_alpha     = pimages.get("blend_alpha")  # 0.8 # 0.666 0.8
+        
+        
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
             exit(0)
-            
-            
-
             
         wh.log("image_exts   :", config.image_exts, filepath=config.path_log_params)
         wh.log("quality      :", quality,           filepath=config.path_log_params)
@@ -408,7 +434,6 @@ if __name__ == "__main__":
         wh.log("halftone     :", halftone,          filepath=config.path_log_params)
         wh.log("b_use_palette:", b_use_palette,     filepath=config.path_log_params)
         wh.log("blend_alpha  :", blend_alpha,       filepath=config.path_log_params)
-        
         
         #-----------------------------------------
         # 
@@ -443,13 +468,10 @@ if __name__ == "__main__":
                 
                 old_mode    = image.mode
                 
-                colorize_transp = True if (params.get("b_perform_image_colorize_transp") and is_transp) else False
+                # colorize png?
+                colorize_transp = True if (pimages.get("b_colorize_transp") and is_transp) else False
                 print("\t\t", "colorize_transp:", wh.YELLOW, colorize_transp, wh.RESET)
-                
-                # if is_transp:
-                #     image = image.convert("RGBA")
-                # else:
-                #     image = image.convert("RGB")
+                #wh.log("colorize_transp:", colorize_transp, filepath=config.path_log_params, echo=False)
 
                 print("\t\t", "is_transp:", wh.vt_b(is_transp))
                 print("\t\t", "mode     :", old_mode, "-->", image.mode)
@@ -471,7 +493,7 @@ if __name__ == "__main__":
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
                     
                 # https://jdhao.github.io/2019/03/07/pillow_image_alpha_channel/
-                def get_mask(image):
+                def get_mask_rgba(image):
                     
                     if not wh.image_has_transparency(image):
                         print(wh.YELLOW, "image has no tranparency...None", wh.RESET)
@@ -488,7 +510,7 @@ if __name__ == "__main__":
                             
                     return mask
                     
-                def apply_mask(image, mask):
+                def apply_mask_rgba(image, mask):
                     
                     assert image
                     assert mask
@@ -513,7 +535,7 @@ if __name__ == "__main__":
                             
 
                 if colorize_transp:
-                    mask  = get_mask(image) # after resizing
+                    mask  = get_mask_rgba(image) # after resizing
                     ###mask.save(path + "__mask__.png", 'png', optimize=True, lossless=True) # debug
                 else:
                     mask = None
@@ -545,7 +567,7 @@ if __name__ == "__main__":
 
                 if colorize_transp:
                     image = image.convert("RGBA")
-                    image = apply_mask(image, mask)
+                    image = apply_mask_rgba(image, mask)
                                             
                 if b_blackwhite:
                     if is_transp:
@@ -1275,6 +1297,7 @@ if __name__ == "__main__":
     wh.logo("get_project_total_size")
     perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
        
+    wh.log(None,                                             filepath=config.path_log_params, echo=True)
     wh.log("perc100_saved       :", perc100_saved,           filepath=config.path_log_params, echo=True)
     wh.log("total_size_originals:", total_size_originals,    filepath=config.path_log_params, echo=True)
     wh.log("total_size_unpowered:", total_size_unpowered,    filepath=config.path_log_params, echo=True)

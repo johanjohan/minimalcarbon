@@ -95,6 +95,7 @@ path_data_netloc        = data_folder + base_netloc + "_"
 path_stylesheet         = project_folder + "wp-content/themes/karlsruhe-digital/css/style.css" # suffix_compressed
 path_script             = project_folder + "wp-content/themes/karlsruhe-digital/js/script.js"
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
+path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
 ###date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
 date_time_now           = datetime.datetime.now()
@@ -146,17 +147,18 @@ open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" ta
 #-----------------------------------------
 # 
 #----------------------------------------- 
-_sitemap_base               = path_data_netloc + "20220703_204140"
+#_sitemap_base               = path_data_netloc + "20220703_204140"
+_sitemap_base               = path_stats + "20220703_204140"
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 path_links_errors           = _sitemap_base + "_error_links.csv"
 
 path_custom_css             = path_data_netloc + "custom.css"
-path_image_tuples_written   = path_data_netloc + "images_written.csv"
-path_asset_tuples_written   = path_data_netloc + "assets_written.csv"
+path_image_tuples_written   = path_stats + "images_written.csv"
+path_asset_tuples_written   = path_stats + "assets_written.csv"
 
-path_log_params             = data_folder + "parameters_log.txt"
+path_log_params             = path_stats + base_netloc + "_params_log.txt"
 path_exported               = project_folder + "../__exported/"
 #-----------------------------------------
 # footer_social_html

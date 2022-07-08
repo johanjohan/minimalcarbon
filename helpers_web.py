@@ -1717,13 +1717,13 @@ def get_project_total_size(project_folder, prefix=""):
     total_size_originals = __get_sizes(
         config.f_originals, 
         excludes=config.f_originals_excludes,
-        csv_out_path=config.data_folder + prefix + "_export_original_files.csv"
+        csv_out_path=config.path_stats + prefix + "_export_original_files.csv"
     )
     
     total_size_unpowered = __get_sizes(
         config.f_unpowered, 
         excludes=["font", "sub_media", "real3d-flipbook"], # some svg are fontawesome yakk
-        csv_out_path=config.data_folder + prefix + "_export_unpowered_files.csv"
+        csv_out_path=config.path_stats + prefix + "_export_unpowered_files.csv"
     )
     
     del config
@@ -1838,33 +1838,54 @@ def color_hex6_to_hex3(hex6):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def format_dict(d, tab=""):
+    klen = 0
+    for key, value in d.items():
+        klen = max(klen, len(key))
+        
+    s = tab + "{\n"
+    for key, value in d.items():
+        ss = "\n" + format_dict(value, tab=tab+'\t') if (type(value) == dict) else value
+        s += tab + f"{key.rjust(klen, ' ')}: {ss}" + '\n'
+    s += tab +"}"   
+    return s
+    
+
 def log(*values, filepath, mode="a", echo=True):
+    
+    make_dirs(filepath)
     
     with open(filepath, mode=mode, encoding="utf-8") as fp:
         
-        string = ' '.join(str(x) for x in values)
-        string = string.strip()
-        string = string.rstrip('\n') 
-        
-        if '__file__' in string:
-            n   = len(string) + 1
-            nls = 2
-            lines = [
-                "\n" * nls,
-                "+" + "-" * n,
-                "|",
-               f"| {string}",
-                "|",
-                "+" + "-" * n,
-                "\n" * nls,
-            ]
-            line = '\n'.join(lines)
-
-            print(line)
+        if not values or values == None:
+            line = ''
         else:
-            date = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
-            line = f"{date}: {string}"
-            if echo: print(line)
+
+            string = ' '.join(str(x) for x in values)
+            string = string.strip()
+            string = string.rstrip('\n') 
+                    
+            if '__file__' in string:
+                import platform
+                n   = len(string) + 1
+                nls = 2
+                lines = [
+                    "\n" * nls,
+                    "+" + "-" * n,
+                    "|",
+                    f"| {platform.node()}",
+                    f"| {string}",
+                    "|",
+                    "+" + "-" * n,
+                    "\n" * nls,
+                ]
+                line = '\n'.join(lines)
+
+                print(line)
+            else:
+                date = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
+                line = f"{date}: {string}"
+                if echo: print(line)
         
         fp.write(line + '\n')
     
@@ -1878,6 +1899,21 @@ def log(*values, filepath, mode="a", echo=True):
 if __name__ == "__main__":
     logo_filename(__file__)
     print("\n"*3 + "you started the wrong file..." + "\n"*3)
+    
+    d = {
+        "ssss": 1,
+        "2": 1,
+        "123456789012345": "dsdsdsdsdsdsdsdsdsd",
+        "sub" : {
+            "ssss": 1,
+            "2": 1,
+            "123456789012345": "dsdsdsdsdsdsdsdsdsd",            
+        }
+    }
+    
+    
+    print(format_dict(d))
+    exit(0)
     
     # # # https://stackoverflow.com/questions/17388213/find-the-similarity-metric-between-two-strings
     # # import jellyfish
