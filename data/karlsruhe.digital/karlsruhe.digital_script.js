@@ -113,6 +113,12 @@ $(document).ready(function () {
         autoplay: false, // 3j
         autoplayTimeout: 5000000, // 3j 5000
         checkVisible: false,
+
+
+        touchDrag: false,   // 3j
+        mouseDrag: false,
+
+
         onInitialized: addItemNumberToNavigation,
         onChanged: changeItemNumber
     });
@@ -198,6 +204,15 @@ $(document).ready(function () {
             }
 
             //console.log("addItemNumberToNavigation", "my_hero_count", my_hero_count);
+
+            // // $('.owl-carousel').trigger('destroy.owl.carousel');
+            // // $('.owl-carousel').addClass('off');
+            // $('.owl-carousel').reinit({
+            //     touchDrag  : false,
+            //     mouseDrag  : false
+            // });
+            // //console.log("disabled .owl-carousel")
+
         }
 
         if (idEl == '#hero-swiper') {
