@@ -164,8 +164,8 @@ path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 path_links_errors           = _sitemap_base + "_error_links.csv"
 
 path_custom_css             = path_data_netloc + "custom.css"
-path_image_tuples_written   = path_stats + "images_written.csv"
-path_asset_tuples_written   = path_stats + "assets_written.csv"
+path_image_tuples_written   = path_stats + base_netloc + "images_written.csv"
+path_asset_tuples_written   = path_stats + base_netloc + "assets_written.csv"
 
 path_log_params             = path_stats + base_netloc + "_params_log.txt"
 path_exported               = project_folder + "../__exported/"
@@ -230,8 +230,8 @@ _params = """ rel="nofollow noopener" target="_blank"   """ # style="margin: 0 1
 #_ps    = lambda s : f"""<object type="image/svg+xml" data="{path_root_icons+str(s)+'.svg'}" alt="{s}" class="icon icon-{s}"> </object> """
 #_ps    = lambda s : f"""<img  src="{path_root_icons+str(s)+'.svg'}" alt="{s}" height="20" class="icon icon-{s}" />"""
 ###_ps  = lambda s : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="icon icon-{s}" /> """
-_ps_scs = lambda s, c, sty : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="{c}" style="{sty}" /> """
-_icon   = lambda s : _ps_scs(s, f"icon icon-{s}", "")
+_html_icon_img  = lambda s, c, sty : f""" <img  src="{path_root_icons+str(s)+'.svg'}" alt="{s} icon" class="{c}" style="{sty}" /> """
+_icon           = lambda s : _html_icon_img(s, f"icon icon-{s}", "")
 footer_social_html = f"""
 <div id="unpowered-social-media-footer">
     <a href="https://twitter.com/KA_digital" {_params} >
@@ -252,7 +252,7 @@ footer_social_html = f"""
 </div>
 """
 
-svg_leaf_img = _ps_scs("leaf", "svg-leaf", "")
+svg_leaf_img = _html_icon_img("leaf", "svg-leaf", "")
 
 #-----------------------------------------
 # 
