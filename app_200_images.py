@@ -95,17 +95,17 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   False,
+        "b_remove_fonts_css":                   True,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,           # params.get("b_perform_image_conversion_force"),
+            "b_force_write":        True,           
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              85, # 66 55
+            "quality":              75, # 66 55
             "max_dim":              (1000, 1000), 
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
@@ -126,7 +126,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                False,
+        "b_replace_conversions":                True,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -1229,67 +1229,47 @@ if __name__ == "__main__":
             hx.remove_by_xpath(tree, "//body//script[contains(text(), 'gtag' )]")
             
             #---------------------------
-            # twitter feeds NEW ###########################################################################
+            # twitter feeds ERASE
             #---------------------------   
-            # remove the whole twitter
+            # COMPLETELY remove twitter social feeds
             # hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]") # can actually leave this
 
-            xsmfeed = "//section[contains(@class,'social-media-feed')]"
+            #---------------------------
+            # twitter feeds KEEP
+            #---------------------------   
+            xp_twitter_feed = "//section[contains(@class,'social-media-feed')]"
             
-            # twitter icon on top
-            # # hx.replace_xpath_with_fragment(
-            # #     tree, 
-            # #     f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
-            # #     f""" 
-            # #         <a 
-            # #             href="https://twitter.com/KA_digital" 
-            # #             target="_blank" 
-            # #             title="karlsruhe.digital twitter" 
-            # #             aria-label="karlsruhe.digital twitter"
-            # #         >
-            # #             {config._html_icon_img('twitter', '', '')}
-            # #         </a>
-            # #     """
-            # # )
-            # hx.set_text_by_xpath(
-            #     tree, 
-            #     f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
-            #     f"{config._html_icon_img('twitter', '', '')}"
-            # )
-            
-            # remove twitter images
+            # remove twitter images # popup-gallery-twitter
             hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//div[contains(@class, 'popup-gallery-twitter')]")
             
             # clear our former repair
-            #hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//div[contains(@class,'fts-mashup-twitter-icon')]/a/img")
             hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//img")
-            ####hx.remove_children_by_xpath(tree, xpath) no no no!
+            
+            # add image for twitter logo
             for logo in ["twitter"]:
                 html_img = f"{config._html_icon_img(f'{logo}', f'icon-white icon-{logo}', 'display:inline-block !important')}"
                 hx.append_xpath_with_fragment(
                     tree, 
-                    f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
+                    f"{xp_twitter_feed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
                     html_img                  
                 )
             
-
             for share in ["facebook", "twitter"]:
 
                 # remove FAwesome nongo
                 hx.remove_by_xpath(
                     tree, 
-                    f"{xsmfeed}//i[contains(@class,'fa-{share}')]"
+                    f"{xp_twitter_feed}//i[contains(@class,'fa-{share}')]"
                     )
                 
                 html_img = config._html_icon_img(f'{share}', f'icon-white-smaller icon-{share}', 'display:inline-block !important') # class style
                 # append our svg
                 hx.append_xpath_with_fragment(
                     tree, 
-                    f"{xsmfeed}//a[contains(@class, 'ft-gallery{share}')]", 
+                    f"{xp_twitter_feed}//a[contains(@class, 'ft-gallery{share}')]", 
                     html_img                  
                 )
                 
-                #################################end new################################################
            
             #---------------------------
             # social media footer
