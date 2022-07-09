@@ -101,20 +101,26 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "quality":              30, # 66 55
-            "max_dim":              (600, 600), 
+            "b_force_write":        True,           # params.get("b_perform_image_conversion_force"),
+            "quality":              85, # 66 55
+            "max_dim":              (1000, 1000), 
             "show_nth_image":       37, # 0 is off, 1 all
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
+            
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
+
+            "cube_lut_path":        "", # may be empty string or None
+            
             "b_colorize":           False,
-            "b_colorize_transp":    True,         
-            "b_force_write":        True, # params.get("b_perform_image_conversion_force"),
-            "b_blackwhite":         True,
+            "b_colorize_transp":    None,         
+            "blend_alpha":          0.75, # 0.666 0.8   
+            
+            "b_1bit":               True,
+            "b_greyscale":          False,
             "b_use_palette":        False,
-            "blend_alpha":          0.0, # 0.666 0.8   
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
-            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
         },        
         
         "b_replace_conversions":                False,
@@ -125,8 +131,6 @@ if __name__ == "__main__":
         "b_minify2":                            True,
         "b_export_site":                        True, 
         "b_export_site_force":                      True,    
-        
-   
     }
     
     import json
@@ -417,7 +421,7 @@ if __name__ == "__main__":
         # halftone        = None # (4, 30) # or None
         # b_colorize      = True
         # b_force_write   = params.get("b_perform_image_conversion_force")
-        # b_blackwhite    = False
+        # b_greyscale    = False
         # b_use_palette   = False
         # blend_alpha     = 0.8 # 0.666 0.8
         
@@ -429,7 +433,8 @@ if __name__ == "__main__":
         halftone        = pimages.get("halftone")  # None # (4, 30) # or None
         b_colorize      = pimages.get("b_colorize")  # True
         b_force_write   = pimages.get("b_force_write")  # params.get("b_perform_image_conversion_force")
-        b_blackwhite    = pimages.get("b_blackwhite")  # False
+        b_1bit          = pimages.get("b_1bit")
+        b_greyscale     = pimages.get("b_greyscale")  # False
         b_use_palette   = pimages.get("b_use_palette")  # False
         blend_alpha     = pimages.get("blend_alpha")  # 0.8 # 0.666 0.8
         cube_lut_path   = pimages.get("cube_lut_path")
@@ -437,19 +442,11 @@ if __name__ == "__main__":
         if cube_lut_path:
             shutil.copy(cube_lut_path, config.path_stats)
         
-        
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
             exit(0)
             
-        wh.log("image_exts   :", config.image_exts, filepath=config.path_log_params)
-        wh.log("quality      :", quality,           filepath=config.path_log_params)
-        wh.log("max_dim      :", max_dim,           filepath=config.path_log_params)
-        wh.log("b_force_write:", b_force_write,     filepath=config.path_log_params)
-        wh.log("b_colorize   :", b_colorize,        filepath=config.path_log_params)
-        wh.log("halftone     :", halftone,          filepath=config.path_log_params)
-        wh.log("b_use_palette:", b_use_palette,     filepath=config.path_log_params)
-        wh.log("blend_alpha  :", blend_alpha,       filepath=config.path_log_params)
-        wh.log("cube_lut_path:", cube_lut_path,       filepath=config.path_log_params)
+        print(wh.format_dict(params["images"]))
+        time.sleep(3)
         
         #-----------------------------------------
         # 
@@ -495,9 +492,6 @@ if __name__ == "__main__":
                 print("\t\t", "colorize_transp:", wh.YELLOW, colorize_transp, wh.RESET)
                 #wh.log("colorize_transp:", colorize_transp, filepath=config.path_log_params, echo=False)
 
-                print("\t\t", "is_transp:", wh.vt_b(is_transp))
-                print("\t\t", "mode     :", old_mode, "-->", image.mode)
-                print("\t\t", "size     :", image.size)
                                 
                 if False:
                     w, h = image.size
@@ -552,19 +546,16 @@ if __name__ == "__main__":
                             pixels[x,y] = tuple([r,g,b,a])
                             
                     return image
-                
                     #return image.putalpha(mask.convert("L"))
                             
-
                 if colorize_transp:
                     mask  = get_mask_rgba(image) # after resizing
                     ###mask.save(path + "__mask__.png", 'png', optimize=True, lossless=True) # debug
                 else:
                     mask = None
                 
-
-
-                if (b_colorize and not is_transp) or colorize_transp: 
+                #if (b_colorize and not is_transp) or colorize_transp: 
+                if b_colorize and (not is_transp or colorize_transp): 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -575,7 +566,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend: 0 returns orig, 1 new
-                if ((blend_alpha > 0.0) and (not is_transp)) or colorize_transp:  # ???? 0 or 1 TODO
+                if (blend_alpha > 0.0) and (not is_transp or colorize_transp):  # ???? 0 or 1 TODO
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -600,21 +591,26 @@ if __name__ == "__main__":
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                             
-                if b_blackwhite:
+                # image modes
+                if b_1bit and not is_transp:
+                        image = image.convert("1", dither=Image.FLOYDSTEINBERG)
+                                        
+                elif b_greyscale:
                     if is_transp:
                         image = image.convert("LA")
                     else:
                         image = image.convert("L")
-                        
-                if b_use_palette:
-                    if is_transp:
-                        image = image.convert("PA")
-                    else:
-                        image = image.convert("P")
-                        
-
                     
-                ###image = image.convert(rgb_mode)
+                # looking terrible
+                elif b_use_palette:
+                    dither  = None # Image.NONE # NONE FLOYDSTEINBERG None
+                    palette = Image.ADAPTIVE # WEB ADAPTIVE
+                    colors  = 256 # Number of colors to use for the ADAPTIVE palette. Defaults to 256.
+                    if is_transp:
+                        image = image.convert("PA", dither=dither, palette=palette, colors=colors ) # NONE FLOYDSTEINBERG
+                    else:
+                        image = image.convert("P",  dither=dither, palette=palette, colors=colors)
+                        
                     
                 if is_transp:
                     image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
@@ -623,7 +619,9 @@ if __name__ == "__main__":
 
                 print("\t\t", "quality  :", quality)
                 print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
-                
+                print("\t\t", "is_transp:", wh.vt_b(is_transp))
+                print("\t\t", "mode     :", old_mode, "-->", image.mode)
+            
                 size_new = os.path.getsize(out_path)
                 print("\t\t", "saved  :", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(out_path))
                 perc_avg += wh._saved_percent(size_orig, size_new)

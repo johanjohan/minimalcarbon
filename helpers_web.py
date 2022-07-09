@@ -59,7 +59,7 @@ def qu(s=""):
 # 
 #-----------------------------------------
 def vt_b(b_val):
-    return (GREEN if b_val else RED) + str(b_val)[0] + RESET
+    return (f'{GREEN}+T' if b_val else f'{RED}-F') + RESET
     #return (GREEN if b_val else RED) + str(int(b_val)) + RESET
 def vt_http_status_code(code): # http status
     return (GREEN if code < 400 else RED) + str(code) + RESET
