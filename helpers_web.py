@@ -1843,10 +1843,17 @@ def format_dict(d, tab=""):
     for key, value in d.items():
         klen = max(klen, len(key))
         
-    s = tab + "{\n"
+    s = ""
+    s += tab + "{\n"
+    indent = tab + "\t"
     for key, value in d.items():
-        ss = "\n" + format_dict(value, tab=tab+'\t') if (type(value) == dict) else value
-        s += tab + f"{key.rjust(klen, ' ')}: {ss}" + '\n'
+        is_dict = (type(value) == dict)
+        ss = "" + format_dict(value, tab=tab+'\t') if is_dict else value # \n
+        key_rjust = key.rjust(klen, ' ')
+        if is_dict:
+            s += indent + f"{key_rjust}: {ss}" + '\n'
+        else:
+            s += indent + f"{key_rjust}: {ss}" + '\n'
     s += tab +"}"   
     return s
     

@@ -36,6 +36,14 @@ from selenium.webdriver.chrome.options import Options
 
 import shutil
 
+# https://github.com/homm/pillow-lut-tools
+# https://pillow-lut-tools.readthedocs.io/en/latest/
+# pip install pillow_lut
+# pillow_lut.load_cube_file(lines, target_mode=None, cls=<class 'PIL.ImageFilter.Color3DLUT'>)
+import pillow_lut 
+
+
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -91,9 +99,24 @@ if __name__ == "__main__":
         
         "b_perform_pdf_compression":            True ,
         "b_perform_image_conversion":           True,
+        "images": {
+            "quality":              85, # 66 55
+            "max_dim":              (1000, 1000), 
+            "show_nth_image":       37, # 0 is off, 1 all
+            "resample":             Image.Resampling.LANCZOS, 
+            "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
+            "halftone":             None, # (4, 30) or None
+            "b_colorize":           False,
+            "b_colorize_transp":    False,         
+            "b_force_write":        True, # params.get("b_perform_image_conversion_force"),
+            "b_blackwhite":         False,
+            "b_use_palette":        False,
+            "blend_alpha":          0.0, # 0.666 0.8   
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
+            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
+        },        
         
-        
-        "b_replace_conversions":                False,
+        "b_replace_conversions":                True,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -102,20 +125,7 @@ if __name__ == "__main__":
         "b_export_site":                        True, 
         "b_export_site_force":                      True,    
         
-        "images": {
-            "quality":              66, # 66 55
-            "max_dim":              (1000, 1000), # (1280, 720) # (1200, 600)
-            "show_nth_image":       30, # 0 is off, 1 all
-            "resample":             Image.Resampling.LANCZOS, 
-            "resample_verbose":     "Image.Resampling.LANCZOS", 
-            "halftone":             None, # (4, 30) # or None
-            "b_colorize":           True,
-            "b_colorize_transp":    True,         
-            "b_force_write":        False, # params.get("b_perform_image_conversion_force"),
-            "b_blackwhite":         False,
-            "b_use_palette":        False,
-            "blend_alpha":          0.8, # 0.666 0.8   
-        }    
+   
     }
     
     import json
@@ -421,6 +431,10 @@ if __name__ == "__main__":
         b_blackwhite    = pimages.get("b_blackwhite")  # False
         b_use_palette   = pimages.get("b_use_palette")  # False
         blend_alpha     = pimages.get("blend_alpha")  # 0.8 # 0.666 0.8
+        cube_lut_path   = pimages.get("cube_lut_path")
+        
+        if cube_lut_path:
+            shutil.copy(cube_lut_path, config.path_stats)
         
         
         if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
@@ -434,6 +448,7 @@ if __name__ == "__main__":
         wh.log("halftone     :", halftone,          filepath=config.path_log_params)
         wh.log("b_use_palette:", b_use_palette,     filepath=config.path_log_params)
         wh.log("blend_alpha  :", blend_alpha,       filepath=config.path_log_params)
+        wh.log("cube_lut_path:", cube_lut_path,       filepath=config.path_log_params)
         
         #-----------------------------------------
         # 
@@ -442,7 +457,13 @@ if __name__ == "__main__":
         images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
         #wh.log("images", *[f"\n\t{x}" for x in images], filepath=config.path_log_params, echo=False)
-                     
+
+        if cube_lut_path:
+            print("loading lut:", wh.CYAN, cube_lut_path, wh.RESET)
+            lut = pillow_lut.load_cube_file(cube_lut_path)
+        else:
+            lut = None
+                                         
         # convert images
         perc_avg = 0.0
         for cnt, path in enumerate(images):
@@ -557,7 +578,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend
-                if colorize_transp or ((not is_transp) and (blend_alpha < 1.0)): 
+                if colorize_transp or ((not is_transp) and (blend_alpha > 0.0)):  # ???? 0 or 1 TODO
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -568,6 +589,14 @@ if __name__ == "__main__":
                 if colorize_transp:
                     image = image.convert("RGBA")
                     image = apply_mask_rgba(image, mask)
+                    
+                if lut:
+                    print("\t\t", "lut      :", wh.CYAN, os.path.basename(cube_lut_path), wh.RESET)
+                    if is_transp:
+                        image = image.convert("RGBA")
+                    else:
+                        image = image.convert("RGB")
+                    image = image.filter(lut)
                                             
                 if b_blackwhite:
                     if is_transp:
@@ -580,6 +609,8 @@ if __name__ == "__main__":
                         image = image.convert("PA")
                     else:
                         image = image.convert("P")
+                        
+
                     
                 ###image = image.convert(rgb_mode)
                     

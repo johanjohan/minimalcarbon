@@ -12,9 +12,13 @@
         
     need find all broken links
     
-    
-    twitter
-        
+    TODO
+        twitter make  work
+        could take cube luts for colorzing
+            https://github.com/yoonsikp/pycubelut
+            https://pillow-lut-tools.readthedocs.io/en/latest/
+            https://github.com/homm/pillow-lut-tools
+
     
 """
 
