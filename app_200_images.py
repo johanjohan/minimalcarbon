@@ -67,35 +67,13 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #-----------------------------------------
-    # project_folder                      = wh.to_posix(os.path.abspath(config.project_folder))
-    # path_conversions                    = config.data_folder + config.base_netloc + "_conversions.csv"
-
-    # b_append_custom_css                 = True
-    # b_copy_custom_script                = True
-    # b_remove_fonts_css                  = True
-    
-    # b_perform_pdf_compression           = True 
-    # b_perform_image_conversion          = True
-    # b_perform_image_conversion_force        = False
-    # b_perform_image_colorize_transp         = True
-    
-    # b_replace_conversions               = False
-    
-    # b_minify1                           = True
-    # b_fix_xml_elements                  = True
-    # b_hide_media_subdomain                  = True
-    # b_minify2                           = True
-    # b_export_site                       = True 
-    # b_export_site_force                     = True
-    
-    
     params = {
         "project_folder":                       wh.to_posix(os.path.abspath(config.project_folder)),
         "path_conversions":                     config.path_conversions,
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
@@ -117,16 +95,16 @@ if __name__ == "__main__":
             "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
             #"cube_lut_path":        "", # may be empty string or None
             
-            "b_colorize":           False,
-            "b_colorize_transp":    False,         
-            "blend_alpha":          0.75, # 0.666 0.8   
+            "b_colorize":           True,
+            "b_colorize_transp":    True,         
+            "blend_alpha":          0.8, # 0.666 0.8   
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                True,
+        "b_replace_conversions":                False,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
