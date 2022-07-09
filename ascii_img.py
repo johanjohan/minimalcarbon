@@ -437,7 +437,7 @@ def pil_image_segmentation(image, num_clusters):
             c[scipy.r_[np.where(vecs==i)],:] = color
             PIL_image = scipy_to_pil(c, shape, 'RGB') 
             layers.append(PIL_image)
-            PIL_image.save("__layer_" + str(i) + ".png")
+            #PIL_image.save("__layer_" + str(i) + ".png")
             
         # composite
         c = ar.copy()
@@ -601,11 +601,14 @@ if __name__ == '__main__':
         html = soup.prettify()
     
     #print(html)
+    import datetime
+    date_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = f"__ascii/__acsii_test_{date_time}.html"
     
-    with open("__out.html", mode="w", encoding="utf-8") as fp:
+    with open(out_path, mode="w", encoding="utf-8") as fp:
         fp.write(html)
     
-    with open("__out_RLE.html", mode="w", encoding="utf-8") as fp:
+    with open(out_path + "_RLE.html", mode="w", encoding="utf-8") as fp:
         fp.write(rle_encode(html))
     
     print("\n"*3)
