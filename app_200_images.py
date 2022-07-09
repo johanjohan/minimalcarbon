@@ -98,13 +98,15 @@ if __name__ == "__main__":
         "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
+        "b_perform_pdf_compression_force":            False,
         
         "b_perform_image_conversion":           True,
         "images": {
             "b_force_write":        True,           # params.get("b_perform_image_conversion_force"),
+            "show_nth_image":       37, # 0 is off, 1 all
+            
             "quality":              85, # 66 55
             "max_dim":              (1000, 1000), 
-            "show_nth_image":       37, # 0 is off, 1 all
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -377,7 +379,7 @@ if __name__ == "__main__":
             conversions.append((orig_path, new_path))     
             print("\t\t", "added to conversions:", os.path.basename(new_path)) 
                                 
-            if not wh.file_exists_and_valid(new_path):
+            if not wh.file_exists_and_valid(new_path) or params.get("b_perform_pdf_compression_force"):
                 gs.compress_pdf(orig_path, new_path, compression=config.pdf_compression, res=config.pdf_res)
                 
                 if wh.file_exists_and_valid(new_path):
@@ -1221,11 +1223,42 @@ if __name__ == "__main__":
             hx.remove_by_xpath(tree, "//body//script[contains(text(), 'gtag' )]")
             
             #---------------------------
-            # twitter feeds
+            # twitter feeds NEW ###########################################################################
             #---------------------------   
-            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]") # can actually leave this
-            # path_root_icons
+            # remove the whole twitter
+            # hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]") # can actually leave this
+
+            xsmfeed = "//section[contains(@class,'social-media-feed')]"
             
+            # twitter icon on top
+            hx.replace_xpath_with_fragment(
+                tree, 
+                f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
+                f""" 
+                    <a 
+                        href="https://twitter.com/KA_digital" 
+                        target="_blank" 
+                        title="karlsruhe.digital twitter" 
+                        aria-label="karlsruhe.digital twitter"
+                    >
+                        {config._html_icon_img("twitter", "", "")}
+                    </a>
+                """
+            )
+            
+            # # share FB
+            #hx.remove_by_xpath(tree, f"{xsmfeed}//i[contains(@class,'fa-facebook')]")
+            
+            for share in ["facebook", "twitter"]:
+                html_img = config._html_icon_img(f'{share}', '', '') # class style
+                hx.replace_xpath_with_fragment(
+                    tree, 
+                    f"{xsmfeed}//i[contains(@class,'fa-{share}')]", 
+                    html_img
+                )
+                
+                #################################end new################################################
+           
             #---------------------------
             # social media footer
             #--------------------------- 
