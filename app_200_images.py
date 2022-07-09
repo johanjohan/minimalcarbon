@@ -101,14 +101,14 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "quality":              50, # 66 55
-            "max_dim":              (800, 800), 
+            "quality":              30, # 66 55
+            "max_dim":              (600, 600), 
             "show_nth_image":       37, # 0 is off, 1 all
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
             "b_colorize":           False,
-            "b_colorize_transp":    False,         
+            "b_colorize_transp":    True,         
             "b_force_write":        True, # params.get("b_perform_image_conversion_force"),
             "b_blackwhite":         True,
             "b_use_palette":        False,
