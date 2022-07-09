@@ -167,6 +167,9 @@ path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "images_written.csv"
 path_asset_tuples_written   = path_stats + base_netloc + "assets_written.csv"
 
+#path_conversions            = data_folder + base_netloc + "_conversions.csv"
+path_conversions            = path_stats + base_netloc + "_conversions.csv"
+
 path_log_params             = path_stats + base_netloc + "_params_log.txt"
 path_exported               = project_folder + "../__exported/"
 #-----------------------------------------

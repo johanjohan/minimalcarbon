@@ -183,3 +183,23 @@ footer .footer-bottom {
 	padding: 20px 0 0 0;
 }
 
+/* remove ::before icon */
+
+.icon-white {
+    display: inline-block;
+    height: 2.1rem;
+    background-size: cover;
+    padding: 0 0
+}
+
+.icon-white-smaller {
+    display: inline-block;
+    height: 1.2rem;
+    background-size: cover;
+    padding: 0 0.2vw
+}
+
+
+.fts-mashup-twitter-icon a:before {
+    content: unset;
+}

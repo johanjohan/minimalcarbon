@@ -65,17 +65,35 @@ def remove_by_xpath(tree, sxpath):
         print("\t removing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().remove(item)     
 
+def remove_children_by_xpath(tree, sxpath):
+    #print("remove_children_by_xpath", sxpath)
+    for item in tree.xpath(sxpath):
+        print("\t drop_tree:", hw.CYAN + sxpath + hw.RESET)
+        item.drop_tree()    
+
 def set_text_by_xpath(tree, sxpath, text):
-    #print("remove_by_xpath", sxpath)
+    #print("set_text_by_xpath", sxpath)
     for item in tree.xpath(sxpath):
         print("\t set text:", text, hw.CYAN + sxpath + hw.RESET)
         item.text = text     
 
+def set_tail_by_xpath(tree, sxpath, text):
+    #print("set_tail_by_xpath", sxpath)
+    for item in tree.xpath(sxpath):
+        print("\t set tail:", text, hw.CYAN + sxpath + hw.RESET)
+        item.tail = text     
+
 def replace_xpath_with_fragment(tree, sxpath, html_string):
-    #print("replace_by_xpath", sxpath)
+    #print("replace_xpath_with_fragment", sxpath)
     for item in tree.xpath(sxpath):
         print("\t replacing:", hw.CYAN + sxpath + hw.RESET)
         item.getparent().replace(item, lxml.html.fragment_fromstring(html_string)) 
+        
+def append_xpath_with_fragment(tree, sxpath, html_string):
+    #print("append_xpath_with_fragment", sxpath)
+    for item in tree.xpath(sxpath):
+        print("\t append:", hw.CYAN + sxpath + hw.RESET)
+        item.append(lxml.html.fragment_fromstring(html_string)) 
         
 def replace_xpath_with_fragment_from_file(tree, sxpath, frag_file_path):
     html_string =  hw.string_from_file(frag_file_path, sanitize=False)

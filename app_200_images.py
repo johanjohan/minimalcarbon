@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     params = {
         "project_folder":                       wh.to_posix(os.path.abspath(config.project_folder)),
-        "path_conversions":                     config.data_folder + config.base_netloc + "_conversions.csv",
+        "path_conversions":                     config.path_conversions,
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,           # params.get("b_perform_image_conversion_force"),
+            "b_force_write":        False,           # params.get("b_perform_image_conversion_force"),
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              85, # 66 55
@@ -362,6 +362,12 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     if params.get("b_perform_pdf_compression"):
+        
+        b_force_write = params.get("b_perform_pdf_compression_force")
+        
+        if b_force_write and "Cancel" == pag.confirm(text=f"PDF: b_force_write: {b_force_write}", timeout=5555):
+            exit(0)        
+        
         wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
         
@@ -379,7 +385,7 @@ if __name__ == "__main__":
             conversions.append((orig_path, new_path))     
             print("\t\t", "added to conversions:", os.path.basename(new_path)) 
                                 
-            if not wh.file_exists_and_valid(new_path) or params.get("b_perform_pdf_compression_force"):
+            if not wh.file_exists_and_valid(new_path) or b_force_write:
                 gs.compress_pdf(orig_path, new_path, compression=config.pdf_compression, res=config.pdf_res)
                 
                 if wh.file_exists_and_valid(new_path):
@@ -445,7 +451,7 @@ if __name__ == "__main__":
         if cube_lut_path:
             shutil.copy(cube_lut_path, config.path_stats)
         
-        if b_force_write and "Cancel" == pag.confirm(text=f"b_force_write: {b_force_write}", timeout=5555):
+        if b_force_write and "Cancel" == pag.confirm(text=f"images: b_force_write: {b_force_write}", timeout=5555):
             exit(0)
             
         print(wh.format_dict(params["images"]))
@@ -1032,8 +1038,8 @@ if __name__ == "__main__":
     if params.get("b_fix_xml_elements"):
         wh.logo("b_fix_xml_elements")
         
-        func=lambda s : True # finds all
-        func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
+        # func=lambda s : True # finds all
+        # func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
         func=lambda file : file.lower().endswith("index.html")
         files_index_html = wh.collect_files_func(params.get("project_folder"), func=func)
         #print(*files_index_html, sep="\n\t")
@@ -1231,30 +1237,56 @@ if __name__ == "__main__":
             xsmfeed = "//section[contains(@class,'social-media-feed')]"
             
             # twitter icon on top
-            hx.replace_xpath_with_fragment(
-                tree, 
-                f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
-                f""" 
-                    <a 
-                        href="https://twitter.com/KA_digital" 
-                        target="_blank" 
-                        title="karlsruhe.digital twitter" 
-                        aria-label="karlsruhe.digital twitter"
-                    >
-                        {config._html_icon_img("twitter", "", "")}
-                    </a>
-                """
-            )
+            # # hx.replace_xpath_with_fragment(
+            # #     tree, 
+            # #     f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
+            # #     f""" 
+            # #         <a 
+            # #             href="https://twitter.com/KA_digital" 
+            # #             target="_blank" 
+            # #             title="karlsruhe.digital twitter" 
+            # #             aria-label="karlsruhe.digital twitter"
+            # #         >
+            # #             {config._html_icon_img('twitter', '', '')}
+            # #         </a>
+            # #     """
+            # # )
+            # hx.set_text_by_xpath(
+            #     tree, 
+            #     f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
+            #     f"{config._html_icon_img('twitter', '', '')}"
+            # )
             
-            # # share FB
-            #hx.remove_by_xpath(tree, f"{xsmfeed}//i[contains(@class,'fa-facebook')]")
+            # remove twitter images
+            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//div[contains(@class, 'popup-gallery-twitter')]")
             
-            for share in ["facebook", "twitter"]:
-                html_img = config._html_icon_img(f'{share}', '', '') # class style
-                hx.replace_xpath_with_fragment(
+            # clear our former repair
+            #hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//div[contains(@class,'fts-mashup-twitter-icon')]/a/img")
+            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]//img")
+            ####hx.remove_children_by_xpath(tree, xpath) no no no!
+            for logo in ["twitter"]:
+                html_img = f"{config._html_icon_img(f'{logo}', f'icon-white icon-{logo}', 'display:inline-block !important')}"
+                hx.append_xpath_with_fragment(
                     tree, 
-                    f"{xsmfeed}//i[contains(@class,'fa-{share}')]", 
-                    html_img
+                    f"{xsmfeed}//div[contains(@class,'fts-mashup-twitter-icon')]/a", 
+                    html_img                  
+                )
+            
+
+            for share in ["facebook", "twitter"]:
+
+                # remove FAwesome nongo
+                hx.remove_by_xpath(
+                    tree, 
+                    f"{xsmfeed}//i[contains(@class,'fa-{share}')]"
+                    )
+                
+                html_img = config._html_icon_img(f'{share}', f'icon-white-smaller icon-{share}', 'display:inline-block !important') # class style
+                # append our svg
+                hx.append_xpath_with_fragment(
+                    tree, 
+                    f"{xsmfeed}//a[contains(@class, 'ft-gallery{share}')]", 
+                    html_img                  
                 )
                 
                 #################################end new################################################
