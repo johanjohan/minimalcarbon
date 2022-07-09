@@ -95,28 +95,29 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
+        
         "b_perform_image_conversion":           True,
         "images": {
-            "quality":              85, # 66 55
-            "max_dim":              (1000, 1000), 
+            "quality":              50, # 66 55
+            "max_dim":              (800, 800), 
             "show_nth_image":       37, # 0 is off, 1 all
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
-            "halftone":             None, # (4, 30) or None
+            "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
             "b_colorize":           False,
             "b_colorize_transp":    False,         
             "b_force_write":        True, # params.get("b_perform_image_conversion_force"),
-            "b_blackwhite":         False,
+            "b_blackwhite":         True,
             "b_use_palette":        False,
             "blend_alpha":          0.0, # 0.666 0.8   
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
             "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
         },        
         
-        "b_replace_conversions":                True,
+        "b_replace_conversions":                False,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -562,12 +563,8 @@ if __name__ == "__main__":
                     mask = None
                 
 
-                if halftone and not is_transp:
-                    image = image.convert("L")
-                    image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
-                    assert isinstance(image, PIL.Image.Image)
-                
-                if colorize_transp or (b_colorize and not is_transp): 
+
+                if (b_colorize and not is_transp) or colorize_transp: 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -577,8 +574,8 @@ if __name__ == "__main__":
                     image = ImageOps.colorize(image, black=black, white=white)
                     ####image = ImageOps.autocontrast(image)
                     
-                # blend
-                if colorize_transp or ((not is_transp) and (blend_alpha > 0.0)):  # ???? 0 or 1 TODO
+                # blend: 0 returns orig, 1 new
+                if ((blend_alpha > 0.0) and (not is_transp)) or colorize_transp:  # ???? 0 or 1 TODO
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -590,14 +587,19 @@ if __name__ == "__main__":
                     image = image.convert("RGBA")
                     image = apply_mask_rgba(image, mask)
                     
-                if lut:
+                if lut and (not is_transp or colorize_transp):
                     print("\t\t", "lut      :", wh.CYAN, os.path.basename(cube_lut_path), wh.RESET)
                     if is_transp:
                         image = image.convert("RGBA")
                     else:
                         image = image.convert("RGB")
                     image = image.filter(lut)
-                                            
+                    
+                if halftone and not is_transp:
+                    image = image.convert("L")
+                    image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
+                    assert isinstance(image, PIL.Image.Image)
+                            
                 if b_blackwhite:
                     if is_transp:
                         image = image.convert("LA")
@@ -636,7 +638,8 @@ if __name__ == "__main__":
         if images:                                                
             perc_avg /= len(images)  
             perc_avg = round(perc_avg, 1)  
-            print("perc_avg:", wh.GREEN + str(perc_avg) + wh.RESET + "%")
+            vt = wh.GREEN if perc_avg >= 0 else wh.RED
+            print("perc_avg:",vt + str(perc_avg) + wh.RESET + "%")
     
 
          #print(*conversions, sep="\n\t")
