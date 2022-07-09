@@ -267,7 +267,6 @@ if __name__ == "__main__":
     
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
-
     # args defaults TODO use config
     # def_url = "https://1001suns.com/sitemap_post/" # for args
     # def_url = "https://1001suns.com/universe_bochum21/" # for args
@@ -291,8 +290,10 @@ if __name__ == "__main__":
     # crawl
     #-----------------------------------------
     domain_name = urlparse(args.url).netloc
-    file_internal_path = f"{data_folder}/{domain_name}_{date_time_crawler}_internal_links.csv"
-    file_external_path = f"{data_folder}/{domain_name}_{date_time_crawler}_external_links.csv"
+    # file_internal_path = f"{data_folder}/{domain_name}_{date_time_crawler}_internal_links.csv"
+    # file_external_path = f"{data_folder}/{domain_name}_{date_time_crawler}_external_links.csv"
+    file_internal_path = config.path_sitemap_links_internal
+    file_external_path = config.path_sitemap_links_external
     
     print("\n"*4, wh.CYAN)
     print("domain_name       :", domain_name)
@@ -339,7 +340,8 @@ if __name__ == "__main__":
         wh.log("[+] args.max_urls       :", args.max_urls, filepath=config.path_log_params)
                                 
         # write sitemap
-        sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
+        #sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
+        sitemap_path = config.path_sitemap_xml
         sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
         import shutil
         dst = config.project_folder + "sitemap.xml"

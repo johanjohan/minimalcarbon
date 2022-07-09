@@ -110,17 +110,18 @@ if __name__ == "__main__":
             
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
 
-            "cube_lut_path":        "", # may be empty string or None
-            
-            "b_colorize":           False,
-            "b_colorize_transp":    None,         
-            "blend_alpha":          0.75, # 0.666 0.8   
-            
-            "b_1bit":               True,
-            "b_greyscale":          False,
-            "b_use_palette":        False,
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
+            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
+            #"cube_lut_path":        "", # may be empty string or None
+            
+            "b_colorize":           False,
+            "b_colorize_transp":    False,         
+            "blend_alpha":          0.75, # 0.666 0.8   
+            
+            ###"b_1bit":               False,  # very bad
+            "b_greyscale":          False,
+            "b_use_palette":        False,
         },        
         
         "b_replace_conversions":                False,
@@ -433,7 +434,7 @@ if __name__ == "__main__":
         halftone        = pimages.get("halftone")  # None # (4, 30) # or None
         b_colorize      = pimages.get("b_colorize")  # True
         b_force_write   = pimages.get("b_force_write")  # params.get("b_perform_image_conversion_force")
-        b_1bit          = pimages.get("b_1bit")
+        ###b_1bit          = pimages.get("b_1bit")
         b_greyscale     = pimages.get("b_greyscale")  # False
         b_use_palette   = pimages.get("b_use_palette")  # False
         blend_alpha     = pimages.get("blend_alpha")  # 0.8 # 0.666 0.8
@@ -461,6 +462,11 @@ if __name__ == "__main__":
             lut = pillow_lut.load_cube_file(cube_lut_path)
         else:
             lut = None
+            
+        # new ext   
+        # # # assert not b_1bit
+        # # # new_ext = '.png' if b_1bit else '.webp'
+        new_ext = '.webp'
                                          
         # convert images
         perc_avg = 0.0
@@ -468,8 +474,8 @@ if __name__ == "__main__":
             
             print("-"*88)
             path        = os.path.normpath(path) # wh.to_posix(path)
-            name, ext   = os.path.splitext(path) # ('my_file', '.txt')
-            out_path    = name + config.suffix_compressed + '.webp' 
+            name, _     = os.path.splitext(path) # ('my_file', '.txt')
+            out_path    = name + config.suffix_compressed + new_ext 
             out_path    = os.path.normpath(out_path) # wh.to_posix(out_path)
             
             conversions.append((path, out_path))
@@ -478,6 +484,7 @@ if __name__ == "__main__":
             
                 print("\t", "{}/{}:".format(cnt+1, len(images)), os.path.basename(path))
                 print("\t\t", wh.progress_string(cnt / len(images), verbose_string="", VT=wh.CYAN, n=33))
+                print("\t\t", "new_ext:", new_ext)
                 
                 size_orig   = os.path.getsize(path)
                 image       = Image.open(path)
@@ -591,18 +598,19 @@ if __name__ == "__main__":
                     image = ht.halftone(image, ht.euclid_dot(spacing=halftone[0], angle=halftone[1]))
                     assert isinstance(image, PIL.Image.Image)
                             
+                    
                 # image modes
-                if b_1bit and not is_transp:
-                        image = image.convert("1", dither=Image.FLOYDSTEINBERG)
+                # if b_1bit and not is_transp:
+                #         image = image.convert("1", dither=Image.Dither.FLOYDSTEINBERG)
                                         
-                elif b_greyscale:
+                if b_greyscale:
                     if is_transp:
                         image = image.convert("LA")
                     else:
                         image = image.convert("L")
                     
                 # looking terrible
-                elif b_use_palette:
+                if b_use_palette:
                     dither  = None # Image.NONE # NONE FLOYDSTEINBERG None
                     palette = Image.ADAPTIVE # WEB ADAPTIVE
                     colors  = 256 # Number of colors to use for the ADAPTIVE palette. Defaults to 256.
@@ -611,16 +619,17 @@ if __name__ == "__main__":
                     else:
                         image = image.convert("P",  dither=dither, palette=palette, colors=colors)
                         
-                    
+                format = new_ext.lstrip('.')    
                 if is_transp:
-                    image.save(out_path, 'webp', optimize=True, lossless=True) # !!!
+                    image.save(out_path, format=format, optimize=True, lossless=True) # !!!
                 else:
-                    image.save(out_path, 'webp', optimize=True, quality=quality) 
+                    image.save(out_path, format=format, optimize=True, quality=quality) 
 
                 print("\t\t", "quality  :", quality)
                 print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 print("\t\t", "is_transp:", wh.vt_b(is_transp))
                 print("\t\t", "mode     :", old_mode, "-->", image.mode)
+                print("\t\t", "format   :", format)
             
                 size_new = os.path.getsize(out_path)
                 print("\t\t", "saved  :", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(out_path))
@@ -638,6 +647,7 @@ if __name__ == "__main__":
             perc_avg = round(perc_avg, 1)  
             vt = wh.GREEN if perc_avg >= 0 else wh.RED
             print("perc_avg:",vt + str(perc_avg) + wh.RESET + "%")
+            time.sleep(3)
     
 
          #print(*conversions, sep="\n\t")
@@ -1213,7 +1223,8 @@ if __name__ == "__main__":
             #---------------------------
             # twitter feeds
             #---------------------------   
-            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]")
+            hx.remove_by_xpath(tree, "//section[contains(@class,'social-media-feed')]") # can actually leave this
+            # path_root_icons
             
             #---------------------------
             # social media footer
