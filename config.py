@@ -120,7 +120,7 @@ f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
     ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".svg", 
     ".js",".css",".xml",
     "robots.txt", 
-    "sitemap.xml","sitemap.xml.gz",
+    "sitemap.xml.gz",
     ".ttf",
     "index_original.html"
 ])
@@ -137,7 +137,7 @@ f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
     ".svg", 
     ".js",".css",".xml",
     "robots.txt", 
-    "sitemap.xml","sitemap.xml.gz",
+    "sitemap.xml.gz",
     "index.html"
 ])
 f_unpowered_excludes = [

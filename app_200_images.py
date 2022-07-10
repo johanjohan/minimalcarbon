@@ -85,7 +85,7 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              75, # 66 55
@@ -101,8 +101,8 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "b_enhance_transp":     False,         
             "blend_alpha":          0.75, # 0.666 0.8   
+            "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
@@ -1374,7 +1374,7 @@ if __name__ == "__main__":
             b_export_site_force=params.get("b_export_site_force")
         )     
         
-        shutil.copy(config.path_log_params, config.path_exported)       
+        ######shutil.copy(config.path_log_params, config.path_exported)       
 
     #-----------------------------------------
     # 
