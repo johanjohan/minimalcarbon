@@ -1059,11 +1059,13 @@ def wait_for_page_has_loaded(driver):
 #-----------------------------------------
 # background_images
 #-----------------------------------------
-def get_style_background_images(driver):
+def get_style_background_images_from_style_attribute(driver):
 
     def _parse_style_attribute(style_string):
         
-        if 'background-image' in style_string:
+        #if 'background-image' in style_string:
+        #if any(key in style_string for key in ['background-image', 'content']):
+        if any((key in style_string) for key in ['background-image', 'content']):
             try:
                 url_string = style_string.split(' url("')[1].replace('");', '')
             except:
@@ -1071,7 +1073,8 @@ def get_style_background_images(driver):
                 print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
                 url_string = None
             
-            #print(f"{GRAY}\t background-image: {url_string} {RESET}")
+            print(f"{YELLOW}\t key: {key}: {url_string} {RESET}") XXX
+            time.sleep(2)
             return url_string
         return None
 
@@ -1098,30 +1101,9 @@ import cssutils
 import logging
 import cssbeautifier
 
-
-# # # def __extract_css(style_string, parse_func): # parse_func=cssutils.parseString
-# # #     urls  = []
-# # #     try:
-# # #         cssutils.log.setLevel(logging.CRITICAL)
-# # #         sheet = parse_func(style_string)
-# # #         print ("__extract_css: sheet.cssText:", MAGENTA, sheet.cssText, RESET)
-# # #         for rule in sheet:
-# # #             if rule.type == rule.STYLE_RULE:
-# # #                 for property in rule.style:
-# # #                     if property.name == 'background-image':
-# # #                         if "url" in property.value:
-# # #                             url = property.value.replace("(", "").replace(")", "")
-# # #                             url = url.strip().lstrip("url")
-# # #                             print("\t\t\t", CYAN, url, RESET)
-# # #                             urls.append(url)
-# # #     except Exception as e:
-# # #         print(f"{RED}__extract_css: cssutils.parseString {e} {RESET}")
-    
-# # #     return urls   
-
-def extract_background_image(property):
+def extract_background_image_from_property(property):
     try:
-        if property.name == 'background-image':
+        if property.name in ['background-image', 'content']:
             if "url" in property.value:
                 url = property.value.replace("(", "").replace(")", "")
                 url = url.strip().lstrip("url")
@@ -1141,7 +1123,7 @@ def get_background_images_from_stylesheet_string(style_string):
         for rule in sheet:
             if rule.type == rule.STYLE_RULE:
                 for property in rule.style:
-                    url = extract_background_image(property)
+                    url = extract_background_image_from_property(property)
                     if url:
                         urls.append(url)
     except Exception as e:
@@ -1156,7 +1138,7 @@ def get_background_images_from_inline_style_tag(style_string):
         style = cssutils.parseStyle(style_string) # <<<
         #print ("style.cssText:", MAGENTA, style.cssText, RESET)
         for property in style:
-            url = extract_background_image(property)
+            url = extract_background_image_from_property(property)
             if url:
                 urls.append(url)
                     
