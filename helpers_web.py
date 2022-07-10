@@ -1746,8 +1746,14 @@ def get_project_total_size(project_folder, prefix, use_pdf):
     return perc100_saved, total_size_originals, total_size_unpowered
 
               
+#-----------------------------------------
+# 
+#-----------------------------------------
               
-    
+def gzip_file(in_path, out_path):
+    import gzip
+    with open(in_path, 'rb') as f_in, gzip.open(out_path, 'wb') as f_out:
+        f_out.writelines(f_in)       
 #-----------------------------------------
 # 
 #-----------------------------------------
