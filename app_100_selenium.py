@@ -887,7 +887,7 @@ if __name__ == "__main__":
     # scan for new links:
     # -----------------------------------------     
         
-    b_extend_rescan_urls = False
+    b_extend_rescan_urls = True
     if b_extend_rescan_urls:   
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""]
@@ -943,7 +943,7 @@ if __name__ == "__main__":
     print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))
     
-    wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
+    #wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
 
     # -----------------------------------------
     # make_static

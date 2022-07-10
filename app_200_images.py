@@ -80,27 +80,27 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,           
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              75, # 66 55
-            "max_dim":              (1000, 1000), 
+            "quality":              55, # 66 55
+            "max_dim":              (888, 888), 
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
 
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
-            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
-            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
-            #"cube_lut_path":        "", # may be empty string or None
+            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
+            #"cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           True,
+            "b_colorize":           False,
             "b_colorize_transp":    True,         
-            "blend_alpha":          0.8, # 0.666 0.8   
+            "blend_alpha":          0.75, # 0.666 0.8   
             
             ###"b_1bit":               False,  # very bad
-            "b_greyscale":          False,
+            "b_greyscale":          True,
             "b_use_palette":        False,
         },        
         
@@ -611,11 +611,12 @@ if __name__ == "__main__":
                 else:
                     image.save(out_path, format=format, optimize=True, quality=quality) 
 
-                print("\t\t", "quality  :", quality)
-                print("\t\t", "wh       :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
-                print("\t\t", "is_transp:", wh.vt_b(is_transp))
-                print("\t\t", "mode     :", old_mode, "-->", image.mode)
-                print("\t\t", "format   :", format)
+                print("\t\t", "quality    :", quality)
+                print("\t\t", "wh         :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
+                print("\t\t", "is_transp  :", wh.vt_b(is_transp))
+                print("\t\t", "mode       :", old_mode, "-->", image.mode)
+                print("\t\t", "format     :", format)
+                print("\t\t", "blend_alpha:", blend_alpha)
             
                 size_new = os.path.getsize(out_path)
                 print("\t\t", "saved  :", wh.vt_saved_percent_string(size_orig, size_new), os.path.basename(out_path))
