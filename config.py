@@ -119,13 +119,15 @@ svg_color               = "darkseagreen"
 f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
     ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".svg", 
     ".js",".css",".xml",
+    ".xml.gz",
     ".ttf",
     "index_original.html"
 ])
 f_originals_excludes = [
+    "sub_media",
     suffix_compressed       + ".webp", 
     pdf_compression_suffix  + ".pdf",
-    "sub_media"
+    ".mp4",
 ]
 
 f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
@@ -133,8 +135,15 @@ f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
     pdf_compression_suffix  + ".pdf", 
     ".svg", 
     ".js",".css",".xml",
+    ".xml.gz",
     "index.html"
 ])
+f_unpowered_excludes = [
+    "sub_media",
+    "font", 
+    "real3d-flipbook",
+    ".mp4",
+]
 #-----------------------------------------
 # font
 #----------------------------------------- 
@@ -162,6 +171,9 @@ path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 path_links_errors           = _sitemap_base + "_error_links.csv"
+path_htdocs_sitemap         = project_folder + "sitemap.xml"
+path_htdocs_sitemap_gz      = path_htdocs_sitemap + ".gz"
+path_htdocs_robots          = project_folder + "robots.txt"
 
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "images_written.csv"

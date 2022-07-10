@@ -62,7 +62,12 @@ if __name__ == "__main__":
     #-----------------------------------------
     # get sizes
     #-----------------------------------------    
-    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
+    b_get_project_total_size_use_pdf = False
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(
+        config.project_folder, 
+        prefix=config.base_netloc,
+        use_pdf=b_get_project_total_size_use_pdf
+    )
     #exit(0)            
     #-----------------------------------------
     # 
@@ -83,8 +88,8 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              55, # 66 55
-            "max_dim":              (888, 888), 
+            "quality":              75, # 66 55
+            "max_dim":              (1000, 1000), 
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -633,7 +638,7 @@ if __name__ == "__main__":
             perc_avg /= len(images)  
             perc_avg = round(perc_avg, 1)  
             vt = wh.GREEN if perc_avg >= 0 else wh.RED
-            print("perc_avg:",vt + str(perc_avg) + wh.RESET + "%")
+            print("perc_avg:",vt + str(perc_avg) + "%" + wh.RESET)
             time.sleep(3)
     
 
@@ -975,7 +980,21 @@ if __name__ == "__main__":
             )
         #print(*urls, sep="\n\t")
         import sitemap
-        sitemap.sitemap_xml_from_list(urls, out_xml_path=config.project_folder+'sitemap.xml')
+        sitemap.sitemap_xml_from_list(urls, out_xml_path=config.path_htdocs_sitemap)
+        
+        # gzip
+        import gzip
+        with open(config.path_htdocs_sitemap, 'rb') as f_in, gzip.open(config.path_htdocs_sitemap_gz, 'wb') as f_out:
+            f_out.writelines(f_in)
+        
+        # robots.txt https://en.wikipedia.org/wiki/Robots_exclusion_standard
+        robots = f"User-agent: *\nDisallow: \nSitemap: {config.target_base}{config.path_htdocs_sitemap_gz}\n"  
+        wh.string_to_file(robots, config.path_htdocs_robots)
+        
+        print("written:", config.path_htdocs_sitemap_gz)
+        print("written:", config.path_htdocs_robots)
+        
+       
      
     #-----------------------------------------
     # 
@@ -1009,7 +1028,11 @@ if __name__ == "__main__":
     # get_project_total_size
     #-----------------------------------------
     wh.logo("get_project_total_size")
-    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(
+        config.project_folder, 
+        prefix=config.base_netloc,
+        use_pdf=b_get_project_total_size_use_pdf
+        )
                 
     #-----------------------------------------
     # b_fix_xml
@@ -1041,7 +1064,9 @@ if __name__ == "__main__":
                     <tspan font-size="1.0em">{round(perc100_saved):.0f}</tspan><tspan font-size="0.9em">％</tspan>
                 </text> 
             </g>     
-        </svg></div>"""
+        </svg>
+        <span>saved</span>
+        </div> """
         # % ﹪ ％ # 15.1rem 1.0em 0.5em # 11.1rem 1 1 #
 
         for file in files_index_html:
@@ -1362,7 +1387,11 @@ if __name__ == "__main__":
     # get_project_total_size
     #-----------------------------------------
     wh.logo("get_project_total_size")
-    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(config.project_folder, config.base_netloc)
+    perc100_saved, total_size_originals, total_size_unpowered = wh.get_project_total_size(
+        config.project_folder, 
+        prefix=config.base_netloc,
+        use_pdf=b_get_project_total_size_use_pdf
+        )
        
     wh.log(None,                                             filepath=config.path_log_params, echo=True)
     wh.log("perc100_saved       :", perc100_saved,           filepath=config.path_log_params, echo=True)

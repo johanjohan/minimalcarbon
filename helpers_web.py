@@ -1689,24 +1689,31 @@ def get_directory_total_size(start_path):
     print("get_size: total_size:", round(total_size / (1024*1024), 1), "MB")
     return total_size
 
-def get_project_total_size(project_folder, prefix=""):
+def get_project_total_size(project_folder, prefix, use_pdf):
     
     # TODO list all files,size to csv
+    print("get_project_total_size:", YELLOW, "use_pdf:", use_pdf, RESET)
     
     def __get_sizes(func, excludes, csv_out_path):
-        collected = [["file","fsize","dt_m"]]
+        collected = [["cnt","ext","file","fsize","dt_m"]]
         total_size = 0
         files = collect_files_func(project_folder, func=func)
+        
         files = links_remove_excludes(files, excludes)
+        if not use_pdf:
+            print("\t", "...excluding pdfs")
+            files = links_remove_excludes(files, [".pdf"])
+            
         files = links_sanitize(files)
-        for file in files:
+        for cnt, file in enumerate(files):
             if os.path.isfile(file):
                 fsize = os.path.getsize(file)
                 m_time = os.path.getmtime(file)
                 dt_m = datetime.datetime.fromtimestamp(m_time).isoformat()
+                name, ext = os.path.splitext(file)
                 total_size += fsize
                 collected.append([
-                    file,fsize, dt_m
+                    cnt, ext, file,fsize, dt_m
                 ])
         list_to_file(collected, csv_out_path)
         return total_size

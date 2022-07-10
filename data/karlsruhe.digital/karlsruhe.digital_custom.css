@@ -148,7 +148,8 @@ footer .footer-bottom {
     width: 3rem;
     height: auto;
     background-size: cover;
-    margin: 10px 10px
+    margin: 10px 10px;
+    font-size: 0.6rem;
 }
 
 .button {
