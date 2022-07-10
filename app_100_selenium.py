@@ -369,8 +369,7 @@ def assets_save_internals_locally(
     # links = wh.links_make_absolute(links, base)  NO!!!
     links = wh.links_remove_externals(links, base)
     # links = wh.links_remove_folders(links) NO!!!
-    links = wh.links_remove_invalids(
-        links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
+    links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
     # links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
     links = wh.links_make_unique(links)
     links = sorted(links)
@@ -589,7 +588,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     #-----------
     links_img = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
-    links_img += wh.get_style_background_images(driver)
+    links_img += wh.get_style_background_images_from_style_attribute(driver)
     # TODO need to replace these in css as well
     links_img += wh.get_background_images_from_stylesheet_file(style_path)
     

@@ -200,7 +200,14 @@ footer .footer-bottom {
     padding: 0 0.2vw
 }
 
-
+/* twittter */
 .fts-mashup-twitter-icon a:before {
     content: unset;
+}
+
+.fts-twitter-reply:before,
+.fts-comment-instagram:after,
+.fts-mashup-post-wrap.fts-feed-type-facebook .fts-jal-fb-see-more:before {
+
+    content: "Post Anzeigen" !important;
 }

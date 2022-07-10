@@ -101,12 +101,12 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "blend_alpha":          0.75, # 0.666 0.8   
+            "blend_alpha":          0.61, # 0.666 0.8   
             "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
-            "b_use_palette":        False,
+            "b_use_palette":        True,
         },        
         
         "b_replace_conversions":                False,
@@ -601,12 +601,13 @@ if __name__ == "__main__":
                         image = image.convert("L")
                     
                 # looking terrible
-                if b_use_palette:
+                if b_use_palette and not is_transp:
                     dither  = None # Image.NONE # NONE FLOYDSTEINBERG None
                     palette = Image.ADAPTIVE # WEB ADAPTIVE
                     colors  = 256 # Number of colors to use for the ADAPTIVE palette. Defaults to 256.
                     if is_transp:
-                        image = image.convert("PA", dither=dither, palette=palette, colors=colors ) # NONE FLOYDSTEINBERG
+                        #image = image.convert("PA", dither=dither, palette=palette, colors=colors ) # NONE FLOYDSTEINBERG
+                        pass
                     else:
                         image = image.convert("P",  dither=dither, palette=palette, colors=colors)
                         
@@ -1366,6 +1367,10 @@ if __name__ == "__main__":
         # # #     config.pdf_compression_suffix + ".pdf", 
         # # #     "index.html"
         # # # ])
+        
+        # remove config.path_exported
+        if os.path.isdir(config.path_exported):
+            shutil.rmtree(config.path_exported)
                 
         total_size = _export(
             config.f_unpowered, 
