@@ -78,14 +78,14 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              75, # 66 55
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "b_enhance_transp":    True,         
+            "b_enhance_transp":     False,         
             "blend_alpha":          0.75, # 0.666 0.8   
             
             ###"b_1bit":               False,  # very bad
@@ -109,7 +109,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                True,
+        "b_replace_conversions":                False,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,

@@ -119,7 +119,8 @@ svg_color               = "darkseagreen"
 f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
     ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".svg", 
     ".js",".css",".xml",
-    ".xml.gz",
+    "robots.txt", 
+    "sitemap.xml","sitemap.xml.gz",
     ".ttf",
     "index_original.html"
 ])
@@ -135,7 +136,8 @@ f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
     pdf_compression_suffix  + ".pdf", 
     ".svg", 
     ".js",".css",".xml",
-    ".xml.gz",
+    "robots.txt", 
+    "sitemap.xml","sitemap.xml.gz",
     "index.html"
 ])
 f_unpowered_excludes = [
