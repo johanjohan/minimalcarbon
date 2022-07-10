@@ -78,14 +78,14 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   False,
+        "b_remove_fonts_css":                   True,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              75, # 66 55
@@ -96,20 +96,20 @@ if __name__ == "__main__":
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
 
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
-            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
-            #"cube_lut_path":        None, # may be empty string or None
+            "cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           False,
-            "b_colorize_transp":    True,         
+            "b_colorize":           True,
+            "b_enhance_transp":    True,         
             "blend_alpha":          0.75, # 0.666 0.8   
             
             ###"b_1bit":               False,  # very bad
-            "b_greyscale":          True,
+            "b_greyscale":          False,
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                False,
+        "b_replace_conversions":                True,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -486,9 +486,9 @@ if __name__ == "__main__":
                 old_mode    = image.mode
                 
                 # colorize png?
-                colorize_transp = True if (pimages.get("b_colorize_transp") and is_transp) else False
-                print("\t\t", "colorize_transp:", wh.YELLOW, colorize_transp, wh.RESET)
-                #wh.log("colorize_transp:", colorize_transp, filepath=config.path_log_params, echo=False)
+                enhance_transp = True if (pimages.get("b_enhance_transp") and is_transp) else False
+                print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
+                #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
 
                                 
                 if False:
@@ -546,14 +546,14 @@ if __name__ == "__main__":
                     return image
                     #return image.putalpha(mask.convert("L"))
                             
-                if colorize_transp:
+                if enhance_transp:
                     mask  = get_mask_rgba(image) # after resizing
                     ###mask.save(path + "__mask__.png", 'png', optimize=True, lossless=True) # debug
                 else:
                     mask = None
                 
-                #if (b_colorize and not is_transp) or colorize_transp: 
-                if b_colorize and (not is_transp or colorize_transp): 
+                #if (b_colorize and not is_transp) or enhance_transp: 
+                if b_colorize and (not is_transp or enhance_transp): 
                     image = image.convert("L") # L only !!! # LA L 1
                     black = "#003300"
                     black = "#002200"
@@ -564,7 +564,7 @@ if __name__ == "__main__":
                     ####image = ImageOps.autocontrast(image)
                     
                 # blend: 0 returns orig, 1 new
-                if (blend_alpha > 0.0) and (not is_transp or colorize_transp):  # ???? 0 or 1 TODO
+                if (blend_alpha > 0.0) and (not is_transp or enhance_transp):  # ???? 0 or 1 TODO
                     ###assert image.mode == image_orig.mode
                     image = Image.blend(
                         image_orig.convert("RGB"), 
@@ -572,11 +572,11 @@ if __name__ == "__main__":
                         blend_alpha
                     )
 
-                if colorize_transp:
+                if enhance_transp:
                     image = image.convert("RGBA")
                     image = apply_mask_rgba(image, mask)
                     
-                if lut and (not is_transp or colorize_transp):
+                if lut and (not is_transp or enhance_transp):
                     print("\t\t", "lut      :", wh.CYAN, os.path.basename(cube_lut_path), wh.RESET)
                     if is_transp:
                         image = image.convert("RGBA")
@@ -983,13 +983,12 @@ if __name__ == "__main__":
         sitemap.sitemap_xml_from_list(urls, out_xml_path=config.path_htdocs_sitemap)
         
         # gzip
-        import gzip
-        with open(config.path_htdocs_sitemap, 'rb') as f_in, gzip.open(config.path_htdocs_sitemap_gz, 'wb') as f_out:
-            f_out.writelines(f_in)
+        wh.gzip_file(config.path_htdocs_sitemap, config.path_htdocs_sitemap_gz)
+        os.remove(config.path_htdocs_sitemap)
         
         # robots.txt https://en.wikipedia.org/wiki/Robots_exclusion_standard
-        robots = f"User-agent: *\nDisallow: \nSitemap: {config.target_base}{config.filename_sitemap_gz}\n"  
-        wh.string_to_file(robots, config.path_htdocs_robots)
+        robots_text = f"User-agent: *\nDisallow: \nSitemap: {config.target_base}{config.filename_sitemap_gz}\n"  
+        wh.string_to_file(robots_text, config.path_htdocs_robots)
         
         print("written:", config.path_htdocs_sitemap_gz)
         print("written:", config.path_htdocs_robots)
