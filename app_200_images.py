@@ -85,7 +85,7 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              75, # 66 55
@@ -988,7 +988,7 @@ if __name__ == "__main__":
             f_out.writelines(f_in)
         
         # robots.txt https://en.wikipedia.org/wiki/Robots_exclusion_standard
-        robots = f"User-agent: *\nDisallow: \nSitemap: {config.target_base}{config.path_htdocs_sitemap_gz}\n"  
+        robots = f"User-agent: *\nDisallow: \nSitemap: {config.target_base}{config.filename_sitemap_gz}\n"  
         wh.string_to_file(robots, config.path_htdocs_robots)
         
         print("written:", config.path_htdocs_sitemap_gz)

@@ -171,9 +171,14 @@ path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
 path_links_errors           = _sitemap_base + "_error_links.csv"
-path_htdocs_sitemap         = project_folder + "sitemap.xml"
-path_htdocs_sitemap_gz      = path_htdocs_sitemap + ".gz"
-path_htdocs_robots          = project_folder + "robots.txt"
+
+filename_sitemap            = "sitemap.xml"
+filename_sitemap_gz         = filename_sitemap + ".gz"
+path_htdocs_sitemap         = project_folder + filename_sitemap
+path_htdocs_sitemap_gz      = project_folder + filename_sitemap_gz
+
+filename_robots             = "robots.txt"
+path_htdocs_robots          = project_folder + filename_robots
 
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "images_written.csv"
