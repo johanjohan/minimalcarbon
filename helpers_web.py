@@ -1059,23 +1059,25 @@ def wait_for_page_has_loaded(driver):
 #-----------------------------------------
 # background_images
 #-----------------------------------------
-def get_style_background_images_from_style_attribute(driver):
+def get_background_images_from_style_attribute(driver):
 
     def _parse_style_attribute(style_string):
         
         #if 'background-image' in style_string:
         #if any(key in style_string for key in ['background-image', 'content']):
-        if any((key in style_string) for key in ['background-image', 'content']):
-            try:
-                url_string = style_string.split(' url("')[1].replace('");', '')
-            except:
-                # may be a gradient
-                print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
-                url_string = None
-            
-            print(f"{YELLOW}\t key: {key}: {url_string} {RESET}") XXX
-            time.sleep(2)
-            return url_string
+        for key in ['background-image', 'content']:
+            if key in style_string:
+                try:
+                    url_string = style_string.split(' url("')[1].replace('");', '')
+                except:
+                    # may be a gradient
+                    print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
+                    url_string = None
+                
+                print(f"\t key: {MAGENTA}{key}{RESET}: {url_string}") 
+                # # # if key == 'content':
+                # # #     time.sleep(3)
+                return url_string
         return None
 
     links = []
@@ -1105,9 +1107,12 @@ def extract_background_image_from_property(property):
     try:
         if property.name in ['background-image', 'content']:
             if "url" in property.value:
-                url = property.value.replace("(", "").replace(")", "")
+                url = property.value.split('url')[-1]
+                url = url.replace("(", "").replace(")", "").replace("!important", "")
                 url = url.strip().lstrip("url")
-                print("\t\t\t", CYAN, url, RESET)
+                print("\t\t\t", YELLOW, property.name, CYAN, url, RESET)
+                # # # if property.name == 'content':
+                # # #     time.sleep(0.5) # <<< this one here
                 return url
     except Exception as e:
         print(f"{RED}extract_background_image: cssutils.parseString {e} {RESET}")
