@@ -1111,8 +1111,8 @@ def extract_background_image_from_property(property):
                 url = url.replace("(", "").replace(")", "").replace("!important", "")
                 url = url.strip().lstrip("url")
                 print("\t\t\t", YELLOW, property.name, CYAN, url, RESET)
-                if property.name == 'content':
-                    time.sleep(0.5) # <<< this one here
+                # # # if property.name == 'content':
+                # # #     time.sleep(0.5) # <<< this one here
                 return url
     except Exception as e:
         print(f"{RED}extract_background_image: cssutils.parseString {e} {RESET}")

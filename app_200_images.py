@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   False,
+        "b_remove_fonts_css":                   True,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
@@ -88,8 +88,8 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              75, # 66 55
-            "max_dim":              (1000, 1000), 
+            "quality":              66, # 66 55
+            "max_dim":              (999, 999), 
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -106,10 +106,10 @@ if __name__ == "__main__":
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
-            "b_use_palette":        True,
+            "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                False,
+        "b_replace_conversions":                True,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,

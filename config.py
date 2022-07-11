@@ -168,7 +168,7 @@ open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" ta
 #----------------------------------------- 
 #_sitemap_base               = path_data_netloc + "20220703_204140"
 #_sitemap_base               = path_stats + "20220703_204140"
-_sitemap_base               = path_stats + base_netloc + "_crawler"
+_sitemap_base               = path_stats + base_netloc + "_050" # crawler
 path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
 path_sitemap_links_external = _sitemap_base + "_external_links.csv"
 path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
@@ -183,8 +183,8 @@ filename_robots             = "robots.txt"
 path_htdocs_robots          = project_folder + filename_robots
 
 path_custom_css             = path_data_netloc + "custom.css"
-path_image_tuples_written   = path_stats + base_netloc + "images_written.csv"
-path_asset_tuples_written   = path_stats + base_netloc + "assets_written.csv"
+path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.csv"
+path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
 path_conversions            = path_stats + base_netloc + "_conversions.csv"
