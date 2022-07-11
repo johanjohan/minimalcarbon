@@ -1,6 +1,11 @@
 # https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 """ 
-
+Traceback (most recent call last):
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\app_200_images.py", line 481, in <module>
+    image       = Image.open(path)
+  File "d:\__BUP_V_KOMPLETT\X\111_BUP\33projects\2022\2022-karlsruhe.digital\2022\sitemap\venv\lib\site-packages\PIL\Image.py", line 3123, in open
+    raise UnidentifiedImageError(
+PIL.UnidentifiedImageError: cannot identify image file 'V:\\00shared\\dev8\\XAMPP\\xampp-php7\\htdocs\\_Post_Anzeigen__url\\wp-content\\uploads\\2019\\09\\arrow.png'
 
 """
 import glob, os

@@ -886,7 +886,7 @@ if __name__ == "__main__":
     # scan for new links:
     # -----------------------------------------     
         
-    b_extend_rescan_urls = False
+    b_extend_rescan_urls = True
     if b_extend_rescan_urls:   
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""]
