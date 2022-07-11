@@ -1374,13 +1374,13 @@ if __name__ == "__main__":
         # # # ])
         
         # remove config.path_exported
-        if os.path.isdir(config.path_exported):
-            shutil.rmtree(config.path_exported)
+        if os.path.isdir(config.folder_exported):
+            shutil.rmtree(config.folder_exported)
                 
         total_size = _export(
             config.f_unpowered, 
             [], 
-            config.path_exported,
+            config.folder_exported,
             b_export_site_force=params.get("b_export_site_force")
         )     
         

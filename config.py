@@ -166,13 +166,13 @@ open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" ta
 #-----------------------------------------
 # 
 #----------------------------------------- 
-#_sitemap_base               = path_data_netloc + "20220703_204140"
-#_sitemap_base               = path_stats + "20220703_204140"
-_sitemap_base               = path_stats + base_netloc + "_050" # crawler
-path_sitemap_links_internal = _sitemap_base + "_internal_links.csv"
-path_sitemap_links_external = _sitemap_base + "_external_links.csv"
-path_sitemap_xml            = _sitemap_base + "_sitemap.xml"
-path_links_errors           = _sitemap_base + "_error_links.csv"
+#crawler_base               = path_data_netloc + "20220703_204140"
+#crawler_base               = path_stats + "20220703_204140"
+crawler_base                = path_stats + base_netloc + "_050" # crawler
+path_sitemap_links_internal = crawler_base + "_internal_links.csv"
+path_sitemap_links_external = crawler_base + "_external_links.csv"
+path_sitemap_xml            = crawler_base + "_sitemap.xml"
+path_links_errors           = crawler_base + "_error_links.csv"
 
 filename_sitemap            = "sitemap.xml"
 filename_sitemap_gz         = filename_sitemap + ".gz"
@@ -187,10 +187,10 @@ path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.cs
 path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
-path_conversions            = path_stats + base_netloc + "_conversions.csv"
+path_conversions            = path_stats + base_netloc + "_200_conversions.csv"
 
 path_log_params             = path_stats + base_netloc + "_params_log.txt"
-path_exported               = project_folder + "../__exported/"
+folder_exported             = project_folder + "../__exported/"
 #-----------------------------------------
 # footer_social_html
 #----------------------------------------- 

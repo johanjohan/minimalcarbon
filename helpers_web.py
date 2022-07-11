@@ -581,6 +581,18 @@ def url_path_lstrip_slash(url): # '/'
 def url_path_lstrip_double_slash(url): # '/'
     return url_path(url, char_lstrip='//')
 
+def file_path_relative(filepath, project_folder):
+    ret = to_posix(os.path.relpath(filepath, project_folder))
+    print("file_path_relative:", GRAY, filepath, CYAN, "-->", GRAY, ret, RESET)
+    return ret
+
+def url_path_relative(url, base):
+    assert url_has_same_netloc(url, base)
+    url = link_make_absolute(url, base)
+    ret = to_posix(os.path.relpath(url, base))
+    print(YELLOW, "url_path_relative: UNTESTED:", ret, RESET)
+    return ret
+
 
 #-----------------------------------------
 # 
