@@ -105,14 +105,33 @@ path_script             = project_folder + "wp-content/themes/karlsruhe-digital/
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
-###date_time           = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
-date_time_now           = datetime.datetime.now()
+crawler_base                = path_stats + base_netloc + "_050" # crawler
+path_sitemap_links_internal = crawler_base + "_internal_links.csv"
+path_sitemap_links_external = crawler_base + "_external_links.csv"
+path_sitemap_xml            = crawler_base + "_sitemap.xml"
+path_links_errors           = crawler_base + "_error_links.csv"
 
-path_image_tuples_written = data_folder + base_netloc + "_image_tuples_written.csv"
+filename_sitemap            = "sitemap.xml"
+filename_sitemap_gz         = filename_sitemap + ".gz"
+path_htdocs_sitemap         = project_folder + filename_sitemap
+path_htdocs_sitemap_gz      = project_folder + filename_sitemap_gz
 
-custom_css_marker       = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
+filename_robots             = "robots.txt"
+path_htdocs_robots          = project_folder + filename_robots
 
-svg_color               = "darkseagreen"
+path_custom_css             = path_data_netloc + "custom.css"
+path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.csv"
+path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
+
+#path_conversions            = data_folder + base_netloc + "_conversions.csv"
+path_conversions            = path_stats + base_netloc + "_200_conversions.csv"
+path_log_params             = path_stats + base_netloc + "_params_log.txt"
+folder_exported             = project_folder + "../__exported/"
+
+###date_time                = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
+date_time_now               = datetime.datetime.now()
+custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
+svg_color                   = "darkseagreen"
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
@@ -163,34 +182,7 @@ html_infossil_link      = f"""<a href="https://1001suns.com"><sup>infossil</sup>
 html_infossil_link      = f"""<a href="https://1001suns.com">infossil</a>"""
 html_by_infossil_link   = f"""<a href="https://1001suns.com">by infossil</a>"""
 open_resource_link      = f"""Wie <a href="http://openresource.1001suns.com/" target="_blank">bitte?</a>"""
-#-----------------------------------------
-# 
-#----------------------------------------- 
-#crawler_base               = path_data_netloc + "20220703_204140"
-#crawler_base               = path_stats + "20220703_204140"
-crawler_base                = path_stats + base_netloc + "_050" # crawler
-path_sitemap_links_internal = crawler_base + "_internal_links.csv"
-path_sitemap_links_external = crawler_base + "_external_links.csv"
-path_sitemap_xml            = crawler_base + "_sitemap.xml"
-path_links_errors           = crawler_base + "_error_links.csv"
 
-filename_sitemap            = "sitemap.xml"
-filename_sitemap_gz         = filename_sitemap + ".gz"
-path_htdocs_sitemap         = project_folder + filename_sitemap
-path_htdocs_sitemap_gz      = project_folder + filename_sitemap_gz
-
-filename_robots             = "robots.txt"
-path_htdocs_robots          = project_folder + filename_robots
-
-path_custom_css             = path_data_netloc + "custom.css"
-path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.csv"
-path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
-
-#path_conversions            = data_folder + base_netloc + "_conversions.csv"
-path_conversions            = path_stats + base_netloc + "_200_conversions.csv"
-
-path_log_params             = path_stats + base_netloc + "_params_log.txt"
-folder_exported             = project_folder + "../__exported/"
 #-----------------------------------------
 # footer_social_html
 #----------------------------------------- 
