@@ -1583,7 +1583,7 @@ MARX KAPITAL
 get_string_by_darkness distance     : 0
 get_string_by_darkness 
  len: 129 --> 
- len: 129 " .-°,:'^;_ι/r!"}?()jLτ+={Yv•citγ7T]F3ελυJfxyu%V[lnszîoο1çh9CI½ekUü5«»¼ùη2PöΠXûζπχωOSaαZw£ôA*H08KÜèé&ρEGbÖêdDRÄàá46pßqâämÉNQδgMB§W"
+ len: 129 """ .-°,:'^;_ι/r!"}?()jLτ+={Yv•citγ7T]F3ελυJfxyu%V[lnszîoο1çh9CI½ekUü5«»¼ùη2PöΠXûζπχωOSaαZw£ôA*H08KÜèé&ρEGbÖêdDRÄàá46pßqâämÉNQδgMB§W"""
 
 
 

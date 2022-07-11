@@ -73,6 +73,8 @@ import scipy.cluster
 
 import cssbeautifier
 
+import helpers_web as hw
+
 from re import sub
 
 def rle_encode(text):
@@ -246,6 +248,13 @@ g95         = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l
 g2          = '@*+-. '
 gXX         = "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it{}?j|()=~!-/\"^_';,:`. " # 90 levels
 
+gKapital    = hw.string_reverse(""" .-°,:'^;_ι/r!"}?()jLτ+={Yv•citγ7T]F3ελυJfxyu%V[lnszîoο1çh9CI½ekUü5«»¼ùη2PöΠXûζπχωOSaαZw£ôA*H08KÜèé&ρEGbÖêdDRÄàá46pßqâämÉNQδgMB§W""")
+gJap        = hw.string_reverse(" ヽゝノぃっイトょとてウグちぁわガ木ゟ允中五乞共全丹史拉争仲体命串典例係孤商戚侵侮勲凝喚属彙審鍵鎌籠騰欄")
+gJap        = hw.string_reverse("二了人上六寸少勺仁夕乃木今牛示占女打丘乞代企全先作世伏幸封乱仲伎参佐侍享堂侃例剝員喪勅候便事侵側偶唱個像劇墨属健憾簡儀瞬圏髄籠謄糧欄")
+gUtf        = hw.string_reverse(""" ˙˺.˘,:ʳ;_×¡?¿iFuo95O*EDÀÅgMǿ§WǌǢǾ∯ѨℕǊǄѬ┣ℍℌ╫⅀Ⅷℜ◉▥▃▨▍◕▣◚▩●▀▌■∎▅▋◼▊◘▇▉▓█""")
+gUtf        = hw.string_reverse(""" ˙⁻ˈ˺¨`.˔◝˘-¯,¹҇:'²ʳ^‸;˭⁝_|ˠ×/r¡\!?(<¿+Yiº7F3Ju%lo1h9eU5$XOZA*0&EÒdD4pÀqmÅÃNg@ĒMĎÆǿ#Ń§ģƣWÑğǌƁὪǢǲƢǾǱᾪ∯₨ŴѨᾮ⋓ℕ⇯∰Ǌ₰ǆǄ▬ⅅѬ‣ↇ┣Ѽ┫ℍℝℹℌ◑╫⁑⅀Ⅷℜ◉▤▥▃▧▨ↈ▍◕▣◚▦◛▩●▀▚▌■∎▅▋◼▆▒▊▙▛◘▇▉▓◙█""")
+
+
 g = g70
 g = g2
 g = gXX
@@ -253,6 +262,7 @@ g = "01010101010101010101010101010101010101010101010101010101010101010101010101 
 g = "KARLSRUHEdigital."
 g = gNoCDATA
 g = g10
+g = gKapital
 
 def clamp(x): 
   return max(0, min(x, 255))
@@ -475,6 +485,7 @@ if __name__ == '__main__':
     image_path = "bunte_nacht_der_digitalisierung_hero_slider.jpg"
     image_path = "bunte_nacht_der_digitalisierung_hero_slider_unpowered.webp"
     image_path = "kai.jpg"
+    image_path = "__ascii/kai.jpg"
 
     descStr = "This program converts an image into ASCII art."
     

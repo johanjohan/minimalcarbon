@@ -113,9 +113,9 @@ def get_string_by_darkness(raw_input, mono_font_face_ttf, distance=0, make_uniqu
         res_string += c
         
     print("get_string_by_darkness", "\n", 
-          "len:", len(first_string), # hw.dq_raw(hw.GRAY + first_string + hw.RESET), 
+          "len:", len(first_string), # hw.dq3_raw(hw.GRAY + first_string + hw.RESET), 
           "-->", "\n", 
-          "len:", len(res_string), hw.dq_raw(hw.GREEN + res_string + hw.RESET))  
+          "len:", len(res_string), hw.dq3_raw(hw.GREEN + res_string + hw.RESET))  
       
     return res_string
 
@@ -126,9 +126,9 @@ def half_string(raw_input):
             res_string += c
             
     print("half_string", "\n", 
-          "len:", len(raw_input), # hw.dq_raw(hw.GRAY + raw_input + hw.RESET), 
+          "len:", len(raw_input), # hw.dq3_raw(hw.GRAY + raw_input + hw.RESET), 
           "-->", "\n", 
-          "len:", len(res_string), hw.dq_raw(hw.GREEN + res_string + hw.RESET))  
+          "len:", len(res_string), hw.dq3_raw(hw.GREEN + res_string + hw.RESET))  
     
     return res_string
     
@@ -190,7 +190,7 @@ if __name__ == "__main__":
             print("\n"*4)
             text = hw.string_remove_control_characters(text)
             text = hw.string_make_unique_sorted(text)
-            #print("text", hw.dq_raw(hw.GRAY + text + hw.RESET))
+            #print("text", hw.dq3_raw(hw.GRAY + text + hw.RESET))
             raw_input = get_string_by_darkness(
                 text, 
                 "fonts/Everson Mono.ttf", 

@@ -7,6 +7,62 @@ Traceback (most recent call last):
     raise UnidentifiedImageError(
 PIL.UnidentifiedImageError: cannot identify image file 'V:\\00shared\\dev8\\XAMPP\\xampp-php7\\htdocs\\_Post_Anzeigen__url\\wp-content\\uploads\\2019\\09\\arrow.png'
 
+
+
+https://stackoverflow.com/questions/69566052/how-to-convert-jpg-images-to-avif-with-python
+
+from PIL import Image
+import pillow_avif
+
+JPGimg = Image.open(<filename> + 'jpg')
+JPGimg.save(<filename> + '.AVIF','AVIF')
+
+
+he best I could come with so far was installing libavif:
+
+brew install libavif
+
+And encode the jpg files directly by executing the avif encoder:
+
+import subprocess
+
+
+input_file = '/some-path/file1.jpg'
+output_file = '/some-path/file1.avif'
+subprocess.run(f"avifenc --min 0 --max 63 -a end-usage=q -a cq-level=18 -a tune=ssim {input_file} {output_file}", shell=True)
+
+
+pip install pillow-avif-plugin
+import pillow_avif
+
+https://docs.wand-py.org/en/0.6.7/
+pip install Wand
+
+https://docs.wand-py.org/en/0.6.2/guide/install.html#install-imagemagick-windows
+https://imagemagick.org/script/download.php#windows
+Note that you have to check Install development headers and libraries for C and C++ to make Wand able to link to it.
+
+from wand.image import Image
+from wand.display import display
+
+with Image(filename='mona-lisa.png') as img:
+    print(img.size)
+    for r in 1, 2, 3:
+        with img.clone() as i:
+            i.resize(int(i.width * r * 0.25), int(i.height * r * 0.25))
+            i.rotate(90 * r)
+            i.save(filename='mona-lisa-{0}.png'.format(r))
+            display(i)
+            
+            
+            
+https://github.com/fdintino/pillow-avif-plugin
+
+JPGimg.save(<filename> + '.AVIF','AVIF')
+
+https://ci.appveyor.com/project/louquillio/libavif
+
+
 """
 import glob, os
 from posixpath import splitext
@@ -46,7 +102,7 @@ import shutil
 # pip install pillow_lut
 # pillow_lut.load_cube_file(lines, target_mode=None, cls=<class 'PIL.ImageFilter.Color3DLUT'>)
 import pillow_lut 
-
+import pillow_avif
 
 
 #-----------------------------------------
@@ -462,7 +518,8 @@ if __name__ == "__main__":
         # new ext   
         # # # assert not b_1bit
         # # # new_ext = '.png' if b_1bit else '.webp'
-        new_ext = '.webp'
+        #new_ext = '.webp'
+        new_ext = config.target_image_ext
                                          
         # convert images
         perc_avg = 0.0
@@ -622,11 +679,11 @@ if __name__ == "__main__":
                 else:
                     image.save(out_path, format=format, optimize=True, quality=quality) 
 
+                print("\t\t", "format     :", format)
                 print("\t\t", "quality    :", quality)
                 print("\t\t", "wh         :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
                 print("\t\t", "is_transp  :", wh.vt_b(is_transp))
                 print("\t\t", "mode       :", old_mode, "-->", image.mode)
-                print("\t\t", "format     :", format)
                 print("\t\t", "blend_alpha:", blend_alpha)
             
                 size_new = os.path.getsize(out_path)
@@ -731,8 +788,8 @@ if __name__ == "__main__":
                 
             # replace left over image extensions
             for q in ["\"", "\'"]:
-                for ext in config.image_exts_no_webp:
-                    wh.file_replace_all(html_file, ext + q, ".webp" + q)                     
+                for ext in config.image_exts_no_target:
+                    wh.file_replace_all(html_file, ext + q, config.target_image_ext + q)                     
         ### for /> 
     ### b_perform_replacement />            
             
@@ -1368,7 +1425,7 @@ if __name__ == "__main__":
         # # #     ".xml", 
         # # #     ".css", 
         # # #     ".js", 
-        # # #     config.suffix_compressed + ".webp", 
+        # # #     config.suffix_compressed + config.target_image_ext, 
         # # #     config.pdf_compression_suffix + ".pdf", 
         # # #     "index.html"
         # # # ])

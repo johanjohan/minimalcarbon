@@ -60,6 +60,8 @@ def qu(s=""):
 _wrap_raw = lambda s, delim : delim + str(s) + delim
 def dq_raw(s=""):
     return _wrap_raw(s, delim="\"")
+def dq3_raw(s=""):
+    return _wrap_raw(s, delim="\"\"\"")
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -1497,6 +1499,10 @@ def string_make_unique(s):
 
 def string_make_unique_sorted(s):
     return ''.join(sorted(list(set(s))))
+
+def string_reverse(s):
+    return ''.join(list(reversed(s)))
+
 
 # -----------------------------------------
 #
