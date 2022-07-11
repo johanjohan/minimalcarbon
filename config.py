@@ -51,6 +51,15 @@ MAGENTA = colorama.Fore.MAGENTA
 print(MAGENTA)
 
 #-----------------------------------------
+# 
+#-----------------------------------------
+#target_image_ext        = ".webp"
+target_image_ext        = ".avif"
+
+image_exts              = ['.jpg', '.jpeg', '.png', '.gif', '.webp', ".avif"]
+image_exts_no_target    = [ext for ext in image_exts if not any(exclude.strip() in ext for exclude in [target_image_ext])]
+
+#-----------------------------------------
 # Options
 #-----------------------------------------
 # https://stackoverflow.com/questions/54446419/selenium-chrome-options-and-capabilities
@@ -143,13 +152,13 @@ f_originals=lambda file : any(file.lower().endswith(ext) for ext in [
 ])
 f_originals_excludes = [
     "sub_media",
-    suffix_compressed       + ".webp", 
+    suffix_compressed       + target_image_ext, 
     pdf_compression_suffix  + ".pdf",
     ".mp4",
 ]
 
 f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
-    suffix_compressed       + ".webp", 
+    suffix_compressed       + target_image_ext, 
     pdf_compression_suffix  + ".pdf", 
     ".svg", 
     ".js",".css",".xml",
@@ -266,11 +275,7 @@ footer_social_html = f"""
 
 svg_leaf_img = _html_icon_img("leaf", "svg-leaf", "")
 
-#-----------------------------------------
-# 
-#-----------------------------------------
-image_exts_no_webp  = ['.jpg', '.jpeg', '.png', '.gif']
-image_exts          = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+
 #-----------------------------------------
 # 
 #-----------------------------------------
