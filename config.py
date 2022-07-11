@@ -13,14 +13,12 @@
     need find all broken links
     
     TODO
-        twitter make  work
-        could take cube luts for colorzing
-            https://github.com/yoonsikp/pycubelut
-            https://pillow-lut-tools.readthedocs.io/en/latest/
-            https://github.com/homm/pillow-lut-tools
+            
+    https://codegolf.stackexchange.com/questions/23362/sort-characters-by-darkness
 
     
 """
+
 
 from distutils.log import debug
 from tkinter import font
