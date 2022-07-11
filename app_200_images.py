@@ -109,10 +109,19 @@ import pillow_avif
 # 
 #-----------------------------------------
 if __name__ == "__main__":
-    
+ 
+    #-----------------------------------------
+    # alert
+    #-----------------------------------------    
+    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=5000)
+        
+    #-----------------------------------------
+    # logo
+    #-----------------------------------------               
     wh.logo_filename(__file__)
     wh.log("__file__:", __file__, filepath=config.path_log_params)
-            
+    
+    
     #-----------------------------------------
     # dir_size_orig
     #-----------------------------------------
@@ -150,7 +159,7 @@ if __name__ == "__main__":
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              66, # 66 55
-            "max_dim":              (999, 999), 
+            "max_dim":              (555, 555), # could make smaller with avif
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -190,7 +199,9 @@ if __name__ == "__main__":
     if b_delete_conversion_originals:
         if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
-    
+            
+            
+
     #-----------------------------------------
     # remove path_conversions
     #-----------------------------------------
@@ -773,7 +784,6 @@ if __name__ == "__main__":
     # 
     #-----------------------------------------
     if params.get("b_replace_conversions"):
-        
         wh.logo("b_replace_conversions")
         
         conversions = conv.load(params.get("path_conversions"))    
@@ -786,6 +796,7 @@ if __name__ == "__main__":
             
             replace_all_conversions_in_file(html_file, conversions)
                 
+            # TODO why are these still here?
             # replace left over image extensions
             for q in ["\"", "\'"]:
                 for ext in config.image_exts_no_target:

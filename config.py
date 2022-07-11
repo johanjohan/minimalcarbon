@@ -58,7 +58,7 @@ target_image_ext        = ".avif"
 
 image_exts              = ['.jpg', '.jpeg', '.png', '.gif', '.webp', ".avif"]
 image_exts_no_target    = [ext for ext in image_exts if not any(exclude.strip() in ext for exclude in [target_image_ext])]
-
+print("image_exts_no_target", image_exts_no_target)
 #-----------------------------------------
 # Options
 #-----------------------------------------
