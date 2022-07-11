@@ -34,13 +34,14 @@ import datetime
 # init the colorama module
 import colorama
 colorama.init()
-GREEN = colorama.Fore.GREEN
-GRAY = colorama.Fore.LIGHTBLACK_EX
-RESET = colorama.Fore.RESET
-YELLOW = colorama.Fore.YELLOW
-RED = colorama.Fore.RED
-CYAN = colorama.Fore.CYAN
+GREEN   = colorama.Fore.GREEN
+GRAY    = colorama.Fore.LIGHTBLACK_EX
+RESET   = colorama.Fore.RESET
+YELLOW  = colorama.Fore.YELLOW
+RED     = colorama.Fore.RED
+CYAN    = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
+
 
 #-----------------------------------------
 # dq
@@ -55,6 +56,10 @@ def pa(s=""):
     return "(" + str(_no_esc(s)).strip() + ")"
 def qu(s=""):
     return _wrap(s, delim="&quot;")
+
+_wrap_raw = lambda s, delim : delim + str(s) + delim
+def dq_raw(s=""):
+    return _wrap_raw(s, delim="\"")
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -1410,10 +1415,10 @@ def file_make_unique(filename, sort):
     print("file_make_unique: elements removed:", len_orig -len(lines))
     list_to_file(lines, filename)
     
+
 # -----------------------------------------
 #
 # -----------------------------------------
-
 def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
     if not os.path.isfile(path):
         return []
@@ -1448,13 +1453,50 @@ def string_to_file(string, path, mode="w", encoding="utf-8"):
     #print("string_to_file", GRAY, path, RESET)
     with open(path, mode=mode, encoding=encoding) as file:
         file.write(string)
-
+        
 def list_from_string(s):
     return list(s.split('\n'))
         
 def list_print(items, sep="\n\t", vt=GRAY):
     print("list_print:", GRAY, *items, RESET, sep=sep)    
     print("list_print:", len(items), "items")  
+
+
+# -----------------------------------------
+#
+# -----------------------------------------
+import unicodedata
+"""
+reserved 	    Cn 	Noncharacter_Code_Point=F
+noncharacter 	Cn 	Noncharacter_Code_Point=T
+control 	    Cc 	 
+private-use 	Co 	 
+surrogate 	    Cs 	 
+https://www.compart.com/en/unicode/category
+https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+
+
+"""
+# https://docs.python.org/3/library/unicodedata.html
+# https://www.unicode.org/reports/tr44/
+def string_remove_characters(s, category0):
+    return "".join(ch for ch in s if unicodedata.category(ch)[0] != category0)
+
+def string_remove_control_characters(s):
+    return string_remove_characters(s, category0='C')
+
+def string_count_control_characters(s):
+    cnt = 0
+    for ch in s:
+        if unicodedata.category(ch)[0] == "C":
+            cnt += 1
+    return cnt
+
+def string_make_unique(s):
+    return ''.join(list(set(s)))
+
+def string_make_unique_sorted(s):
+    return ''.join(sorted(list(set(s))))
 
 # -----------------------------------------
 #
