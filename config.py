@@ -50,15 +50,7 @@ CYAN = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
 print(MAGENTA)
 
-#-----------------------------------------
-# 
-#-----------------------------------------
-#target_image_ext        = ".webp"
-target_image_ext        = ".avif"
 
-image_exts              = ['.jpg', '.jpeg', '.png', '.gif', '.webp', ".avif"]
-image_exts_no_target    = [ext for ext in image_exts if not any(exclude.strip() in ext for exclude in [target_image_ext])]
-print("image_exts_no_target", image_exts_no_target)
 #-----------------------------------------
 # Options
 #-----------------------------------------
@@ -86,17 +78,28 @@ options.add_experimental_option("prefs", { \
 })
 # "--start-maximized" '--kiosk'
 #-----------------------------------------
-# app-selenium
+# 
+#-----------------------------------------
+#target_image_ext        = ".webp"
+target_image_ext        = ".avif"
+#target_image_exts       = [".avif", ".webp"] # TODO
+
+image_exts              = ['.jpg', '.jpeg', '.png', '.gif', '.webp', ".avif"]
+image_exts_no_target    = [ext for ext in image_exts if not any(exclude.strip() in ext for exclude in [target_image_ext])]
+print("image_exts_no_target", image_exts_no_target)
+#-----------------------------------------
+# app
 #-----------------------------------------
 DEBUG                   = False
 #headless               = True
-suffix_compressed       = "_unpowered"
+#suffix_compressed       = "_unpowered"
+suffix_compressed       = "_UP"
 timeout                 = 30
 wait_secs               = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder         = ats("page/__KD__09/") # os.path.abspath # raw has 
 project_folder          = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
 base                    = ats('https://karlsruhe.digital/')
-target_base             = ats('http://test.particles.de/') # check protocol
+target_base             = ats('http://test.particles.de/') # check protocol # for sitemap etc
 base_netloc             = urlparse(base).netloc # for names
 data_folder             = ats("data/" + base_netloc)
 #data_folder            = ats("data/" + base_netloc)

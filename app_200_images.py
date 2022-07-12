@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
 
     def test_compression():
-        out_exts = [".webp", ".avif", ".png"]
+        out_exts = [".webp", ".avif"]
         image_paths = [
             config.project_folder + "wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg",
             # config.project_folder + "wp-content/themes/karlsruhe-digital/images/programm_hero.jpg",
@@ -177,71 +177,120 @@ if __name__ == "__main__":
             "__tmp__images_compression/__girl.png",
         ]
         for path in image_paths:
-            for quality in range(0, 101, 5):
+            for quality in range(0, 61, 10):
                 
                 image       = Image.open(path)
                 is_transp   = wh.image_has_transparency(image)
                 
                 old_size = image.size
                 image.thumbnail((1600, 1600), resample=Image.Resampling.LANCZOS)
-
                 
+                __image_smaller_path = os.path.abspath("__smaller.png")
+                image.save(__image_smaller_path, format="png")
+
                 for new_ext in out_exts:
                     name, ext = os.path.splitext(path)
-                    out_path    = "__tmp__images_compression/" + os.path.basename(name) + "_q"    + str(quality) + new_ext
-                    out_path_IM = "__tmp__images_compression/" + os.path.basename(name) + "_IM_q" + str(quality) + new_ext
-                    out_path_AV = "__tmp__images_compression/" + os.path.basename(name) + "_AV_q" + str(quality) + new_ext
+                    out_path    = "__tmp__images_compression/" + os.path.basename(name) + "_q" + str(quality) + "_PIL" + new_ext
+                    out_path_IM = "__tmp__images_compression/" + os.path.basename(name) + "_q" + str(quality) + "_IMA" + new_ext
+                    out_path_AV = "__tmp__images_compression/" + os.path.basename(name) + "_q" + str(quality) + "_AVE" + new_ext
+                    out_path_LL = "__tmp__images_compression/" + os.path.basename(name) + "_q" + str(quality) + "_LLS" + new_ext
                     wh.make_dirs(out_path)
-                    
-                    
                     
                     print("", "quality:", wh.YELLOW, quality, wh.MAGENTA, out_path, wh.RESET)
                     # print("\t", "is_transp:", is_transp)
                     # print("\t", "size     :", old_size, "-->", image.size)                    
                     
-
                     format = new_ext.lstrip('.') 
                     # if is_transp:
                     #     image.save(out_path, format=format, optimize=True, lossless=True) # !!! need great alpha
                     # else:
                     image.save(out_path, format=format, optimize=True, quality=quality) 
+
+                    # lossless
+                    image.save(out_path_LL, format=format, optimize=True, lossless=True)
+
                     
                     # magick -quality 40 -define heic:speed=0 test.jpg test.avif
                     # https://askubuntu.com/questions/1411869/creating-avif-or-heic-images-with-transparency-does-not-work-with-imagemagick-in
                     import subprocess
-                    # subprocess.call([
-                    #     "magick", "convert",
-                    #     "-quality", str(quality),
-                    #     #"-define", "heic:speed=0",
-                    #     os.path.abspath(path),
-                    #     os.path.abspath(out_path_IM)
-                    # ])
+                    print("magick...")
+                    subprocess.call([
+                        "magick", "convert",
+                        "-quality", str(quality),       # https://imagemagick.org/script/command-line-options.php#quality
+                        #"-define", "heic:speed=0",
+                        os.path.abspath(__image_smaller_path),
+                        os.path.abspath(out_path_IM)
+                    ])
+                    print("magick: done")
                     
+                    """
+                    <picture>
+                        <source srcset="image.avif" type="image/avif">
+                        <source srcset="image.webp" type="image/webp">
+                        <source srcset="image.jpg" type="image/jpeg">
+                        <img src="image.jpeg" alt="Description of the image">
+                    </picture>        
+                    """
                     # #./avifenc [options] input.file output.avif
                     # # https://web.dev/compress-images-avif/
                     # assert os.path.isfile(os.path.abspath("avif/avifenc.exe"))
                     # assert os.path.isfile(os.path.abspath(path))
+                    # color QP [0 (Lossless) <-> 63 (Worst)], 
+                    # alpha QP [0 (Lossless) <-> 63 (Worst)]
+                    # https://medium.com/yavar/avif-the-nextgen-image-format-91162caf32d2
+                    
+                    print("avifenc...")
+                    min_val = 0
+                    max_val = 63
+                    q_av = int(wh.map(quality, 0, 100, max_val, min_val))
+                    print("q_av", q_av)
                     # subprocess.call([
                     #     os.path.abspath("avif/avifenc.exe"),
-                    #     "--min",        str(0), "--max",        str(63),
-                    #     "--minalpha",   str(0), "--maxalpha",   str(63),
+                    #     "--speed", str(5), # def 6
+                    #     "--jobs", "all", # str(8),
+                    #     "--min",        str(min_val), "--max",        str(max_val),
+                    #     "--minalpha",   str(min_val), "--maxalpha",   str(max_val),
                     #     "-a", "end-usage=q",
-                    #     "-a", "color:cq-level=18",
-                    #     "-a", "alpha:cq-level=10",
-                    #     "-a", "tune=ssim",
-                    #     "--speed", str(0),
-                    #     os.path.abspath(path),
+                    #     "-a",f"color:cq-level={q_av}",  # 18 quality setting, may not correspond to above
+                    #     # "-a", "alpha:cq-level=10", # needs alpha image???
+                    #     #"-a", "tune=ssim",
+                    #     #####"-a", "deltaq-mode=3",
+                    #     #"-a", "sharpness=0", # (0-7, default: 0)
+                    #     os.path.abspath(__image_smaller_path),
                     #     os.path.abspath(out_path_AV)
                     # ])
+                    # print("avifenc: done")
+                    
+                    """
+                        -a color:cq-level={q_av}
+                        -a alpha:cq-level=10
+                        -a tune=ssim
+                        -a sharpness=0                    
+                    """
+                    
+                    cmd = f"""
+                        {os.path.abspath("avif/avifenc.exe")} 
+                        --speed {5} 
+                        --jobs  {8} 
                         
-                    wh.image_show_file(out_path, secs=1)
+                        --min       {min_val} --max        {max_val}   
+                        --minalpha  {min_val} --maxalpha   {max_val}   
+                        
+                        -a end-usage=cq
+                        -a color:cq-level=18
+                    
+                        {os.path.abspath(__image_smaller_path)} 
+                        {os.path.abspath(out_path_AV)} 
+                        
+                    """
+                    cmd = wh.string_remove_whitespace(cmd)
+                    print(cmd)
+                    ret = os.system(cmd)
+                    
+                        
+                    wh.image_show_file(out_path, secs=.5)
                     
                     
-                    
-            # lossless
-            for new_ext in out_exts:
-                format = new_ext.lstrip('.') 
-                image.save(out_path + "_LOSSLESS" + new_ext, format=format, optimize=True, lossless=True)
             
     test_compression()       
     exit(0)
