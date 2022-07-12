@@ -231,6 +231,9 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
 
 def crawl(url, max_urls):
     """
+    https://faun.pub/extract-all-website-links-in-python-48f07619db95
+    https://github.com/KoderKumar/Link-Extractor
+    
     Crawls a web page and extracts all links.
     You'll find all links in `external_urls` and `internal_urls` global set variables.
     params:
@@ -356,78 +359,4 @@ if __name__ == "__main__":
     #-----------------------------------------
     # END
     #-----------------------------------------
-    
-    
-    
-    
-    exit(0)
-    
-    
-    #-----------------------------------------
-    # pywebcopy
-    #-----------------------------------------
-    from pywebcopy import save_webpage
-
-    with open(file_internal_path, "r") as f:
-        internal_urls = f.readlines()
-        
-    for internal_link in internal_urls:
-        print(f"{YELLOW}[*] save_webpage: {internal_link}{RESET}")
-        # save_webpage(
-        #     url=internal_link,
-            
-        #     project_folder="scraped_pywebcopy/",
-        #     project_name=urlparse(args.url).netloc,
-            
-        #     debug=True,
-        #     open_in_browser=True,
-        #     delay=None,
-        #     bypass_robots= True,
-            
-        #     threaded=False,
-        # )  
-    
-    
-    
-    exit(0)  
-    
-    # https://stackoverflow.com/questions/31205497/how-to-download-a-full-webpage-with-a-python-script
-    
-    import urllib.request as urllib2
-    from bs4 import *
-    from urllib.parse  import urljoin
-
-
-    def crawl(pages, depth=None):
-        indexed_url = [] # a list for the main and sub-HTML websites in the main website
-        for i in range(depth):
-            for page in pages:
-                if page not in indexed_url:
-                    indexed_url.append(page)
-                    try:
-                        c = urllib2.urlopen(page)
-                    except:
-                        print( "Could not open %s" % page)
-                        continue
-                    soup = BeautifulSoup(c.read())
-                    links = soup('a') #finding all the sub_links
-                    for link in links:
-                        if 'href' in dict(link.attrs):
-                            url = urljoin(page, link['href'])
-                            if url.find("'") != -1:
-                                    continue
-                            url = url.split('#')[0] 
-                            if url[0:4] == 'http':
-                                    indexed_url.append(url)
-            pages = indexed_url
-        return indexed_url
-
-
-    pagelist=["https://en.wikipedia.org/wiki/Python_%28programming_language%29"]
-    urls = crawl(pagelist, depth=1)
-    print( urls )
-    
-    exit(0)    
-    
-
     

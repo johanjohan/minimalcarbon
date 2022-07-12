@@ -63,6 +63,60 @@ JPGimg.save(<filename> + '.AVIF','AVIF')
 https://ci.appveyor.com/project/louquillio/libavif
 
 
+
+https://github.com/lovell/avif-cli
+Command line utility to convert images to AVIF, requires Node.js 12.13.0+
+    npx avif
+    Options:
+        --input               Input file name(s), supports globs/wildcards
+                        [string] [default: "*.{jpg,jpeg,tif,tiff,webp,png,gif,svg}"]
+        --output              Output directory, default is same directory as input
+                                                            [string] [default: ""]
+        --quality             Quality vs file size, 1 (lowest/smallest) to 100
+                                (highest/largest)             [number] [default: 50]
+        --effort              CPU effort vs file size, 0 (fastest/largest) to 9
+                                (slowest/smallest)             [number] [default: 4]
+        --speed               Convert speed vs file size, 0 (slowest/smallest) to
+                                9 (fastest/largest)
+                                                [deprecated: use --effort] [number]
+        --lossless            Use lossless compression  [boolean] [default: false]
+        --chroma-subsampling  Set to '4:2:0' to use chroma subsampling
+                            [string] [choices: "4:2:0", "4:4:4"] [default: "4:4:4"]
+        --overwrite           Allow existing output files to be overwritten
+                                                        [boolean] [default: false]
+        --append-ext          Append .avif to the file name instead of replacing
+                                the current extension (foo.jpg => foo.jpg.avif)
+                                                        [boolean] [default: false]
+        --verbose             Write progress to stdout  [boolean] [default: false]
+    -h, --help                Show help                                  [boolean]
+        --version             Show version number                   
+
+
+
+https://avif.io/blog/tutorials/imagemagick/
+
+magick -quality 80 test.jpg test.avif
+magick -define heic:speed=2 test.jpg test.avif
+https://www.reddit.com/r/AV1/comments/fccpge/avif_alpha_compression/
+
+magick -quality 40 -define heic:speed=0 test.jpg test.avif
+
+
+CRASHES does not build
+https://pypi.org/project/avif/
+https://github.com/Julian/avif
+pip install avif
+pip install avif
+Or if you want to use Pillow integration:
+pip install avif[pillow]
+
+pip uninstall pillow-avif-plugin
+
+https://pillow-heif.readthedocs.io/en/latest/encoding.html
+
+https://darekkay.com/blog/avif-images/
+
+
 """
 import glob, os
 from posixpath import splitext
@@ -109,6 +163,88 @@ import pillow_avif
 # 
 #-----------------------------------------
 if __name__ == "__main__":
+    
+
+    def test_compression():
+        out_exts = [".webp", ".avif", ".png"]
+        image_paths = [
+            #config.project_folder + "wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg",
+            # config.project_folder + "wp-content/themes/karlsruhe-digital/images/programm_hero.jpg",
+            # config.project_folder + "wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg",
+            # config.project_folder + "wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg",
+            # config.project_folder + "wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg",
+            #config.project_folder + "wp-content/uploads/2019/08/1-IT-Cluster-in-Europa.png",
+            "__tmp__images_compression/__girl.png",
+        ]
+        for path in image_paths:
+            for quality in range(0, 50, 10):
+                
+                image       = Image.open(path)
+                is_transp   = wh.image_has_transparency(image)
+                
+                old_size = image.size
+                image.thumbnail((1600, 1600), resample=Image.Resampling.LANCZOS)
+
+                
+                for new_ext in out_exts:
+                    name, ext = os.path.splitext(path)
+                    out_path    = "__tmp__images_compression/" + os.path.basename(name) + "_q"    + str(quality) + new_ext
+                    out_path_IM = "__tmp__images_compression/" + os.path.basename(name) + "_IM_q" + str(quality) + new_ext
+                    out_path_AV = "__tmp__images_compression/" + os.path.basename(name) + "_AV_q" + str(quality) + new_ext
+                    wh.make_dirs(out_path)
+                    
+                    
+                    
+                    print("", "quality:", wh.YELLOW, quality, wh.MAGENTA, out_path, wh.RESET)
+                    # print("\t", "is_transp:", is_transp)
+                    # print("\t", "size     :", old_size, "-->", image.size)                    
+                    
+
+                    format = new_ext.lstrip('.') 
+                    # if is_transp:
+                    #     image.save(out_path, format=format, optimize=True, lossless=True) # !!! need great alpha
+                    # else:
+                    image.save(out_path, format=format, optimize=True, quality=quality) 
+                    
+                    # magick -quality 40 -define heic:speed=0 test.jpg test.avif
+                    # https://askubuntu.com/questions/1411869/creating-avif-or-heic-images-with-transparency-does-not-work-with-imagemagick-in
+                    import subprocess
+                    # subprocess.call([
+                    #     "magick", "convert",
+                    #     "-quality", str(quality),
+                    #     #"-define", "heic:speed=0",
+                    #     os.path.abspath(path),
+                    #     os.path.abspath(out_path_IM)
+                    # ])
+                    
+                    #./avifenc [options] input.file output.avif
+                    # https://web.dev/compress-images-avif/
+                    assert os.path.isfile(os.path.abspath("avif/avifenc.exe"))
+                    assert os.path.isfile(os.path.abspath(path))
+                    subprocess.call([
+                        os.path.abspath("avif/avifenc.exe"),
+                        "--min",        str(0), "--max",        str(63),
+                        "--minalpha",   str(0), "--maxalpha",   str(63),
+                        "-a", "end-usage=q",
+                        "-a", "color:cq-level=18",
+                        "-a", "alpha:cq-level=10",
+                        "-a", "tune=ssim",
+                        "--speed", str(0),
+                        os.path.abspath(path),
+                        os.path.abspath(out_path_AV)
+                    ])
+                        
+                    wh.image_show_file(out_path_AV, secs=1)
+                    
+                    
+                    
+            # lossless
+            for new_ext in out_exts:
+                format = new_ext.lstrip('.') 
+                image.save(out_path + "_LOSSLESS" + new_ext, format=format, optimize=True, lossless=True)
+            
+    test_compression()       
+    exit(0)
  
     #-----------------------------------------
     # alert
@@ -148,7 +284,7 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False,
@@ -159,7 +295,7 @@ if __name__ == "__main__":
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              66, # 66 55
-            "max_dim":              (555, 555), # could make smaller with avif
+            "max_dim":              (500, 500), # could make smaller with avif
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -702,7 +838,7 @@ if __name__ == "__main__":
                 perc_avg += wh._saved_percent(size_orig, size_new)
                 
                 if show_nth_image > 0 and not (cnt%show_nth_image):
-                    wh.image_show(out_path, secs=0.5)
+                    wh.image_show_file(out_path, secs=0.5)
                 
             else:
                 print("\t\t", "already exists:", os.path.basename(out_path))
@@ -798,9 +934,9 @@ if __name__ == "__main__":
                 
             # TODO why are these still here?
             # replace left over image extensions
-            for q in ["\"", "\'"]:
+            for q_end in ["\"", "\'", ")"]:
                 for ext in config.image_exts_no_target:
-                    wh.file_replace_all(html_file, ext + q, config.target_image_ext + q)                     
+                    wh.file_replace_all(html_file, ext + q_end, config.target_image_ext + q_end)                     
         ### for /> 
     ### b_perform_replacement />            
             

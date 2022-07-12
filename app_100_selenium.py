@@ -292,7 +292,7 @@ document.getElementById("FirstDiv").remove();
 # -----------------------------------------
 # init the colorama module
 # -----------------------------------------
-from helpers_web import sq as sq, strip_query_and_fragment, url_path
+from helpers_web import links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
 from helpers_web import qu as qu
@@ -337,22 +337,10 @@ MAGENTA = config.MAGENTA
 start_secs = time.time()
 images_written = []
 assets_written = []
-# -----------------------------------------
-#
-# -----------------------------------------
-
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
 # -----------------------------------------
-
-# index.html
-
-# -----------------------------------------
-#
-# -----------------------------------------
-
-
 def assets_save_internals_locally(
     content, url, base,
     links, suffix,
@@ -504,8 +492,6 @@ def assets_save_internals_locally(
 # -----------------------------------------
 #
 # -----------------------------------------
-
-
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
     # ensure trailing slash
@@ -674,8 +660,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
 # -----------------------------------------
 #
 # -----------------------------------------
-
-
 if __name__ == "__main__":
     
     # print(__file__)
@@ -891,7 +875,11 @@ if __name__ == "__main__":
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""]
         wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
-        for count, url in enumerate(urls):
+        
+        # rescan only links without frags
+        urls_no_frag = wh.links_strip_query_and_fragment(urls)
+        urls_no_frag = wh.links_make_unique(urls_no_frag)
+        for count, url in enumerate(urls_no_frag):
             print()
             name, ext = os.path.splitext(url)
             print(name, ext)
@@ -899,7 +887,7 @@ if __name__ == "__main__":
                 print("\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
                 continue
             
-            wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16)
+            wh.progress(count / len(urls_no_frag), verbose_string="TOTAL", VT=CYAN, n=16)
             print()
             wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
             if content := wh.get_content(url):
