@@ -168,16 +168,16 @@ if __name__ == "__main__":
     def test_compression():
         out_exts = [".webp", ".avif", ".png"]
         image_paths = [
-            #config.project_folder + "wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg",
+            config.project_folder + "wp-content/themes/karlsruhe-digital/images/beitragsseite_hero_slider.jpg",
             # config.project_folder + "wp-content/themes/karlsruhe-digital/images/programm_hero.jpg",
-            # config.project_folder + "wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg",
+            config.project_folder + "wp-content/themes/karlsruhe-digital/images/bloguebersichtseite_hero_slider.jpg",
             # config.project_folder + "wp-content/themes/karlsruhe-digital/images/suchseite_hero_slider.jpg",
             # config.project_folder + "wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider.jpg",
-            #config.project_folder + "wp-content/uploads/2019/08/1-IT-Cluster-in-Europa.png",
+            config.project_folder + "wp-content/uploads/2019/08/1-IT-Cluster-in-Europa.png",
             "__tmp__images_compression/__girl.png",
         ]
         for path in image_paths:
-            for quality in range(0, 50, 10):
+            for quality in range(0, 101, 5):
                 
                 image       = Image.open(path)
                 is_transp   = wh.image_has_transparency(image)
@@ -217,24 +217,24 @@ if __name__ == "__main__":
                     #     os.path.abspath(out_path_IM)
                     # ])
                     
-                    #./avifenc [options] input.file output.avif
-                    # https://web.dev/compress-images-avif/
-                    assert os.path.isfile(os.path.abspath("avif/avifenc.exe"))
-                    assert os.path.isfile(os.path.abspath(path))
-                    subprocess.call([
-                        os.path.abspath("avif/avifenc.exe"),
-                        "--min",        str(0), "--max",        str(63),
-                        "--minalpha",   str(0), "--maxalpha",   str(63),
-                        "-a", "end-usage=q",
-                        "-a", "color:cq-level=18",
-                        "-a", "alpha:cq-level=10",
-                        "-a", "tune=ssim",
-                        "--speed", str(0),
-                        os.path.abspath(path),
-                        os.path.abspath(out_path_AV)
-                    ])
+                    # #./avifenc [options] input.file output.avif
+                    # # https://web.dev/compress-images-avif/
+                    # assert os.path.isfile(os.path.abspath("avif/avifenc.exe"))
+                    # assert os.path.isfile(os.path.abspath(path))
+                    # subprocess.call([
+                    #     os.path.abspath("avif/avifenc.exe"),
+                    #     "--min",        str(0), "--max",        str(63),
+                    #     "--minalpha",   str(0), "--maxalpha",   str(63),
+                    #     "-a", "end-usage=q",
+                    #     "-a", "color:cq-level=18",
+                    #     "-a", "alpha:cq-level=10",
+                    #     "-a", "tune=ssim",
+                    #     "--speed", str(0),
+                    #     os.path.abspath(path),
+                    #     os.path.abspath(out_path_AV)
+                    # ])
                         
-                    wh.image_show_file(out_path_AV, secs=1)
+                    wh.image_show_file(out_path, secs=1)
                     
                     
                     
