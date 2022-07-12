@@ -1873,7 +1873,7 @@ def image_has_transparency(img):
 __dummy_tmp_image_path = "__tmp__image_image_show_item.bmp"
 
 def image_show_file(path, secs=1):
-    path = os.path.normpath(path)
+    path = os.path.abspath(path)
     #print("image_show:", path)
     assert os.path.isfile(path)
     
@@ -1881,14 +1881,17 @@ def image_show_file(path, secs=1):
     image = Image.open(path)
     if path is not __dummy_tmp_image_path:
         print("\t\t", "image_show_file:", GRAY, path, RESET)
+        
     print("\t\t", "image_show_file:", "mode  :", image.mode)
     print("\t\t", "image_show_file:", "size  :", image.size)
     print("\t\t", "image_show_file:", "transp:", image_has_transparency(image))
     image.close()
     
+    if secs <= 0:
+        return
+    
     import subprocess
     import time
-    path = os.path.abspath(path)
     # https://www.etcwiki.org/wiki/IrfanView_Command_Line_Options
     p = subprocess.Popen(["C:/Program Files/IrfanView/i_view64.exe", path])
     time.sleep(secs)
@@ -1896,10 +1899,11 @@ def image_show_file(path, secs=1):
        
     
 def image_show_item(image, secs=1):
-    path = __dummy_tmp_image_path
-    image.save(path)
-    image_show_file(path, secs=secs)
-    os.remove(path)      
+    import tempfile
+    __dummy_tmp_image_path = tempfile.NamedTemporaryFile(suffix='.png').name
+    image.save(__dummy_tmp_image_path)
+    image_show_file(__dummy_tmp_image_path, secs=secs)
+    os.remove(__dummy_tmp_image_path)      
  
   
 
