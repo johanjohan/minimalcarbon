@@ -71,86 +71,89 @@ def extract_url(string):
  
 
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
-def fullpage_screenshot(driver, file, classs_to_hide=None):
+def fullpage_screenshot(driver, file, classes_to_hide=None):
+    
+    classes_to_hide = list(classes_to_hide)
 
-        print("Starting chrome full page screenshot workaround ...")
+    print("Starting chrome full page screenshot workaround:", wh.YELLOW, file, wh.RESET)
 
-        total_width     = driver.execute_script("return document.body.offsetWidth")
-        total_height    = driver.execute_script("return document.body.parentNode.scrollHeight")
-        viewport_width  = driver.execute_script("return document.body.clientWidth")
-        viewport_height = driver.execute_script("return window.innerHeight")
-        print(f"Total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
-        rectangles = []
+    total_width     = driver.execute_script("return document.body.offsetWidth")
+    total_height    = driver.execute_script("return document.body.parentNode.scrollHeight")
+    viewport_width  = driver.execute_script("return document.body.clientWidth")
+    viewport_height = driver.execute_script("return window.innerHeight")
+    print(f"Total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
+    rectangles = []
 
-        i = 0
-        while i < total_height:
-            ii = 0
-            top_height = i + viewport_height
+    i = 0
+    while i < total_height:
+        ii = 0
+        top_height = i + viewport_height
 
-            if top_height > total_height:
-                top_height = total_height
+        if top_height > total_height:
+            top_height = total_height
 
-            while ii < total_width:
-                top_width = ii + viewport_width
+        while ii < total_width:
+            top_width = ii + viewport_width
 
-                if top_width > total_width:
-                    top_width = total_width
+            if top_width > total_width:
+                top_width = total_width
 
-                print(f"Appending rectangle ({ii},{i},{top_width},{top_height})")
-                rectangles.append((ii, i, top_width,top_height))
+            print("\t", f"Appending rectangle ({ii},{i},{top_width},{top_height})")
+            rectangles.append((ii, i, top_width,top_height))
 
-                ii = ii + viewport_width
+            ii = ii + viewport_width
 
-            i = i + viewport_height
-        ### while
+        i = i + viewport_height
+    ### while
 
-        stitched_image = Image.new('RGB', (total_width, total_height))
-        previous = None
-        part = 0
-        
-        for rectangle in rectangles:
-            if not previous is None:
-                print("rectangle", rectangle)
-                driver.execute_script(f"window.scrollTo({rectangle[0]}, {rectangle[1]})")
-                time.sleep(0.2)
-                
-                # driver.execute_script("document.getElementById('topnav').setAttribute('style', 'position: absolute; top: 0px;');")
-                # time.sleep(0.2)
-                
-                if classs_to_hide:
-                    driver.execute_script(f"document.getElementsByClassName('{classs_to_hide}')[0].setAttribute('style', 'position: absolute; top: 0px;');")
+    stitched_image = Image.new('RGB', (total_width, total_height))
+    previous = None
+    part = 0
+    
+    for rectangle in rectangles:
+        if not previous is None:
+            driver.execute_script(f"window.scrollTo({rectangle[0]}, {rectangle[1]})")
+            time.sleep(0.2)
+            
+            # driver.execute_script("document.getElementById('topnav').setAttribute('style', 'position: absolute; top: 0px;');")
+            # time.sleep(0.2)
+            
+            if classes_to_hide:
+                for hide_class in classes_to_hide:
+                    driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'position: absolute; top: 0px;');")
                     
                     if rectangle[1] > 0:
-                        driver.execute_script(f"document.getElementsByClassName('{classs_to_hide}')[0].setAttribute('style', 'display: none;');")
-                    time.sleep(0.2)
-                
-                print(f"Scrolled To ({rectangle[0]},{rectangle[1]})")
+                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
+                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
                 time.sleep(0.2)
-
-            file_name = f"part_{part}.png"
-            print(f"Capturing {file_name} ...")
-
-            driver.get_screenshot_as_file(file_name)
-            screenshot = Image.open(file_name)
-
-            if rectangle[1] + viewport_height > total_height:
-                offset = (rectangle[0], total_height - viewport_height)
-            else:
-                offset = (rectangle[0], rectangle[1])
-
-            print(f"Adding to stitched image with offset ({offset[0]}, {offset[1]})")
-            stitched_image.paste(screenshot, offset)
-
-            del screenshot
-            os.remove(file_name)
-            part = part + 1
-            previous = rectangle
             
-        ### for rectangles
+            print("\t\t", f"Scrolled To ({rectangle[0]},{rectangle[1]})")
+            time.sleep(0.2)
 
-        stitched_image.save(file)
-        print("Finishing chrome full page screenshot workaround...")
-        return True
+        file_name = f"part_{part}.png"
+        print("\t\t", f"Capturing {file_name} ...")
+
+        driver.get_screenshot_as_file(file_name)
+        screenshot = Image.open(file_name)
+
+        if rectangle[1] + viewport_height > total_height:
+            offset = (rectangle[0], total_height - viewport_height)
+        else:
+            offset = (rectangle[0], rectangle[1])
+
+        print("\t\t", f"Adding to stitched image with offset ({offset[0]}, {offset[1]})")
+        stitched_image.paste(screenshot, offset)
+
+        del screenshot
+        os.remove(file_name)
+        part = part + 1
+        previous = rectangle
+        
+    ### for rectangles
+
+    stitched_image.save(file)
+    print("\t", "Finishing chrome full page screenshot workaround...")
+    return True
                         
 if __name__ == "__main__":
     
@@ -219,7 +222,7 @@ if __name__ == "__main__":
             
             #driver.save_screenshot(path_snap)
             #save_screenshot(driver, path_snap)
-            fullpage_screenshot(driver, path_snap, "navbar")
+            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header"])
         
                         
     # # -----------------------------------------
