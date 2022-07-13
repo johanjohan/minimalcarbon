@@ -205,6 +205,15 @@ footer .footer-bottom {
     content: unset;
 }
 
+/* twitter hide date */
+.fts-jal-fb-user-name {
+    display:none  !important;
+}
+
+.fts-jal-fb-post-time {
+    display: none  !important;
+}
+
 /* .fts-twitter-reply:before,
 .fts-comment-instagram:after,
 .fts-mashup-post-wrap.fts-feed-type-facebook .fts-jal-fb-see-more:before {

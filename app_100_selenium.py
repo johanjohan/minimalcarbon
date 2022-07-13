@@ -292,7 +292,7 @@ document.getElementById("FirstDiv").remove();
 # -----------------------------------------
 # init the colorama module
 # -----------------------------------------
-from helpers_web import links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
+from helpers_web import links_make_absolute, links_remove_externals, links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
 from helpers_web import qu as qu
@@ -520,7 +520,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             print(f"{RED}\t ERROR: GET url: {url} {RESET}")
 
         if content:
-            break
+            break # all OK
         else:
             if tries == 0:
                 url = "http://" + wh.strip_protocol(url)
@@ -548,11 +548,13 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     if(config.DEBUG): 
         path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
 
+
     # -----------------------------------------
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
     
+
     # -----------------------------------------
     # all urls a links
     # -----------------------------------------
@@ -572,6 +574,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     #-----------
     # images
     #-----------
+    # driver.find_element_by_xpath('//a[@href="'+url+'"]')
     links_img = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_background_images_from_style_attribute(driver)
@@ -596,8 +599,74 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         #print(json.dumps(j, indent=4), sep="\n\t\t")
         print("\t\t\t", j.get("poster", None))
         links_img.append(j.get("poster", None))
+        
+    
+    # find real image sizes on page
+    # https://www.tutorialrepublic.com/faq/how-to-get-original-image-size-in-javascript.php
+    # http://blog.varunin.com/2011/07/getting-width-and-height-of-image-using.html
+    
+    # links_img = wh.links_remove_externals(links_img, base)
+    # links_img = wh.links_make_unique(links_img)
+    # print("links_img", GRAY, *links_img, RESET, sep="\n\t")
+    # for link in links_img:
+    #     name = os.path.basename(wh.url_path(link))
+    #     print("\t", name)
+    
+    #     elements = driver.find_elements(By.XPATH, f"//img[contains(@src, '{name}')]")
+        
+        
+    # https://stackoverflow.com/questions/36285374/selenium-get-natural-height-and-width-of-an-element-should-not-rely-on-style-at
+    
+    #elements = driver.find_elements(By.CSS_SELECTOR, "img")
+    
+    # # tmp_images = links_img.copy()
+    # # tmp_images = wh.links_remove_externals(tmp_images, base)
+    # # tmp_images = wh.links_make_unique(tmp_images)
+    # # for link in tmp_images:
+    # #     name = os.path.basename(wh.url_path(link)) # base.ext
+    # #     print("\t", name)
+        
+    # #     if name in content:
+    # #         try:
+    # #             e = driver.find_element(By.XPATH, f"//img[contains(@src, '{name}')]")
+    # #             if e:
+    # #                 print("\t\t", e.get_attribute("src"))
+    # #                 w, h = e.size['width'], e.size['height']
+    # #                 print("\t\t", w, h)
+    # #                 print("\t\t", e.size,  e.size['width'], e.size['height'])
+    # #                 print("\t\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
+    # #                 print("\t\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
+    # #         except Exception as e:
+    # #             print("ERR", e)
+        
+            
+    # driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(quot;http://green.png&quot;);')]")).isdisplayed();
+    ###my_property = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.pic#pic[data-type='image']"))).value_of_css_property("background-image")
 
-
+    def append_image_sizes():
+        pass
+    
+    # regular images
+    for e in driver.find_elements(By.CSS_SELECTOR, "img"):
+        print(e)
+        print(MAGENTA, e.get_attribute("src"), RESET)
+        w, h = e.size['width'], e.size['height']
+        print("\t", e.size)
+        print("\t", w, h)
+        print("\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
+        print("\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
+        
+    for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
+        print(e)
+        print(CYAN, e.get_attribute("style"), RESET)
+        w, h = e.size['width'], e.size['height']
+        print("\t", e.size)
+        print("\t", w, h)
+        print("\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
+        print("\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
+        
+    exit(0)
+    
     #-----------
     # fonts
     #-----------
@@ -867,13 +936,12 @@ if __name__ == "__main__":
             time.sleep(3)
 
     # -----------------------------------------
-    # scan for new links:
+    # RE-scan for new links:
     # -----------------------------------------     
-        
-    b_extend_rescan_urls = True
+    b_extend_rescan_urls = False
     if b_extend_rescan_urls:   
         links_a_href    = []
-        valid_exts      = [".html", ".htm", ".php", ""]
+        valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
         wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
         
         # rescan only links without frags
@@ -890,11 +958,12 @@ if __name__ == "__main__":
             wh.progress(count / len(urls_no_frag), verbose_string="TOTAL", VT=CYAN, n=16)
             print()
             wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
+            
             if content := wh.get_content(url):
                 links_a_href.append(url)
                 tree    = lxml.html.fromstring(content)
                 hrefs   = tree.xpath('//a/@href')
-                print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
+                #print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
                 for href in hrefs:
                     href = href.strip()
                     name, ext = os.path.splitext(href)
@@ -921,6 +990,7 @@ if __name__ == "__main__":
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)   
         print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
+        time.sleep(3)
         
         # save back to file 
         wh.list_to_file(urls, config.path_sitemap_links_internal)             
