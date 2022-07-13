@@ -19,7 +19,7 @@ import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
-b_take_snapshot = True
+b_take_snapshot = False
 
 def append_image_sizes(url, e):
     if e:
@@ -131,9 +131,8 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
             print(pre + "\t\t", f"scrolled To ({rectangle[0]},{rectangle[1]})")
             time.sleep(0.2)
 
-        file_name = f"part_{part}.png"
+        file_name = f"__tmp_ssnap_part_{part}.png"
         print(pre + "\t\t", f"capturing {file_name} ...")
-
         driver.get_screenshot_as_file(file_name)
         screenshot = Image.open(file_name)
 
