@@ -15,6 +15,7 @@ import helpers_web as hw
 import time
 import os
 from PIL import Image
+import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
@@ -71,39 +72,40 @@ def extract_url(string):
  
 
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
-def fullpage_screenshot(driver, file, classes_to_hide=None):
+def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     classes_to_hide = list(classes_to_hide)
 
-    print("Starting chrome full page screenshot workaround:", wh.YELLOW, file, wh.RESET)
+    print(pre + "fullpage_screenshot:", wh.YELLOW + file, wh.RESET) # , wh.RESET)
+    print(pre + "fullpage_screenshot:", "classes_to_hide:", classes_to_hide, wh.GRAY) 
 
     total_width     = driver.execute_script("return document.body.offsetWidth")
     total_height    = driver.execute_script("return document.body.parentNode.scrollHeight")
     viewport_width  = driver.execute_script("return document.body.clientWidth")
     viewport_height = driver.execute_script("return window.innerHeight")
-    print(f"Total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
+    print(pre + "\t", f"total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
     rectangles = []
 
-    i = 0
-    while i < total_height:
-        ii = 0
-        top_height = i + viewport_height
+    y = 0
+    while y < total_height:
+        x = 0
+        top_height = y + viewport_height
 
         if top_height > total_height:
             top_height = total_height
 
-        while ii < total_width:
-            top_width = ii + viewport_width
+        while x < total_width:
+            top_width = x + viewport_width
 
             if top_width > total_width:
                 top_width = total_width
 
-            print("\t", f"Appending rectangle ({ii},{i},{top_width},{top_height})")
-            rectangles.append((ii, i, top_width,top_height))
+            print(pre + "\t", f"appending rectangle ({x},{y},{top_width},{top_height})")
+            rectangles.append((x, y, top_width,top_height))
 
-            ii = ii + viewport_width
+            x = x + viewport_width
 
-        i = i + viewport_height
+        y = y + viewport_height
     ### while
 
     stitched_image = Image.new('RGB', (total_width, total_height))
@@ -124,14 +126,13 @@ def fullpage_screenshot(driver, file, classes_to_hide=None):
                     
                     if rectangle[1] > 0:
                         driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
-                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
                 time.sleep(0.2)
             
-            print("\t\t", f"Scrolled To ({rectangle[0]},{rectangle[1]})")
+            print(pre + "\t\t", f"scrolled To ({rectangle[0]},{rectangle[1]})")
             time.sleep(0.2)
 
         file_name = f"part_{part}.png"
-        print("\t\t", f"Capturing {file_name} ...")
+        print(pre + "\t\t", f"capturing {file_name} ...")
 
         driver.get_screenshot_as_file(file_name)
         screenshot = Image.open(file_name)
@@ -141,7 +142,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None):
         else:
             offset = (rectangle[0], rectangle[1])
 
-        print("\t\t", f"Adding to stitched image with offset ({offset[0]}, {offset[1]})")
+        print(pre + "\t\t", f"adding to stitched image with offset ({offset[0]}, {offset[1]})")
         stitched_image.paste(screenshot, offset)
 
         del screenshot
@@ -151,8 +152,31 @@ def fullpage_screenshot(driver, file, classes_to_hide=None):
         
     ### for rectangles
 
-    stitched_image.save(file)
-    print("\t", "Finishing chrome full page screenshot workaround...")
+    wh.make_dirs(path_snap)
+    stitched_image.save(file, optimize=True, lossless=True) # , quality=100
+    #stitched_image.save(file, optimize=True, quality=50) # , quality=100
+    
+    # # # cmd = f"""
+    
+    # # #     {os.path.abspath("avif/avifenc.exe")} 
+    # # #     --speed {0} 
+    # # #     --jobs  {8} 
+        
+    # # #     --lossless
+        
+    # # #     {os.path.abspath(__image_smaller_png_path)} 
+    # # #     {os.path.abspath(path_snap)} 
+        
+    # # # """
+    # # # ##md = f""" {os.path.abspath("avif/avifenc.exe")} --help """
+    # # # cmd = wh.string_remove_whitespace(cmd)
+    # # # print(wh.CYAN, end='')
+    # # # print(cmd)
+    # # # ret = os.system(wh.dq(cmd))    
+    
+    
+    
+    print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
     return True
                         
 if __name__ == "__main__":
@@ -216,13 +240,8 @@ if __name__ == "__main__":
         
         if b_take_snapshot:
 
-            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".png"
-            wh.make_dirs(path_snap)
-            print("\t", wh.YELLOW + path_snap, wh.RESET)
-            
-            #driver.save_screenshot(path_snap)
-            #save_screenshot(driver, path_snap)
-            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header"])
+            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
+            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])
         
                         
     # # -----------------------------------------
