@@ -338,8 +338,8 @@ start_secs      = time.time()
 images_written  = []
 assets_written  = []
 
-image_sizes     = []
-b_calculate_image_sizes = True
+# image_sizes     = []
+# b_calculate_image_sizes = False
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -605,54 +605,54 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("\t\t\t", j.get("poster", None))
         links_img.append(j.get("poster", None))
         
-    # is app_110_image_sizes.py
-    if b_calculate_image_sizes:
-        #------------------------------------
-        # find real image sizes on page 
-        #------------------------------------
-        # https://www.tutorialrepublic.com/faq/how-to-get-original-image-size-in-javascript.php
-        # http://blog.varunin.com/2011/07/getting-width-and-height-of-image-using.html
-        # driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(quot;http://green.png&quot;);')]")).isdisplayed();
-        ###my_property = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.pic#pic[data-type='image']"))).value_of_css_property("background-image")
+    # # # # is app_110_image_sizes.py
+    # # # if b_calculate_image_sizes:
+    # # #     #------------------------------------
+    # # #     # find real image sizes on page 
+    # # #     #------------------------------------
+    # # #     # https://www.tutorialrepublic.com/faq/how-to-get-original-image-size-in-javascript.php
+    # # #     # http://blog.varunin.com/2011/07/getting-width-and-height-of-image-using.html
+    # # #     # driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(quot;http://green.png&quot;);')]")).isdisplayed();
+    # # #     ###my_property = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.pic#pic[data-type='image']"))).value_of_css_property("background-image")
 
-        def append_image_sizes(url, e):
-            list_tpl  = [
-                url, 
-                e.size['width'], 
-                e.size['height'], 
-                e.get_attribute("naturalWidth"), 
-                e.get_attribute("naturalHeight")
-            ]       
-            if not list_tpl in image_sizes:
-                image_sizes.append(list_tpl)
-                line = ','.join([str(value) for value in tpl])
-                wh.string_to_file(line + '\n', config.path_image_sizes, mode="a")
-                print("\t\t", MAGENTA, line, RESET)
+    # # #     def append_image_sizes(url, e):
+    # # #         list_tpl  = [
+    # # #             url, 
+    # # #             e.size['width'], 
+    # # #             e.size['height'], 
+    # # #             e.get_attribute("naturalWidth"), 
+    # # #             e.get_attribute("naturalHeight")
+    # # #         ]       
+    # # #         if not list_tpl in image_sizes:
+    # # #             image_sizes.append(list_tpl)
+    # # #             line = ','.join([str(value) for value in tpl])
+    # # #             wh.string_to_file(line + '\n', config.path_image_sizes, mode="a")
+    # # #             print("\t\t", MAGENTA, line, RESET)
                 
-        def extract_url(string):
-            if "url" in string:
-                url = string
-                url = url.split('url')[-1]
-                url = url.split(')')[0]
-                url = url.strip().lstrip('(')
-                for q in ["\"", "\'"]:
-                    url = url.strip().lstrip(q).rstrip(q)
-                #print(string, YELLOW, url, RESET)
-                return url
-            else:
-                return string
+    # # #     def extract_url(string):
+    # # #         if "url" in string:
+    # # #             url = string
+    # # #             url = url.split('url')[-1]
+    # # #             url = url.split(')')[0]
+    # # #             url = url.strip().lstrip('(')
+    # # #             for q in ["\"", "\'"]:
+    # # #                 url = url.strip().lstrip(q).rstrip(q)
+    # # #             #print(string, YELLOW, url, RESET)
+    # # #             return url
+    # # #         else:
+    # # #             return string
                     
-        # regular images
-        print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
-        for e in driver.find_elements(By.CSS_SELECTOR, "img"):
-            url = e.get_attribute("src")
-            append_image_sizes(url, e)
+    # # #     # regular images
+    # # #     print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
+    # # #     for e in driver.find_elements(By.CSS_SELECTOR, "img"):
+    # # #         url = e.get_attribute("src")
+    # # #         append_image_sizes(url, e)
             
-        # style background
-        print("\t", "driver.find_elements: By.XPATH", flush=True)
-        for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
-            url = extract_url(e.get_attribute("style"))
-            append_image_sizes(url, e)
+    # # #     # style background
+    # # #     print("\t", "driver.find_elements: By.XPATH", flush=True)
+    # # #     for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
+    # # #         url = extract_url(e.get_attribute("style"))
+    # # #         append_image_sizes(url, e)
             
     #-----------
     # fonts
