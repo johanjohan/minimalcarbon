@@ -175,13 +175,11 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     wh.log("__file__:", __file__, filepath=config.path_log_params)
     
-    
     #-----------------------------------------
     # dir_size_orig
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
-    
     #pag.alert(text=f"good time to backup htdocs!", timeout=5000)
     #-----------------------------------------
     # get sizes
@@ -212,8 +210,8 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              66, # 66 55
-            "max_dim":              (500, 500), # could make smaller with avif
+            "quality":              50, # 66 55
+            "max_dim":              (500, 500), # could make smaller with avif --> func_size
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -225,7 +223,7 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "blend_alpha":          0.61, # 0.666 0.8   
+            "blend_alpha":          0.75, # 0.666 0.8   
             "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
@@ -254,8 +252,6 @@ if __name__ == "__main__":
         if "Cancel" == pag.confirm(text=f"b_delete_conversion_originals: {b_delete_conversion_originals}"):
             exit(0)
             
-            
-
     #-----------------------------------------
     # remove path_conversions
     #-----------------------------------------
@@ -309,7 +305,6 @@ if __name__ == "__main__":
         import logging
         import cssbeautifier
         from lxml import etree
-
 
         def save_css_changed(orig_path, text, conversions):
             name, ext = os.path.splitext(orig_path)
@@ -616,7 +611,16 @@ if __name__ == "__main__":
                 enhance_transp = True if (pimages.get("b_enhance_transp") and is_transp) else False
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
-
+                
+                def func_size(size_tuple):
+                    print(wh.RED, "NOT YET needs to know sizes in page", wh.RESET)
+                    return (500, 500)
+                    big = 1000
+                    w,h = size_tuple
+                    if w >= big or h >= big:
+                        return (1280, 1280)
+                    else:
+                        return (480, 480)
                                 
                 if False:
                     w, h = image.size
@@ -629,6 +633,7 @@ if __name__ == "__main__":
                             image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
                         print("\t\t", "new :", image.size)
                 else:   
+                    max_dim = func_size(image.size)
                     image.thumbnail(max_dim, resample=resample)
                     image_orig = image.copy()
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))

@@ -21,13 +21,21 @@ start_secs      = time.time()
 image_sizes     = []
 b_take_snapshot = False
 
-def append_image_sizes(url, e):
+def append_image_sizes(url, base, e):
+    
+    if wh.url_is_external(url, base) or not url:
+        print("ignore:", wh.RED, url, wh.RESET)
+        return
+        
     if e:
+        url = wh.get_path_local_root_subdomains(url, base)
+        name, ext = os.path.splitext(url)
         tpl  = (
+            name, # no ext
             url, 
-            e.size['width'], 
+            e.size['width'],                # size in web doc
             e.size['height'], 
-            e.get_attribute("naturalWidth"), 
+            e.get_attribute("naturalWidth"), # size on disk
             e.get_attribute("naturalHeight")
         )        
         
@@ -183,8 +191,6 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
-    
-    
     # -----------------------------------------
     # chrome init
     # -----------------------------------------    
@@ -218,10 +224,10 @@ if __name__ == "__main__":
         ###protocol, loc, path = wh.url_split(url)
         
         local = url
+        base  = "http://127.0.0.1/"
         
         # replace for localhost
-        url = "http://127.0.0.1/" + local.lstrip('/')
-        url = "http://127.0.0.1/" + local.lstrip('/')
+        url = base + local.lstrip('/')
 
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
         print()
@@ -236,38 +242,12 @@ if __name__ == "__main__":
             print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
         #print(driver.page_source)   
         
-        
-        if b_take_snapshot:
-
-            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
-            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])
-        
-                        
-    # # -----------------------------------------
-    # # index.html
-    # # -----------------------------------------   
-    # files = wh.collect_files_endswith(config.project_folder, ["index.html"])         
-    # for count, file in enumerate(files):
-        
-    #     file = wh.to_posix(os.path.abspath(file))
-        
-    #     wh.progress(count / len(files), verbose_string="TOTAL", VT=wh.CYAN, n=66)
-    #     print()
-    #     print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {file}{wh.RESET}")        
-        
-    #     try:
-    #         driver.get("file:///" + file)
-    #         wh.wait_for_page_has_loaded(driver)
-    #         content = driver.page_source
-    #     except Exception as e:
-    #         print(f"{wh.RED}\t ERROR: GET url: {file} {wh.RESET}")     
-    #     #print(driver.page_source)          
-        
         # regular images
         print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
         for e in driver.find_elements(By.CSS_SELECTOR, "img"):
             append_image_sizes(
                 e.get_attribute("src"), 
+                base,
                 e
             )
             
@@ -276,16 +256,22 @@ if __name__ == "__main__":
         for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
             append_image_sizes(
                 extract_url(e.get_attribute("style")), 
+                base,
                 e
             )  
+            
+        if b_take_snapshot:
+            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
+            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
+            
     ### for />      
         
     driver.close()
     driver.quit()
     
-    print("image_sizes", *image_sizes, sep="\n\t")
+    #print("image_sizes", *image_sizes, sep="\n\t")
     
-    wh.string_to_file("name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
+    wh.string_to_file("\n\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
     wh.list_to_file(image_sizes, config.path_image_sizes, mode="a")
     
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)

@@ -82,7 +82,7 @@ options.add_experimental_option("prefs", { \
 # 
 #-----------------------------------------
 #target_image_ext        = ".webp"
-target_image_ext        = ".avif"
+target_image_ext        = ".webp"
 #target_image_exts       = [".avif", ".webp"] # TODO
 
 image_exts              = ['.jpg', '.jpeg', '.png', '.gif', '.webp', ".avif"]
