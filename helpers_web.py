@@ -446,12 +446,16 @@ def try_link_make_local(url, base):
     return ret
 
 def links_make_absolute(links, base):
+    if not links: return links
+    
     ret = []
     for link in links:
         ret.append(link_make_absolute(link, base))
     return ret
 
 def links_remove_excludes(links, excludes):
+    if not links: return links
+    
     print("links_remove_excludes:", excludes)
     excludes = list(excludes)
     return [link for link in links if not any(exclude.strip() in link for exclude in excludes)]
@@ -459,6 +463,8 @@ def links_remove_excludes(links, excludes):
     ###return links_remove_invalids(links, excludes)
         
 def links_remove_invalids(links, invalids):
+    if not links: return links
+    
     print("links_remove_invalids:", invalids)
     # TODO is same as links_remove_excludes???????????????????
     #print(YELLOW, *links, RESET, sep="\n\t")
@@ -478,36 +484,56 @@ def links_remove_invalids(links, invalids):
 
                 
 def links_remove_nones(links):
+    if not links: return links
+    
     return [u for u in links if u]
          
 def links_remove_comments(links, delim='#'):
+    if not links: return links
+    
     return [u for u in links if not u.startswith(delim)]
 
 def links_remove_externals(links, base):
+    if not links: return links
+    
     return [u for u in links if not url_is_external(u, base)]
 
 def links_remove_folders(links):
+    if not links: return links
+    
     return [u for u in links if not u.strip().endswith('/')]
 
 def links_strip_query_and_fragment(links):
+    if not links: return links
+    
     return [strip_query_and_fragment(u) for u in links]
 
 def links_strip_trailing_slash(links):
+    if not links: return links
+    
     return [strip_trailing_slash(u) for u in links]
 
 def links_make_relative(links, base):
+    if not links: return links
+    
     len_prev = len(links)
     links = links_remove_externals(links, base) # new
     print(YELLOW, "links_make_relative: now removes externals first:", len_prev -  len(links), RESET)
     return [try_link_make_local(u, base) for u in links]
 
 def links_make_unique(links):
+    if not links: return links
+    
     return list(set(links))
 
 def links_strip(links):
+    if not links: return links
+    
     return [u.strip() for u in links]
 
 def links_replace(links, replacements):
+    if not links: return links
+    
     
     def was_replaced(link, replacements):
         link = link.strip()      
@@ -528,6 +554,8 @@ def links_replace(links, replacements):
     return ret
     
 def links_sanitize(links):
+    if not links: return links
+    
     links = links_remove_comments(links, delim='#')
     links = links_remove_similar(links)
     links = links_remove_nones(links)
@@ -1121,6 +1149,20 @@ def get_background_images_from_style_attribute(driver):
 import cssutils
 import logging
 import cssbeautifier
+
+###TODO
+def NEW____extract_url(string):
+    if "url" in string:
+        url = string
+        url = url.split('url')[-1]
+        url = url.split(')')[0]
+        url = url.strip().lstrip('(')
+        for q in ["\"", "\'"]:
+            url = url.strip().lstrip(q).rstrip(q)
+        print(string, YELLOW, url, RESET)
+        return url
+    else:
+        return string
 
 def extract_background_image_from_property(property):
     try:

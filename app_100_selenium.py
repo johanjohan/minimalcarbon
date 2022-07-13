@@ -334,9 +334,12 @@ MAGENTA = config.MAGENTA
 # -----------------------------------------
 #
 # -----------------------------------------
-start_secs = time.time()
-images_written = []
-assets_written = []
+start_secs      = time.time()
+images_written  = []
+assets_written  = []
+
+image_sizes     = []
+b_calculate_image_sizes = True
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -529,6 +532,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             print(f"{RED}\t will try with different PROTOCOL: {url} {RESET}")
             time.sleep(2)
     # for tries   get />
+    
+    assert content
 
     # -----------------------------------------
     #
@@ -575,7 +580,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # images
     #-----------
     # driver.find_element_by_xpath('//a[@href="'+url+'"]')
-    links_img = h.xpath('//img/@src')
+    links_img  = h.xpath('//img/@src')
     links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
     links_img += wh.get_background_images_from_style_attribute(driver)
     # TODO need to replace these in css as well
@@ -600,73 +605,55 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("\t\t\t", j.get("poster", None))
         links_img.append(j.get("poster", None))
         
-    
-    # find real image sizes on page
-    # https://www.tutorialrepublic.com/faq/how-to-get-original-image-size-in-javascript.php
-    # http://blog.varunin.com/2011/07/getting-width-and-height-of-image-using.html
-    
-    # links_img = wh.links_remove_externals(links_img, base)
-    # links_img = wh.links_make_unique(links_img)
-    # print("links_img", GRAY, *links_img, RESET, sep="\n\t")
-    # for link in links_img:
-    #     name = os.path.basename(wh.url_path(link))
-    #     print("\t", name)
-    
-    #     elements = driver.find_elements(By.XPATH, f"//img[contains(@src, '{name}')]")
-        
-        
-    # https://stackoverflow.com/questions/36285374/selenium-get-natural-height-and-width-of-an-element-should-not-rely-on-style-at
-    
-    #elements = driver.find_elements(By.CSS_SELECTOR, "img")
-    
-    # # tmp_images = links_img.copy()
-    # # tmp_images = wh.links_remove_externals(tmp_images, base)
-    # # tmp_images = wh.links_make_unique(tmp_images)
-    # # for link in tmp_images:
-    # #     name = os.path.basename(wh.url_path(link)) # base.ext
-    # #     print("\t", name)
-        
-    # #     if name in content:
-    # #         try:
-    # #             e = driver.find_element(By.XPATH, f"//img[contains(@src, '{name}')]")
-    # #             if e:
-    # #                 print("\t\t", e.get_attribute("src"))
-    # #                 w, h = e.size['width'], e.size['height']
-    # #                 print("\t\t", w, h)
-    # #                 print("\t\t", e.size,  e.size['width'], e.size['height'])
-    # #                 print("\t\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
-    # #                 print("\t\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
-    # #         except Exception as e:
-    # #             print("ERR", e)
-        
-            
-    # driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(quot;http://green.png&quot;);')]")).isdisplayed();
-    ###my_property = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.pic#pic[data-type='image']"))).value_of_css_property("background-image")
+    # is app_110_image_sizes.py
+    if b_calculate_image_sizes:
+        #------------------------------------
+        # find real image sizes on page 
+        #------------------------------------
+        # https://www.tutorialrepublic.com/faq/how-to-get-original-image-size-in-javascript.php
+        # http://blog.varunin.com/2011/07/getting-width-and-height-of-image-using.html
+        # driver.FindElement(By.XPath("//div[contains(@style, 'background-image: url(quot;http://green.png&quot;);')]")).isdisplayed();
+        ###my_property = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.pic#pic[data-type='image']"))).value_of_css_property("background-image")
 
-    def append_image_sizes():
-        pass
-    
-    # regular images
-    for e in driver.find_elements(By.CSS_SELECTOR, "img"):
-        print(e)
-        print(MAGENTA, e.get_attribute("src"), RESET)
-        w, h = e.size['width'], e.size['height']
-        print("\t", e.size)
-        print("\t", w, h)
-        print("\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
-        print("\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
-        
-    for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
-        print(e)
-        print(CYAN, e.get_attribute("style"), RESET)
-        w, h = e.size['width'], e.size['height']
-        print("\t", e.size)
-        print("\t", w, h)
-        print("\t\t", "naturalWidth ", e.get_attribute("naturalWidth"))
-        print("\t\t", "naturalHeight", e.get_attribute("naturalHeight"))
-        
-    exit(0)
-    
+        def append_image_sizes(url, e):
+            list_tpl  = [
+                url, 
+                e.size['width'], 
+                e.size['height'], 
+                e.get_attribute("naturalWidth"), 
+                e.get_attribute("naturalHeight")
+            ]       
+            if not list_tpl in image_sizes:
+                image_sizes.append(list_tpl)
+                line = ','.join([str(value) for value in tpl])
+                wh.string_to_file(line + '\n', config.path_image_sizes, mode="a")
+                print("\t\t", MAGENTA, line, RESET)
+                
+        def extract_url(string):
+            if "url" in string:
+                url = string
+                url = url.split('url')[-1]
+                url = url.split(')')[0]
+                url = url.strip().lstrip('(')
+                for q in ["\"", "\'"]:
+                    url = url.strip().lstrip(q).rstrip(q)
+                #print(string, YELLOW, url, RESET)
+                return url
+            else:
+                return string
+                    
+        # regular images
+        print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
+        for e in driver.find_elements(By.CSS_SELECTOR, "img"):
+            url = e.get_attribute("src")
+            append_image_sizes(url, e)
+            
+        # style background
+        print("\t", "driver.find_elements: By.XPATH", flush=True)
+        for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
+            url = extract_url(e.get_attribute("style"))
+            append_image_sizes(url, e)
+            
     #-----------
     # fonts
     #-----------
@@ -736,7 +723,7 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
 
-    if True:
+    if False:
         # LOG: "C:\Users\michaelsaup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
 
         # assert os.path.exists("page/__KD__/")
@@ -1050,6 +1037,10 @@ if __name__ == "__main__":
     assets_written = sorted(list(set(assets_written)))
     print("saving assets_written:", config.path_asset_tuples_written)
     wh.list_to_file(assets_written, config.path_asset_tuples_written)
+    
+    # # # image_sizes = wh.links_sanitize(image_sizes)
+    # # # wh.string_to_file("name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
+    # # # wh.list_to_file(image_sizes, config.path_image_sizes, mode="a")
 
     # # append css
     # print("appending css:", config.path_custom_css)

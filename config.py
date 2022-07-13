@@ -64,7 +64,7 @@ options.add_argument('--incognito')
 options.add_argument('--log-level=3')
 options.add_argument("--disable-webgl")
 options.add_argument("--disable-popup-blocking")
-options.add_argument("--window-size=1920,1080")
+options.add_argument("--window-size=1600,1080") # --window-size=1920,1080
 options.add_argument("--no-sandbox")
 options.add_argument('user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36')
 options.add_argument('--disable-gpu')
@@ -132,6 +132,7 @@ path_htdocs_robots          = project_folder + filename_robots
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.csv"
 path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
+path_image_sizes            = path_stats + base_netloc + "_110_image_sizes.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
 path_conversions            = path_stats + base_netloc + "_200_conversions.csv"
