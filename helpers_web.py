@@ -120,7 +120,13 @@ def url_get_ver(url):
 #-----------------------------------------
 # 
 #-----------------------------------------
-
+def url_to_filename(url):
+    return strip_trailing_slash(''.join(filter(str.isalnum, url)))
+ 
+#-----------------------------------------
+# 
+#-----------------------------------------
+           
 def url_is_valid(url): # need by crawler
     """
     Checks whether `url` is a valid URL.

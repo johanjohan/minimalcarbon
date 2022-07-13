@@ -58,6 +58,7 @@ print(MAGENTA)
 from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument("--headless") # options.headless = config.headless
+#options.add_argument('--start-maximized')
 options.add_argument('--lang=de')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--incognito')
@@ -114,6 +115,8 @@ path_stylesheet         = project_folder + "wp-content/themes/karlsruhe-digital/
 path_script             = project_folder + "wp-content/themes/karlsruhe-digital/js/script.js"
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
+
+path_snapshots          = ats(project_folder + "__snaps/" + base_netloc) 
 
 crawler_base                = path_stats + base_netloc + "_050" # crawler
 path_sitemap_links_internal = crawler_base + "_internal_links.csv"
