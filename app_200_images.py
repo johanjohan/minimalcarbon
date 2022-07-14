@@ -1231,6 +1231,10 @@ if __name__ == "__main__":
             same_page_link = f""" <a href="{base_path}" class="same_page_link">{config.base_netloc}</a> """
             
             """
+            Tero Fossil
+            Zero Carbon
+            Zero Energy
+            Minimal Carbon
             Dies ist die energie-effiziente
             energie optimierte 
             Dies ist die Low Carbon Website
