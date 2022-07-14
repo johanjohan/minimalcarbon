@@ -207,7 +207,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
 #-----------------------------------------
 # 
 #-----------------------------------------            
-def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def __append_to_image_size_tuples(collected, url_parent, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
@@ -233,7 +233,8 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
             e.size['height'], 
             e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight"),
-            url
+            url,
+            url_parent
         ]     
         
         if not tpl in collected: 
@@ -265,69 +266,76 @@ def extract_url(style_string):
     else:
         print(wh.RED, "url NOT found in ", style_string, wh.RESET)
         return style_string
-      
-def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
-    
+
+"""
+srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, 
+        https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-300x200.jpeg 300w, 
+        https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-768x512.jpeg 768w, 
+        https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-1024x683.jpeg 1024w, 
+        https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
+<source srcset="/images/cereal-box.avif" type="image/avif" />
+"""   
+def find_all_image_size_tuples(collected, driver, url_parent, bases, b_scan_srcset, pre="\t"):
+        
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
+    print(pre, "find_all_image_size_tuples: url_parent   :", wh.GRAY, url_parent, wh.RESET)
     
     pre += "\t"
-    eu = set()
-    bases = list(bases)
+    
+    eu      = set()   
+    bases   = list(bases)
     
     def __add(e, url, eu):
-        t = tuple([e, url])
-        vt = wh.RED if (t in eu) else wh.GREEN
-        eu.add(t)
-        print(vt + '.', end='', flush=True)
-    
-    # regular images
-    print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
-    print(pre, wh.CYAN, end='')
-    for e in driver.find_elements(By.CSS_SELECTOR, "img"):
-        url = e.get_attribute("src")
-        __add(e, url, eu)
-    print(wh.RESET)
+        eu.add(tuple([e, url]))
+        print(wh.CYAN + '.', end='', flush=True)
         
-    # srcset
-    if b_scan_srcset:
-        """
-        srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-300x200.jpeg 300w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-768x512.jpeg 768w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-1024x683.jpeg 1024w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
-        <source srcset="/images/cereal-box.avif" type="image/avif" />
-        """
-        print(pre, "driver.find_elements: srcset", flush=True)
+    try:
+        # regular images
+        print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
         print(pre, wh.CYAN, end='')
-        for e in driver.find_elements(By.XPATH, "//*[@srcset]"):
-            url     = e.get_attribute("srcset")
-            links   = url.split(',')
-            for link in links:
-                subs = link.split(' ')
-                url  = ' '.join(sub for sub in subs[:-1]) # except last
+        for e in driver.find_elements(By.CSS_SELECTOR, "img"):
+            url = e.get_attribute("src")
+            __add(e, url, eu)
+        print(wh.RESET)
+            
+        # srcset
+        if b_scan_srcset:
+            print(pre, "driver.find_elements: srcset", flush=True)
+            print(pre, wh.CYAN, end='')
+            for e in driver.find_elements(By.XPATH, "//*[@srcset]"):
+                url     = e.get_attribute("srcset")
+                links   = url.split(',')
+                for link in links:
+                    subs = link.split(' ')
+                    url  = ' '.join(sub for sub in subs[:-1]) # except last
+                    __add(e, url, eu)
+            print(wh.RESET)
+
+        # traverse body: all elements for styles attached
+        xpath_css = "//body//*"
+        print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
+        print(pre, wh.CYAN, end='')
+        for e in driver.find_elements(By.XPATH, xpath_css):
+            imgpath = e.value_of_css_property("background-image")
+            if imgpath != "none" and "url" in imgpath:
+                url = extract_url(imgpath)
                 __add(e, url, eu)
         print(wh.RESET)
-
-    # traverse body: all elements for styles attached
-    xpath_css = "//body//*"
-    print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
-    print(pre, wh.CYAN, end='')
-    for e in driver.find_elements(By.XPATH, xpath_css):
-        imgpath = e.value_of_css_property("background-image")
-        if imgpath != "none" and "url" in imgpath:
-            url = extract_url(imgpath)
-            __add(e, url, eu)
-    print(wh.RESET)
-    
-    # # # # # # # style background: already caught above
-    # # # # # # if False:
-    # # # # # #     print(pre, "driver.find_elements: By.XPATH", flush=True)
-    # # # # # #     print(pre, wh.CYAN, end='')
-    # # # # # #     #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
-    # # # # # #     for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
-    # # # # # #         print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
-    # # # # # #         url = extract_url(e.get_attribute("style"))
-    # # # # # #         __add(e, url, eu)
-    # # # # # #     print(wh.RESET)
+        
+        # # # # # # # style background: already caught above
+        # # # # # # if False:
+        # # # # # #     print(pre, "driver.find_elements: By.XPATH", flush=True)
+        # # # # # #     print(pre, wh.CYAN, end='')
+        # # # # # #     #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
+        # # # # # #     for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
+        # # # # # #         print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
+        # # # # # #         url = extract_url(e.get_attribute("style"))
+        # # # # # #         __add(e, url, eu)
+        # # # # # #     print(wh.RESET)
+    except Exception as e:
+        print(pre, wh.RED, "ERROR", e, wh.RESET)
             
     print(pre, "len(eu):", len(eu))
             
@@ -336,6 +344,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
         #print(wh.GRAY, e, url, image_tuples, wh.RESET)
         __append_to_image_size_tuples(
             collected,
+            url_parent,
             url, 
             bases,
             e,
@@ -345,6 +354,31 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
 #-----------------------------------------
 # 
 #-----------------------------------------
+def file_image_sizes_get_index(index):
+    res = []
+    with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+        for line in fp:
+            if line.startswith('/'):
+                #c_base, c_path, wdom, hdom, nw, nh, c_url, c_url_parent = line.rstrip('\n').split(',')
+                subs = line.rstrip('\n').split(',')
+                assert index < len(subs), f"{index} < {len(subs)}"
+                res.append(subs[index])
+             
+    res = wh.links_make_unique(res) 
+    res = sorted(res)          
+    #print("res", *res, sep="\n\t")    
+    return res
+
+def file_image_sizes_get_url_parents():
+    return file_image_sizes_get_index(7)
+
+def file_image_sizes_get_urls():
+    return file_image_sizes_get_index(6)
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
@@ -352,6 +386,7 @@ if __name__ == "__main__":
     
     if b_scan_image_sizes or b_take_snapshot:
         
+        wh.logo("b_scan_image_sizes")
         wh.log("b_scan_image_sizes",    b_scan_image_sizes, filepath=config.path_log_params)
         wh.log("b_take_snapshot",       b_take_snapshot,    filepath=config.path_log_params)
         
@@ -394,8 +429,12 @@ if __name__ == "__main__":
         # ] 
     
         image_size_tuples = []
+        url_parents = file_image_sizes_get_url_parents()
+        print("url_parents", *url_parents, sep="\n\t")
 
         for count, url in enumerate(urls):
+            
+            url_parent  = url
             
             base        = config.base
             bases       = [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
@@ -406,26 +445,54 @@ if __name__ == "__main__":
             print()
             print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {abs_url} {wh.RESET}")
             
-            try:
-                driver.get(abs_url)
-                wh.wait_for_page_has_loaded_hash(driver)
-                content = driver.page_source
-            except Exception as e:
-                print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
+            if not (url_parent in url_parents):
                 
-            if b_scan_image_sizes:
-                find_all_image_size_tuples(
-                    image_size_tuples, 
-                    driver, 
-                    bases, 
-                    b_scan_srcset=False, 
-                    pre="\t"
-                )
-                print("len(image_size_tuples):", len(image_size_tuples))
-            
-            if b_take_snapshot:
-                path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".webp" # webp avif png tif
-                fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
+                max_tries = 10
+                for i in range(max_tries):
+                    try:
+                        driver.get(abs_url)
+                        wh.wait_for_page_has_loaded_hash(driver)
+                        content = driver.page_source
+                        break
+                    except Exception as e:
+                        print(f"{wh.RED}\t [{i}] ERROR: GET url: {url} {wh.RESET}")     
+                        time.sleep(2)
+                    
+                if b_scan_image_sizes:
+                    find_all_image_size_tuples(
+                        image_size_tuples, 
+                        driver, 
+                        url_parent,    # for the record
+                        bases, 
+                        b_scan_srcset=False, 
+                        pre="\t"
+                    )
+                    print("len(image_size_tuples):", len(image_size_tuples))
+                    
+                    # to file
+                    try:
+                        # TODO at the very end create header nd make unique
+                        ###wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
+                        wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+                    except Exception as e:
+                        print(wh.RED, e, wh.RESET)
+
+                            
+                if b_take_snapshot:
+                    path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local_url) + ".webp" # webp avif png tif
+                    if not wh.file_exists_and_valid(path_snap):
+                        fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])   
+                    else:
+                        print("already exists:",  wh.GRAY, path_snap, wh.RESET)
+                
+            else:
+                print("already listed:", wh.GRAY, url_parent, wh.RESET)
+                
+                
+            # DEBUG
+            if count > 12:
+                print(wh.YELLOW, "DEBUG break", wh.RESET)
+                break         
                 
         ### for url />      
             
@@ -434,9 +501,9 @@ if __name__ == "__main__":
         
         #print("image_size_tuples", *image_size_tuples, sep="\n\t")
         
-        if b_scan_image_sizes:
-            wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
-            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+        # if b_scan_image_sizes:
+        #     wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
+        #     wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
             
         wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
@@ -448,14 +515,15 @@ if __name__ == "__main__":
         
         start_secs = time.time()
         
+        wh.logo("b_download_images")
         wh.log("b_download_images", b_download_images, filepath=config.path_log_params)
                 
-        image_paths = []
-        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-            for line in fp:
-                if line.startswith('/'):
-                    c_base, c_path, wdom, hdom, nw, nh, c_url = line.rstrip('\n').split(',')
-                    image_paths.append(c_url)
+        image_paths = file_image_sizes_get_urls()
+        # # # # # # with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+        # # # # # #     for line in fp:
+        # # # # # #         if line.startswith('/'):
+        # # # # # #             c_base, c_path, wdom, hdom, nw, nh, c_url, c_url_parent = line.rstrip('\n').split(',')
+        # # # # # #             image_paths.append(c_url)
                     
         print("image_paths", *image_paths, sep="\n\t")
     
