@@ -278,7 +278,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
     
     def __add(e, url, eu):
         t = tuple([e, url])
-        vt = wh.RED if t in eu else wh.GREEN
+        vt = wh.RED if (t in eu) else wh.GREEN
         eu.add(t)
         print(vt + '.', end='', flush=True)
     
@@ -351,6 +351,11 @@ if __name__ == "__main__":
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
     if b_scan_image_sizes or b_take_snapshot:
+        
+        wh.log("b_scan_image_sizes",    b_scan_image_sizes, filepath=config.path_log_params)
+        wh.log("b_take_snapshot",       b_take_snapshot,    filepath=config.path_log_params)
+        
+        start_secs          = time.time()
         
         # -----------------------------------------
         # chrome init
@@ -432,6 +437,8 @@ if __name__ == "__main__":
         if b_scan_image_sizes:
             wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
             wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+            
+        wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
     #-----------------------------------------
     # download  
@@ -439,8 +446,10 @@ if __name__ == "__main__":
    
     if b_download_images:
         
-        print("b_download_images", b_download_images)
+        start_secs = time.time()
         
+        wh.log("b_download_images", b_download_images, filepath=config.path_log_params)
+                
         image_paths = []
         with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
             for line in fp:
