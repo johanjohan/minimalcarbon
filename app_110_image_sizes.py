@@ -19,7 +19,7 @@ import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
-b_take_snapshot = False 
+b_take_snapshot = True 
 
     
 # # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
@@ -91,14 +91,21 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
             
             if classes_to_hide:
                 for hide_class in classes_to_hide:
-                    driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'position: absolute; top: 0px;');")
                     
-                    if rectangle[1] > 0:
-                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
-                time.sleep(0.2)
+                    # check whether CLASS_NAME is available
+                    if driver.find_elements(By.CLASS_NAME, hide_class):
+                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'position: absolute; top: 0px;');")
+                        
+                        if rectangle[1] > 0:
+                            driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
+                            
+                    time.sleep(0.2)
+                ### for
+            ### if
             
             print(pre + "\t\t", f"scrolled To ({rectangle[0]},{rectangle[1]})")
             time.sleep(0.2)
+        ### if not previous is None
 
         file_name = f"__tmp_ssnap_part_{part}.png"
         print(pre + "\t\t", f"capturing {file_name} ...")
@@ -147,9 +154,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
     return True
    
-   
-   
-def append_image_sizes(url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def append_to_image_sizes(url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     bases = list(bases)
     
@@ -159,12 +164,12 @@ def append_image_sizes(url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     # external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
     protocol, loc, path = wh.url_split(url)
-    if not any([loc in b for b in bases]):
+    if not any([(loc in b) for b in bases]):
         print(pre, "ignore:", "external:", wh.RED, url, wh.RESET)
         return
     
     if e and url:
-        url = '/' + path
+        url = '/' + path # no loc as we already have proven it is internal
         url = wh.get_path_local_root_subdomains(url, base)
         name, ext = os.path.splitext(url)
         tpl  = (
@@ -262,7 +267,7 @@ if __name__ == "__main__":
         # regular images
         print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
         for e in driver.find_elements(By.CSS_SELECTOR, "img"):
-            append_image_sizes(
+            append_to_image_sizes(
                 e.get_attribute("src"), 
                 [base, config.base],
                 e,
@@ -284,7 +289,7 @@ if __name__ == "__main__":
                 url = ' '.join(sub for sub in subs[:-1]) # except last
                 
                 print("\t\t", wh.CYAN, url, wh.RESET)
-                append_image_sizes(
+                append_to_image_sizes(
                     url, 
                     [base, config.base],
                     e,
@@ -297,7 +302,7 @@ if __name__ == "__main__":
             imgpath = e.value_of_css_property("background-image")
             if imgpath != "none" and "url" in imgpath:
                 #print("\t\t", wh.GREEN, wh.dq(imgpath), wh.RESET)
-                append_image_sizes(
+                append_to_image_sizes(
                     extract_url(imgpath), 
                     [base, config.base],
                     e,
@@ -310,7 +315,7 @@ if __name__ == "__main__":
             #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
             for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
                 print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
-                append_image_sizes(
+                append_to_image_sizes(
                     extract_url(e.get_attribute("style")), 
                     base,
                     e,
