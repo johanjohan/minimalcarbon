@@ -152,6 +152,7 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         url = '/' + path # no loc as we already have proven it is internal
         url = wh.get_path_local_root_subdomains(url, base)
         name, ext = os.path.splitext(url)
+        
         tpl  = [
             name,                               # no ext
             url, 
@@ -162,7 +163,9 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         ]     
         
         if not tpl in collected: 
-            print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
+            #print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
+            #print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
+            print(pre, vt, ', '.join([str(tpl[i]) for i in range(1,6)]), wh.RESET)
             collected.append(tpl)
         
     else:
