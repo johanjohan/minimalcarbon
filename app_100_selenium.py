@@ -984,14 +984,10 @@ if __name__ == "__main__":
         # # # if count == 3:
         # # #     break
 
-        ###print("\n"*1)
+
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
         print()
-        ######print("\n"*5 + CYAN + "#"*88 + RESET + "\n"*5)
-        ###print(f"{CYAN}url: {url}{RESET}")
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
-        ###print("{:.1f}m".format((time.time() - start_secs)/60.0))
-        #print("\n"*1)
 
         if not (url in config.sitemap_links_ignore):
             links_a_href_from_url = make_static(

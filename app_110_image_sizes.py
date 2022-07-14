@@ -17,11 +17,73 @@ import os
 from PIL import Image
 import pillow_avif
 
+import requests
+
 start_secs          = time.time()
 image_sizes         = []
 b_take_snapshot     = False 
 b_scan_image_sizes  = True
+b_download_images   = True
 
+#-----------------------------------------
+# 
+#-----------------------------------------
+def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, pre="\t"):
+    
+    print(pre, "download_asset:", "abs_src   :", wh.GRAY, abs_src,      wh.RESET)
+    print(pre, "download_asset:", "local_path:", wh.GRAY, local_path,   wh.RESET)
+    
+    ret = True
+
+    wh.make_dirs(local_path)
+    if not wh.file_exists_and_valid(local_path):
+
+        # may_be_a_folder(abs_src):  # folders may get exception below?
+        if wh.url_is_assumed_file(abs_src):
+
+            wh.sleep_random(config.wait_secs, verbose_string=local_path, prefix="\t\t ") 
+
+            # GET the file via session requests
+            for cnt in range(max_tries):
+                try:
+                    print(pre+"\t", f"{wh.CYAN}\t\t [{cnt}] session.get: {abs_src}{wh.RESET}")
+                    session = requests.Session()
+                    session.get(base)  # sets cookies
+                    res = session.get(abs_src)
+                    ret = True
+                    break
+                except Exception as e:
+                    print("\n"*4)
+                    print(pre+"\t", f"{wh.RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {wh.RESET}")
+                    time.sleep(sleep_secs_on_failure)
+                    ret = False
+            ### for />
+                    
+            # SAVE the file binary to disk local
+            try:
+                with open(local_path, 'wb') as fp:
+                    fp.write(res.content)
+                    print(pre+"\t", f"{wh.GREEN}\t\t wrote OK: {local_path}{wh.RESET}")
+                      
+                assert wh.file_exists_and_valid(local_path)
+                ret = True
+            except:
+                print(pre+"\t", f"{wh.RED}\t\t local_path may be a directory?: {local_path}{wh.RESET}")
+                ret = False
+        else:
+            print(pre+"\t", f"{wh.RED}\t\t abs_src may be a directory?: {abs_src}{wh.RESET}")
+            ret = False
+    else:
+        print(pre+"\t", f"{wh.RED}\t\t already exists: {os.path.basename(local_path)}{wh.RESET}")  
+        ret = True 
+        
+    return ret        
+### def />
+
+
+#-----------------------------------------
+# 
+#-----------------------------------------
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
 def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
@@ -135,7 +197,10 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
     return True
-            
+
+#-----------------------------------------
+# 
+#-----------------------------------------            
 def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
@@ -153,10 +218,10 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         
         local = '/' + path # no loc as we already have proven it is internal
         local = wh.get_path_local_root_subdomains(local, base)
-        name, ext = os.path.splitext(local)
+        local_name, ext = os.path.splitext(local)
         
         tpl  = [
-            name,                               # no ext
+            local_name,                         # no ext
             local, 
             e.size['width'],                    # size in web doc
             e.size['height'], 
@@ -168,7 +233,8 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         if not tpl in collected: 
             #print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
             #print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
-            print(pre, vt, ', '.join([str(tpl[i]) for i in range(1,6)]), wh.RESET)
+            #print(pre, vt, ', '.join([str(tpl[i]) for i in range(1,6)]), wh.RESET)
+            print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
             collected.append(tpl)
         
     else:
@@ -196,9 +262,9 @@ def extract_url(style_string):
       
 def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
     
-    print(pre, "find_all_image_size_tuples: driver       :", driver)
-    print(pre, "find_all_image_size_tuples: bases        :", bases)
-    print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN + str(b_scan_srcset), wh.RESET)
+    print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
+    print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver)[0:66], wh.RESET)
+    print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
     
     pre += "\t"
     eu = set()
@@ -268,84 +334,125 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
             vt=wh.MAGENTA
         )     
         
-
+#-----------------------------------------
+# 
+#-----------------------------------------
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
-    # -----------------------------------------
-    # chrome init
-    # -----------------------------------------    
-    driver = None        
-    for tries in range(10):
-        try:
-            print(f"[{tries}] webdriver.Chrome()...")
-            print(f"[{tries}] {config.options}")
-            driver = webdriver.Chrome(options=config.options)
-            driver.implicitly_wait(0) # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
-            break
-        except Exception as e:
-            print(f"{wh.RED} {e} {wh.RESET}")
-            time.sleep(3)
-
-    # -----------------------------------------
-    # index.html
-    # -----------------------------------------   
-    urls = config.path_sitemap_links_internal         
-    urls = wh.list_from_file(urls)
-    urls = wh.links_remove_comments(urls, '#')
-    urls = wh.links_replace(urls, config.replacements_pre)
-    urls = wh.links_remove_externals(urls, config.base)
-    urls = wh.links_strip_query_and_fragment(urls)
-    urls = wh.links_make_absolute(urls, config.base)
-    urls = wh.links_sanitize(urls)
-    
-    # # # # DEBUG!!!
-    urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
-    
-    image_size_tuples = []
-
-    for count, url in enumerate(urls):
+    if b_scan_image_sizes or b_take_snapshot:
         
-        local   = wh.get_path_local_root_subdomains(url, config.base)
-        base    = "http://127.0.0.1/"
-        url     = base + local.lstrip('/')
+        # -----------------------------------------
+        # chrome init
+        # -----------------------------------------    
+        driver = None        
+        for tries in range(10):
+            try:
+                print(f"[{tries}] webdriver.Chrome()...")
+                print(f"[{tries}] {config.options}")
+                driver = webdriver.Chrome(options=config.options)
+                driver.implicitly_wait(0) # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
+                break
+            except Exception as e:
+                print(f"{wh.RED} {e} {wh.RESET}")
+                time.sleep(3)
 
-        wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
-        print()
-        print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{wh.RESET}")
+        # -----------------------------------------
+        # index.html
+        # -----------------------------------------   
+        urls = config.path_sitemap_links_internal         
+        urls = wh.list_from_file(urls)
+        urls = wh.links_remove_comments(urls, '#')
+        urls = wh.links_replace(urls, config.replacements_pre)
+        urls = wh.links_remove_externals(urls, config.base)
+        urls = wh.links_strip_query_and_fragment(urls)
+        urls = wh.links_make_absolute(urls, config.base)
+        urls = wh.links_sanitize(urls)
         
-        try:
-            driver.get(url)
-            wh.wait_for_page_has_loaded_hash(driver)
-            content = driver.page_source
-        except Exception as e:
-            print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
+        # DEBUG!!!
+        urls = [
+            "https://karlsruhe.digital/", 
+            "https://karlsruhe.digital/", 
+            "https://karlsruhe.digital/blog/", 
+            "https://karlsruhe.digital/blog/", 
+            "https://media.karlsruhe.digital/"
+        ] 
+    
+        image_size_tuples = []
+
+        for count, url in enumerate(urls):
             
+            # local   = wh.get_path_local_root_subdomains(url, config.base)
+            # base    = "http://127.0.0.1/"
+            # url     = base + local.lstrip('/')
+            # bases   = [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
+            
+            base        = config.base
+            bases       = [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
+            local_url   = wh.get_path_local_root_subdomains(url, config.base)
+            abs_url     = wh.link_make_absolute(url, base)
+
+            wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
+            print()
+            print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {abs_url} {wh.RESET}")
+            
+            try:
+                driver.get(abs_url)
+                wh.wait_for_page_has_loaded_hash(driver)
+                content = driver.page_source
+            except Exception as e:
+                print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
+                
+            if b_scan_image_sizes:
+                find_all_image_size_tuples(
+                    image_size_tuples, 
+                    driver, 
+                    bases, 
+                    b_scan_srcset=False, 
+                    pre="\t"
+                )
+                print("len(image_size_tuples):", len(image_size_tuples))
+            
+            if b_take_snapshot:
+                path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".webp" # webp avif png tif
+                fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
+                
+        ### for url />      
+            
+        driver.close()
+        driver.quit()
+        
+        #print("image_size_tuples", *image_size_tuples, sep="\n\t")
+        
         if b_scan_image_sizes:
-            find_all_image_size_tuples(
-                image_size_tuples, 
-                driver, 
-                [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
-                b_scan_srcset=False, 
-                pre="\t"
-            )
-            print("len(image_size_tuples):", len(image_size_tuples))
+            wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
+            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
         
-        if b_take_snapshot:
-            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".webp" # webp avif png tif
-            fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
+    #-----------------------------------------
+    # download  
+    #-----------------------------------------    
+   
+    if b_download_images:
+        
+        print("b_download_images", b_download_images)
+        
+        image_paths = []
+        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+            for line in fp:
+                if line.startswith('/'):
+                    c_base, c_path, wdom, hdom, nw, nh, c_url = line.rstrip('\n').split(',')
+                    image_paths.append(c_url)
+                    
+        print("image_paths", *image_paths, sep="\n\t")
+    
+        for abs_src in image_paths:
             
-    ### for />      
-        
-    driver.close()
-    driver.quit()
-    
-    #print("image_size_tuples", *image_size_tuples, sep="\n\t")
-    
-    if b_scan_image_sizes:
-        wh.string_to_file("\nbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
-        wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+            local_path = config.project_folder + wh.get_path_local_root_subdomains(abs_src, config.base).lstrip('/')
+            
+            ret = download_asset(abs_src, local_path, max_tries=10) # also same func in 100_selenium TODO
+            assert ret
+
     
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)

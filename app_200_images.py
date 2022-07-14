@@ -544,7 +544,8 @@ if __name__ == "__main__":
         # b_use_palette   = False
         # blend_alpha     = 0.8 # 0.666 0.8
         
-        pimages = params.get("images")
+        pimages         = params.get("images")
+        
         quality         = pimages.get("quality")  # 66 # 66 55
         ##max_dim         = pimages.get("max_dim")  # (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = pimages.get("show_nth_image")  # 30 # 0 is off, 1 all
