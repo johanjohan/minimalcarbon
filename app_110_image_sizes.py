@@ -135,46 +135,43 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
     return True
             
-def append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
-        return collected
+        return
     
     # external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
-    bases = list(bases)
     protocol, loc, path = wh.url_split(url)
+    bases = list(bases)
     if not any([(loc in b) for b in bases]):
         print(pre, "ignore:", "external:", wh.RED, url, wh.RESET)
-        return collected
+        return 
     
     if e and url:
         url = '/' + path # no loc as we already have proven it is internal
         url = wh.get_path_local_root_subdomains(url, base)
         name, ext = os.path.splitext(url)
-        tpl  = (
-            name, # no ext
+        tpl  = [
+            name,                               # no ext
             url, 
-            e.size['width'],                # size in web doc
+            e.size['width'],                    # size in web doc
             e.size['height'], 
-            e.get_attribute("naturalWidth"), # size on disk
+            e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight")
-        )        
+        ]     
         
-        list_tpl = list(tpl)
-        # # # print(wh.YELLOW, "list_tpl :", list_tpl,  wh.RESET)
-        # # # print(wh.YELLOW, "collected:", collected, wh.RESET)
-        if not list_tpl in collected:
-            line = ','.join([str(value) for value in tpl])
-            print(pre, vt, line, wh.RESET)
-            collected.append(list_tpl)
+        if not tpl in collected: 
+            print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
+            collected.append(tpl)
+        
     else:
         print(wh.RED, "e  :", e,    wh.RESET)
         print(wh.RED, "url:", url,  wh.RESET)
         
-    return collected
             
 def extract_url(style_string):
+    
     if not style_string:
         return None
     
@@ -191,15 +188,17 @@ def extract_url(style_string):
         print(wh.RED, "url NOT found in ", style_string, wh.RESET)
         return style_string
       
-def find_all_image_size_tuples(driver, b_scan_srcset=False, pre="\t"):
+def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
     
     print(pre, "find_all_image_size_tuples: driver       :", driver)
-    print(pre, "find_all_image_size_tuples: b_scan_srcset:", b_scan_srcset)
+    print(pre, "find_all_image_size_tuples: bases        :", bases)
+    print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN + str(b_scan_srcset), wh.RESET)
+    
     pre += "\t"
-    
     eu = set()
+    bases = list(bases)
     
-    def add(e, url, eu):
+    def __add(e, url, eu):
         eu.add(tuple([e, url]))
         print('.', end='', flush=True)
     
@@ -208,7 +207,7 @@ def find_all_image_size_tuples(driver, b_scan_srcset=False, pre="\t"):
     print(pre, wh.CYAN, end='')
     for e in driver.find_elements(By.CSS_SELECTOR, "img"):
         url = e.get_attribute("src")
-        add(e, url, eu)
+        __add(e, url, eu)
     print(wh.RESET)
         
     # srcset
@@ -225,44 +224,43 @@ def find_all_image_size_tuples(driver, b_scan_srcset=False, pre="\t"):
             for link in links:
                 subs = link.split(' ')
                 url  = ' '.join(sub for sub in subs[:-1]) # except last
-                add(e, url, eu)
+                __add(e, url, eu)
         print(wh.RESET)
 
     # traverse body: all elements for styles attached
-    print(pre, "driver.find_elements: By.XPATH body", flush=True)
+    xpath_css = "//body//*"
+    print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
     print(pre, wh.CYAN, end='')
-    for e in driver.find_elements(By.XPATH, "//body//*"):
+    for e in driver.find_elements(By.XPATH, xpath_css):
         imgpath = e.value_of_css_property("background-image")
         if imgpath != "none" and "url" in imgpath:
             url = extract_url(imgpath)
-            add(e, url, eu)
+            __add(e, url, eu)
     print(wh.RESET)
-
-    # style background: already caught above
-    if False:
-        print(pre, "driver.find_elements: By.XPATH", flush=True)
-        print(pre, wh.CYAN, end='')
-        #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
-        for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
-            print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
-            url = extract_url(e.get_attribute("style"))
-            add(e, url, eu)
-        print(wh.RESET)
+    
+    # # # # # # # style background: already caught above
+    # # # # # # if False:
+    # # # # # #     print(pre, "driver.find_elements: By.XPATH", flush=True)
+    # # # # # #     print(pre, wh.CYAN, end='')
+    # # # # # #     #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
+    # # # # # #     for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
+    # # # # # #         print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
+    # # # # # #         url = extract_url(e.get_attribute("style"))
+    # # # # # #         __add(e, url, eu)
+    # # # # # #     print(wh.RESET)
             
     print(pre, "len(eu):", len(eu))
             
-    image_tuples = []
+    # append to image_tuples
     for e, url in eu:
         #print(wh.GRAY, e, url, image_tuples, wh.RESET)
-        image_tuples = append_to_image_size_tuples(
-            image_tuples,
+        __append_to_image_size_tuples(
+            collected,
             url, 
-            [base, config.base],
+            bases,
             e,
             vt=wh.MAGENTA
         )     
-
-    return image_tuples
         
 
 if __name__ == "__main__":
@@ -279,7 +277,7 @@ if __name__ == "__main__":
             print(f"[{tries}] webdriver.Chrome()...")
             print(f"[{tries}] {config.options}")
             driver = webdriver.Chrome(options=config.options)
-            #driver.implicitly_wait(1) <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            driver.implicitly_wait(0) # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
             break
         except Exception as e:
             print(f"{wh.RED} {e} {wh.RESET}")
@@ -298,7 +296,7 @@ if __name__ == "__main__":
     urls = wh.links_sanitize(urls)
     
     # # # # DEBUG!!!
-    urls = ["/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
+    urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
     
     image_size_tuples = []
 
@@ -319,9 +317,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
             
-        image_size_tuples.extend(
-            find_all_image_size_tuples(driver, pre="\t")
-        )
+        find_all_image_size_tuples(image_size_tuples, driver, [base, config.base], b_scan_srcset=False, pre="\t")
         print("len(image_size_tuples):", len(image_size_tuples))
         
         if b_take_snapshot:
