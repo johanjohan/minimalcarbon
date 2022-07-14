@@ -17,10 +17,10 @@ import os
 from PIL import Image
 import pillow_avif
 
-start_secs      = time.time()
-image_sizes     = []
-b_take_snapshot = True 
-b_scan_image_sizes = False
+start_secs          = time.time()
+image_sizes         = []
+b_take_snapshot     = False 
+b_scan_image_sizes  = True
 
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
 def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
@@ -150,17 +150,19 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         return 
     
     if e and url:
-        url = '/' + path # no loc as we already have proven it is internal
-        url = wh.get_path_local_root_subdomains(url, base)
-        name, ext = os.path.splitext(url)
+        
+        local = '/' + path # no loc as we already have proven it is internal
+        local = wh.get_path_local_root_subdomains(local, base)
+        name, ext = os.path.splitext(local)
         
         tpl  = [
             name,                               # no ext
-            url, 
+            local, 
             e.size['width'],                    # size in web doc
             e.size['height'], 
             e.get_attribute("naturalWidth"),    # size on disk
-            e.get_attribute("naturalHeight")
+            e.get_attribute("naturalHeight"),
+            url
         ]     
         
         if not tpl in collected: 
@@ -300,7 +302,7 @@ if __name__ == "__main__":
     urls = wh.links_sanitize(urls)
     
     # # # # DEBUG!!!
-    ###urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
+    urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
     
     image_size_tuples = []
 
@@ -332,7 +334,7 @@ if __name__ == "__main__":
             print("len(image_size_tuples):", len(image_size_tuples))
         
         if b_take_snapshot:
-            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
+            path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".webp" # webp avif png tif
             fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
             
     ### for />      
@@ -343,7 +345,7 @@ if __name__ == "__main__":
     #print("image_size_tuples", *image_size_tuples, sep="\n\t")
     
     if b_scan_image_sizes:
-        wh.string_to_file("\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
+        wh.string_to_file("\nbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
         wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
     
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)

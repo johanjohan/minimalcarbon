@@ -94,7 +94,7 @@ print("image_exts_no_target", image_exts_no_target)
 DEBUG                   = False
 #headless               = True
 #suffix_compressed       = "_unpowered"
-suffix_compressed       = "_UP"
+suffix_compressed       = "_up".lower() # must be lowercase for f_originals comparison below
 timeout                 = 30
 wait_secs               = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder         = ats("page/__KD__09/") # os.path.abspath # raw has 
@@ -116,7 +116,7 @@ path_script             = project_folder + "wp-content/themes/karlsruhe-digital/
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
-path_snapshots          = ats(project_folder + "__snaps/" + base_netloc) 
+path_snapshots          = ats(project_folder + "../__snaps/" + base_netloc) 
 
 crawler_base                = path_stats + base_netloc + "_050" # crawler
 path_sitemap_links_internal = crawler_base + "_internal_links.csv"
@@ -135,7 +135,7 @@ path_htdocs_robots          = project_folder + filename_robots
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "_100_images_written.csv"
 path_asset_tuples_written   = path_stats + base_netloc + "_100_assets_written.csv"
-path_image_sizes            = path_stats + base_netloc + "_110_image_sizes.csv"
+path_image_sizes            = path_stats + base_netloc + "_110_image_sizes_v2.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
 path_conversions            = path_stats + base_netloc + "_200_conversions.csv"

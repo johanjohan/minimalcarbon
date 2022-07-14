@@ -1,6 +1,13 @@
 """
 TODO
 
+rather download images according to list karlsruhe.digital_110_image_sizes.csv
+
+
+
+
+
+
 does not load all fonts , get rid of them
 
 
@@ -478,7 +485,8 @@ def assets_save_internals_locally(
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for f in [dq, sq, pa, qu]:
+        no_f = lambda s: s
+        for f in [dq, sq, pa, qu, no_f]:
             print(f"{GRAY}\t\t\t replacing: {f(src)} {RESET}") 
             content = content.replace(f(src), f(new_src))
 
@@ -602,7 +610,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print("\t\t\t", j.get("poster", None))
         links_img.append(j.get("poster", None))
         
-    
+    #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     def extract_url(string):
         if not string:
@@ -625,7 +633,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     for e in driver.find_elements(By.XPATH, "//body//*"):
         imgpath = e.value_of_css_property("background-image")
         if imgpath != "none" and "url" in imgpath:
-            #print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
+            print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
             url = extract_url(imgpath)
             links_img.append( url )
  
