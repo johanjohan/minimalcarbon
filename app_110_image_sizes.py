@@ -19,26 +19,7 @@ import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
-b_take_snapshot = True 
-
-    
-# # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
-# def save_screenshot(driver, path) -> None:
-#     # Ref: https://stackoverflow.com/a/52572919/
-#     original_size   = driver.get_window_size()
-#     required_width  = driver.execute_script('return document.body.parentNode.scrollWidth')
-#     required_height = driver.execute_script('return document.body.parentNode.scrollHeight')
-#     driver.set_window_size(required_width, required_height)
-
-#     scheight = .1
-#     while scheight < 9.9:
-#         driver.execute_script("window.scrollTo(0, document.body.scrollHeight/%s);" % scheight)
-#         scheight += .01    
-    
-#     # driver.save_screenshot(path)  # has scrollbar
-#     driver.find_element(By.TAG_NAME, 'body').screenshot(path)  # avoids scrollbar
-#     driver.set_window_size(original_size['width'], original_size['height'])
- 
+b_take_snapshot = False 
 
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
 def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
@@ -153,20 +134,19 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
     return True
-   
-def append_to_image_sizes(url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
-    
-    bases = list(bases)
+            
+def append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
-        return
+        return collected
     
     # external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
+    bases = list(bases)
     protocol, loc, path = wh.url_split(url)
     if not any([(loc in b) for b in bases]):
         print(pre, "ignore:", "external:", wh.RED, url, wh.RESET)
-        return
+        return collected
     
     if e and url:
         url = '/' + path # no loc as we already have proven it is internal
@@ -182,34 +162,109 @@ def append_to_image_sizes(url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
         )        
         
         list_tpl = list(tpl)
-        if not list_tpl in image_sizes:
+        # # # print(wh.YELLOW, "list_tpl :", list_tpl,  wh.RESET)
+        # # # print(wh.YELLOW, "collected:", collected, wh.RESET)
+        if not list_tpl in collected:
             line = ','.join([str(value) for value in tpl])
-            #wh.string_to_file(line + '\n', config.path_image_sizes, mode="a")
             print(pre, vt, line, wh.RESET)
-            image_sizes.append(list_tpl)
+            collected.append(list_tpl)
     else:
         print(wh.RED, "e  :", e,    wh.RESET)
         print(wh.RED, "url:", url,  wh.RESET)
         
-        
-def extract_url(string):
-    if not string:
+    return collected
+            
+def extract_url(style_string):
+    if not style_string:
         return None
     
-    if "url" in string:
-        url = string
+    if "url" in style_string:
+        url = style_string
         url = url.split('url')[-1]
         url = url.split(')')[0]
         url = url.strip().lstrip('(')
         for q in ["\"", "\'"]:
             url = url.strip().lstrip(q).rstrip(q)
-        #print(string, YELLOW, url, RESET)
+        #print(style_string, YELLOW, url, RESET)
         return url
     else:
-        return string
+        print(wh.RED, "url NOT found in ", style_string, wh.RESET)
+        return style_string
+      
+def find_all_image_size_tuples(driver, b_scan_srcset=False, pre="\t"):
+    
+    print(pre, "find_all_image_size_tuples: driver       :", driver)
+    print(pre, "find_all_image_size_tuples: b_scan_srcset:", b_scan_srcset)
+    pre += "\t"
+    
+    eu = set()
+    
+    def add(e, url, eu):
+        eu.add(tuple([e, url]))
+        print('.', end='', flush=True)
+    
+    # regular images
+    print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
+    print(pre, wh.CYAN, end='')
+    for e in driver.find_elements(By.CSS_SELECTOR, "img"):
+        url = e.get_attribute("src")
+        add(e, url, eu)
+    print(wh.RESET)
+        
+    # srcset
+    if b_scan_srcset:
+        """
+        srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-300x200.jpeg 300w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-768x512.jpeg 768w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-1024x683.jpeg 1024w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
+        <source srcset="/images/cereal-box.avif" type="image/avif" />
+        """
+        print(pre, "driver.find_elements: srcset", flush=True)
+        print(pre, wh.CYAN, end='')
+        for e in driver.find_elements(By.XPATH, "//*[@srcset]"):
+            url     = e.get_attribute("srcset")
+            links   = url.split(',')
+            for link in links:
+                subs = link.split(' ')
+                url  = ' '.join(sub for sub in subs[:-1]) # except last
+                add(e, url, eu)
+        print(wh.RESET)
 
+    # traverse body: all elements for styles attached
+    print(pre, "driver.find_elements: By.XPATH body", flush=True)
+    print(pre, wh.CYAN, end='')
+    for e in driver.find_elements(By.XPATH, "//body//*"):
+        imgpath = e.value_of_css_property("background-image")
+        if imgpath != "none" and "url" in imgpath:
+            url = extract_url(imgpath)
+            add(e, url, eu)
+    print(wh.RESET)
 
-                     
+    # style background: already caught above
+    if False:
+        print(pre, "driver.find_elements: By.XPATH", flush=True)
+        print(pre, wh.CYAN, end='')
+        #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
+        for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
+            print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
+            url = extract_url(e.get_attribute("style"))
+            add(e, url, eu)
+        print(wh.RESET)
+            
+    print(pre, "len(eu):", len(eu))
+            
+    image_tuples = []
+    for e, url in eu:
+        #print(wh.GRAY, e, url, image_tuples, wh.RESET)
+        image_tuples = append_to_image_size_tuples(
+            image_tuples,
+            url, 
+            [base, config.base],
+            e,
+            vt=wh.MAGENTA
+        )     
+
+    return image_tuples
+        
+
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
@@ -242,16 +297,16 @@ if __name__ == "__main__":
     urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_sanitize(urls)
     
+    # # # # DEBUG!!!
     urls = ["/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
+    
+    image_size_tuples = []
 
     for count, url in enumerate(urls):
         
-        url = wh.get_path_local_root_subdomains(url, config.base)
-        ###protocol, loc, path = wh.url_split(url)
-        
-        local = url
-        base  = "http://127.0.0.1/"
-        url = base + local.lstrip('/')
+        local   = wh.get_path_local_root_subdomains(url, config.base)
+        base    = "http://127.0.0.1/"
+        url     = base + local.lstrip('/')
 
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
         print()
@@ -263,65 +318,12 @@ if __name__ == "__main__":
             content = driver.page_source
         except Exception as e:
             print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
-        
-        # regular images
-        print("\t", "driver.find_elements: By.CSS_SELECTOR", flush=True)
-        for e in driver.find_elements(By.CSS_SELECTOR, "img"):
-            append_to_image_sizes(
-                e.get_attribute("src"), 
-                [base, config.base],
-                e,
-                vt=wh.MAGENTA
-            )
-             
-        # srcset
-        """
-        srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-300x200.jpeg 300w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-768x512.jpeg 768w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-1024x683.jpeg 1024w, https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
-        <source srcset="/images/cereal-box.avif" type="image/avif" />
-        """
-        print("\t", "driver.find_elements: srcset", flush=True)
-        for e in driver.find_elements(By.XPATH, "//*[@srcset]"):
-            url     = e.get_attribute("srcset")
-            links   = url.split(',')
-            for link in links:
-                                
-                subs = link.split(' ')
-                url = ' '.join(sub for sub in subs[:-1]) # except last
-                
-                print("\t\t", wh.CYAN, url, wh.RESET)
-                append_to_image_sizes(
-                    url, 
-                    [base, config.base],
-                    e,
-                    vt=wh.CYAN
-                )
-             
-        # traverse body: all elements for styles attached
-        print("\t", "driver.find_elements: By.XPATH body", flush=True)
-        for e in driver.find_elements(By.XPATH, "//body//*"):
-            imgpath = e.value_of_css_property("background-image")
-            if imgpath != "none" and "url" in imgpath:
-                #print("\t\t", wh.GREEN, wh.dq(imgpath), wh.RESET)
-                append_to_image_sizes(
-                    extract_url(imgpath), 
-                    [base, config.base],
-                    e,
-                    vt=wh.GREEN
-                )             
-                        
-        # style background: already caught above
-        if False:
-            print("\t", "driver.find_elements: By.XPATH", flush=True)
-            #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
-            for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
-                print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
-                append_to_image_sizes(
-                    extract_url(e.get_attribute("style")), 
-                    base,
-                    e,
-                    vt=wh.GREEN
-                )  
             
+        image_size_tuples.extend(
+            find_all_image_size_tuples(driver, pre="\t")
+        )
+        print("len(image_size_tuples):", len(image_size_tuples))
+        
         if b_take_snapshot:
             path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
             fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])            
@@ -331,9 +333,9 @@ if __name__ == "__main__":
     driver.close()
     driver.quit()
     
-    #print("image_sizes", *image_sizes, sep="\n\t")
+    #print("image_size_tuples", *image_size_tuples, sep="\n\t")
     
-    wh.string_to_file("\n\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
-    wh.list_to_file(image_sizes, config.path_image_sizes, mode="a")
+    wh.string_to_file("\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
+    wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
     
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
