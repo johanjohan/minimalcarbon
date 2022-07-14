@@ -211,7 +211,12 @@ if __name__ == "__main__":
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              50, # 66 55
-            "max_dim":              (500, 500), # could make smaller with avif --> func_size
+            
+            ##"max_dim":              (500, 500), # could make smaller with avif --> func_size
+            "size_thresh":           1000, 
+            "size_large":           (1500, 1500), 
+            "size_small":           (553, 553),
+            
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
@@ -231,7 +236,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                False,
+        "b_replace_conversions":                True,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -540,7 +545,7 @@ if __name__ == "__main__":
         
         pimages = params.get("images")
         quality         = pimages.get("quality")  # 66 # 66 55
-        max_dim         = pimages.get("max_dim")  # (1000, 1000) # (1280, 720) # (1200, 600)
+        ##max_dim         = pimages.get("max_dim")  # (1000, 1000) # (1280, 720) # (1200, 600)
         show_nth_image  = pimages.get("show_nth_image")  # 30 # 0 is off, 1 all
         resample        = pimages.get("resample")  # Image.Resampling.LANCZOS
         halftone        = pimages.get("halftone")  # None # (4, 30) # or None
@@ -608,7 +613,7 @@ if __name__ == "__main__":
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
-                def func_size(path, csv_path, big_thresh, size_large, size_small):
+                def func_size(path, csv_path, size_thresh, size_large, size_small):
                     
                     # could read this to ram beforehand TODO
 
@@ -627,38 +632,27 @@ if __name__ == "__main__":
                                     found = True
                                     w = max(int(wdom), w)
                                     h = max(int(hdom), h)
-                                    print("\t\t", wh.GREEN, "found:", relname, w, h, wh.RESET)
+                                    print("\t\t", wh.GREEN, "found:", c_base, w, h, nw, nh, wh.RESET)
                                     #break # could find several, take bigger w then
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)
                     
-                    if (w >= big_thresh or h >= big_thresh) or (not found):
+                    if (w >= size_thresh or h >= size_thresh) or (not found):
                         return size_large
                     else:
                         return size_small
                                 
-                if False:
-                    w, h = image.size
-                    print("\t\t", "size:", image.size)
-                    assert h > 0 and w > 0
-                    if w > max_dim[0] or h > max_dim[1]:
-                        if w >= h:
-                            image = image.resize((max_dim[0], round(h / w * max_dim[0])), resample=resample)
-                        else:
-                            image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
-                        print("\t\t", "new :", image.size)
-                else:   
-                    max_dim = func_size(
-                        path, 
-                        csv_path=config.path_image_sizes, 
-                        big_thresh=1000, 
-                        size_large=(1280, 1280), 
-                        size_small=(553, 553)
-                    ) 
-                    image.thumbnail(max_dim, resample=resample)
-                    image_orig = image.copy()
-                    #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
+                new_dim = func_size(
+                    path, 
+                    csv_path=config.path_image_sizes, 
+                    size_thresh=pimages.get("size_thresh"), 
+                    size_large=pimages.get("size_large"),
+                    size_small=pimages.get("size_small")
+                ) 
+                image.thumbnail(new_dim, resample=resample)
+                image_orig = image.copy()
+                #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
                     
                 # https://jdhao.github.io/2019/03/07/pillow_image_alpha_channel/
                 def get_mask_rgba(image):
@@ -773,7 +767,7 @@ if __name__ == "__main__":
                     
                 print("\t\t", "format     :", format)
                 print("\t\t", "quality    :", quality)
-                print("\t\t", "wh         :", wh_orig, "-->", image.size, "| max_dim:", max_dim)
+                print("\t\t", "wh         :", wh_orig, "-->", image.size, "| new_dim:", new_dim)
                 print("\t\t", "is_transp  :", wh.vt_b(is_transp))
                 print("\t\t", "mode       :", old_mode, "-->", image.mode)
                 print("\t\t", "blend_alpha:", blend_alpha)
