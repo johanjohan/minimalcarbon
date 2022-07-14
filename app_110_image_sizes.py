@@ -30,11 +30,17 @@ b_download_images   = True
 #-----------------------------------------
 def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, pre="\t"):
     
-    print(pre, "download_asset:", "abs_src   :", wh.GRAY, abs_src,      wh.RESET)
-    print(pre, "download_asset:", "local_path:", wh.GRAY, local_path,   wh.RESET)
+    # # # print(pre, "download_asset:", "abs_src   :", wh.GRAY, abs_src,      wh.RESET)
+    # # # print(pre, "download_asset:", "local_path:", wh.GRAY, local_path,   wh.RESET)
+    
+    print(pre, "download_asset:")
+    pre += "\t"
+    print(pre, wh.CYAN, abs_src,    wh.RESET, "-->")
+    print(pre, wh.GRAY, local_path, wh.RESET)
     
     ret = True
 
+    pre += "\t"
     wh.make_dirs(local_path)
     if not wh.file_exists_and_valid(local_path):
 
@@ -46,7 +52,7 @@ def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, p
             # GET the file via session requests
             for cnt in range(max_tries):
                 try:
-                    print(pre+"\t", f"{wh.CYAN}\t\t [{cnt}] session.get: {abs_src}{wh.RESET}")
+                    print(pre, f"{wh.CYAN}\t\t [{cnt}] session.get: {abs_src}{wh.RESET}")
                     session = requests.Session()
                     session.get(base)  # sets cookies
                     res = session.get(abs_src)
@@ -54,7 +60,7 @@ def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, p
                     break
                 except Exception as e:
                     print("\n"*4)
-                    print(pre+"\t", f"{wh.RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {wh.RESET}")
+                    print(pre, f"{wh.RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {wh.RESET}")
                     time.sleep(sleep_secs_on_failure)
                     ret = False
             ### for />
@@ -63,18 +69,18 @@ def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, p
             try:
                 with open(local_path, 'wb') as fp:
                     fp.write(res.content)
-                    print(pre+"\t", f"{wh.GREEN}\t\t wrote OK: {local_path}{wh.RESET}")
+                    print(pre, f"{wh.GREEN}wrote OK: {local_path}{wh.RESET}")
                       
                 assert wh.file_exists_and_valid(local_path)
                 ret = True
             except:
-                print(pre+"\t", f"{wh.RED}\t\t local_path may be a directory?: {local_path}{wh.RESET}")
+                print(pre, f"{wh.RED}local_path may be a directory?: {local_path}{wh.RESET}")
                 ret = False
         else:
-            print(pre+"\t", f"{wh.RED}\t\t abs_src may be a directory?: {abs_src}{wh.RESET}")
+            print(pre, f"{wh.RED}abs_src may be a directory?: {abs_src}{wh.RESET}")
             ret = False
     else:
-        print(pre+"\t", f"{wh.RED}\t\t already exists: {os.path.basename(local_path)}{wh.RESET}")  
+        print(pre, f"{wh.RED}already exists: {os.path.basename(local_path)}{wh.RESET}")  
         ret = True 
         
     return ret        
@@ -234,7 +240,7 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
             #print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
             #print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
             #print(pre, vt, ', '.join([str(tpl[i]) for i in range(1,6)]), wh.RESET)
-            print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
+            print(pre, vt + str(url), e.size['width'], e.size['height'], wh.RESET)
             collected.append(tpl)
         
     else:
@@ -331,7 +337,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
             url, 
             bases,
             e,
-            vt=wh.MAGENTA
+            vt=wh.GREEN
         )     
         
 #-----------------------------------------
