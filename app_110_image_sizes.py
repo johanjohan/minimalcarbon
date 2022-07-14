@@ -320,7 +320,13 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
             
-        find_all_image_size_tuples(image_size_tuples, driver, [base, config.base], b_scan_srcset=False, pre="\t")
+        find_all_image_size_tuples(
+            image_size_tuples, 
+            driver, 
+            [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+            b_scan_srcset=False, 
+            pre="\t"
+        )
         print("len(image_size_tuples):", len(image_size_tuples))
         
         if b_take_snapshot:

@@ -608,10 +608,9 @@ if __name__ == "__main__":
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
-                def func_size(path, csv_path):
+                def func_size(path, csv_path, big_thresh, size_large, size_small):
                     
-                    # TODO could find several, take bigger w then
-                    # could read this to ram beforehand
+                    # could read this to ram beforehand TODO
 
                     relpath = wh.to_posix('/' + os.path.relpath(path, config.project_folder))
                     relpath = wh.get_path_local_root_subdomains(relpath, config.base)
@@ -629,16 +628,15 @@ if __name__ == "__main__":
                                     w = max(int(wdom), w)
                                     h = max(int(hdom), h)
                                     print("\t\t", wh.GREEN, "found:", relname, w, h, wh.RESET)
-                                    #break 
+                                    #break # could find several, take bigger w then
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)
                     
-                    big = 1000
-                    if (w >= big or h >= big) or (not found):
-                        return (1280, 1280)
+                    if (w >= big_thresh or h >= big_thresh) or (not found):
+                        return size_large
                     else:
-                        return (480, 480)
+                        return size_small
                                 
                 if False:
                     w, h = image.size
@@ -651,7 +649,13 @@ if __name__ == "__main__":
                             image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
                         print("\t\t", "new :", image.size)
                 else:   
-                    max_dim = func_size(path, config.path_image_sizes)
+                    max_dim = func_size(
+                        path, 
+                        csv_path=config.path_image_sizes, 
+                        big_thresh=1000, 
+                        size_large=(1280, 1280), 
+                        size_small=(553, 553)
+                    ) 
                     image.thumbnail(max_dim, resample=resample)
                     image_orig = image.copy()
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
