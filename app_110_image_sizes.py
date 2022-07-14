@@ -489,21 +489,21 @@ if __name__ == "__main__":
                 print("already listed:", wh.GRAY, url_parent, wh.RESET)
                 
                 
-            # DEBUG
-            if count > 12:
-                print(wh.YELLOW, "DEBUG break", wh.RESET)
-                break         
+            # # # # # # DEBUG
+            # # # # # if count > 12:
+            # # # # #     print(wh.YELLOW, "DEBUG break", wh.RESET)
+            # # # # #     break         
                 
         ### for url />      
             
         driver.close()
         driver.quit()
         
-        #print("image_size_tuples", *image_size_tuples, sep="\n\t")
+        # # # # # # # #print("image_size_tuples", *image_size_tuples, sep="\n\t")
         
-        # if b_scan_image_sizes:
-        #     wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
-        #     wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+        # # # # # # # # if b_scan_image_sizes:
+        # # # # # # # #     wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
+        # # # # # # # #     wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
             
         wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
