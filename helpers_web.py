@@ -1718,7 +1718,7 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
     
     # externals should be removed before
     if not url_has_same_netloc(url, base):
-        print(f"{YELLOW}get_path_local_root_subdomains: url: {url} has not same netloc {base} {RESET}")
+        print(f"{YELLOW}get_path_local_root_subdomains: url: {url} has NOT same netloc {base} {RESET}")
         assert False
 
     # loc_url:  media.karlsruhe.digital
@@ -1865,7 +1865,7 @@ def to_posix(filepath):
 #https://pypi.org/project/art/ 
 # https://github.com/sepandhaghighi/art/blob/master/FontList.ipynb
 import art
-def logo(text,  font="tarty2", vt=CYAN, npad=2, secs=2): # tarty3++ tarty7 sub-zero straight fancy133 fancy13 tarty2 
+def logo(text,  font="tarty2", vt=CYAN, npad=2, secs=1): # tarty3++ tarty7 sub-zero straight fancy133 fancy13 tarty2 
     nl = "\n"*npad
     print(nl + vt + art.text2art(text, font=font) + RESET + nl)
     time.sleep(secs)

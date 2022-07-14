@@ -167,7 +167,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     # alert
     #-----------------------------------------    
-    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=5000)
+    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=2000)
         
     #-----------------------------------------
     # logo
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
 
-    #pag.alert(text=f"good time to backup htdocs!", timeout=5000)
+    #pag.alert(text=f"good time to backup htdocs!", timeout=2000)
     #-----------------------------------------
     # get sizes
     #-----------------------------------------    
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                True,
+        "b_replace_conversions":                False,
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -469,7 +469,7 @@ if __name__ == "__main__":
         
         b_force_write = params.get("b_perform_pdf_compression_force")
         
-        if b_force_write and "Cancel" == pag.confirm(text=f"PDF: b_force_write: {b_force_write}", timeout=5555):
+        if b_force_write and "Cancel" == pag.confirm(text=f"PDF: b_force_write: {b_force_write}", timeout=2000):
             exit(0)        
         
         wh.logo("b_perform_pdf_compression")
@@ -555,7 +555,7 @@ if __name__ == "__main__":
         if cube_lut_path:
             shutil.copy(cube_lut_path, config.path_stats)
         
-        if b_force_write and "Cancel" == pag.confirm(text=f"images: b_force_write: {b_force_write}", timeout=5555):
+        if b_force_write and "Cancel" == pag.confirm(text=f"images: b_force_write: {b_force_write}", timeout=2000):
             exit(0)
             
         print(wh.format_dict(params["images"]))
@@ -575,10 +575,6 @@ if __name__ == "__main__":
         else:
             lut = None
             
-        # new ext   
-        # # # assert not b_1bit
-        # # # new_ext = '.png' if b_1bit else '.webp'
-        #new_ext = '.webp'
         new_ext = config.target_image_ext
                                          
         # convert images
@@ -612,12 +608,34 @@ if __name__ == "__main__":
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
-                def func_size(size_tuple):
-                    print(wh.RED, "NOT YET needs to know sizes in page", wh.RESET)
-                    return (500, 500)
+                def func_size(path, csv_path):
+                    
+                    # TODO could find several, take bigger w then
+                    # could read this to ram beforehand
+
+                    relpath = wh.to_posix('/' + os.path.relpath(path, config.project_folder))
+                    relpath = wh.get_path_local_root_subdomains(relpath, config.base)
+                    relname, ext = os.path.splitext(relpath)
+                                        
+                    # look through all paths in csv and get size in page
+                    found = False
+                    w,h = 0,0
+                    with open(csv_path, mode="r", encoding="utf-8") as fp:
+                        for line in fp:
+                            if line.startswith('/'):
+                                c_base, c_path, wdom, hdom, nw, nh = line.split(',')
+                                if relname == c_base:
+                                    found = True
+                                    w = max(int(wdom), w)
+                                    h = max(int(hdom), h)
+                                    print("\t\t", wh.GREEN, "found:", relname, w, h, wh.RESET)
+                                    #break 
+                                    
+                    if not found:
+                        print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)
+                    
                     big = 1000
-                    w,h = size_tuple
-                    if w >= big or h >= big:
+                    if (w >= big or h >= big) or (not found):
                         return (1280, 1280)
                     else:
                         return (480, 480)
@@ -633,7 +651,7 @@ if __name__ == "__main__":
                             image = image.resize((round(w / h * max_dim[1]), max_dim[1]), resample=resample)
                         print("\t\t", "new :", image.size)
                 else:   
-                    max_dim = func_size(image.size)
+                    max_dim = func_size(path, config.path_image_sizes)
                     image.thumbnail(max_dim, resample=resample)
                     image_orig = image.copy()
                     #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))

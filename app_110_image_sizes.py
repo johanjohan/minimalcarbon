@@ -19,9 +19,9 @@ import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
-b_take_snapshot = False
+b_take_snapshot = False 
 
-def append_image_sizes(url, base, e):
+def append_image_sizes(url, base, e, vt=wh.MAGENTA):
     
     if not url:
         print("ignore:", "None:", wh.RED, url, wh.RESET)
@@ -47,10 +47,12 @@ def append_image_sizes(url, base, e):
         if not list_tpl in image_sizes:
             line = ','.join([str(value) for value in tpl])
             #wh.string_to_file(line + '\n', config.path_image_sizes, mode="a")
-            print("\t\t", wh.MAGENTA, line, wh.RESET)
+            print("\t\t", vt, line, wh.RESET)
             image_sizes.append(list_tpl)
     else:
-        print(wh.RED, "e is None...!!!", wh.RESET)
+        print(wh.RED, "e  :", e,    wh.RESET)
+        print(wh.RED, "url:", url,  wh.RESET)
+        
         
 def extract_url(string):
     if "url" in string:
@@ -257,11 +259,12 @@ if __name__ == "__main__":
             
         # style background
         print("\t", "driver.find_elements: By.XPATH", flush=True)
-        for e in driver.find_elements(By.XPATH, "//div[contains(@style, 'background-image')]"):
+        for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"): # div section
             append_image_sizes(
                 extract_url(e.get_attribute("style")), 
                 base,
-                e
+                e,
+                vt=wh.GREEN
             )  
             
         if b_take_snapshot:
