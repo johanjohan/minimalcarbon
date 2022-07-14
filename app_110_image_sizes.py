@@ -55,6 +55,9 @@ def append_image_sizes(url, base, e, vt=wh.MAGENTA):
         
         
 def extract_url(string):
+    if not string:
+        return None
+    
     if "url" in string:
         url = string
         url = url.split('url')[-1]
@@ -257,6 +260,28 @@ if __name__ == "__main__":
                 e
             )
             
+        """
+        https://stackoverflow.com/questions/27688606/how-to-fetch-style-background-image-url-using-selenium-webdrive
+        WebElement img = driver.findElement(By.className('body'));
+        String imgpath = img.getCssValue("background-image");
+        """
+        print("\t", "driver.find_elements: body", flush=True)
+        #for e in driver.find_elements(By.CLASS_NAME, "body"):
+        for e in driver.find_elements(By.XPATH, "//body"):
+            
+            imgpath = e.value_of_css_property("background-image")
+            if imgpath != "none":
+                print(wh.YELLOW, wh.dq(imgpath), wh.RESET)
+                
+                append_image_sizes(
+                    extract_url(imgpath), 
+                    base,
+                    e,
+                    vt=wh.YELLOW
+                )  
+                
+                time.sleep(2)
+                        
         # style background
         print("\t", "driver.find_elements: By.XPATH", flush=True)
         for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"): # div section
