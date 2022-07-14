@@ -839,8 +839,12 @@ if __name__ == "__main__":
                     #     #print(str(cnt) + ' ', end='')
                     #     pass
                     
+                    
+                    # compressor for html may strip quotes....
+                    no_f = lambda s: s
+                    
                     # NEW try all TODO with quotes
-                    for f in [ wh.dq,  wh.sq,  wh.pa,  wh.qu]:
+                    for f in [ wh.dq,  wh.sq,  wh.pa,  wh.qu, no_f]:
                         #print(f"{ wh.GRAY}\t\t\t replace_all: {f(wp_fr)} {wh.RESET}") 
                         html = wh.replace_all(html,  f(wp_fr),  f(wp_to) )    
             else:
