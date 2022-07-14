@@ -204,11 +204,11 @@ if __name__ == "__main__":
         "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
-        "b_perform_pdf_compression_force":            False,
+        "b_perform_pdf_compression_force":            False, # <<<<<<<<<<<<<<<<<<<<      
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              60, # 66 55
@@ -237,7 +237,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                True,
+        "b_replace_conversions":                True, # <<<<<<<<<<<<<<<<<<<<      
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -647,7 +647,7 @@ if __name__ == "__main__":
                 new_dim = func_size(
                     path, 
                     csv_path=config.path_image_sizes, 
-                    size_thresh=pimages.get("big_thresh"), 
+                    size_thresh=pimages.get("size_thresh"), 
                     size_large=pimages.get("size_large"),
                     size_small=pimages.get("size_small")
                 ) 
