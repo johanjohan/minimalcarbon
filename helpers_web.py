@@ -1725,7 +1725,7 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
     # loc_base:       karlsruhe.digital
     loc_url   = url_netloc(url).lstrip("www.")
     loc_base  = url_netloc(base)
-    subdomain = loc_url.replace(loc_base, '').replace('.', '') # --> media
+    subdomain = loc_url.replace(loc_base, '').rstrip('.').replace('.', '_') # --> media
     if subdomain: # '' or 'sub_dir/'
         subdomain = strip_leading_slash(subdomain)
         subdomain = "sub_" + subdomain
@@ -1770,7 +1770,6 @@ def get_page_folder(url, base):
             
     print("get_page_folder    :", GRAY, url, "-->", RESET, sq(page_folder))
     return page_folder
-
 
 #-----------------------------------------
 # 

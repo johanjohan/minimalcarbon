@@ -377,23 +377,18 @@ if __name__ == "__main__":
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
-        # DEBUG!!!
-        urls = [
-            "https://karlsruhe.digital/", 
-            "https://karlsruhe.digital/", 
-            "https://karlsruhe.digital/blog/", 
-            "https://karlsruhe.digital/blog/", 
-            "https://media.karlsruhe.digital/"
-        ] 
+        # # DEBUG!!!
+        # urls = [
+        #     "https://karlsruhe.digital/", 
+        #     "https://karlsruhe.digital/", 
+        #     "https://karlsruhe.digital/blog/", 
+        #     "https://karlsruhe.digital/blog/", 
+        #     "https://media.karlsruhe.digital/"
+        # ] 
     
         image_size_tuples = []
 
         for count, url in enumerate(urls):
-            
-            # local   = wh.get_path_local_root_subdomains(url, config.base)
-            # base    = "http://127.0.0.1/"
-            # url     = base + local.lstrip('/')
-            # bases   = [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
             
             base        = config.base
             bases       = [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
