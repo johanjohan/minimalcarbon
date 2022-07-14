@@ -1065,7 +1065,7 @@ def wait_for_page_has_loaded_readyState(driver, sleep_secs=1):
     return True
     
 # https://stackoverflow.com/questions/26566799/wait-until-page-is-loaded-with-selenium-webdriver-for-python
-def wait_for_page_has_loaded_hash(driver, sleep_secs=1):
+def wait_for_page_has_loaded_hash(driver, sleep_secs=1, min_secs=0.2):
     '''
     Waits for page to completely load by comparing current page hash values.
     '''
@@ -1094,13 +1094,15 @@ def wait_for_page_has_loaded_hash(driver, sleep_secs=1):
     for cnt in range(max_secs):
          page_hash = get_page_hash(driver)
          print("wait_for_page_has_loaded_hash: sleep", sleep_secs, cnt)
-         time.sleep(sleep_secs)
+         #time.sleep(sleep_secs)
+         time.sleep(min_secs)
          page_hash_new = get_page_hash(driver)
          if page_hash_new == page_hash:
              print("wait_for_page_has_loaded_hash: ", "SUCCESS...")
              break
+         time.sleep(sleep_secs - min_secs)
          
-    print("wait_for_page_has_loaded_hash: loaded", driver.current_url)
+    #print("wait_for_page_has_loaded_hash: loaded", driver.current_url)
     return True
     
 #-----------------------------------------

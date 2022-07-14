@@ -23,11 +23,15 @@ b_take_snapshot = False
 
 def append_image_sizes(url, base, e):
     
-    if wh.url_is_external(url, base) or not url:
-        print("ignore:", wh.RED, url, wh.RESET)
+    if not url:
+        print("ignore:", "None:", wh.RED, url, wh.RESET)
+        return
+    
+    if wh.url_is_external(url, base):
+        print("ignore:", "external:", wh.RED, url, wh.RESET)
         return
         
-    if e:
+    if e and url:
         url = wh.get_path_local_root_subdomains(url, base)
         name, ext = os.path.splitext(url)
         tpl  = (
