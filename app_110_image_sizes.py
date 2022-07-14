@@ -19,7 +19,8 @@ import pillow_avif
 
 start_secs      = time.time()
 image_sizes     = []
-b_take_snapshot = False 
+b_take_snapshot = True 
+b_scan_image_sizes = False
 
 # https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
 def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
@@ -320,14 +321,15 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{wh.RED}\t ERROR: GET url: {url} {wh.RESET}")     
             
-        find_all_image_size_tuples(
-            image_size_tuples, 
-            driver, 
-            [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
-            b_scan_srcset=False, 
-            pre="\t"
-        )
-        print("len(image_size_tuples):", len(image_size_tuples))
+        if b_scan_image_sizes:
+            find_all_image_size_tuples(
+                image_size_tuples, 
+                driver, 
+                [base, config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+                b_scan_srcset=False, 
+                pre="\t"
+            )
+            print("len(image_size_tuples):", len(image_size_tuples))
         
         if b_take_snapshot:
             path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
@@ -340,7 +342,8 @@ if __name__ == "__main__":
     
     #print("image_size_tuples", *image_size_tuples, sep="\n\t")
     
-    wh.string_to_file("\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
-    wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+    if b_scan_image_sizes:
+        wh.string_to_file("\nbasename,name,width,height,naturalWidth,naturalHeight\n", config.path_image_sizes, mode="w")
+        wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
     
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
