@@ -299,7 +299,7 @@ if __name__ == "__main__":
     urls = wh.links_sanitize(urls)
     
     # # # # DEBUG!!!
-    urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
+    ###urls = ["/index.html", "/index.html", "/blog/index.html", "/blog/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
     
     image_size_tuples = []
 
