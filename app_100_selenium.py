@@ -601,6 +601,33 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         #print(json.dumps(j, indent=4), sep="\n\t\t")
         print("\t\t\t", j.get("poster", None))
         links_img.append(j.get("poster", None))
+        
+    
+    
+    def extract_url(string):
+        if not string:
+            return None
+        
+        if "url" in string:
+            url = string
+            url = url.split('url')[-1]
+            url = url.split(')')[0]
+            url = url.strip().lstrip('(')
+            for q in ["\"", "\'"]:
+                url = url.strip().lstrip(q).rstrip(q)
+            #print(string, YELLOW, url, RESET)
+            return url
+        else:
+            return string
+        
+    # traverse body: all elements for style NEW TODO
+    print("\t", "driver.find_elements: By.XPATH body", flush=True)
+    for e in driver.find_elements(By.XPATH, "//body//*"):
+        imgpath = e.value_of_css_property("background-image")
+        if imgpath != "none" and "url" in imgpath:
+            #print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
+            url = extract_url(imgpath)
+            links_img.append( url )
  
             
     #-----------

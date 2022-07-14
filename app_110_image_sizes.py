@@ -226,6 +226,8 @@ if __name__ == "__main__":
     urls = wh.links_strip_query_and_fragment(urls)
     urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_sanitize(urls)
+    
+    ###urls = ["/index.html", "/blog/index.html"] # DEBUG find bgimage in style 
 
     for count, url in enumerate(urls):
         
@@ -257,40 +259,35 @@ if __name__ == "__main__":
             append_image_sizes(
                 e.get_attribute("src"), 
                 base,
-                e
+                e,
+                vt=wh.MAGENTA
             )
-            
-        """
-        https://stackoverflow.com/questions/27688606/how-to-fetch-style-background-image-url-using-selenium-webdrive
-        WebElement img = driver.findElement(By.className('body'));
-        String imgpath = img.getCssValue("background-image");
-        """
-        print("\t", "driver.find_elements: body", flush=True)
-        #for e in driver.find_elements(By.CLASS_NAME, "body"):
-        for e in driver.find_elements(By.XPATH, "//body"):
-            
+             
+        # traverse body: all elements for style
+        print("\t", "driver.find_elements: By.XPATH body", flush=True)
+        for e in driver.find_elements(By.XPATH, "//body//*"):
             imgpath = e.value_of_css_property("background-image")
-            if imgpath != "none":
-                print(wh.YELLOW, wh.dq(imgpath), wh.RESET)
-                
+            if imgpath != "none" and "url" in imgpath:
+                #print("\t\t", wh.GREEN, wh.dq(imgpath), wh.RESET)
                 append_image_sizes(
                     extract_url(imgpath), 
                     base,
                     e,
-                    vt=wh.YELLOW
-                )  
-                
-                time.sleep(2)
+                    vt=wh.GREEN
+                )             
                         
-        # style background
-        print("\t", "driver.find_elements: By.XPATH", flush=True)
-        for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"): # div section
-            append_image_sizes(
-                extract_url(e.get_attribute("style")), 
-                base,
-                e,
-                vt=wh.GREEN
-            )  
+        # style background: already caught above
+        if False:
+            print("\t", "driver.find_elements: By.XPATH", flush=True)
+            #for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'background-image')]"):
+            for e in driver.find_elements(By.XPATH, "//*[contains(@style, 'url')]"):
+                print("\t\t", wh.YELLOW, e.get_attribute("style"), wh.RESET)
+                append_image_sizes(
+                    extract_url(e.get_attribute("style")), 
+                    base,
+                    e,
+                    vt=wh.GREEN
+                )  
             
         if b_take_snapshot:
             path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local) + ".tif" # webp avif png tif
