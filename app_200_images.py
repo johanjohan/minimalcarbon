@@ -168,6 +168,7 @@ if __name__ == "__main__":
     # alert
     #-----------------------------------------    
     pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=2000)
+    pag.alert("also change navText hardcoded in scripts...", timeout=2000)
         
     #-----------------------------------------
     # logo
@@ -210,11 +211,11 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              50, # 66 55
+            "quality":              60, # 66 55
             
-            ##"max_dim":              (500, 500), # could make smaller with avif --> func_size
-            "size_thresh":           1000, 
-            "size_large":           (1500, 1500), 
+            ##"max_dim":            (500, 500), # could make smaller with avif --> func_size
+            "size_thresh":          1000, 
+            "size_large":           (1400, 1400), 
             "size_small":           (553, 553),
             
             "resample":             Image.Resampling.LANCZOS, 
@@ -229,7 +230,7 @@ if __name__ == "__main__":
             
             "b_colorize":           True,
             "blend_alpha":          0.75, # 0.666 0.8   
-            "b_enhance_transp":     False,         
+            "b_enhance_transp":     True,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
@@ -646,7 +647,7 @@ if __name__ == "__main__":
                 new_dim = func_size(
                     path, 
                     csv_path=config.path_image_sizes, 
-                    size_thresh=pimages.get("size_thresh"), 
+                    size_thresh=pimages.get("big_thresh"), 
                     size_large=pimages.get("size_large"),
                     size_small=pimages.get("size_small")
                 ) 
@@ -864,7 +865,7 @@ if __name__ == "__main__":
         conversions = conv.load(params.get("path_conversions"))    
         #print(*conversions, sep="\n\t")     
                                 
-        html_files = wh.collect_files_endswith(params.get("project_folder"), ["index.html", ".css"])
+        html_files = wh.collect_files_endswith( params.get("project_folder") , ["index.html", ".css", ".js"])
         for i, html_file in enumerate(html_files):
             verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
@@ -1244,11 +1245,11 @@ if __name__ == "__main__":
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> This is the Low Carbon Gateway of {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
+                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> This is the Minimal Carbon Site {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
                 banner_footer_text = f"unpowered by <a href='https://1001suns.com'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> Dies ist der Low Carbon Gateway von {same_page_link}"
+                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> Dies ist die Minimal Carbon Site {same_page_link}"
                 banner_footer_text = f"unpowered by <a href='https://1001suns.com'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
                 
             #---------------------------

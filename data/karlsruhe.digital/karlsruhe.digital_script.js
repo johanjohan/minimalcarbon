@@ -1,6 +1,6 @@
 /*
 
-    also chamged .png pfeil to _unpowered.webp here
+    also changed .png pfeil to _UP.webp here
 
 
 */
@@ -113,7 +113,7 @@ $(document).ready(function () {
         navContainerClass: 'owl-nav d-flex justify-content-end align-items-center container',
         navElement: 'a', // a 3j
         navClass: ['owl-prev d-flex mr-md-5 mr-3', 'owl-next d-flex ml-md-5 ml-3'],
-        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
+        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_UP.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_UP.webp">'],
         dots: false,
         margin: 0, // margin-right(px) on item.
         autoplay: false, // 3j 
@@ -136,7 +136,7 @@ $(document).ready(function () {
         navContainerClass: 'owl-nav d-flex justify-content-center align-items-center',
         navElement: 'a',
         navClass: ['owl-prev d-flex mr-4', 'owl-next d-flex ml-4'],
-        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
+        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_UP.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_UP.webp">'],
         dots: false,
         margin: 0,
         responsive: {
@@ -160,7 +160,7 @@ $(document).ready(function () {
         navContainerClass: 'owl-nav d-flex justify-content-center align-items-center',
         navElement: 'a',
         navClass: ['owl-prev d-flex mr-4', 'owl-next d-flex ml-4'],
-        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
+        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_UP.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_UP.webp">'],
         dots: false,
         margin: 0,
         responsive: {
@@ -183,7 +183,7 @@ $(document).ready(function () {
         navContainerClass: 'owl-nav d-flex justify-content-center align-items-center',
         navElement: 'a',
         navClass: ['owl-prev d-flex mr-4', 'owl-next d-flex ml-4'],
-        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_unpowered.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_unpowered.webp">'],
+        navText: ['<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Links_UP.webp">', '<img src="/wp-content/themes/karlsruhe-digital/images/Pfeil_Rechts_UP.webp">'],
         dots: false,
         margin: 25,
         onInitialized: addItemNumberToNavigation,
