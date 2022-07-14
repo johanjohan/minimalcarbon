@@ -442,6 +442,7 @@ if __name__ == "__main__":
         # -----------------------------------------
         # index.html
         # -----------------------------------------   
+        wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
         urls = config.path_sitemap_links_internal         
         urls = wh.list_from_file(urls)
         urls = wh.links_remove_comments(urls, '#')
@@ -451,17 +452,9 @@ if __name__ == "__main__":
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
-        # # DEBUG!!!
-        # urls = [
-        #     "https://karlsruhe.digital/", 
-        #     "https://karlsruhe.digital/", 
-        #     "https://karlsruhe.digital/blog/", 
-        #     "https://karlsruhe.digital/blog/", 
-        #     "https://media.karlsruhe.digital/"
-        # ] 
-    
-        file_image_sizes_make_unique()
+
         image_size_tuples = []
+        file_image_sizes_make_unique()
         
         wh.file_make_unique(config.path_image_sizes_visited, sort=True)
         urls_visited = wh.list_from_file(config.path_image_sizes_visited)
@@ -480,16 +473,17 @@ if __name__ == "__main__":
             
             if not (url in urls_visited):
                 
-                max_tries = 10
-                for i in range(max_tries):
-                    try:
-                        driver.get(abs_url)
-                        wh.wait_for_page_has_loaded_hash(driver)
-                        content = driver.page_source
-                        break
-                    except Exception as e:
-                        print(f"{wh.RED}\t [{i}] ERROR: GET url: {url} {wh.RESET}")     
-                        time.sleep(2)
+                if b_scan_image_sizes or b_take_snapshot:
+                    max_tries = 10
+                    for i in range(max_tries):
+                        try:
+                            driver.get(abs_url)
+                            wh.wait_for_page_has_loaded_hash(driver)
+                            content = driver.page_source
+                            break
+                        except Exception as e:
+                            print(f"{wh.RED}\t [{i}] ERROR: GET url: {url} {wh.RESET}")     
+                            time.sleep(2)
                     
                 if b_scan_image_sizes:
                     find_all_image_size_tuples(
@@ -515,7 +509,8 @@ if __name__ == "__main__":
                         fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])   
                     else:
                         print("already exists:",  wh.GRAY, path_snap, wh.RESET)
-                        
+                 
+                # visited to file       
                 urls_visited.append(url)
                 urls_visited = sorted(wh.links_make_unique(urls_visited))
                 try:
@@ -525,7 +520,6 @@ if __name__ == "__main__":
                        
             else:
                 print("already listed:", wh.GRAY, url, wh.RESET)
-                
                 
             # # # # # # DEBUG
             # # # # # if count > 12:
@@ -537,20 +531,14 @@ if __name__ == "__main__":
         driver.close()
         driver.quit()
         
-        # # # # # # # #print("image_size_tuples", *image_size_tuples, sep="\n\t")
-        
-        # # # # # # # # if b_scan_image_sizes:
-        # # # # # # # #     wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
-        # # # # # # # #     wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
-        
-
+        file_image_sizes_make_unique()
+        wh.file_make_unique(config.path_image_sizes_visited, sort=True)
             
-        wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
+        wh.log("b_scan_image_sizes: all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
     #-----------------------------------------
     # download  
     #-----------------------------------------    
-   
     if b_download_images:
         
         start_secs = time.time()
@@ -559,15 +547,14 @@ if __name__ == "__main__":
         wh.log("b_download_images", b_download_images, filepath=config.path_log_params)
                 
         image_paths = file_image_sizes_get_urls()
-
         print("image_paths", *image_paths, sep="\n\t")
     
         for abs_src in image_paths:
             
-            local_path = config.project_folder + wh.get_path_local_root_subdomains(abs_src, config.base).lstrip('/')
-            
-            ret = download_asset(abs_src, local_path, max_tries=10) # also same func in 100_selenium TODO
-            assert ret
+            local_path  = config.project_folder + wh.get_path_local_root_subdomains(abs_src, config.base).lstrip('/')
+            ret         = download_asset(abs_src, local_path, max_tries=10) # also same func in 100_selenium TODO
+            #assert ret
+            assert wh.file_exists_and_valid(local_path)
 
     
-    wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
+    wh.log("b_download_images: all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
