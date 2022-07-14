@@ -1,3 +1,11 @@
+"""
+TODO
+may better split image sizes files for keeping track of parent_urls
+the list is getting very large right now
+
+
+"""
+
 import chromedriver_binary  # pip install chromedriver-binary-auto
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.expected_conditions import visibility_of_element_located
@@ -21,6 +29,7 @@ import requests
 
 start_secs          = time.time()
 image_sizes         = []
+urls_visited        = []
 b_take_snapshot     = False 
 b_scan_image_sizes  = True
 b_download_images   = True
@@ -207,7 +216,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
 #-----------------------------------------
 # 
 #-----------------------------------------            
-def __append_to_image_size_tuples(collected, url_parent, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
@@ -234,7 +243,7 @@ def __append_to_image_size_tuples(collected, url_parent, url, bases, e, vt=wh.MA
             e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight"),
             url,
-            url_parent
+            "x"
         ]     
         
         if not tpl in collected: 
@@ -275,12 +284,11 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
-def find_all_image_size_tuples(collected, driver, url_parent, bases, b_scan_srcset, pre="\t"):
+def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
         
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
-    print(pre, "find_all_image_size_tuples: url_parent   :", wh.GRAY, url_parent, wh.RESET)
     
     pre += "\t"
     
@@ -344,7 +352,6 @@ def find_all_image_size_tuples(collected, driver, url_parent, bases, b_scan_srcs
         #print(wh.GRAY, e, url, image_tuples, wh.RESET)
         __append_to_image_size_tuples(
             collected,
-            url_parent,
             url, 
             bases,
             e,
@@ -354,12 +361,37 @@ def find_all_image_size_tuples(collected, driver, url_parent, bases, b_scan_srcs
 #-----------------------------------------
 # 
 #-----------------------------------------
+
+
+def file_image_sizes_make_unique():
+    
+    print("file_image_sizes_make_unique:", wh.GRAY + config.path_image_sizes, wh.RESET)
+    
+    if not os.path.isfile(config.path_image_sizes):
+        return
+    
+    res = []
+    with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+        for line in fp:
+            if line.startswith('/'):
+                subs = line.rstrip('\n').split(',')
+                res.append(list(subs))
+    
+    len_orig = len(res)            
+    unique_data = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
+    res = sorted(unique_data)
+    print("file_image_sizes_make_unique: removed:", len(res) - len_orig, "items") 
+    
+    #print("res", *res, sep="\n\t")   
+    
+    wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
+    wh.list_to_file(res, config.path_image_sizes, mode="a")            
+    
 def file_image_sizes_get_index(index):
     res = []
     with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
         for line in fp:
             if line.startswith('/'):
-                #c_base, c_path, wdom, hdom, nw, nh, c_url, c_url_parent = line.rstrip('\n').split(',')
                 subs = line.rstrip('\n').split(',')
                 assert index < len(subs), f"{index} < {len(subs)}"
                 res.append(subs[index])
@@ -369,8 +401,8 @@ def file_image_sizes_get_index(index):
     #print("res", *res, sep="\n\t")    
     return res
 
-def file_image_sizes_get_url_parents():
-    return file_image_sizes_get_index(7)
+# def file_image_sizes_get_url_parents():
+#     return file_image_sizes_get_index(7)
 
 def file_image_sizes_get_urls():
     return file_image_sizes_get_index(6)
@@ -428,24 +460,25 @@ if __name__ == "__main__":
         #     "https://media.karlsruhe.digital/"
         # ] 
     
+        file_image_sizes_make_unique()
         image_size_tuples = []
-        url_parents = file_image_sizes_get_url_parents()
-        print("url_parents", *url_parents, sep="\n\t")
+        
+        wh.file_make_unique(config.path_image_sizes_visited, sort=True)
+        urls_visited = wh.list_from_file(config.path_image_sizes_visited)
 
         for count, url in enumerate(urls):
-            
-            url_parent  = url
-            
+        
             base        = config.base
             bases       = [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
             local_url   = wh.get_path_local_root_subdomains(url, config.base)
             abs_url     = wh.link_make_absolute(url, base)
 
+            print()
             wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
             print()
             print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {abs_url} {wh.RESET}")
             
-            if not (url_parent in url_parents):
+            if not (url in urls_visited):
                 
                 max_tries = 10
                 for i in range(max_tries):
@@ -462,7 +495,6 @@ if __name__ == "__main__":
                     find_all_image_size_tuples(
                         image_size_tuples, 
                         driver, 
-                        url_parent,    # for the record
                         bases, 
                         b_scan_srcset=False, 
                         pre="\t"
@@ -472,7 +504,6 @@ if __name__ == "__main__":
                     # to file
                     try:
                         # TODO at the very end create header nd make unique
-                        ###wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
                         wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
                     except Exception as e:
                         print(wh.RED, e, wh.RESET)
@@ -484,9 +515,16 @@ if __name__ == "__main__":
                         fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])   
                     else:
                         print("already exists:",  wh.GRAY, path_snap, wh.RESET)
-                
+                        
+                urls_visited.append(url)
+                urls_visited = sorted(wh.links_make_unique(urls_visited))
+                try:
+                    wh.list_to_file(urls_visited, config.path_image_sizes_visited, mode="a")
+                except Exception as e:
+                    print(wh.RED, e, wh.RESET)     
+                       
             else:
-                print("already listed:", wh.GRAY, url_parent, wh.RESET)
+                print("already listed:", wh.GRAY, url, wh.RESET)
                 
                 
             # # # # # # DEBUG
@@ -504,6 +542,8 @@ if __name__ == "__main__":
         # # # # # # # # if b_scan_image_sizes:
         # # # # # # # #     wh.string_to_file("\nlocalbasename,localname,width,height,naturalWidth,naturalHeight,url\n", config.path_image_sizes, mode="w")
         # # # # # # # #     wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+        
+
             
         wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
@@ -519,12 +559,7 @@ if __name__ == "__main__":
         wh.log("b_download_images", b_download_images, filepath=config.path_log_params)
                 
         image_paths = file_image_sizes_get_urls()
-        # # # # # # with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-        # # # # # #     for line in fp:
-        # # # # # #         if line.startswith('/'):
-        # # # # # #             c_base, c_path, wdom, hdom, nw, nh, c_url, c_url_parent = line.rstrip('\n').split(',')
-        # # # # # #             image_paths.append(c_url)
-                    
+
         print("image_paths", *image_paths, sep="\n\t")
     
         for abs_src in image_paths:

@@ -1481,7 +1481,7 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
         return ret
     
 def list_to_file(items, path, mode="w", encoding="utf-8"):
-    print("list_to_file", dq(mode), path)
+    print("list_to_file:", dq(mode), "|", path)
     # # with open(path, mode=mode, encoding=encoding) as file:
     # #     file.write(list_to_string(items))
     string_to_file(list_to_string(items), path, mode=mode, encoding=encoding)
