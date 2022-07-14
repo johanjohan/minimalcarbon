@@ -269,7 +269,7 @@ def extract_url(style_string):
 def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
     
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
-    print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver)[0:66], wh.RESET)
+    print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
     
     pre += "\t"
@@ -277,8 +277,10 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
     bases = list(bases)
     
     def __add(e, url, eu):
-        eu.add(tuple([e, url]))
-        print('.', end='', flush=True)
+        t = tuple([e, url])
+        vt = wh.RED if t in eu else wh.GREEN
+        eu.add(t)
+        print(vt + '.', end='', flush=True)
     
     # regular images
     print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
