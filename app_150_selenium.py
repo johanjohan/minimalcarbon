@@ -1,305 +1,10 @@
 """
-TODO
+# https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
-rather download images according to list karlsruhe.digital_110_image_sizes.csv
-
-
-
-
-
-
-does not load all fonts , get rid of them
-
-
-"https:\/\/karlsruhe.digital\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.2.15"
-https://stackoverflow.com/questions/6076229/escaping-a-forward-slash-in-a-regular-expression
-
-
-https:\/\/karlsruhe.digital\/
-
-https://github.com/beautify-web/js-beautify
-pip install jsbeautifier
-pip install cssbeautifier
-
-
-Python script to extract URLs from HTML documents. 
-https://gist.github.com/zmwangx/49049218bd89c21ddabd647896af995a
-
-Note: The new features discussed in this article — srcset/sizes/<picture> — are all supported in modern desktop and mobile browsers (including Microsoft's Edge browser, although not Internet Explorer.)
-
-
-<img srcset="elva-fairy-480w.jpg 480w,
-             elva-fairy-800w.jpg 800w"
-     sizes="(max-width: 600px) 480px,
-            800px"
-     src="elva-fairy-800w.jpg"
-     alt="Elva dressed as a fairy">
-
-
-Note: The new features discussed in this article — srcset/sizes/<picture> — are all supported in modern desktop and mobile browsers (including Microsoft's Edge browser, although not Internet Explorer.)
-
-
-<img srcset="elva-fairy-480w.jpg 480w,
-             elva-fairy-800w.jpg 800w"
-     sizes="(max-width: 600px) 480px,
-            800px"
-     src="elva-fairy-800w.jpg"
-     alt="Elva dressed as a fairy">
-
-
-
-http:// https://is_a_real_url.yes
 
 TODO
-
-now python replace tags via bs4 or selenium
-https://stackoverflow.com/questions/55915856/change-element-in-python-using-selenium
-
-var = 100
-js = f"arguments[0].setAttribute('value', '{var}')"
-browser.execute_script(js, get_draws)
-
-
-EDIT SOLVED:
-
-Figured out how to change the value of an element. I had to change the search method of that element to this:
-
-get_draws = browser.find_element_by_tag_name('option')
-
-Then my next line was pretty simple:
-
-browser.execute_script(arguments[0].setAttribute('value', '100'), get_draws)
-
-python replace tag with selenium
-https://stackoverflow.com/questions/69732483/python-selenium-find-all-css-element-and-replace-all
-https://www.geeksforgeeks.org/change-the-tags-contents-and-replace-with-the-given-string-using-beautifulsoup/
-https://python.tutorialink.com/i-want-to-replace-the-html-code-with-my-own/
-
-
-r=requests.get('https://neculaifantanaru.com/en/qualities-of-a-leader-inner-integrity.html')
-soup=BeautifulSoup(r.text, 'html.parser')
-
-try:
-    articles = soup.find_all('p', {'class':"text_obisnuit"})
-    for item in articles:  
-
-        original_text=item.text
-        #print(original_text)
-        translated_output=ts.google(original_text, from_language='en', to_language='ro')
-        print(item)
-
-        item.string = translated_output
-            
-except Exception as e:
-    print(e)
-
-# To see that it was changed
-for item in articles:   
-    print(item)
-
-
-translated_html = str(soup)
-
-####################
-
-    element =driver.find_element_by_id("some-random-number")
-    driver.execute_script("arguments[0].innerText = '200'", element)
-    
-    element =  driver.find_element_by_class_name("something");
-    driver.execute_script("arguments[0].setAttribute('style', 'transition: transform 2500ms bla bla bla')", element);       
-
-
-#######################
-
-
-37
-
-I do not know of a Selenium method that is designed specifically to remove elements. However, you can do it with:
-
-element = driver.find_element_by_class_name('classname')
-driver.execute_script(""
-var element = arguments[0];
-element.parentNode.removeChild(element);
-"", element)
-
-############################
-https://stackoverflow.com/questions/22515012/python-selenium-how-can-i-delete-an-element
-
-def excludeTagFromWebDriver(driver : WebDriver, selector : str):
-    i = 0
-    soup = BeautifulSoup(driver.page_source, 'html.parser') # Parsing content using beautifulsoup
-    while soup.find(selector):
-        # print(soup.find(selector))
-        js = ""
-            var element = document.querySelector("" + "'" + selector + "'" + "");
-            if (element)
-                element.parentNode.removeChild(element);
-            ""
-        driver.execute_script(js)
-        soup = BeautifulSoup(driver.page_source, 'html.parser') # Parsing content using beautifulsoup
-        i += 1
-        # print('Removed tag with selector ' + "'" + selector + "'" + ' with nr: ', i)
-    print('Removed ' + str(i) + ' tags with the selector ' + "'" + selector + "'" + " and all it's children tags.")
-    return driver
-
-driver = excludeTagFromWebDriver(driver,"sup")
-
-###################################
-        try:
-            element = driver.find_element_by_xpath("//div[@class='chatContainer oldStyle']")
-        driver.execute_script(""var element = arguments[0]; 
-            element.parentNode.removeChild(element);"", element)
-        except Exception:
-            pass
-##################################
-chatBox = driver.find_element(By.XPATH, "//div[@class='chatContainer oldStyle']")
-driver.execute_script("arguments[0].remove();", chatBox)
-
-###################################
-driver.find_element_by_id('foo').clear()
-
-###################################
-
-def removeOneTag(text, tag):
-    return text[:text.find("<"+tag+">")] + text[text.find("</"+tag+">") + len(tag)+3:]
-    
-####################################
-tree=et.fromstring(xml)
-
-for bad in tree.xpath("//fruit[@state=\'rotten\']"):
-  bad.getparent().remove(bad)     # here I grab the parent of the element to call the remove directly on it
-
-print et.tostring(tree, pretty_print=True, xml_declaration=True)
-
-###################################
-import lxml.etree as et
-
-xml=""
-<groceries>
-  <fruit state="rotten">apple</fruit>
-  <fruit state="fresh">pear</fruit>
-  <punnet>
-    <fruit state="rotten">strawberry</fruit>
-    <fruit state="fresh">blueberry</fruit>
-  </punnet>
-  <fruit state="fresh">starfruit</fruit>
-  <fruit state="rotten">mango</fruit>
-  <fruit state="fresh">peach</fruit>
-</groceries>
-""
-
-tree=et.fromstring(xml)
-
-for bad in tree.xpath("//fruit[@state='rotten']"):
-    bad.getparent().remove(bad)
-
-print et.tostring(tree, pretty_print=True)
-
-###################################
-for bad in tree.xpath("//fruit[@state=\'rotten\']"):
-  bad.getparent().remove(bad)
-  
-###################################
-https://stackoverflow.com/questions/7981840/how-to-remove-an-element-in-lxml
-###################################
-e.getparent().remove(e)
-
-###################################
-https://www.geeksforgeeks.org/remove-all-style-scripts-and-html-tags-using-beautifulsoup/
-
-# Import Module
-from bs4 import BeautifulSoup
-
-# HTML Document
-HTML_DOC = ""
-			<html>
-				<head>
-					<title> Geeksforgeeks </title>
-					<style>.call {background-color:black;} </style>
-					<script>getit</script>
-				</head>
-				<body>
-					is a
-					<div>Computer Science portal.</div>
-				</body>
-			</html>
-			""
-
-# Function to remove tags
-def remove_tags(html):
-
-	# parse html content
-	soup = BeautifulSoup(html, "html.parser")
-
-	for data in soup(['style', 'script']):
-		# Remove tags
-		data.decompose()
-
-	# return data by retrieving the tag content
-	return ' '.join(soup.stripped_strings)
-
-
-# Print the extracted data
-print(remove_tags(HTML_DOC))
-
-###################################
-# Import Module
-from bs4 import BeautifulSoup
-
-# HTML Documen
-HTML_DOC = ""
-			<html>
-				<head>
-					<title> Geeksforgeeks </title>
-					<style>.call {background-color:black;} </style>
-					<script>getit</script>
-				</head>
-				<body>
-					is a
-					<div>Computer Science portal.</div>
-				</body>
-			</html>
-			""
-
-# Function to remove tags
-def remove_tags(html):
-
-	# parse html content
-	soup = BeautifulSoup(html, "html.parser")
-
-	for data in soup(['style', 'script']):
-		# Remove tags
-		data.decompose()
-
-	# return data by retrieving the tag content
-	return ' '.join(soup.stripped_strings)
-
-
-# Print the extracted data
-print(remove_tags(HTML_DOC))
-
-
-###################################
-document.getElementById("FirstDiv").remove();
-
-###################################
-###################################
-###################################
-###################################
-###################################
-###################################
-###################################
-###################################
-###################################
-
-###################################
 
 """
-
-# -----------------------------------------
-# init the colorama module
-# -----------------------------------------
-from tabnanny import verbose
 from helpers_web import links_make_absolute, links_remove_externals, links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
@@ -327,6 +32,7 @@ from urllib.parse import urlparse
 import pyautogui as pag
 
 import app_110_image_sizes
+import urllib.parse
 
 import config
 GREEN = config.GREEN
@@ -337,19 +43,17 @@ RED = config.RED
 CYAN = config.CYAN
 MAGENTA = config.MAGENTA
 
-
-# https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
-
-
 # -----------------------------------------
 #
 # -----------------------------------------
-start_secs      = time.time()
-images_written  = []
-assets_written  = []
-verbose         = True
+start_secs              = time.time()
+images_written          = []
+assets_written          = []
+verbose                 = True
 
-image_size_tuples = []
+image_size_tuples       = []
+
+b_extend_rescan_urls    = False
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -360,9 +64,6 @@ def assets_save_internals_locally(
     project_folder,
     b_strip_ver=True
 ):
-    #print("assets_save_internals_locally:", links)
-    # # links =  wh.links_remove_nones(links)
-    # # print("assets_save_internals_locally: AFTER:", links)
 
     global images_written, assets_written
 
@@ -376,18 +77,7 @@ def assets_save_internals_locally(
     links = sorted(links)
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
-    # append the links to a file
-    if False:
-        suffix_file_path = config.path_data_netloc + suffix + ".txt" 
-        wh.list_to_file(links, suffix_file_path, mode="a")
-        # minimize that file
-        if os.path.isfile(suffix_file_path):
-            stored_links = wh.list_from_file(suffix_file_path)
-            stored_links = wh.links_make_unique(stored_links)
-            stored_links = sorted(stored_links)
-        wh.list_to_file(stored_links, suffix_file_path)      
-    
-    # loop tze links
+    # loop the links
     for src in links:
 
         ###src = src.strip()
@@ -444,62 +134,20 @@ def assets_save_internals_locally(
         
         bOK = wh.download_asset(abs_src, local_path, base, max_tries=10, pre="\t\t")
 
-        # # # # get and save link-asset to disk
-        # # # wh.make_dirs(local_path)
-        # # # if not wh.file_exists_and_valid(local_path):
-
-        # # #     # may_be_a_folder(abs_src):  # folders may get exception below?
-        # # #     if wh.url_is_assumed_file(abs_src):
-
-        # # #         wh.sleep_random(config.wait_secs,
-        # # #                         verbose_string=src, prefix="\t\t ")  # abs_src
-
-        # # #         # GET the file via session requests
-        # # #         max_tries = 10
-        # # #         for cnt in range(max_tries):
-        # # #             try:
-        # # #                 print(
-        # # #                     f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
-        # # #                 session = requests.Session()
-        # # #                 session.get(base)  # sets cookies
-        # # #                 res = session.get(abs_src)
-        # # #                 break
-        # # #             except Exception as e:
-        # # #                 print("\n"*4)
-        # # #                 print(
-        # # #                     f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
-        # # #                 time.sleep(3)
-        # # #         # SAVE the file binary to disk local
-        # # #         try:
-        # # #             with open(local_path, 'wb') as fp:
-        # # #                 fp.write(res.content)
-        # # #                 print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
-        # # #         except:
-        # # #             print(
-        # # #                 f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-        # # #     else:
-        # # #         print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
-        # # # else:
-        # # #     print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
         if verbose:
-            # dots rel to url of this url, not to the image itself
-            ####print(f"{GRAY}\t\t url       : {url}{RESET}")
             print(f"{GRAY}\t\t\t src       : {src}{RESET}")
             #print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
             print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
             print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}") 
-            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
 
         # post replace
         # TODO would be better to set tags or change tags or rename tags
         # NOTE this happens as well in app_200
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
+        #no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
         for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
             content = content.replace(f(src), f(new_src))
             if verbose:
-                #print(f"{GRAY}\t\t\t replacing: {f(src)} --> {GREEN}{f(new_src)} {RESET}") 
                 print(f"{GRAY }\t\t\t replaced: {f(src)} {RESET}-->") 
                 print(f"{GREEN}\t\t\t           {f(new_src)} {RESET}") 
 
@@ -510,7 +158,6 @@ def assets_save_internals_locally(
 # -----------------------------------------
 def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
 
-    # ensure trailing slash
     ####url = wh.add_trailing_slash(url)  NO!!!
     b_use_driver = True
 
@@ -539,7 +186,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         if content:
             break # all OK
         else:
-            if tries == 0:
+            # try another protocol
+            if (tries % 2):
                 url = "http://" + wh.strip_protocol(url)
             else:
                 url = "https://" + wh.strip_protocol(url)
@@ -547,8 +195,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             time.sleep(2)
     # for tries   get />
     
-    assert content
-
+    # make sure utf-8
+    #assert content
+    content = content.encode('utf-8') # NEW # .encode('ascii', 'ignore')
+    content = urllib.parse.unquote(content) # NEW
+ 
     # -----------------------------------------
     #
     # -----------------------------------------
@@ -567,13 +218,11 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     if(config.DEBUG): 
         path_replaced_pre = wh.save_html(content, path_index_base + "_replaced_pre.html")
 
-
     # -----------------------------------------
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
     
-
     # -----------------------------------------
     # all urls a links
     # -----------------------------------------
@@ -582,7 +231,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     # make lists
     # -----------------------------------------
-
     links_head_href = h.xpath('head//@href')
 
     links_body_href = h.xpath('body//@href')
@@ -612,45 +260,48 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         for text in  h.xpath("//*/@style"):
             links_img += wh.get_background_images_from_inline_style_tag(text)
         
+        if False: 
         # media.ka    
-        import json
-        for jstring in  h.xpath("//*/@data-vjs_setup"):
-            j = json.loads(jstring)
-            #print(json.dumps(j, indent=4), sep="\n\t\t")
-            print("\t\t\t", j.get("poster", None))
-            links_img.append(j.get("poster", None))
-            
-        if True: #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            import json
+            for jstring in  h.xpath("//*/@data-vjs_setup"):
+                j = json.loads(jstring)
+                #print(json.dumps(j, indent=4), sep="\n\t\t")
+                print("\t\t\t", j.get("poster", None))
+                links_img.append(j.get("poster", None))
+          
+        # SLOW #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+        if False: 
             # traverse body: all elements for style NEW TODO SLOW!
-            print("\t", "driver.find_elements: By.XPATH body", flush=True)
+            print("\t\t", "driver.find_elements: By.XPATH body", flush=True)
             for e in driver.find_elements(By.XPATH, "//body//*"):
                 imgpath = e.value_of_css_property("background-image")
                 if imgpath != "none" and "url" in imgpath:
-                    print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
+                    print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
+                    url = urllib.parse.unquote(url) # !!!
                     links_img.append( url )
                     
-        #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!            
-        # TODO should log to sizes file right here
-        assert b_use_driver
-        app_110_image_sizes.find_all_image_size_tuples(
-            image_size_tuples, 
-            driver, 
-            config.base,
-            [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
-            b_scan_srcset=False, 
-            pre="\t\t"
-        )
-        print("len(image_size_tuples):", len(image_size_tuples))
-        
-        # to file
-        try:
-            # TODO at the very end create header nd make unique
-            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
-        except Exception as e:
-            print(wh.RED, e, wh.RESET)   
+        #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+        if True:          
+            # TODO should log to sizes file right here
+            assert b_use_driver
+            app_110_image_sizes.find_all_image_size_tuples(
+                image_size_tuples, 
+                driver, 
+                config.base,
+                [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+                b_scan_srcset=False, 
+                pre="\t\t"
+            )
+            print("len(image_size_tuples):", len(image_size_tuples))
             
-              
+            # to file
+            try:
+                # TODO at the very end create header nd make unique
+                wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+            except Exception as e:
+                print(wh.RED, e, wh.RESET)   
+            
     else:           
         # this loads ALL images in one go, not just the ones in each page  >> some extra work replacing links..
         links_img = app_110_image_sizes.file_image_sizes_get_urls()
@@ -664,35 +315,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # scripts
     #-----------
     links_scripts = h.xpath('//script/@src')
-    # list_script_text = h.xpath("//script/text()")
-    # import re
-    # import json
-    # for text in list_script_text:
-    #     text = jsbeautifier.beautify(text)
-    #     print("script", GRAY + text + RESET)
-    #     # j = json.loads(text)
-    #     # print(MAGENTA, json.dumps(j, indent=4), RESET)
 
-    #     # # # s = re.findall("'([^']*)'", text)
-    #     #s = re.findall("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})", text)
-    #     s = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
-    #     #s = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', text)
-    #     regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-    #     s = re.findall(regex, text)
-    #     print("s", YELLOW, *s, RESET, sep="\n\t")
-
-    # exit(0)
-
+    #-----------
+    # perform
+    #-----------
     # https://realpython.com/python-zip-function/
-    if True:
-        # need to replace image!
-        lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
-        suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
-    else:
-        # nor more images as being scanned in app_110
-        lists =     [links_head_href,   links_body_href,   links_link_href,   links_scripts]  
-        suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_scripts"]
-        
+    lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
+    suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
+
     for links, suffix in zip(lists, suffixes):
         print(MAGENTA, end='')
         print("/" * 80)
@@ -713,9 +343,9 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # -----------------------------------------
     # save
     # -----------------------------------------
-    ####content = wh.html_minify(content) # only at the very end!
+    ####content = wh.html_minify(content) # only at the very end!!!!
     path_minified   = wh.save_html(content, path_index_base + ".html") # index.html
-    ###path_pretty     = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
+    ###path_pretty = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
     print("make_static: all done.")
     
@@ -931,7 +561,6 @@ if __name__ == "__main__":
             driver = webdriver.Chrome(options=config.options)
             driver.implicitly_wait(30)
             # driver.execute_script("alert('alert via selenium')")
-            # driver.maximize_window()
             break
         except Exception as e:
             print(f"{RED} {e} {RESET}")
@@ -940,7 +569,7 @@ if __name__ == "__main__":
     # -----------------------------------------
     # RE-scan for new links:
     # -----------------------------------------     
-    b_extend_rescan_urls = False
+    
     if b_extend_rescan_urls:   
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
