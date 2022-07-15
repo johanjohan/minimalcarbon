@@ -638,7 +638,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             config.base,
             [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
             b_scan_srcset=False, 
-            pre="\t"
+            pre="\t\t"
         )
         print("len(image_size_tuples):", len(image_size_tuples))
         
@@ -1014,7 +1014,7 @@ if __name__ == "__main__":
         # # # if count == 3:
         # # #     break
 
-
+        print()
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
         print()
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
