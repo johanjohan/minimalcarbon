@@ -81,7 +81,7 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
     
     # ignore external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
     protocol, loc, path = wh.url_split(url)
-    bases = list(bases)
+    bases               = list(bases)
     if not any([(loc in b) for b in bases]):
         print(pre, "ignore:", "external:", wh.RED, url, wh.RESET)
         return 
