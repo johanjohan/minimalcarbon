@@ -43,6 +43,8 @@ import shutil
 import pillow_lut 
 import pillow_avif
 
+import app_110_image_sizes
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -64,6 +66,9 @@ if __name__ == "__main__":
     # dir_size_orig
     #-----------------------------------------
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
+    
+    print()
+    app_110_image_sizes.file_image_sizes_make_unique()
 
     #pag.alert(text=f"good time to backup htdocs!", timeout=2000)
     #-----------------------------------------
@@ -98,7 +103,7 @@ if __name__ == "__main__":
             "quality":              55, # 66 55
             
             "size_thresh":          1000, 
-            "size_large":           (1280, 1280), 
+            "size_large":           (1300, 1300), 
             "size_small":           (480, 480),
             
             "resample":             Image.Resampling.LANCZOS, 
@@ -521,7 +526,7 @@ if __name__ == "__main__":
                                     print("\t\t", wh.GREEN, "found:", c_base, w, h, c_nw, c_nh, wh.RESET)
                                     
                                     #break # can find multiple entries per image --> accumulate bigger w then
-                                    break # now reverse sorted list so highest wh comes first
+                                    break # now reverse by width sorted list so highest wh comes first
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)

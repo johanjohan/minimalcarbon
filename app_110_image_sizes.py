@@ -206,32 +206,51 @@ find_all_image_size_tuples.counter = 0
 #-----------------------------------------
 # 
 #-----------------------------------------
-def file_image_sizes_make_unique(b_sort=True, b_sort_reverse=True):
-    
+def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
+
     print("file_image_sizes_make_unique:", wh.GRAY + config.path_image_sizes, wh.RESET)
     
     if not os.path.isfile(config.path_image_sizes):
         return
-    
-    res = []
-    with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-        for line in fp:
-            if line.startswith('/'):
-                subs = line.rstrip('\n').split(',')
-                res.append(list(subs))
-    
-    len_orig = len(res)            
-    res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
-    
-    if b_sort:
-        res = sorted(res, reverse=b_sort_reverse) # reverse we can skip searching after first hit which is highest size
+            
+    if True:
+        res = []
+        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+            for line in fp:
+                if line.startswith('/'): # hmmm, again an assumption.....bit bad
+                    subs = line.rstrip('\n').split(',')
+                    res.append(list(subs))
+        len_orig = len(res)     
+        # make unique       
+        res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
         
-    print("file_image_sizes_make_unique: removed:", len(res) - len_orig, "items") 
-    
-    #print("res", *res, sep="\n\t")   
-    
-    wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
-    wh.list_to_file(res, config.path_image_sizes, mode="a")            
+        if b_sort:
+            from natsort import natsorted, ns
+            res = natsorted(res, key=lambda x: x[2], reverse=b_reverse) # reverse we can skip searching after first hit which is highest size
+
+        wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
+        wh.list_to_file(res, config.path_image_sizes, mode="a")     
+        print("file_image_sizes_make_unique: removed:", wh.CYAN, len_orig - len(res), "items", wh.RESET) 
+        
+    else:
+        wh.file_make_unique(config.path_image_sizes, sort=False)
+        
+        import sys, csv   
+        data = csv.reader(open(config.path_image_sizes), delimiter=',')     
+        import operator
+        # from natsort import natsorted, ns
+        # sortedlist = natsorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)   
+        from natsort import os_sorted
+        sortedlist = os_sorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)
+        wh.list_to_file(sortedlist, config.path_image_sizes, mode="w")
+
+        """
+        import pandas
+        csvData = pandas.read_csv('myfile.csv')
+        csvData.sort_values(["date"], axis=0, ascending=[False], inplace=True)
+        print(csvData)
+        """
+
     
 #-----------------------------------------
 def file_image_sizes_get_index(index):
@@ -262,6 +281,9 @@ def file_image_sizes_get_urls():
 #-----------------------------------------
 
 if __name__ == "__main__":
+    
+    
+    file_image_sizes_make_unique()
     
     print("do not use")
     exit(0)
