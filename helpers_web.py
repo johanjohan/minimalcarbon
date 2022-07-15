@@ -1723,8 +1723,6 @@ def sanitize_filepath_and_url(_orig_path,  rep = '_'):
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=
     """
 
-    
-    
     # # change umlauts
     # fixedpath = __sanitize_umlauts(fixedpath)
     
@@ -2167,7 +2165,6 @@ def download_asset(
     
     ret = True
 
-    pre += "\t"
     make_dirs(local_path)
     if not file_exists_and_valid(local_path):
 
@@ -2179,7 +2176,7 @@ def download_asset(
             # GET the file via session requests
             for cnt in range(max_tries):
                 try:
-                    print(pre, f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
+                    print(pre, f"{CYAN}[{cnt}] session.get: {abs_src}{RESET}")
                     session = requests.Session()
                     session.get(base)  # sets cookies
                     res = session.get(abs_src)
@@ -2187,7 +2184,7 @@ def download_asset(
                     break
                 except Exception as e:
                     print("\n"*4)
-                    print(pre, f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
+                    print(pre, f"{RED}ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
                     time.sleep(sleep_secs_on_failure)
                     ret = False
             ### for />
