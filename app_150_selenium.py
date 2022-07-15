@@ -293,7 +293,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 b_scan_srcset=False, 
                 pre="\t\t"
             )
-            print("len(image_size_tuples):", len(image_size_tuples))
+            print("\t\t", "len(image_size_tuples):", len(image_size_tuples))
             
             # to file
             try:

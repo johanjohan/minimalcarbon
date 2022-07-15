@@ -1183,7 +1183,7 @@ def extract_background_image_from_property(property, pre="\t\t"):
                 url = property.value.split(' url(')[-1]
                 url = url.replace("(", "").replace(")", "").replace("!important", "")
                 url = url.strip().lstrip("url")
-                print(pre, RESET, property.name, GRAY, url, RESET)
+                print(pre, property.name, GRAY, url, RESET)
                 # # # if property.name == 'content':
                 # # #     time.sleep(0.5) # <<< this one here
                 return url
@@ -1203,7 +1203,7 @@ def get_background_images_from_stylesheet_string(style_string, pre="\t\t"):
                 for property in rule.style:
                     url = extract_background_image_from_property(property)
                     if url:
-                        print(pre, RESET, property.name, GRAY, url, RESET)
+                        print(pre, property.name, GRAY, url, RESET)
                         urls.append(url)
     except Exception as e:
         print(f"{RED}get_background_images_from_stylesheet_string: cssutils.parseString {e} {RESET}")
