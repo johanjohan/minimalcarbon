@@ -135,7 +135,7 @@ path_htdocs_robots          = project_folder + filename_robots
 path_custom_css             = path_data_netloc + "custom.css"
 path_image_tuples_written   = path_stats + base_netloc + "_150_images_written.csv"
 path_asset_tuples_written   = path_stats + base_netloc + "_150_assets_written.csv"
-path_image_sizes            = path_stats + base_netloc + "_110_image_sizes.csv"
+path_image_sizes            = path_stats + base_netloc + "_110_image_sizes_v3.csv"
 path_image_sizes_visited    = path_stats + base_netloc + "_110_image_sizes_visited.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"

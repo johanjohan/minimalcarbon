@@ -73,7 +73,7 @@ import requests
 #-----------------------------------------
 # 
 #-----------------------------------------            
-def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
@@ -124,10 +124,11 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
-def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"):
+def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t"):
         
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
+    print(pre, "find_all_image_size_tuples: base         :", wh.GRAY, base,  wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
     
     pre += "\t"
@@ -213,6 +214,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
         __append_to_image_size_tuples(
             collected,
             url, 
+            base,
             bases,
             e,
             vt=wh.GREEN
@@ -249,12 +251,14 @@ def file_image_sizes_make_unique():
     
 def file_image_sizes_get_index(index):
     res = []
-    with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-        for line in fp:
-            if line.startswith('/'):
-                subs = line.rstrip('\n').split(',')
-                assert index < len(subs), f"{index} < {len(subs)}"
-                res.append(subs[index])
+    
+    if os.path.isfile(config.path_image_sizes):
+        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+            for line in fp:
+                if line.startswith('/'):
+                    subs = line.rstrip('\n').split(',')
+                    assert index < len(subs), f"{index} < {len(subs)}"
+                    res.append(subs[index])
              
     res = wh.links_make_unique(res) 
     res = sorted(res)          
@@ -359,6 +363,7 @@ if __name__ == "__main__":
                     find_all_image_size_tuples(
                         image_size_tuples, 
                         driver, 
+                        base,
                         bases, 
                         b_scan_srcset=False, 
                         pre="\t"

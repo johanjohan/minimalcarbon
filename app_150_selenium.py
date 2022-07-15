@@ -326,6 +326,8 @@ import cssbeautifier
 from urllib.parse import urlparse
 import pyautogui as pag
 
+import app_110_image_sizes
+
 import config
 GREEN = config.GREEN
 GRAY = config.GRAY
@@ -345,7 +347,9 @@ MAGENTA = config.MAGENTA
 start_secs      = time.time()
 images_written  = []
 assets_written  = []
-verbose         = False
+verbose         = True
+
+image_size_tuples = []
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -524,13 +528,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         try:
             if b_use_driver:
                 driver.get(url)
-                wh.wait_for_page_has_loaded(driver)
+                #wh.wait_for_page_has_loaded(driver)
+                wh.wait_for_page_has_loaded_hash(driver, max_tries=20)
                 content = driver.page_source
             else:
                 content = wh.get_content(url)
         except Exception as e:
             print(f"{RED}\t ERROR: GET url: {url} {RESET}")
-
+            
         if content:
             break # all OK
         else:
@@ -588,7 +593,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     #-----------
     # images
     #-----------
-    if False:
+    if True:
         # driver.find_element_by_xpath('//a[@href="'+url+'"]')
         links_img  = h.xpath('//img/@src')
         links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
@@ -615,8 +620,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             print("\t\t\t", j.get("poster", None))
             links_img.append(j.get("poster", None))
             
-        #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if True:
+        
+        if True: #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             # traverse body: all elements for style NEW TODO SLOW!
             print("\t", "driver.find_elements: By.XPATH body", flush=True)
             for e in driver.find_elements(By.XPATH, "//body//*"):
@@ -625,10 +630,29 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
                     links_img.append( url )
-     
+                    
+        #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!            
+        # TODO should log to sizes file right here
+        app_110_image_sizes.find_all_image_size_tuples(
+            image_size_tuples, 
+            driver, 
+            config.base,
+            [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+            b_scan_srcset=False, 
+            pre="\t"
+        )
+        print("len(image_size_tuples):", len(image_size_tuples))
+        
+        # to file
+        try:
+            # TODO at the very end create header nd make unique
+            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+        except Exception as e:
+            print(wh.RED, e, wh.RESET)   
+            
+              
     else:           
         # this loads ALL images in one go, not just the ones in each page  >> some extra work replacing links..
-        import app_110_image_sizes          
         links_img = app_110_image_sizes.file_image_sizes_get_urls()
         #print("links_img", wh.GRAY, *links_img, wh.RESET, sep="\n\t")
             
@@ -879,6 +903,12 @@ if __name__ == "__main__":
     wh.make_dirs(config.project_folder)
     shutil.copyfile(config.path_sitemap_xml,
                     config.project_folder + "sitemap.xml")
+    
+    # -----------------------------------------
+    # 
+    # -----------------------------------------
+    image_size_tuples = []
+    app_110_image_sizes.file_image_sizes_make_unique()
 
     # -----------------------------------------
     # 
@@ -1007,8 +1037,10 @@ if __name__ == "__main__":
 
     driver.close()
     driver.quit()
+    
+    app_110_image_sizes.file_image_sizes_make_unique()
 
-    # save image tuples list
+    # save images written
     images_written = sorted(list(set(images_written)))
     print("saving images_written:", config.path_image_tuples_written)
     with open(config.path_image_tuples_written, 'w', encoding="utf-8") as fp:
