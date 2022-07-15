@@ -4,6 +4,49 @@ may better split image sizes files for keeping track of parent_urls
 the list is getting very large right now
 
 
+#-----------
+    # images
+    #-----------
+    # driver.find_element_by_xpath('//a[@href="'+url+'"]')
+    links_img  = h.xpath('//img/@src')
+    links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
+    links_img += wh.get_background_images_from_style_attribute(driver)
+    # TODO need to replace these in css as well
+    links_img += wh.get_background_images_from_stylesheet_file(style_path)
+    
+    for text in h.xpath("//style/text()"):
+        links_img += wh.get_background_images_from_stylesheet_string(text)
+    
+    for text in  h.xpath("//div/@style"):
+        links_img += wh.get_background_images_from_inline_style_tag(text)
+    for text in  h.xpath("//video/@style"):
+        links_img += wh.get_background_images_from_inline_style_tag(text)        
+    # a lot of images in media.
+    for text in  h.xpath("//*/@style"):
+        links_img += wh.get_background_images_from_inline_style_tag(text)
+    
+    # media.ka    
+    import json
+    for jstring in  h.xpath("//*/@data-vjs_setup"):
+        j = json.loads(jstring)
+        #print(json.dumps(j, indent=4), sep="\n\t\t")
+        print("\t\t\t", j.get("poster", None))
+        links_img.append(j.get("poster", None))
+        
+    #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if True:
+        # traverse body: all elements for style NEW TODO SLOW!
+        print("\t", "driver.find_elements: By.XPATH body", flush=True)
+        for e in driver.find_elements(By.XPATH, "//body//*"):
+            imgpath = e.value_of_css_property("background-image")
+            if imgpath != "none" and "url" in imgpath:
+                print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
+                url = wh.extract_url(imgpath)
+                links_img.append( url )
+ 
+     
+
+
 """
 
 import chromedriver_binary  # pip install chromedriver-binary-auto
@@ -25,13 +68,6 @@ import os
 
 
 import requests
-
-start_secs          = time.time()
-image_sizes         = []
-urls_visited        = []
-b_take_snapshot     = False 
-b_scan_image_sizes  = True
-b_download_images   = True  # TODO make own program
 
 
 #-----------------------------------------
@@ -136,6 +172,16 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
                 __add(e, url, eu)
         print(wh.RESET)
         
+        # favicon
+        xpath_css = "//link[contains(@rel, 'icon')]"
+        print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
+        print(pre, wh.CYAN, end='')
+        for e in driver.find_elements(By.XPATH, xpath_css):
+            url = e.get_attribute("href")
+            print(wh.YELLOW, url, wh.RESET)
+            __add(e, url, eu)
+        print(wh.RESET)      
+        
         # # # # # # # style background: already caught above
         # # # # # # if False:
         # # # # # #     print(pre, "driver.find_elements: By.XPATH", flush=True)
@@ -146,6 +192,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
         # # # # # #         url = extract_url(e.get_attribute("style"))
         # # # # # #         __add(e, url, eu)
         # # # # # #     print(wh.RESET)
+        
     except Exception as e:
         print(pre, wh.RED, "ERROR", e, wh.RESET)
             
@@ -216,6 +263,14 @@ def file_image_sizes_get_urls():
 #-----------------------------------------
 
 if __name__ == "__main__":
+    
+    start_secs          = time.time()
+    ###image_sizes         = []
+    urls_visited        = []
+    b_take_snapshot     = False 
+    b_scan_image_sizes  = True
+    b_download_images   = True  # TODO make own program
+
     
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)

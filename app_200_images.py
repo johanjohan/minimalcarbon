@@ -158,7 +158,6 @@ import shutil
 import pillow_lut 
 import pillow_avif
 
-
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -167,8 +166,8 @@ if __name__ == "__main__":
     #-----------------------------------------
     # alert
     #-----------------------------------------    
-    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=2000)
-    pag.alert("also change navText hardcoded in scripts...", timeout=2000)
+    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=1000)
+    pag.alert("also change navText hardcoded in scripts...", timeout=1000)
         
     #-----------------------------------------
     # logo
