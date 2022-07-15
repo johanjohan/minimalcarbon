@@ -166,8 +166,8 @@ if __name__ == "__main__":
     #-----------------------------------------
     # alert
     #-----------------------------------------    
-    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=1000)
-    pag.alert("also change navText hardcoded in scripts...", timeout=1000)
+    pag.alert("make sure to also change backgrond image extensions in style.css...", timeout=10000)
+    pag.alert("also change navText hardcoded in scripts...", timeout=10000)
         
     #-----------------------------------------
     # logo
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False, # <<<<<<<<<<<<<<<<<<<<      
@@ -228,7 +228,7 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "blend_alpha":          0.75, # 0.666 0.8   
+            "blend_alpha":          0.6, # 0.666 0.8 0.75  
             "b_enhance_transp":     True,         
             
             ###"b_1bit":               False,  # very bad

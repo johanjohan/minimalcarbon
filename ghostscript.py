@@ -25,7 +25,7 @@ def compress_pdf(in_path, out_path, compression='/screen', res=144, compat='1.4'
     
     print("compress_pdf:", "in_path    :", wh.CYAN, os.path.basename(in_path),  wh.RESET)
     print("compress_pdf:", "out_path   :", wh.CYAN, os.path.basename(out_path), wh.RESET)
-    print("compress_pdf:", "res        :", res)
+    print("compress_pdf:", "res        :", wh.YELLOW, res, wh.RESET)
     print("compress_pdf:", "compression:", compression)
     print("compress_pdf:", "compat     :", compat)
     print("compress_pdf:", gs_exe)

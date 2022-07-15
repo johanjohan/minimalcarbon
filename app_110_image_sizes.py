@@ -79,7 +79,7 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
         return
     
-    # external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
+    # ignore external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
     protocol, loc, path = wh.url_split(url)
     bases = list(bases)
     if not any([(loc in b) for b in bases]):
@@ -161,15 +161,24 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
                     __add(e, url, eu)
             print(wh.RESET)
 
-        # traverse body: all elements for styles attached
+        # traverse body: all elements for styles attached, a bit slow but effective
         xpath_css = "//body//*"
         print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
         print(pre, wh.CYAN, end='')
         for e in driver.find_elements(By.XPATH, xpath_css):
-            imgpath = e.value_of_css_property("background-image")
+            
+            imgpath = e.value_of_css_property("background-image") # may as well look for content:
             if imgpath != "none" and "url" in imgpath:
                 url = wh.extract_url(imgpath)
                 __add(e, url, eu)
+                
+            imgpath = e.value_of_css_property("content") # may as well look for content:
+            if imgpath != "none" and "url" in imgpath:
+                print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< TRAY
+                time.sleep(3)
+                url = wh.extract_url(imgpath)
+                __add(e, url, eu)
+
         print(wh.RESET)
         
         # favicon
