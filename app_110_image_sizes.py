@@ -44,9 +44,9 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         return 
     
     if e and url:
-        
-        local = '/' + path # no loc as we already have proven it is internal
-        local = wh.get_path_local_root_subdomains(local, base)
+        # TODO should broken down to 
+        ###local = '/' + path # no loc as we already have proven it is internal
+        local           = wh.get_path_local_root_subdomains(url, base)
         local_name, ext = os.path.splitext(local)
         
         tpl  = [
@@ -78,12 +78,13 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
-def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t"):
+def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t", turns_for_slow_funcs=3):
         
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
     print(pre, "find_all_image_size_tuples: base         :", wh.GRAY, base,  wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
+    print(pre, "find_all_image_size_tuples: counter      :", wh.GRAY, find_all_image_size_tuples.counter, wh.RESET)
     pre += "\t"
     
     eu      = set()   
@@ -118,35 +119,39 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
                     __add(e, url, eu)
             print(wh.RESET)
 
+        
+        # TODO these could only be traversed once or twice !!!!!!!!!!!!!!!!!!!!!!!!
         # traverse body: all elements for styles attached, a bit slow but effective
-        xpath_css = "//body//*"
-        print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
-        print(pre, wh.CYAN, end='')
-        for e in driver.find_elements(By.XPATH, xpath_css):
-            
-            imgpath = e.value_of_css_property("background-image") 
-            if imgpath != "none" and "url" in imgpath:
-                url = wh.extract_url(imgpath)
-                __add(e, url, eu)
+        if find_all_image_size_tuples.counter < turns_for_slow_funcs:
+            xpath_css = "//body//*"
+            print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
+            print(pre, wh.CYAN, end='')
+            for e in driver.find_elements(By.XPATH, xpath_css):
                 
-            imgpath = e.value_of_css_property("content")
-            if imgpath != "none" and "url" in imgpath:
-                print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< 
-                time.sleep(3)
-                url = wh.extract_url(imgpath)
-                __add(e, url, eu)
+                imgpath = e.value_of_css_property("background-image") 
+                if imgpath != "none" and "url" in imgpath:
+                    url = wh.extract_url(imgpath)
+                    __add(e, url, eu)
+                    
+                imgpath = e.value_of_css_property("content")
+                if imgpath != "none" and "url" in imgpath:
+                    print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< 
+                    time.sleep(3)
+                    url = wh.extract_url(imgpath)
+                    __add(e, url, eu)
 
-        print(wh.RESET)
+            print(wh.RESET)
         
         # favicon
-        xpath_css = "//link[contains(@rel, 'icon')]"
-        print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
-        print(pre, wh.CYAN, end='')
-        for e in driver.find_elements(By.XPATH, xpath_css):
-            url = e.get_attribute("href")
-            print(wh.YELLOW, url, wh.RESET)
-            __add(e, url, eu)
-        print(wh.RESET)      
+        if find_all_image_size_tuples.counter < turns_for_slow_funcs:
+            xpath_css = "//link[contains(@rel, 'icon')]"
+            print(pre, f"driver.find_elements: By.XPATH {xpath_css}", flush=True)
+            print(pre, wh.CYAN, end='')
+            for e in driver.find_elements(By.XPATH, xpath_css):
+                url = e.get_attribute("href")
+                print(wh.YELLOW, url, wh.RESET)
+                __add(e, url, eu)
+            print(wh.RESET)      
         
         # # # # # # # style background: already caught above
         # # # # # # if False:
@@ -173,7 +178,10 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
             bases,
             e,
             vt=wh.GREEN
-        )     
+        ) 
+    find_all_image_size_tuples.counter += 1
+### /> def
+find_all_image_size_tuples.counter = 0    
         
 #-----------------------------------------
 # 

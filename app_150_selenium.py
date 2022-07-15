@@ -156,7 +156,7 @@ def assets_save_internals_locally(
 # -----------------------------------------
 #
 # -----------------------------------------
-def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2)):
+def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2), turns_slow_funcs=3):
 
     ####url = wh.add_trailing_slash(url)  NO!!!
     b_use_driver = True
@@ -170,6 +170,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
         print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
+        print(f"{CYAN}\t counter     : {make_static.counter} {RESET}")
         wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ")  # verbose_string=url
 
         try:
@@ -195,7 +196,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             time.sleep(2)
     # for tries   get />
     
-    # make sure utf-8
+    # NO NO NO make sure utf-8
     #assert content
     # # # # # content = content.encode('utf-8') # NEW # .encode('ascii', 'ignore') no no no
     # # # # # content = urllib.parse.unquote(content) # NEW  no no no
@@ -270,7 +271,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 links_img.append(j.get("poster", None))
           
         # SLOW #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-        if False: 
+        if make_static.counter < turns_slow_funcs: 
             # traverse body: all elements for style NEW TODO SLOW!
             print("\t\t", "driver.find_elements: By.XPATH body", flush=True)
             for e in driver.find_elements(By.XPATH, "//body//*"):
@@ -282,28 +283,26 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     links_img.append( url )
                     
         #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-        if True:          
-            # TODO should log to sizes file right here
-            assert b_use_driver
-            app_110_image_sizes.find_all_image_size_tuples(
-                image_size_tuples, 
-                driver, 
-                config.base,
-                [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
-                b_scan_srcset=False, 
-                pre="\t\t"
-            )
-            print("\t\t", "len(image_size_tuples):", len(image_size_tuples))
-            
-            # to file
-            try:
-                # TODO at the very end create header nd make unique
-                wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
-            except Exception as e:
-                print(wh.RED, e, wh.RESET)   
+        assert b_use_driver
+        app_110_image_sizes.find_all_image_size_tuples(
+            image_size_tuples, 
+            driver, 
+            config.base,
+            [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+            b_scan_srcset=False, 
+            pre="\t\t"
+        )
+        print("\t\t", "len(image_size_tuples):", len(image_size_tuples))
+        
+        # to file
+        try:
+            # TODO at the very end create header nd make unique
+            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+        except Exception as e:
+            print(wh.RED, e, wh.RESET)   
             
     else:           
-        # this loads ALL images in one go, not just the ones in each page  >> some extra work replacing links..
+        # this loads ALL images in one go, not just the ones in each page  >> takes some extra time replacing links..
         links_img = app_110_image_sizes.file_image_sizes_get_urls()
         #print("links_img", wh.GRAY, *links_img, wh.RESET, sep="\n\t")
             
@@ -347,11 +346,15 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     path_minified   = wh.save_html(content, path_index_base + ".html") # index.html
     ###path_pretty = wh.save_html(content, path_index_base + "_pretty.html", pretty=True)
 
+    make_static.counter += 1
+    
     print("make_static: all done.")
     
     return wh.links_sanitize(links_a_href)
     
 # make_static />
+make_static.counter = 0
+
 # -----------------------------------------
 #
 # -----------------------------------------

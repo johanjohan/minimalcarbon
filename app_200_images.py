@@ -95,7 +95,7 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              60, # 66 55
+            "quality":              55, # 66 55
             
             ##"max_dim":            (500, 500), # could make smaller with avif --> func_size
             "size_thresh":          1000, 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
             "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           True,
-            "blend_alpha":          0.6, # 0.666 0.8 0.75  
+            "blend_alpha":          0.5, # 0.666 0.8 0.75  
             "b_enhance_transp":     True,         
             
             ###"b_1bit":               False,  # very bad
