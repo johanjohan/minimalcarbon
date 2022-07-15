@@ -486,16 +486,14 @@ def assets_save_internals_locally(
 
         # post replace
         # TODO would be better to set tags or change tags or rename tags
+        # NOTE this happens as well in app_200
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        no_f = lambda s: s
-        for f in [dq, sq, pa, qu, no_f]:
-            print(f"{GRAY}\t\t\t replacing: {f(src)} {RESET}") 
+        no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
+        for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
+            #print(f"{GRAY}\t\t\t replacing: {f(src)} --> {GREEN}{f(new_src)} {RESET}") 
+            print(f"{GRAY }\t\t\t replacing: {f(src)} {RESET}-->") 
+            print(f"{GREEN}\t\t\t            {f(new_src)} {RESET}") 
             content = content.replace(f(src), f(new_src))
-
-        # # # content = content.replace(dq(src), dq(new_src))  # "image.png"
-        # # # content = content.replace(sq(src), sq(new_src))  # 'image.png'  in src='
-        # # # content = content.replace(pa(src), pa(new_src))  # (image.png)  in styles url()
-        # # # content = content.replace(qu(src), qu(new_src))  # &quot;https:\/\/media.karlsruhe.digital\/storage\/thumbs\/1920x\/r:1644340878\/659.jpg&quot;
 
     return content
 
@@ -658,11 +656,14 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # exit(0)
 
     # https://realpython.com/python-zip-function/
-    lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
-    suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
-    # # # # nor more images as being scanned in app_110
-    # # # lists =     [links_head_href,   links_body_href,   links_link_href,   links_scripts]  
-    # # # suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_scripts"]
+    if False:
+        lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
+        suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
+    else:
+        # nor more images as being scanned in app_110
+        lists =     [links_head_href,   links_body_href,   links_link_href,   links_scripts]  
+        suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_scripts"]
+        
     for links, suffix in zip(lists, suffixes):
         print(MAGENTA, end='')
         print("/" * 80)
