@@ -497,11 +497,11 @@ def assets_save_internals_locally(
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
         for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
+            content = content.replace(f(src), f(new_src))
             if verbose:
                 #print(f"{GRAY}\t\t\t replacing: {f(src)} --> {GREEN}{f(new_src)} {RESET}") 
-                print(f"{GRAY }\t\t\t replacing: {f(src)} {RESET}-->") 
-                print(f"{GREEN}\t\t\t            {f(new_src)} {RESET}") 
-            content = content.replace(f(src), f(new_src))
+                print(f"{GRAY }\t\t\t replaced: {f(src)} {RESET}-->") 
+                print(f"{GREEN}\t\t\t           {f(new_src)} {RESET}") 
 
     return content
 
@@ -620,7 +620,6 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
             print("\t\t\t", j.get("poster", None))
             links_img.append(j.get("poster", None))
             
-        
         if True: #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             # traverse body: all elements for style NEW TODO SLOW!
             print("\t", "driver.find_elements: By.XPATH body", flush=True)
