@@ -44,6 +44,7 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         return 
     
     if e and url:
+
         # TODO should broken down to 
         ###local = '/' + path # no loc as we already have proven it is internal
         local           = wh.get_path_local_root_subdomains(url, base)
@@ -58,7 +59,16 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
             e.get_attribute("naturalHeight"),
             url,
             "x"
-        ]     
+        ]    
+        
+        if False:
+            print(wh.YELLOW, "url       :", url,        wh.RESET)
+            print(wh.YELLOW, "base      :", base,       wh.RESET)
+            print(wh.YELLOW, "   gplrs():", wh.get_path_local_root_subdomains(url, base),       wh.RESET)
+            print(wh.YELLOW, "bases     :", bases,      wh.RESET)
+            print(wh.YELLOW, "local     :", local,      wh.RESET)
+            print(wh.YELLOW, "local_name:", local_name, wh.RESET)
+            print()
         
         if not tpl in collected: 
             print(pre, vt + str(url), e.size['width'], e.size['height'], wh.RESET)
@@ -78,7 +88,7 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
-def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t", turns_for_slow_funcs=3):
+def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t", turns_for_slow_funcs=config.turns_for_slow_funcs):
         
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
@@ -179,7 +189,9 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
             e,
             vt=wh.GREEN
         ) 
+        
     find_all_image_size_tuples.counter += 1
+    
 ### /> def
 find_all_image_size_tuples.counter = 0    
         
