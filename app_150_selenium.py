@@ -59,7 +59,8 @@ b_extend_rescan_urls    = False
 # TODO  /en/ or invent /de/
 # -----------------------------------------
 def assets_save_internals_locally(
-    content, url, base,
+    content, 
+    url, base,
     links, suffix,
     project_folder,
     b_strip_ver=True
@@ -163,7 +164,7 @@ def make_static(
     style_path, 
     replacements_pre, 
     wait_secs=(1, 2), 
-    turns_for_slow_funcs=3
+    turns_for_slow_funcs=config.turns_for_slow_funcs
     ):
 
     ####url = wh.add_trailing_slash(url)  NO!!!

@@ -147,6 +147,8 @@ folder_exported             = project_folder + "../__exported/"
 date_time_now               = datetime.datetime.now()
 custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 svg_color                   = "darkseagreen"
+
+turns_for_slow_funcs        = 4
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
@@ -320,8 +322,19 @@ for q in ['\"', '\'']:
             'http://karlsruhe.digital/'
         )
     )
-    
-    
+    replacements_pre.append(
+        (
+            ' https', 
+            ''
+        )
+    )
+    replacements_pre.append(
+        (
+            ' http', 
+            ''
+        )
+    )
+        
     replacements_pre.append(
         (
             'http:// https://',
