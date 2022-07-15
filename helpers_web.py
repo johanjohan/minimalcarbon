@@ -1644,27 +1644,66 @@ def collect_files_func(project_folder, func, pre="\t\t"):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def sanitize_umlauts(_orig_path):
-    fixedpath = _orig_path
+# def __sanitize_umlauts(_orig_path):
+#     fixedpath = _orig_path
     
-    fixedpath = fixedpath.replace('ä',  "ae")
-    fixedpath = fixedpath.replace('ö',  "oe")
-    fixedpath = fixedpath.replace('ü',  "ue")
-    fixedpath = fixedpath.replace('Ä',  "Ae")
-    fixedpath = fixedpath.replace('Ö',  "Oe")
-    fixedpath = fixedpath.replace('Ü',  "Ue")
-    fixedpath = fixedpath.replace('ß',  "ss")
+#     from unidecode import unidecode
     
-    fixedpath = fixedpath.replace('©',  "_c_")
-    fixedpath = fixedpath.replace('@',  "_at_")
+#     fixedpath = fixedpath.replace('ä',  "ae")
+#     fixedpath = fixedpath.replace('ö',  "oe")
+#     fixedpath = fixedpath.replace('ü',  "ue")
+#     fixedpath = fixedpath.replace('Ä',  "Ae")
+#     fixedpath = fixedpath.replace('Ö',  "Oe")
+#     fixedpath = fixedpath.replace('Ü',  "Ue")
+#     fixedpath = fixedpath.replace('ß',  "ss")
     
-    # ascii https://pythonguides.com/remove-non-ascii-characters-python/
-    fixedpath = fixedpath.encode("ascii", "ignore").decode()
+#     fixedpath = fixedpath.replace('©',  "_c_")
+#     fixedpath = fixedpath.replace('@',  "_at_")
     
-    return fixedpath    
+#     # https://pypi.org/project/Unidecode/
+#     fixedpath = unidecode(fixedpath) # for the rest of it all
     
+#     # ascii https://pythonguides.com/remove-non-ascii-characters-python/
+#     fixedpath = fixedpath.encode("ascii", "ignore").decode()
+    
+#     return fixedpath  
+
+def slugify(value, allow_unicode=False):
+    
+    # # # from unidecode import unidecode
+    # # # value = unidecode(value)        # 3j
+    
+    import unicodedata
+    import re
+
+    """
+    Taken from https://github.com/django/django/blob/master/django/utils/text.py
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+    dashes to single dashes. Remove characters that aren't alphanumerics,
+    underscores, or hyphens. Convert to lowercase. Also strip leading and
+    trailing whitespace, dashes, and underscores.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value.lower())
+    return re.sub(r'[-\s]+', '-', value).strip('-_')  
+    
+# https://stackoverflow.com/questions/1547899/which-characters-make-a-url-invalid
+# https://stackoverflow.com/questions/295135/turn-a-string-into-a-valid-filename
 def sanitize_filepath_and_url(_orig_path,  rep = '_'):
+    
     fixedpath = _orig_path
+    
+    #######fixedpath = slugify(fixedpath, allow_unicode=False) # <<<< NEW <<<< no no no
+    
+    
+    from unidecode import unidecode
+    fixedpath = unidecode(fixedpath)        # 3j
+    
+    
     #fixedpath = fixedpath.replace('?',  rep) # is valid for url
     fixedpath = fixedpath.replace(' ',  rep)
     fixedpath = fixedpath.replace('%',  rep)
@@ -1679,9 +1718,15 @@ def sanitize_filepath_and_url(_orig_path,  rep = '_'):
     fixedpath = fixedpath.replace('\'',  rep)
     fixedpath = fixedpath.replace('\"',  rep)
     
+    """
+    In general URIs as defined by RFC 3986 (see Section 2: Characters) may contain any of the following 84 characters:
+    ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=
+    """
+
     
-    # change umlauts
-    fixedpath = sanitize_umlauts(fixedpath)
+    
+    # # change umlauts
+    # fixedpath = __sanitize_umlauts(fixedpath)
     
     #print("sanitized:", RED, _orig_path, GREEN, fixedpath, RESET)
     

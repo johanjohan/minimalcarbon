@@ -636,6 +636,48 @@ document.getElementById("FirstDiv").remove();
 """
 
 
+import re
+s = "©@my string with öäüßÖÄÜ éè bla bla 世丕且且世两 !\":.<>?"
 
+#delchars = ''.join(c for c in map(chr, range(256)) if not c.isalnum())
+#res = ''.join(ch for ch in s if ch.isalnum())
+res = bytes(s, 'utf-8').decode('utf-8', 'ignore')
+
+import string
+res = ''.join(x for x in s if x in string.printable) # OK
+
+# https://stackoverflow.com/questions/33504953/is-there-a-way-to-convert-unicode-to-the-nearest-ascii-equivalent
+#transliteration.
+# pip install Unidecode
+from unidecode import unidecode
+
+res = unidecode(s).replace(' ', '_')
+
+import unicodedata
+import re
+
+def slugify(value, allow_unicode=False):
     
+    value = unidecode(value) # 3j
+    
+    """
+    Taken from https://github.com/django/django/blob/master/django/utils/text.py
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+    dashes to single dashes. Remove characters that aren't alphanumerics,
+    underscores, or hyphens. Convert to lowercase. Also strip leading and
+    trailing whitespace, dashes, and underscores.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value.lower())
+    return re.sub(r'[-\s]+', '-', value).strip('-_')
+
+res = slugify(unidecode(s), allow_unicode=False)
+
+print(s)
+print(res)
+
     
