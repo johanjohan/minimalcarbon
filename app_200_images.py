@@ -520,7 +520,9 @@ if __name__ == "__main__":
                                     w = max(int(c_w), w)
                                     h = max(int(c_h), h)
                                     print("\t\t", wh.GREEN, "found:", c_base, w, h, c_nw, c_nh, wh.RESET)
+                                    
                                     #break # can find multiple entries per image --> accumulate bigger w then
+                                    break # now reverse sorted list so highest wh comes first
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)

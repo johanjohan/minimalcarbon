@@ -209,7 +209,7 @@ find_all_image_size_tuples.counter = 0
 #-----------------------------------------
 
 
-def file_image_sizes_make_unique():
+def file_image_sizes_make_unique(b_sort=True, b_sort_reverse=True):
     
     print("file_image_sizes_make_unique:", wh.GRAY + config.path_image_sizes, wh.RESET)
     
@@ -224,8 +224,11 @@ def file_image_sizes_make_unique():
                 res.append(list(subs))
     
     len_orig = len(res)            
-    unique_data = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
-    res = sorted(unique_data)
+    res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
+    
+    if b_sort:
+        res = sorted(res, reverse=b_sort_reverse) # reverse we can skip searching after first hit which is highest size
+        
     print("file_image_sizes_make_unique: removed:", len(res) - len_orig, "items") 
     
     #print("res", *res, sep="\n\t")   
@@ -261,6 +264,10 @@ def file_image_sizes_get_urls():
 #-----------------------------------------
 
 if __name__ == "__main__":
+    
+    print("do not use")
+    exit(0)
+    
     
     start_secs          = time.time()
     ###image_sizes         = []

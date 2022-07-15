@@ -25,6 +25,7 @@ from tkinter import font
 from urllib.parse import urlparse, urljoin
 import os
 import datetime
+import math
 
 #-----------------------------------------
 # dq
@@ -148,8 +149,8 @@ date_time_now               = datetime.datetime.now()
 custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 svg_color                   = "darkseagreen"
 
-turns_for_slow_funcs        = 4
-implicit_wait               = 1
+turns_for_slow_funcs        = math.inf # 4 # inf
+implicit_wait               = 0.1 # can be float, will be millis
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
