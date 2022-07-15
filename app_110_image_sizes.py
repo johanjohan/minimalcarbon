@@ -22,8 +22,7 @@ import helpers_web as wh
 import helpers_web as hw
 import time
 import os
-from PIL import Image
-import pillow_avif
+
 
 import requests
 
@@ -32,186 +31,8 @@ image_sizes         = []
 urls_visited        = []
 b_take_snapshot     = False 
 b_scan_image_sizes  = True
-b_download_images   = True
+b_download_images   = True  # TODO make own program
 
-#-----------------------------------------
-# 
-#-----------------------------------------
-def download_asset(abs_src, local_path, max_tries=10, sleep_secs_on_failure=2, pre="\t"):
-    
-    # # # print(pre, "download_asset:", "abs_src   :", wh.GRAY, abs_src,      wh.RESET)
-    # # # print(pre, "download_asset:", "local_path:", wh.GRAY, local_path,   wh.RESET)
-    
-    print(pre, "download_asset:")
-    pre += "\t"
-    print(pre, wh.CYAN, abs_src,    wh.RESET, "-->")
-    print(pre, wh.GRAY, local_path, wh.RESET)
-    
-    ret = True
-
-    pre += "\t"
-    wh.make_dirs(local_path)
-    if not wh.file_exists_and_valid(local_path):
-
-        # may_be_a_folder(abs_src):  # folders may get exception below?
-        if wh.url_is_assumed_file(abs_src):
-
-            wh.sleep_random(config.wait_secs, verbose_string=local_path, prefix="\t\t ") 
-
-            # GET the file via session requests
-            for cnt in range(max_tries):
-                try:
-                    print(pre, f"{wh.CYAN}\t\t [{cnt}] session.get: {abs_src}{wh.RESET}")
-                    session = requests.Session()
-                    session.get(base)  # sets cookies
-                    res = session.get(abs_src)
-                    ret = True
-                    break
-                except Exception as e:
-                    print("\n"*4)
-                    print(pre, f"{wh.RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {wh.RESET}")
-                    time.sleep(sleep_secs_on_failure)
-                    ret = False
-            ### for />
-                    
-            # SAVE the file binary to disk local
-            try:
-                with open(local_path, 'wb') as fp:
-                    fp.write(res.content)
-                    print(pre, f"{wh.GREEN}wrote OK: {local_path}{wh.RESET}")
-                      
-                assert wh.file_exists_and_valid(local_path)
-                ret = True
-            except:
-                print(pre, f"{wh.RED}local_path may be a directory?: {local_path}{wh.RESET}")
-                ret = False
-        else:
-            print(pre, f"{wh.RED}abs_src may be a directory?: {abs_src}{wh.RESET}")
-            ret = False
-    else:
-        print(pre, f"{wh.RED}already exists: {os.path.basename(local_path)}{wh.RESET}")  
-        ret = True 
-        
-    return ret        
-### def />
-
-
-#-----------------------------------------
-# 
-#-----------------------------------------
-# https://stackoverflow.com/questions/41721734/take-screenshot-of-full-page-with-selenium-python-with-chromedriver
-def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
-    
-    classes_to_hide = list(classes_to_hide)
-
-    print(pre + "fullpage_screenshot:", wh.YELLOW + file, wh.RESET) # , wh.RESET)
-    print(pre + "fullpage_screenshot:", "classes_to_hide:", classes_to_hide, wh.GRAY) 
-
-    total_width     = driver.execute_script("return document.body.offsetWidth")
-    total_height    = driver.execute_script("return document.body.parentNode.scrollHeight")
-    viewport_width  = driver.execute_script("return document.body.clientWidth")
-    viewport_height = driver.execute_script("return window.innerHeight")
-    print(pre + "\t", f"total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
-    rectangles = []
-
-    y = 0
-    while y < total_height:
-        x = 0
-        top_height = y + viewport_height
-
-        if top_height > total_height:
-            top_height = total_height
-
-        while x < total_width:
-            top_width = x + viewport_width
-
-            if top_width > total_width:
-                top_width = total_width
-
-            print(pre + "\t", f"appending rectangle ({x},{y},{top_width},{top_height})")
-            rectangles.append((x, y, top_width,top_height))
-
-            x = x + viewport_width
-
-        y = y + viewport_height
-    ### while
-
-    stitched_image = Image.new('RGB', (total_width, total_height))
-    previous = None
-    part = 0
-    
-    for rectangle in rectangles:
-        if not previous is None:
-            driver.execute_script(f"window.scrollTo({rectangle[0]}, {rectangle[1]})")
-            time.sleep(0.2)
-            
-            # driver.execute_script("document.getElementById('topnav').setAttribute('style', 'position: absolute; top: 0px;');")
-            # time.sleep(0.2)
-            
-            if classes_to_hide:
-                for hide_class in classes_to_hide:
-                    
-                    # check whether CLASS_NAME is available
-                    if driver.find_elements(By.CLASS_NAME, hide_class):
-                        driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'position: absolute; top: 0px;');")
-                        
-                        if rectangle[1] > 0:
-                            driver.execute_script(f"document.getElementsByClassName('{hide_class}')[0].setAttribute('style', 'display: none;');")
-                            
-                    time.sleep(0.2)
-                ### for
-            ### if
-            
-            print(pre + "\t\t", f"scrolled To ({rectangle[0]},{rectangle[1]})")
-            time.sleep(0.2)
-        ### if not previous is None
-
-        file_name = f"__tmp_ssnap_part_{part}.png"
-        print(pre + "\t\t", f"capturing {file_name} ...")
-        driver.get_screenshot_as_file(file_name)
-        screenshot = Image.open(file_name)
-
-        if rectangle[1] + viewport_height > total_height:
-            offset = (rectangle[0], total_height - viewport_height)
-        else:
-            offset = (rectangle[0], rectangle[1])
-
-        print(pre + "\t\t", f"adding to stitched image with offset ({offset[0]}, {offset[1]})")
-        stitched_image.paste(screenshot, offset)
-
-        del screenshot
-        os.remove(file_name)
-        part = part + 1
-        previous = rectangle
-        
-    ### for rectangles
-
-    wh.make_dirs(path_snap)
-    stitched_image.save(file, optimize=True, lossless=True) # , quality=100
-    #stitched_image.save(file, optimize=True, quality=50) # , quality=100
-    
-    # # # cmd = f"""
-    
-    # # #     {os.path.abspath("avif/avifenc.exe")} 
-    # # #     --speed {0} 
-    # # #     --jobs  {8} 
-        
-    # # #     --lossless
-        
-    # # #     {os.path.abspath(__image_smaller_png_path)} 
-    # # #     {os.path.abspath(path_snap)} 
-        
-    # # # """
-    # # # ##md = f""" {os.path.abspath("avif/avifenc.exe")} --help """
-    # # # cmd = wh.string_remove_whitespace(cmd)
-    # # # print(wh.CYAN, end='')
-    # # # print(cmd)
-    # # # ret = os.system(wh.dq(cmd))    
-    
-    
-    
-    print(pre + "\t", "finishing chrome full page screenshot workaround...", wh.RESET)
-    return True
 
 #-----------------------------------------
 # 
@@ -257,24 +78,7 @@ def __append_to_image_size_tuples(collected, url, bases, e, vt=wh.MAGENTA, pre="
         print(wh.RED, "e  :", e,    wh.RESET)
         print(wh.RED, "url:", url,  wh.RESET)
         
-            
-def extract_url(style_string):
-    
-    if not style_string:
-        return None
-    
-    if "url" in style_string:
-        url = style_string
-        url = url.split('url')[-1]
-        url = url.split(')')[0]
-        url = url.strip().lstrip('(')
-        for q in ["\"", "\'"]:
-            url = url.strip().lstrip(q).rstrip(q)
-        #print(style_string, YELLOW, url, RESET)
-        return url
-    else:
-        print(wh.RED, "url NOT found in ", style_string, wh.RESET)
-        return style_string
+
 
 """
 srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, 
@@ -328,7 +132,7 @@ def find_all_image_size_tuples(collected, driver, bases, b_scan_srcset, pre="\t"
         for e in driver.find_elements(By.XPATH, xpath_css):
             imgpath = e.value_of_css_property("background-image")
             if imgpath != "none" and "url" in imgpath:
-                url = extract_url(imgpath)
+                url = wh.extract_url(imgpath)
                 __add(e, url, eu)
         print(wh.RESET)
         
@@ -471,7 +275,7 @@ if __name__ == "__main__":
             print()
             print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {abs_url} {wh.RESET}")
             
-            if not (url in urls_visited):
+            if not (url in urls_visited) or b_take_snapshot:
                 
                 if b_scan_image_sizes or b_take_snapshot:
                     max_tries = 10
@@ -506,7 +310,7 @@ if __name__ == "__main__":
                 if b_take_snapshot:
                     path_snap = config.path_snapshots + "snap_full_" + wh.url_to_filename(local_url) + ".webp" # webp avif png tif
                     if not wh.file_exists_and_valid(path_snap):
-                        fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])   
+                        wh.fullpage_screenshot(driver, path_snap, ["navbar", "banner_header", "vw-100"])   
                     else:
                         print("already exists:",  wh.GRAY, path_snap, wh.RESET)
                  
@@ -552,7 +356,7 @@ if __name__ == "__main__":
         for abs_src in image_paths:
             
             local_path  = config.project_folder + wh.get_path_local_root_subdomains(abs_src, config.base).lstrip('/')
-            ret         = download_asset(abs_src, local_path, max_tries=10) # also same func in 100_selenium TODO
+            ret         = wh.download_asset(abs_src, local_path, config.base, max_tries=10) # also same func in 100_selenium TODO
             #assert ret
             assert wh.file_exists_and_valid(local_path)
 

@@ -435,44 +435,46 @@ def assets_save_internals_locally(
             images_written.append(le_tuple)
             
         assets_written.append(le_tuple)
+        
+        bOK = wh.download_asset(abs_src, local_path, base, max_tries=10, pre="\t\t")
 
-        # get and save link-asset to disk
-        wh.make_dirs(local_path)
-        if not wh.file_exists_and_valid(local_path):
+        # # # # get and save link-asset to disk
+        # # # wh.make_dirs(local_path)
+        # # # if not wh.file_exists_and_valid(local_path):
 
-            # may_be_a_folder(abs_src):  # folders may get exception below?
-            if wh.url_is_assumed_file(abs_src):
+        # # #     # may_be_a_folder(abs_src):  # folders may get exception below?
+        # # #     if wh.url_is_assumed_file(abs_src):
 
-                wh.sleep_random(config.wait_secs,
-                                verbose_string=src, prefix="\t\t ")  # abs_src
+        # # #         wh.sleep_random(config.wait_secs,
+        # # #                         verbose_string=src, prefix="\t\t ")  # abs_src
 
-                # GET the file via session requests
-                max_tries = 10
-                for cnt in range(max_tries):
-                    try:
-                        print(
-                            f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
-                        session = requests.Session()
-                        session.get(base)  # sets cookies
-                        res = session.get(abs_src)
-                        break
-                    except Exception as e:
-                        print("\n"*4)
-                        print(
-                            f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
-                        time.sleep(3)
-                # SAVE the file binary to disk local
-                try:
-                    with open(local_path, 'wb') as fp:
-                        fp.write(res.content)
-                        print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
-                except:
-                    print(
-                        f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
-            else:
-                print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
-        else:
-            print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
+        # # #         # GET the file via session requests
+        # # #         max_tries = 10
+        # # #         for cnt in range(max_tries):
+        # # #             try:
+        # # #                 print(
+        # # #                     f"{CYAN}\t\t [{cnt}] session.get: {abs_src}{RESET}")
+        # # #                 session = requests.Session()
+        # # #                 session.get(base)  # sets cookies
+        # # #                 res = session.get(abs_src)
+        # # #                 break
+        # # #             except Exception as e:
+        # # #                 print("\n"*4)
+        # # #                 print(
+        # # #                     f"{RED}\t\t ERROR {cnt} session.get: {abs_src}...sleep... {RESET}")
+        # # #                 time.sleep(3)
+        # # #         # SAVE the file binary to disk local
+        # # #         try:
+        # # #             with open(local_path, 'wb') as fp:
+        # # #                 fp.write(res.content)
+        # # #                 print(f"{GREEN}\t\t wrote OK: {local_path}{RESET}")
+        # # #         except:
+        # # #             print(
+        # # #                 f"{RED}\t\t local_path may be a directory?: {local_path}{RESET}")
+        # # #     else:
+        # # #         print(f"{RED}\t\t abs_src may be a directory?: {abs_src}{RESET}")
+        # # # else:
+        # # #     print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
         # dots rel to url of this url, not to the image itself
         ####print(f"{GRAY}\t\t url       : {url}{RESET}")
@@ -612,30 +614,31 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
         
     #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    def extract_url(string):
-        if not string:
-            return None
-        
-        if "url" in string:
-            url = string
-            url = url.split('url')[-1]
-            url = url.split(')')[0]
-            url = url.strip().lstrip('(')
-            for q in ["\"", "\'"]:
-                url = url.strip().lstrip(q).rstrip(q)
-            #print(string, YELLOW, url, RESET)
-            return url
-        else:
-            return string
-        
-    # traverse body: all elements for style NEW TODO
-    print("\t", "driver.find_elements: By.XPATH body", flush=True)
-    for e in driver.find_elements(By.XPATH, "//body//*"):
-        imgpath = e.value_of_css_property("background-image")
-        if imgpath != "none" and "url" in imgpath:
-            print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
-            url = extract_url(imgpath)
-            links_img.append( url )
+    if True:
+        def extract_url(string):
+            if not string:
+                return None
+            
+            if "url" in string:
+                url = string
+                url = url.split('url')[-1]
+                url = url.split(')')[0]
+                url = url.strip().lstrip('(')
+                for q in ["\"", "\'"]:
+                    url = url.strip().lstrip(q).rstrip(q)
+                #print(string, YELLOW, url, RESET)
+                return url
+            else:
+                return string
+            
+        # traverse body: all elements for style NEW TODO
+        print("\t", "driver.find_elements: By.XPATH body", flush=True)
+        for e in driver.find_elements(By.XPATH, "//body//*"):
+            imgpath = e.value_of_css_property("background-image")
+            if imgpath != "none" and "url" in imgpath:
+                print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
+                url = extract_url(imgpath)
+                links_img.append( url )
  
             
     #-----------
