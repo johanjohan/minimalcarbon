@@ -149,6 +149,7 @@ custom_css_marker           = "#marker_appended_for_custom_css" # a word in the 
 svg_color                   = "darkseagreen"
 
 turns_for_slow_funcs        = 4
+implicit_wait               = 1
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
