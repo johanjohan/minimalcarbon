@@ -614,6 +614,7 @@ if __name__ == "__main__":
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
+                # NEW put this in app_110 TODO
                 def func_size(path, csv_path, size_thresh, size_large, size_small):
                     
                     # could read this to ram beforehand TODO
@@ -623,18 +624,18 @@ if __name__ == "__main__":
                     relname, ext = os.path.splitext(relpath)
                                         
                     # look through all paths in csv and get size in page
-                    found = False
-                    w,h = 0,0
+                    found   = False
+                    w,h     = 0,0
                     with open(csv_path, mode="r", encoding="utf-8") as fp:
                         for line in fp:
                             if line.startswith('/'):
-                                c_base, c_path, wdom, hdom, nw, nh = line.split(',')
+                                c_base, c_path, c_w, c_h, c_nw, c_nh, c_url_parent = line.split(',')
                                 if relname == c_base:
                                     found = True
-                                    w = max(int(wdom), w)
-                                    h = max(int(hdom), h)
-                                    print("\t\t", wh.GREEN, "found:", c_base, w, h, nw, nh, wh.RESET)
-                                    #break # could find several, take bigger w then
+                                    w = max(int(c_w), w)
+                                    h = max(int(c_h), h)
+                                    print("\t\t", wh.GREEN, "found:", c_base, w, h, c_nw, c_nh, wh.RESET)
+                                    #break # can find multiple entries per image --> accumulate bigger w then
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)
