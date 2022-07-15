@@ -1117,7 +1117,7 @@ def wait_for_page_has_loaded(driver):
 #-----------------------------------------
 # background_images
 #-----------------------------------------
-def get_background_images_from_style_attribute(driver):
+def get_background_images_from_style_attribute(driver, pre="\t\t"):
 
     def _parse_style_attribute(style_string):
         
@@ -1129,10 +1129,10 @@ def get_background_images_from_style_attribute(driver):
                     url_string = style_string.split(' url("')[1].replace('");', '')
                 except:
                     # may be a gradient
-                    print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
+                    print(pre, f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
                     url_string = None
                 
-                print(f"\t key: {key}: {GRAY}{url_string}{RESET}") 
+                print(pre, f"key: {key}: {GRAY}{url_string}{RESET}") 
                 # # # if key == 'content':
                 # # #     time.sleep(3)
                 return url_string
@@ -1176,14 +1176,14 @@ def NEW____extract_url(string):
     else:
         return string
 
-def extract_background_image_from_property(property):
+def extract_background_image_from_property(property, pre="\t\t"):
     try:
         if property.name in ['background-image', 'content']:
             if "url" in property.value:
                 url = property.value.split(' url(')[-1]
                 url = url.replace("(", "").replace(")", "").replace("!important", "")
                 url = url.strip().lstrip("url")
-                print("\t\t\t", YELLOW, property.name, CYAN, url, RESET)
+                print(pre, RESET, property.name, GRAY, url, RESET)
                 # # # if property.name == 'content':
                 # # #     time.sleep(0.5) # <<< this one here
                 return url
@@ -1192,29 +1192,30 @@ def extract_background_image_from_property(property):
         
     return None
 
-def get_background_images_from_stylesheet_string(style_string):
+def get_background_images_from_stylesheet_string(style_string, pre="\t\t"):
     urls  = []
     try:
         cssutils.log.setLevel(logging.CRITICAL)
         sheet = cssutils.parseString(style_string) # <<<
-        #print ("sheet.cssText:", MAGENTA, sheet.cssText, RESET)
+        #print (pre, "sheet.cssText:", MAGENTA, sheet.cssText, RESET)
         for rule in sheet:
             if rule.type == rule.STYLE_RULE:
                 for property in rule.style:
                     url = extract_background_image_from_property(property)
                     if url:
+                        print(pre, RESET, property.name, GRAY, url, RESET)
                         urls.append(url)
     except Exception as e:
         print(f"{RED}get_background_images_from_stylesheet_string: cssutils.parseString {e} {RESET}")
     
     return urls  
 
-def get_background_images_from_inline_style_tag(style_string):
+def get_background_images_from_inline_style_tag(style_string, pre="\t\t"):
     urls  = []
     try:
         cssutils.log.setLevel(logging.CRITICAL)
         style = cssutils.parseStyle(style_string) # <<<
-        #print ("style.cssText:", MAGENTA, style.cssText, RESET)
+        #print (pre, "style.cssText:", MAGENTA, style.cssText, RESET)
         for property in style:
             url = extract_background_image_from_property(property)
             if url:
@@ -1225,7 +1226,7 @@ def get_background_images_from_inline_style_tag(style_string):
     
     return urls  
 
-def get_background_images_from_stylesheet_file(style_path):
+def get_background_images_from_stylesheet_file(style_path, pre="\t\t"):
     urls  = []
     if os.path.isfile(style_path):
         with open(style_path, mode='r') as fp:
@@ -1269,9 +1270,9 @@ def css_sheet_delete_rules(sheet, rules_to_delete):
 #-----------------------------------------
 # 
 #-----------------------------------------   
-def save_html(content, path, pretty=False):
+def save_html(content, path, pretty=False, pre="\t\t"):
     
-    print("save_html:", path)
+    print(pre, "save_html:", path)
     
     if pretty:
         from bs4 import BeautifulSoup, Comment
@@ -1284,24 +1285,23 @@ def save_html(content, path, pretty=False):
             with open(path, 'w', encoding="utf-8") as fp:
                 fp.write(content)
         else:
-            print(f"{MAGENTA}\t save_html: file already exists: {os.path.basename(path)} {RESET}")
+            print(pre, f"{MAGENTA}\t save_html: file already exists: {os.path.basename(path)} {RESET}")
     except Exception as e:
-        print(f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
+        print(pre, f"{RED}save_html: may be a folder: {path} --> {e} {RESET}")
         assert False # TODO!!!!!!!!!!!!!!!!!!!!
         
     return path
 
-def load_html(driver, path):
+def __load_html(driver, path):
     driver.get(path)
     return path
-        
         
 def load_html_from_string(driver, content, dir='.'):
     import tempfile
     with tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix='.html') as tmp:
         tmp.close() # already opened --> permission err
         save_html(content, tmp.name)        
-        return load_html(driver, tmp.name)
+        return __load_html(driver, tmp.name)
         
 #-----------------------------------------
 # 
@@ -1371,36 +1371,35 @@ def html_minify(content, vb=False):
     
     return content
 
-def __minify_on_disk(filename, func_mini):
+def __minify_on_disk(filename, func_mini, pre="\t\t"):
     print("__minify_on_disk:", GRAY, os.path.basename(filename), RESET, end= ' ')
     data        = string_from_file(filename)
     mini_data   = func_mini(data)
-    print(vt_saved_percent_string(len(data), len(mini_data)))
+    print(pre, vt_saved_percent_string(len(data), len(mini_data)))
     if len(mini_data) < len(data):
         string_to_file(mini_data, filename)
     else:
-        print("\t", "useless compressions: undo...")
+        print(pre, "\t", "useless compressions: undo...")
     
-def html_minify_on_disk(filename):
+def html_minify_on_disk(filename, pre="\t\t"):
     assert filename.endswith(".html"), filename
-    __minify_on_disk(filename, html_minify)
+    __minify_on_disk(filename, html_minify, pre)
   
 # http://opensource.perlig.de/rcssmin/  
 import rcssmin    
-def css_minify_on_disk(filename): 
+def css_minify_on_disk(filename, pre="\t\t"): 
     assert filename.endswith(".css"), filename
-    __minify_on_disk(filename, rcssmin.cssmin)      
+    __minify_on_disk(filename, rcssmin.cssmin, pre)      
  
 import rjsmin   
-def js_minify_on_disk(filename): 
+def js_minify_on_disk(filename, pre="\t\t"): 
     assert filename.endswith(".js"), filename
-    __minify_on_disk(filename, rjsmin.jsmin)      
-    
+    __minify_on_disk(filename, rjsmin.jsmin, pre)      
     
 #-----------------------------------------
 # 
 #-----------------------------------------
-def replace_all(content, oldvalue, newvalue, vb = False):
+def replace_all(content, oldvalue, newvalue, vb = False, pre="\t\t"):
     
     if not content:
         return content
@@ -1418,6 +1417,7 @@ def replace_all(content, oldvalue, newvalue, vb = False):
         if len_orig - len(content) > 0: # verbose
             printvalue = oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_")       
             print(
+                pre,
                 "replace_all:", 
                 CYAN,       dq( oldvalue.replace("\n", "_n_").replace("\t", "_t_").replace("\r", "_r_") ), RESET, 
                 "| replaced", len_orig - len(content), "bytes",
@@ -1430,7 +1430,7 @@ def replace_all(content, oldvalue, newvalue, vb = False):
 #-----------------------------------------
 # 
 #-----------------------------------------
-def file_replace_all(filename, string_from, string_to):
+def file_replace_all(filename, string_from, string_to, pre="\t\t"):
     
     #print("replace_all_in_file:", filename)
     
@@ -1441,7 +1441,7 @@ def file_replace_all(filename, string_from, string_to):
         
     cnt = data.count(string_from)
     if cnt > 0:
-        print("replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
+        print(pre, "replace_all_in_file:", cnt, "|", CYAN + string_from + RESET, "-->", string_to)
     data = replace_all(data, string_from, string_to)  
     
     string_to_file(data, filename)
@@ -1476,8 +1476,8 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
             ret = links_sanitize(ret)
         return ret
     
-def list_to_file(items, path, mode="w", encoding="utf-8"):
-    print("list_to_file:", dq(mode), "|", path)
+def list_to_file(items, path, mode="w", encoding="utf-8", pre="\t\t"):
+    print(pre, "list_to_file:", dq(mode), "|", path)
     # # with open(path, mode=mode, encoding=encoding) as file:
     # #     file.write(list_to_string(items))
     string_to_file(list_to_string(items), path, mode=mode, encoding=encoding)
@@ -1605,10 +1605,10 @@ def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=M
 #-----------------------------------------
 # 
 #-----------------------------------------
-def collect_files_endswith(project_folder, allowed_extensions):
+def collect_files_endswith(project_folder, allowed_extensions, pre="\t\t"):
     allowed_extensions = [e.lower() for e in allowed_extensions]
-    print("collect_files:", project_folder)
-    print("collect_files:", allowed_extensions)
+    print(pre, "collect_files:", project_folder)
+    print(pre, "collect_files:", allowed_extensions)
     assets = []
     for root, dirs, files in os.walk(project_folder):
         for file in files:
@@ -1616,14 +1616,14 @@ def collect_files_endswith(project_folder, allowed_extensions):
                 path = os.path.abspath(os.path.join(root, file))
                 #print("\t", os.path.basename(path))
                 assets.append(path)
-    print("collect_files:", len(assets), "assets found.")
+    print(pre, "collect_files:", len(assets), "assets found.")
     return assets
 
 #-----------------------------------------
 # 
 #-----------------------------------------
-def collect_files_func(project_folder, func):
-    print("collect_files:", project_folder)
+def collect_files_func(project_folder, func, pre="\t\t"):
+    print(pre, "collect_files:", project_folder)
     assets = []
     for root, dirs, files in os.walk(project_folder):
         
@@ -1639,7 +1639,7 @@ def collect_files_func(project_folder, func):
                 #print("\t", os.path.basename(path))
                 assets.append(path)
                 
-    print("collect_files:", len(assets), "assets found.")
+    print(pre, "collect_files:", len(assets), "assets found.")
     return assets
 #-----------------------------------------
 # 
@@ -1872,6 +1872,47 @@ def logo_filename(filename,  font="tarty2", vt=MAGENTA, npad=2): # tarty3 tarty7
 #-----------------------------------------
 # 
 #-----------------------------------------
+# https://jdhao.github.io/2019/03/07/pillow_image_alpha_channel/
+def get_mask_rgba(image):
+    
+    if not image_has_transparency(image):
+        print(YELLOW, "image has no tranparency...None", RESET)
+        return None
+    
+    mask    = image.convert("RGBA").copy()
+    mixels  = mask.load() 
+    
+    width, height   = image.size
+    for x in range(width):
+        for y in range(height):
+            r,g,b,a     = tuple(mixels[x,y])
+            mixels[x,y] = tuple([a,a,a,a])
+            
+    return mask
+    
+def apply_mask_rgba(image, mask):
+    
+    assert image
+    assert mask
+    
+    assert image.size == mask.size   
+    assert mask.mode  == "RGBA",  mask.mode 
+    
+    image   = image.convert("RGBA")
+    pixels  = image.load() # this is not a list, nor is it list()'able
+    mixels  = mask.load()      
+    
+    width, height = image.size    
+    for x in range(width):
+        for y in range(height):
+            r,g,b,a     = tuple(pixels[x,y])
+            a           = mixels[x,y][0]
+            pixels[x,y] = tuple([r,g,b,a])
+            
+    return image
+    #return image.putalpha(mask.convert("L"))
+        
+
 # https://stackoverflow.com/questions/43864101/python-pil-check-if-image-is-transparent
 def image_has_transparency(img):
     
