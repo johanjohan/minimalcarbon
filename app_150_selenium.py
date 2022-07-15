@@ -197,8 +197,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     
     # make sure utf-8
     #assert content
-    content = content.encode('utf-8') # NEW # .encode('ascii', 'ignore')
-    content = urllib.parse.unquote(content) # NEW
+    # # # # # content = content.encode('utf-8') # NEW # .encode('ascii', 'ignore') no no no
+    # # # # # content = urllib.parse.unquote(content) # NEW  no no no
  
     # -----------------------------------------
     #
