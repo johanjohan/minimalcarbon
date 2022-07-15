@@ -299,6 +299,7 @@ document.getElementById("FirstDiv").remove();
 # -----------------------------------------
 # init the colorama module
 # -----------------------------------------
+from tabnanny import verbose
 from helpers_web import links_make_absolute, links_remove_externals, links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
 from helpers_web import dq as dq
 from helpers_web import pa as pa
@@ -344,6 +345,7 @@ MAGENTA = config.MAGENTA
 start_secs      = time.time()
 images_written  = []
 assets_written  = []
+verbose         = False
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -476,13 +478,14 @@ def assets_save_internals_locally(
         # # # else:
         # # #     print(f"{RED}\t\t already exists: {os.path.basename(local_path)}{RESET}")
 
-        # dots rel to url of this url, not to the image itself
-        ####print(f"{GRAY}\t\t url       : {url}{RESET}")
-        print(f"{GRAY}\t\t\t src       : {src}{RESET}")
-        #print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
-        print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
-        print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}") 
-        #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
+        if verbose:
+            # dots rel to url of this url, not to the image itself
+            ####print(f"{GRAY}\t\t url       : {url}{RESET}")
+            print(f"{GRAY}\t\t\t src       : {src}{RESET}")
+            #print(f"{GRAY}\t\t\t abs_src   : {abs_src}{RESET}")
+            print(f"{GRAY}\t\t\t new_src   : {new_src}{RESET}")
+            print(f"{GRAY}\t\t\t local_path: {local_path}{RESET}") 
+            #print(f"{MAGENTA}\t\t\t replace {src} \n\t\t\t --> {new_src}{RESET}")
 
         # post replace
         # TODO would be better to set tags or change tags or rename tags
@@ -490,9 +493,10 @@ def assets_save_internals_locally(
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
         for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
-            #print(f"{GRAY}\t\t\t replacing: {f(src)} --> {GREEN}{f(new_src)} {RESET}") 
-            print(f"{GRAY }\t\t\t replacing: {f(src)} {RESET}-->") 
-            print(f"{GREEN}\t\t\t            {f(new_src)} {RESET}") 
+            if verbose:
+                #print(f"{GRAY}\t\t\t replacing: {f(src)} --> {GREEN}{f(new_src)} {RESET}") 
+                print(f"{GRAY }\t\t\t replacing: {f(src)} {RESET}-->") 
+                print(f"{GREEN}\t\t\t            {f(new_src)} {RESET}") 
             content = content.replace(f(src), f(new_src))
 
     return content
