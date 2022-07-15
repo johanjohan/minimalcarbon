@@ -656,7 +656,8 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
     # exit(0)
 
     # https://realpython.com/python-zip-function/
-    if False:
+    if True:
+        # need to replace image!
         lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
         suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
     else:
@@ -962,7 +963,7 @@ if __name__ == "__main__":
         # save back to file 
         wh.list_to_file(urls, config.path_sitemap_links_internal)             
     else:
-        pag.alert(text=f"not rescanning urls...", timeout=2222)  
+        pag.alert(text=f"not rescanning urls...", timeout=10000)  
       
     print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))

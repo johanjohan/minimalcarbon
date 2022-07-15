@@ -629,7 +629,7 @@ if __name__ == "__main__":
                     with open(csv_path, mode="r", encoding="utf-8") as fp:
                         for line in fp:
                             if line.startswith('/'):
-                                c_base, c_path, c_w, c_h, c_nw, c_nh, c_url_parent = line.split(',')
+                                c_base, c_path, c_w, c_h, c_nw, c_nh, c_url, c_url_parent = line.split(',')
                                 if relname == c_base:
                                     found = True
                                     w = max(int(c_w), w)
@@ -875,12 +875,15 @@ if __name__ == "__main__":
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
             
             replace_all_conversions_in_file(html_file, conversions)
-                
-            # TODO why are these still here?
-            # replace left over image extensions
-            for q_end in ["\"", "\'", ")"]:
-                for ext in config.image_exts_no_target:
-                    wh.file_replace_all(html_file, ext + q_end, config.target_image_ext + q_end)                     
+              
+            # DANGEROUS!!!
+            if False:
+                # TODO why are these still here?
+                # replace left over image extensions
+                for q_end in ["\"", "\'", ")"]:
+                    for ext in config.image_exts_no_target:
+                        wh.file_replace_all(html_file, ext + q_end, config.target_image_ext + q_end)        
+                                     
         ### for /> 
     ### b_perform_replacement />            
             

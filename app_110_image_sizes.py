@@ -264,6 +264,7 @@ def file_image_sizes_get_index(index):
 # def file_image_sizes_get_url_parents():
 #     return file_image_sizes_get_index(7)
 
+# get the urls as they appeared in the document
 def file_image_sizes_get_urls():
     return file_image_sizes_get_index(6)
 
