@@ -156,7 +156,15 @@ def assets_save_internals_locally(
 # -----------------------------------------
 #
 # -----------------------------------------
-def make_static(driver, url, base, project_folder, style_path, replacements_pre, wait_secs=(1, 2), turns_slow_funcs=3):
+def make_static(
+    driver, 
+    url, base, 
+    project_folder, 
+    style_path, 
+    replacements_pre, 
+    wait_secs=(1, 2), 
+    turns_for_slow_funcs=3
+    ):
 
     ####url = wh.add_trailing_slash(url)  NO!!!
     b_use_driver = True
@@ -271,7 +279,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                 links_img.append(j.get("poster", None))
           
         # SLOW #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-        if make_static.counter < turns_slow_funcs: 
+        if make_static.counter < turns_for_slow_funcs: 
             # traverse body: all elements for style NEW TODO SLOW!
             print("\t\t", "driver.find_elements: By.XPATH body", flush=True)
             for e in driver.find_elements(By.XPATH, "//body//*"):
