@@ -557,7 +557,7 @@ if __name__ == "__main__":
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
-            print(f"[{tries}] {config.options}")
+            print(f"[{tries}] {config.options}", wh.YELLOW)
             driver = webdriver.Chrome(options=config.options)
             driver.implicitly_wait(30)
             # driver.execute_script("alert('alert via selenium')")
@@ -565,6 +565,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
+    print(wh.RESET)
 
     # -----------------------------------------
     # RE-scan for new links:
