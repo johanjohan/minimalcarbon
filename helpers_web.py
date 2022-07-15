@@ -22,6 +22,7 @@ from urllib import response
 from urllib.parse import urlparse, urljoin, parse_qs
 import os
 import urllib.request
+import urllib.parse
 import ssl
 import requests
 import time
@@ -1131,7 +1132,7 @@ def get_background_images_from_style_attribute(driver):
                     print(f"{RED}ERR missing background-image: style_string: {style_string} {RESET}")
                     url_string = None
                 
-                print(f"\t key: {MAGENTA}{key}{RESET}: {url_string}") 
+                print(f"\t key: {key}: {GRAY}{url_string}{RESET}") 
                 # # # if key == 'content':
                 # # #     time.sleep(3)
                 return url_string
@@ -1141,6 +1142,7 @@ def get_background_images_from_style_attribute(driver):
     for div in driver.find_elements(By.XPATH, "//*[@style]"): #  '//div[@style]'
         #print(f"{YELLOW}\t div: {div} {RESET}")
         style = div.get_attribute('style')
+        style = urllib.parse.unquote(style) # NEW
         #print(f"{GRAY}\t style: {style} {RESET}")
         link = _parse_style_attribute(style)
         if not link in links:
@@ -1293,16 +1295,7 @@ def load_html(driver, path):
     driver.get(path)
     return path
         
-    import tempfile
-    with tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix='.html') as tmp:
-        tmp.close() # already open
-        print("tmp.name:", tmp.name)
-        save_html(content, tmp.name)
-        driver.get(tmp.name)
-        #wait_for_page_has_loaded(driver)
-        return tmp.name
         
-
 def load_html_from_string(driver, content, dir='.'):
     import tempfile
     with tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix='.html') as tmp:

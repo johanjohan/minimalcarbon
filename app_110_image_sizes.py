@@ -4,49 +4,6 @@ may better split image sizes files for keeping track of parent_urls
 the list is getting very large right now
 
 
-#-----------
-    # images
-    #-----------
-    # driver.find_element_by_xpath('//a[@href="'+url+'"]')
-    links_img  = h.xpath('//img/@src')
-    links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
-    links_img += wh.get_background_images_from_style_attribute(driver)
-    # TODO need to replace these in css as well
-    links_img += wh.get_background_images_from_stylesheet_file(style_path)
-    
-    for text in h.xpath("//style/text()"):
-        links_img += wh.get_background_images_from_stylesheet_string(text)
-    
-    for text in  h.xpath("//div/@style"):
-        links_img += wh.get_background_images_from_inline_style_tag(text)
-    for text in  h.xpath("//video/@style"):
-        links_img += wh.get_background_images_from_inline_style_tag(text)        
-    # a lot of images in media.
-    for text in  h.xpath("//*/@style"):
-        links_img += wh.get_background_images_from_inline_style_tag(text)
-    
-    # media.ka    
-    import json
-    for jstring in  h.xpath("//*/@data-vjs_setup"):
-        j = json.loads(jstring)
-        #print(json.dumps(j, indent=4), sep="\n\t\t")
-        print("\t\t\t", j.get("poster", None))
-        links_img.append(j.get("poster", None))
-        
-    #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if True:
-        # traverse body: all elements for style NEW TODO SLOW!
-        print("\t", "driver.find_elements: By.XPATH body", flush=True)
-        for e in driver.find_elements(By.XPATH, "//body//*"):
-            imgpath = e.value_of_css_property("background-image")
-            if imgpath != "none" and "url" in imgpath:
-                print("\t\t", wh.YELLOW, wh.dq(imgpath), wh.RESET)
-                url = wh.extract_url(imgpath)
-                links_img.append( url )
- 
-     
-
-
 """
 
 import chromedriver_binary  # pip install chromedriver-binary-auto
@@ -65,10 +22,10 @@ import helpers_web as wh
 import helpers_web as hw
 import time
 import os
-
-
 import requests
 
+import urllib
+import urllib.parse # selenium seems to urlencode results
 
 #-----------------------------------------
 # 
@@ -79,7 +36,7 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
         return
     
-    # ignore external? bases: accept 127.0.0.1 or karlsruhe.digital as valid
+    # ignore external? accept bases
     protocol, loc, path = wh.url_split(url)
     bases               = list(bases)
     if not any([(loc in b) for b in bases]):
@@ -104,9 +61,6 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         ]     
         
         if not tpl in collected: 
-            #print(pre, vt, ','.join([str(value) for value in tpl]), wh.RESET)
-            #print(pre, vt, url, e.size['width'], e.size['height'], wh.RESET)
-            #print(pre, vt, ', '.join([str(tpl[i]) for i in range(1,6)]), wh.RESET)
             print(pre, vt + str(url), e.size['width'], e.size['height'], wh.RESET)
             collected.append(tpl)
         
@@ -130,16 +84,18 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
     print(pre, "find_all_image_size_tuples: base         :", wh.GRAY, base,  wh.RESET)
     print(pre, "find_all_image_size_tuples: bases        :", wh.GRAY, bases, wh.RESET)
-    
     pre += "\t"
     
     eu      = set()   
     bases   = list(bases)
     
     def __add(e, url, eu):
+        url = urllib.parse.unquote(url) # <<<<<<<<<<<<<<<<<
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
+    # find urls in driver 
+    # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url)
     try:
         # regular images
         print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
@@ -168,14 +124,14 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
         print(pre, wh.CYAN, end='')
         for e in driver.find_elements(By.XPATH, xpath_css):
             
-            imgpath = e.value_of_css_property("background-image") # may as well look for content:
+            imgpath = e.value_of_css_property("background-image") 
             if imgpath != "none" and "url" in imgpath:
                 url = wh.extract_url(imgpath)
                 __add(e, url, eu)
                 
-            imgpath = e.value_of_css_property("content") # may as well look for content:
+            imgpath = e.value_of_css_property("content")
             if imgpath != "none" and "url" in imgpath:
-                print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< TRAY
+                print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< 
                 time.sleep(3)
                 url = wh.extract_url(imgpath)
                 __add(e, url, eu)
@@ -209,11 +165,10 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
     print(pre, "len(eu):", len(eu))
             
     # append to image_tuples
-    for e, url in eu:
-        #print(wh.GRAY, e, url, image_tuples, wh.RESET)
+    for e, url in eu:        
         __append_to_image_size_tuples(
             collected,
-            url, 
+            urllib.parse.unquote(url), # safety
             base,
             bases,
             e,
