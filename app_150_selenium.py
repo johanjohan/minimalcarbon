@@ -632,6 +632,7 @@ def make_static(driver, url, base, project_folder, style_path, replacements_pre,
                     
         #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!            
         # TODO should log to sizes file right here
+        assert b_use_driver
         app_110_image_sizes.find_all_image_size_tuples(
             image_size_tuples, 
             driver, 
