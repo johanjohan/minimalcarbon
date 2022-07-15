@@ -77,9 +77,8 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
     else:
         print(wh.RED, "e  :", e,    wh.RESET)
         print(wh.RED, "url:", url,  wh.RESET)
-        
-
-
+### def />        
+#-----------------------------------------
 """
 srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022.jpeg 1500w, 
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-300x200.jpeg 300w, 
@@ -109,7 +108,7 @@ def find_all_image_size_tuples(
     bases   = list(bases)
     
     def __add(e, url, eu):
-        url = urllib.parse.unquote(url) # <<<<<<<<<<<<<<<<<
+        url = urllib.parse.unquote(url) # << !
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
@@ -207,8 +206,6 @@ find_all_image_size_tuples.counter = 0
 #-----------------------------------------
 # 
 #-----------------------------------------
-
-
 def file_image_sizes_make_unique(b_sort=True, b_sort_reverse=True):
     
     print("file_image_sizes_make_unique:", wh.GRAY + config.path_image_sizes, wh.RESET)
@@ -236,6 +233,7 @@ def file_image_sizes_make_unique(b_sort=True, b_sort_reverse=True):
     wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
     wh.list_to_file(res, config.path_image_sizes, mode="a")            
     
+#-----------------------------------------
 def file_image_sizes_get_index(index):
     res = []
     
@@ -252,13 +250,13 @@ def file_image_sizes_get_index(index):
     #print("res", *res, sep="\n\t")    
     return res
 
+#-----------------------------------------
 # def file_image_sizes_get_url_parents():
 #     return file_image_sizes_get_index(7)
-
+#-----------------------------------------
 # get the urls as they appeared in the document
 def file_image_sizes_get_urls():
     return file_image_sizes_get_index(6)
-
 #-----------------------------------------
 # 
 #-----------------------------------------

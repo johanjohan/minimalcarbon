@@ -1,8 +1,79 @@
 """
 # https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
-
 TODO
+
+IDEA could scan all css and js for hidden images first
+    how large will they be?
+    
+https://stackoverflow.com/questions/9519906/how-to-get-css-attribute-of-a-lxml-element/9520444#9520444
+
+from style import *
+
+html = ""<body>
+    <p>A</p>
+    <p id='b'>B</p>
+    <p style='color:blue'>B</p>
+</body>""
+
+css = ""body {color:red;font-size:12px}
+p {color:yellow;}
+p.b {color:green;}""
+
+
+def get_style(element, view):
+    if element != None:
+        inline_style = [x[1] for x in element.items() if x[0] == 'style']
+        outside_style =  []
+        if view.has_key(element):
+            outside_style = view[element].getCssText()
+        r = [[inline_style, outside_style]]
+        r.append(get_style(element.getparent(), view))
+        return r
+    else:
+        return None
+
+document = getDocument(html)
+view = getView(document, css)
+
+elements = document.xpath('//p')
+print get_style(elements[0], view) 
+
+---------------------------------
+
+
+The dictionary-like attribute access should work for width and height as well, if they are specified. You might encounter images that don't have these attributes explicitly set - your current code would throw a KeyError in this case. You can use get() and provide a default value instead:
+
+for pic in soup.find_all('img'):
+    print(pic.get('width', 'n/a'))
+
+Or, you can find only img elements that have the width and height specified:
+
+for pic in soup.find_all('img', width=True, height=True):
+    print(pic['width'], pic['height']) 
+
+
+
+------------------------------
+>>> html = '<img src="http://somelink.com/somepic.jpg" width="200" height="100">'
+>>> soup = BeautifulSoup(html)
+>>> for tag in soup.find_all('img'):
+...     print tag.attrs.get('height', None), tag.attrs.get('width', None)
+... 
+100 200
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+
+
 
 """
 from helpers_web import links_make_absolute, links_remove_externals, links_strip_query_and_fragment, sq as sq, strip_query_and_fragment, url_path
@@ -52,6 +123,7 @@ assets_written          = []
 verbose                 = True
 
 image_size_tuples       = []
+urls_visited            = []
 
 b_extend_rescan_urls    = False
 
@@ -270,7 +342,7 @@ def make_static(
         for text in  h.xpath("//*/@style"):
             links_img += wh.get_background_images_from_inline_style_tag(text)
         
-        if False: 
+        if True: 
         # media.ka    
             import json
             for jstring in  h.xpath("//*/@data-vjs_setup"):
@@ -552,6 +624,10 @@ if __name__ == "__main__":
     # -----------------------------------------
     image_size_tuples = []
     app_110_image_sizes.file_image_sizes_make_unique()
+    
+    
+    wh.file_make_unique(config.path_image_sizes_visited, sort=True)
+    urls_visited = wh.list_from_file(config.path_image_sizes_visited)
 
     # -----------------------------------------
     # 
@@ -585,7 +661,6 @@ if __name__ == "__main__":
     # -----------------------------------------
     # RE-scan for new links:
     # -----------------------------------------     
-    
     if b_extend_rescan_urls:   
         links_a_href    = []
         valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
@@ -652,7 +727,6 @@ if __name__ == "__main__":
     # -----------------------------------------
     # make_static
     # -----------------------------------------  
-        
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
@@ -666,19 +740,22 @@ if __name__ == "__main__":
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
 
         if not (url in config.sitemap_links_ignore):
-            links_a_href_from_url = make_static(
-                driver,
-                url,
-                config.base,
-                config.project_folder,
-                config.path_stylesheet,
-                config.replacements_pre,
-                wait_secs=config.wait_secs
-            )
-            #print("found links_a_href_from_url:", YELLOW, *links_a_href_from_url, RESET, sep="\n\t") 
-            # not using links_a_href_from_url as we are pre-scanning above...
-            
-            wh.string_to_file(url + '\n', config.path_image_sizes_visited, mode="a") # log
+            if not (url in urls_visited):
+                links_a_href_from_url = make_static(
+                    driver,
+                    url,
+                    config.base,
+                    config.project_folder,
+                    config.path_stylesheet,
+                    config.replacements_pre,
+                    wait_secs=config.wait_secs
+                )
+                #print("found links_a_href_from_url:", YELLOW, *links_a_href_from_url, RESET, sep="\n\t") 
+                # not using links_a_href_from_url as we are pre-scanning above...
+                
+                wh.string_to_file(url + '\n', config.path_image_sizes_visited, mode="a") # log
+            else:
+                print("already visited:", wh.GRAY, url)
         else:
             print(f"{YELLOW}IGNORED url: {url}{RESET}" + "\n"*5)
             

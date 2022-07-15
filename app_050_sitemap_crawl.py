@@ -1,42 +1,11 @@
 # https://www.thepythoncode.com/article/extract-all-website-links-python
 # https://www.thepythoncode.com/code/extract-all-website-links-python
 # pip3 install requests bs4 colorama
-# thank you!
-
-"""
-    # wget -E -H -k -K -p -e robots=off https://karlsruhe.digital
-    # wget -E --span-hosts -k -K -p -e robots=off https://karlsruhe.digital
-    # wget --mirror -nH -np -p -k -E -e robots=off https://karlsruhe.digital
-    # wget --mirror -nH -np -p -k -E -e robots=off -i "../data/karlsruhe.digital_internal_links.csv" 
-    
-    # https://stackoverflow.com/questions/31205497/how-to-download-a-full-webpage-with-a-python-script
-    
-https://www.elegantthemes.com/blog/editorial/the-wordpress-json-rest-api-wp-api-what-it-is-how-it-works-what-it-means-for-the-future-of-wordpress
-https://developer.wordpress.org/rest-api/
-
-
-https://karlsruhe.digital/wp-json/
-https://karlsruhe.digital/wp-json/wp/v2
-https://karlsruhe.digital/wp-json/wp/v2/routes
-routes
-_links self
-
-TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
--> link "https://karlsruhe.digital/2022/06/events-termine-in-karlsruhe-kw-25-2022/"
--> guid rendered "https://karlsruhe.digital/?p=5522" ## media makes more sense
-https://karlsruhe.digital/wp-json/wp/v2/posts
-https://karlsruhe.digital/wp-json/wp/v2/pages
-https://karlsruhe.digital/wp-json/wp/v2/media
-https://karlsruhe.digital/wp-json/wp/v2/blocks
-https://karlsruhe.digital/wp-json/wp/v2/categories
-
-
-"""
 
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
-#import mimetypes
+# import mimetypes
 # pip install python-magic
 # pip install python-magic-bin # win
 import magic
@@ -58,33 +27,14 @@ YELLOW = colorama.Fore.YELLOW
 RED = colorama.Fore.RED
 MAGENTA = colorama.Fore.MAGENTA
 CYAN = colorama.Fore.CYAN
-#-----------------------------------------
-# testing...
-#-----------------------------------------
-# # requests TFFTF vs urllib TFFTF
-# print(wh.get_mime_type("http://karlsruhe.digital"))
-# print(wh.get_mime_type("https://karlsruhe.digital"))
-# print(wh.get_mime_type("https://karlsruhe.digital/"))
-# print(wh.get_mime_type("https://karlsruhe.digital//"))
-# print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
-# #print(wh.get_mime_type("https://123ddd.cccXXXX"))
-# exit(0)
 
-# https://searchfacts.com/url-trailing-slash/
-# Should You Have a Trailing Slash at the End of URLs
-# The short answer is that the trailing slash does not matter for your root domain or subdomain. 
-# Google sees the two as equivalent.
-# But trailing slashes do matter for everything else because Google sees the two versions 
-# (one with a trailing slash and one without) as being different URLs.
 #-----------------------------------------
 # 
 #-----------------------------------------
-# initialize the set of links (unique links)
 internal_urls       = set()
 external_urls       = set()
 
 total_urls_visited  = 0
-
 
 data_folder         = config.data_folder
 mime_types_allowed  = ["text/html", "text/plain"]
@@ -267,14 +217,9 @@ def crawl(url, max_urls):
 if __name__ == "__main__":
     
     wh.logo_filename(__file__)
-    
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
-    # args defaults TODO use config
-    # def_url = "https://1001suns.com/sitemap_post/" # for args
-    # def_url = "https://1001suns.com/universe_bochum21/" # for args
-    def_url = config.base # "https://karlsruhe.digital/"
-    
+    def_url = config.base 
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
     parser.add_argument("--url",        default=def_url,    type=str,   help="The URL to extract links from.")
@@ -282,28 +227,21 @@ if __name__ == "__main__":
     parser.add_argument("--crawl",      default=True,       type=bool,  help="crawl True or False")
     parser.add_argument("--app_timeout",default=60*60*2,    type=float, help="app_timeout in secs. -1 means no timeout")
     
-    #args = parser.parse_args()
     args, _unknown_args = parser.parse_known_args()
     for arg in vars(args):
-        #print(str(arg).rjust(15) + ':', getattr(args, arg))
         wh.log(str(arg).rjust(15) + ':', getattr(args, arg), filepath=config.path_log_params)
     wh.log("args:", args, filepath=config.path_log_params)
             
     #-----------------------------------------
     # crawl
     #-----------------------------------------
+    
     domain_name = urlparse(args.url).netloc
-    # file_internal_path = f"{data_folder}/{domain_name}_{date_time_crawler}_internal_links.csv"
-    # file_external_path = f"{data_folder}/{domain_name}_{date_time_crawler}_external_links.csv"
-    file_internal_path = config.path_sitemap_links_internal
-    file_external_path = config.path_sitemap_links_external
-    
     print("\n"*4, wh.CYAN)
-    print("domain_name       :", domain_name)
+    print("domain_name                       :", domain_name)
     print("\n"*4, wh.RESET)
-    
-    print("file_internal_path:", file_internal_path)
-    print("file_external_path:", file_external_path)
+    print("config.path_sitemap_links_internal:", config.path_sitemap_links_internal)
+    print("config.path_sitemap_links_external:", config.path_sitemap_links_external)
  
     if not args.crawl:
         print(wh.RED, "args.crawl:", args.crawl, wh.RESET)
@@ -325,16 +263,21 @@ if __name__ == "__main__":
         external_urls = sorted(external_urls)
         
         # save the internal links to a file
-        print("save the internal links to a file:", file_internal_path)
-        with open(file_internal_path, "w", encoding="utf-8") as f:
-            for internal_link in internal_urls:
-                f.write(internal_link.strip() + "\n")
+        print("save the internal links to a file:", config.path_sitemap_links_internal)
+        # # with open(config.path_sitemap_links_internal, "w", encoding="utf-8") as f:
+        # #     for internal_link in internal_urls:
+        # #         f.write(internal_link.strip() + "\n")
+        wh.list_to_file(internal_urls, config.path_sitemap_links_internal, mode="a")
 
         # save the external links to a file
-        print("save the external links to a file:", file_external_path)
-        with open(file_external_path, "w", encoding="utf-8") as f:
-            for external_link in external_urls:
-                f.write(external_link.strip() + "\n")
+        print("save the external links to a file:", config.path_sitemap_links_external)
+        # with open(config.path_sitemap_links_external, "w", encoding="utf-8") as f:
+        #     for external_link in external_urls:
+        #         f.write(external_link.strip() + "\n")
+        wh.list_to_file(external_urls, config.path_sitemap_links_external, mode="a")
+        
+        wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
+        wh.file_make_unique(config.path_sitemap_links_external, sort=True)
 
         wh.log("[+] Total Internal links:", len(internal_urls), filepath=config.path_log_params)
         wh.log("[+] Total External links:", len(external_urls), filepath=config.path_log_params)
@@ -342,14 +285,13 @@ if __name__ == "__main__":
         wh.log("[+] Total crawled URLs  :", total_urls_visited, filepath=config.path_log_params)
         wh.log("[+] args.max_urls       :", args.max_urls, filepath=config.path_log_params)
                                 
-        # write sitemap
-        #sitemap_path = f"{data_folder}/{domain_name}_{date_time_crawler}_sitemap.xml"
-        sitemap_path = config.path_sitemap_xml
-        sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
-        import shutil
-        dst = config.project_folder + "sitemap.xml"
-        wh.make_dirs(dst)
-        shutil.copyfile(sitemap_path, dst)
+        # # # write sitemap ---> at very end!
+        # # sitemap_path = config.path_sitemap_xml
+        # # sitemap.sitemap_xml_from_list(internal_urls, sitemap_path)
+        # # import shutil
+        # # dst = config.project_folder + "sitemap.xml"
+        # # wh.make_dirs(dst)
+        # # shutil.copyfile(sitemap_path, dst)
 
         # all done
         secs = time.time() - start_secs

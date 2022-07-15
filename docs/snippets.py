@@ -636,48 +636,108 @@ document.getElementById("FirstDiv").remove();
 """
 
 
-import re
-s = "©@my string with öäüßÖÄÜ éè bla bla 世丕且且世两 !\":.<>?"
-
-#delchars = ''.join(c for c in map(chr, range(256)) if not c.isalnum())
-#res = ''.join(ch for ch in s if ch.isalnum())
-res = bytes(s, 'utf-8').decode('utf-8', 'ignore')
-
-import string
-res = ''.join(x for x in s if x in string.printable) # OK
-
-# https://stackoverflow.com/questions/33504953/is-there-a-way-to-convert-unicode-to-the-nearest-ascii-equivalent
-#transliteration.
-# pip install Unidecode
-from unidecode import unidecode
-
-res = unidecode(s).replace(' ', '_')
-
-import unicodedata
-import re
-
-def slugify(value, allow_unicode=False):
+"""
+    # wget -E -H -k -K -p -e robots=off https://karlsruhe.digital
+    # wget -E --span-hosts -k -K -p -e robots=off https://karlsruhe.digital
+    # wget --mirror -nH -np -p -k -E -e robots=off https://karlsruhe.digital
+    # wget --mirror -nH -np -p -k -E -e robots=off -i "../data/karlsruhe.digital_internal_links.csv" 
     
-    value = unidecode(value) # 3j
+    # https://stackoverflow.com/questions/31205497/how-to-download-a-full-webpage-with-a-python-script
     
-    """
-    Taken from https://github.com/django/django/blob/master/django/utils/text.py
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
-    """
-    value = str(value)
-    if allow_unicode:
-        value = unicodedata.normalize('NFKC', value)
-    else:
-        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
-    value = re.sub(r'[^\w\s-]', '', value.lower())
-    return re.sub(r'[-\s]+', '-', value).strip('-_')
+https://www.elegantthemes.com/blog/editorial/the-wordpress-json-rest-api-wp-api-what-it-is-how-it-works-what-it-means-for-the-future-of-wordpress
+https://developer.wordpress.org/rest-api/
 
-res = slugify(unidecode(s), allow_unicode=False)
 
-print(s)
-print(res)
+https://karlsruhe.digital/wp-json/
+https://karlsruhe.digital/wp-json/wp/v2
+https://karlsruhe.digital/wp-json/wp/v2/routes
+routes
+_links self
 
-    
+TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-> link "https://karlsruhe.digital/2022/06/events-termine-in-karlsruhe-kw-25-2022/"
+-> guid rendered "https://karlsruhe.digital/?p=5522" ## media makes more sense
+https://karlsruhe.digital/wp-json/wp/v2/posts
+https://karlsruhe.digital/wp-json/wp/v2/pages
+https://karlsruhe.digital/wp-json/wp/v2/media
+https://karlsruhe.digital/wp-json/wp/v2/blocks
+https://karlsruhe.digital/wp-json/wp/v2/categories
+
+
+
+
+
+#-----------------------------------------
+# testing...
+#-----------------------------------------
+# # requests TFFTF vs urllib TFFTF
+# print(wh.get_mime_type("http://karlsruhe.digital"))
+# print(wh.get_mime_type("https://karlsruhe.digital"))
+# print(wh.get_mime_type("https://karlsruhe.digital/"))
+# print(wh.get_mime_type("https://karlsruhe.digital//"))
+# print(wh.get_mime_type("https://karlsruhe.digital/wp-content/uploads/2022/06/2021.Sesemann_7422.Foto-im-Intranet.jpg"))
+# #print(wh.get_mime_type("https://123ddd.cccXXXX"))
+# exit(0)
+
+# https://searchfacts.com/url-trailing-slash/
+# Should You Have a Trailing Slash at the End of URLs
+# The short answer is that the trailing slash does not matter for your root domain or subdomain. 
+# Google sees the two as equivalent.
+# But trailing slashes do matter for everything else because Google sees the two versions 
+# (one with a trailing slash and one without) as being different URLs.
+
+
+
+
+
+"""
+
+
+if __name__ == "__main__":
+
+
+    import re
+    s = "©@my string with öäüßÖÄÜ éè bla bla 世丕且且世两 !\":.<>?"
+
+    #delchars = ''.join(c for c in map(chr, range(256)) if not c.isalnum())
+    #res = ''.join(ch for ch in s if ch.isalnum())
+    res = bytes(s, 'utf-8').decode('utf-8', 'ignore')
+
+    import string
+    res = ''.join(x for x in s if x in string.printable) # OK
+
+    # https://stackoverflow.com/questions/33504953/is-there-a-way-to-convert-unicode-to-the-nearest-ascii-equivalent
+    #transliteration.
+    # pip install Unidecode
+    from unidecode import unidecode
+
+    res = unidecode(s).replace(' ', '_')
+
+    import unicodedata
+    import re
+
+    def slugify(value, allow_unicode=False):
+        
+        value = unidecode(value) # 3j
+        
+        """
+        Taken from https://github.com/django/django/blob/master/django/utils/text.py
+        Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+        dashes to single dashes. Remove characters that aren't alphanumerics,
+        underscores, or hyphens. Convert to lowercase. Also strip leading and
+        trailing whitespace, dashes, and underscores.
+        """
+        value = str(value)
+        if allow_unicode:
+            value = unicodedata.normalize('NFKC', value)
+        else:
+            value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+        value = re.sub(r'[^\w\s-]', '', value.lower())
+        return re.sub(r'[-\s]+', '-', value).strip('-_')
+
+    res = slugify(unidecode(s), allow_unicode=False)
+
+    print(s)
+    print(res)
+
+        

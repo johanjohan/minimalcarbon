@@ -97,10 +97,9 @@ if __name__ == "__main__":
             
             "quality":              55, # 66 55
             
-            ##"max_dim":            (500, 500), # could make smaller with avif --> func_size
             "size_thresh":          1000, 
-            "size_large":           (1400, 1400), 
-            "size_small":           (553, 553),
+            "size_large":           (1280, 1280), 
+            "size_small":           (480, 480),
             
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only

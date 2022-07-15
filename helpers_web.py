@@ -1476,7 +1476,7 @@ def list_from_file(path, mode="r", encoding="utf-8", sanitize=False):
             ret = links_sanitize(ret)
         return ret
     
-def list_to_file(items, path, mode="w", encoding="utf-8", pre="\t\t"):
+def list_to_file(items, path, mode="w", encoding="utf-8", pre=""):
     print(pre, "list_to_file:", dq(mode), "|", path)
     # # with open(path, mode=mode, encoding=encoding) as file:
     # #     file.write(list_to_string(items))
@@ -2090,8 +2090,9 @@ def log(*values, filepath, mode="a", echo=True):
                     "\n" * nls,
                     "+" + "-" * n,
                     "|",
-                    f"| {platform.node()}",
-                    f"| {string}",
+                    f"| {os.path.basename(string).split('.')[0]}",
+                    f"| {os.getlogin()} @ {platform.node()}",
+                    #f"| {string}",
                     "|",
                     "+" + "-" * n,
                     "\n" * nls,
