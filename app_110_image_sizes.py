@@ -342,6 +342,7 @@ if __name__ == "__main__":
             
             if not (url in urls_visited) or b_take_snapshot:
                 
+                # driver GET
                 if b_scan_image_sizes or b_take_snapshot:
                     max_tries = 10
                     for i in range(max_tries):

@@ -200,14 +200,14 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   False,
+        "b_remove_fonts_css":                   True,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False, # <<<<<<<<<<<<<<<<<<<<      
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              60, # 66 55
