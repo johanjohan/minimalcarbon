@@ -573,7 +573,7 @@ if __name__ == "__main__":
             print(f"[{tries}] webdriver.Chrome()...")
             print(f"[{tries}] {config.options}", wh.YELLOW)
             driver = webdriver.Chrome(options=config.options)
-            driver.implicitly_wait(30)
+            driver.implicitly_wait(config.implicit_wait)
             # driver.execute_script("alert('alert via selenium')")
             break
         except Exception as e:

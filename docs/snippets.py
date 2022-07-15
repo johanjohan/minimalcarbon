@@ -311,7 +311,7 @@ document.getElementById("FirstDiv").remove();
         # # options=config.options
         # # options.headless = False
         # # driver = webdriver.Chrome(options=options)
-        # # driver.implicitly_wait(30)    
+        # # driver.implicitly_wait(config.implicit_wait)    
 
         for file in files_index_html:
             

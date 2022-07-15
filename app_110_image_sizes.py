@@ -88,7 +88,15 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
         https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Digitalisierung-2022-75x50.jpeg 75w"
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
-def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pre="\t", turns_for_slow_funcs=config.turns_for_slow_funcs):
+def find_all_image_size_tuples(
+    collected, 
+    driver, 
+    base, 
+    bases, 
+    b_scan_srcset, 
+    pre="\t", 
+    turns_for_slow_funcs=config.turns_for_slow_funcs
+    ):
         
     print(pre, "find_all_image_size_tuples: b_scan_srcset:", wh.CYAN, str(b_scan_srcset), wh.RESET)
     print(pre, "find_all_image_size_tuples: driver       :", wh.GRAY, str(driver), wh.RESET)
@@ -105,6 +113,7 @@ def find_all_image_size_tuples(collected, driver, base, bases, b_scan_srcset, pr
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
+    # NOTE findElements waits for at least one element or until timeout which is defined by the implicit wait setting
     # find urls in driver 
     # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url)
     try:
@@ -281,7 +290,7 @@ if __name__ == "__main__":
                 print(f"[{tries}] webdriver.Chrome()...")
                 print(f"[{tries}] {config.options}")
                 driver = webdriver.Chrome(options=config.options)
-                driver.implicitly_wait(0) # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
+                driver.implicitly_wait(config.implicit_wait) #  An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
                 break
             except Exception as e:
                 print(f"{wh.RED} {e} {wh.RESET}")
