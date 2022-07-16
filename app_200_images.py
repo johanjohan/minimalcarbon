@@ -43,7 +43,7 @@ import shutil
 import pillow_lut 
 import pillow_avif
 
-import app_110_image_sizes
+import image_sizes
 
 #-----------------------------------------
 # 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     dir_size_orig = wh.get_directory_total_size(config.project_folder)
     
     print()
-    app_110_image_sizes.file_image_sizes_make_unique()
+    image_sizes.file_image_sizes_make_unique()
 
     #pag.alert(text=f"good time to backup htdocs!", timeout=2000)
     #-----------------------------------------
@@ -103,8 +103,8 @@ if __name__ == "__main__":
             "quality":              55, # 66 55
             
             "size_thresh":          1000, 
-            "size_large":           (1300, 1300), 
-            "size_small":           (480, 480),
+            "size_large":           (1400, 1400), 
+            "size_small":           (553, 553),
             
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
@@ -116,9 +116,9 @@ if __name__ == "__main__":
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
             "cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           True,
+            "b_colorize":           False,
             "blend_alpha":          0.5, # 0.666 0.8 0.75  
-            "b_enhance_transp":     True,         
+            "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,

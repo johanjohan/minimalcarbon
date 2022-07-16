@@ -102,7 +102,7 @@ import cssbeautifier
 from urllib.parse import urlparse
 import pyautogui as pag
 
-import app_110_image_sizes
+import image_sizes
 import urllib.parse
 
 import config
@@ -351,10 +351,8 @@ def make_static(
                 print("\t\t\t", j.get("poster", None))
                 links_img.append(j.get("poster", None))
           
-        # SLOW #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
         if make_static.counter < turns_for_slow_funcs: 
-            # traverse body: all elements for style NEW TODO SLOW!
-            print("\t\t", "driver.find_elements: By.XPATH body", flush=True)
+            print("\t\t", "driver.find_elements: By.XPATH <body>", flush=True)
             for e in driver.find_elements(By.XPATH, "//body//*"):
                 imgpath = e.value_of_css_property("background-image")
                 if imgpath != "none" and "url" in imgpath:
@@ -363,9 +361,8 @@ def make_static(
                     url = urllib.parse.unquote(url) # !!!
                     links_img.append( url )
                     
-        #### NEW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
         assert b_use_driver
-        app_110_image_sizes.find_all_image_size_tuples(
+        image_sizes.find_all_image_size_tuples(
             image_size_tuples, 
             driver, 
             config.base,
@@ -384,7 +381,7 @@ def make_static(
             
     else:           
         # this loads ALL images in one go, not just the ones in each page  >> takes some extra time replacing links..
-        links_img = app_110_image_sizes.file_image_sizes_get_urls()
+        links_img = image_sizes.file_image_sizes_get_urls()
         #print("links_img", wh.GRAY, *links_img, wh.RESET, sep="\n\t")
             
     #-----------
@@ -623,7 +620,7 @@ if __name__ == "__main__":
     # 
     # -----------------------------------------
     image_size_tuples = []
-    app_110_image_sizes.file_image_sizes_make_unique()
+    image_sizes.file_image_sizes_make_unique()
     
     
     wh.file_make_unique(config.path_image_sizes_visited, sort=True)
@@ -765,7 +762,7 @@ if __name__ == "__main__":
     driver.close()
     driver.quit()
     
-    app_110_image_sizes.file_image_sizes_make_unique()
+    image_sizes.file_image_sizes_make_unique()
 
     # save images written
     images_written = sorted(list(set(images_written)))
