@@ -138,6 +138,7 @@ path_image_tuples_written   = path_stats + base_netloc + "_150_images_written.cs
 path_asset_tuples_written   = path_stats + base_netloc + "_150_assets_written.csv"
 path_image_sizes            = path_stats + base_netloc + "_110_image_sizes.csv"
 path_image_sizes_visited    = path_stats + base_netloc + "_110_image_sizes_visited.csv"
+path_image_snaps_visited    = path_stats + base_netloc + "_300_image_snaps_visited.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
 path_conversions            = path_stats + base_netloc + "_200_conversions.csv"

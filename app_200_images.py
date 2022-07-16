@@ -116,9 +116,9 @@ if __name__ == "__main__":
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
             "cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           False,
+            "b_colorize":           True,
             "blend_alpha":          0.5, # 0.666 0.8 0.75  
-            "b_enhance_transp":     False,         
+            "b_enhance_transp":     True,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
