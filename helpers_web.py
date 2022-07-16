@@ -411,6 +411,7 @@ def link_make_absolute(link, base):
     if not loc_base:
         print(RED, "link_make_absolute:", "not loc_base", RESET)
         assert False    
+        exit(1)
     
     if not protocol_url:
         if protocol_base:
@@ -887,7 +888,7 @@ def get_redirected_url(url, timeout=10):
         if True:
             res     = get_response(url, timeout=timeout, method='HEAD') # None 'HEAD'
             new_url = res.url
-            print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
+            #print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
             return new_url, (new_url != url)
         else:
             r = requests.head(url, timeout=timeout) 

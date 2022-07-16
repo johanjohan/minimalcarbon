@@ -27,22 +27,23 @@ import urllib.parse # selenium seems to urlencode results
 # 
 #-----------------------------------------
 if __name__ == "__main__":
-        
+ 
+    wh.logo_filename(__file__)
+    wh.log("__file__", __file__, filepath=config.path_log_params)
+    
+           
+    # TODO make args ###########################
     base                = wh.add_trailing_slash("http://127.0.0.1") # config.base --> given arg
     config.path_snapshots_visited = config.path_snapshots + wh.add_trailing_slash(wh.strip_protocol(base)) + wh.strip_protocol(base).rstrip('/') + "_300_image_snaps_visited.csv"
     excludes = ["media.karlsruhe.digital"]
+    ####################################
 
     start_secs          = time.time()
     urls_visited        = []
     b_take_snapshot     = True 
 
-    wh.logo_filename(__file__)
-    wh.log("__file__", __file__, filepath=config.path_log_params)
-    
     if b_take_snapshot:
-        
-        wh.log("b_take_snapshot", b_take_snapshot, filepath=config.path_log_params)
-                
+                        
         # -----------------------------------------
         # chrome init
         # -----------------------------------------    
@@ -115,7 +116,7 @@ if __name__ == "__main__":
             # The maximum pixel dimensions of a WebP image is 16383 x 16383
             protocol, loc, path = wh.url_split(abs_url)
             path_snap = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(path) + ".webp" # webp avif png tif
-            print("path_snap", path_snap)
+            wh.log("path_snap", path_snap, filepath=config.path_log_params)
             if not wh.file_exists_and_valid(path_snap):
                 wh.fullpage_screenshot(driver, path_snap, classes_to_hide=["navbar", "banner_header", "vw-100"])   
             else:

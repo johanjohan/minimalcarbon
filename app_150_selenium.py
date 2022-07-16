@@ -144,20 +144,33 @@ def assets_save_internals_locally(
     # links = wh.links_make_absolute(links, base)  NO!!!
     links = wh.links_remove_externals(links, base)
     # links = wh.links_remove_folders(links) NO!!!
-    links = wh.links_remove_invalids(links, ["s.w.org", "?p=", "mailto:", "javascript:", "whatsapp:"])
+    links = wh.links_remove_invalids(links, ["s.w.org", "mailto:", "javascript:", "whatsapp:"]) # "?p=", 
     # links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
+    links = wh.links_remove_nones(links)
     links = wh.links_make_unique(links)
     links = sorted(links)
     print(GRAY, "assets_save_internals_locally:", *links, RESET, sep='\n\t')
 
     # loop the links
     for src in links:
+        
+        src = wh.link_make_absolute(src, base) # ??????ß
+        
+        # re-direction ie ?p=1234
+        new_src, is_redirected = wh.get_redirected_url(src, timeout=10)  
+        if is_redirected:
+            print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, new_src, wh.RESET)
+            src = new_src
+            time.sleep(3)
 
-        ###src = src.strip()
+        print()
         print(f"{CYAN}\t [{(time.time() - start_secs)/60.0:.1f} m] src: \'{src}\' {RESET}")
 
-        # check external
-        if wh.url_is_external(src, base):
+        # checks
+        if not src:
+            print(f"{YELLOW}not src: src: {src} {RESET}")
+            continue
+        elif wh.url_is_external(src, base):
             print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
             continue
 
@@ -645,7 +658,8 @@ if __name__ == "__main__":
     for tries in range(10):
         try:
             print(f"[{tries}] webdriver.Chrome()...")
-            print(f"[{tries}] {config.options}", wh.YELLOW)
+            print(f"[{tries}] {config.options}")
+            print(wh.MAGENTA, end='')
             driver = webdriver.Chrome(options=config.options)
             driver.implicitly_wait(config.implicit_wait)
             # driver.execute_script("alert('alert via selenium')")
