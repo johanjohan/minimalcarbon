@@ -39,7 +39,7 @@ if __name__ == "__main__":
     ####################################
 
     start_secs          = time.time()
-    urls_visited        = []
+    #urls_visited        = []
     b_take_snapshot     = True 
 
     if b_take_snapshot:
@@ -86,19 +86,26 @@ if __name__ == "__main__":
         
         wh.make_dirs(config.path_snapshots_visited)
         wh.file_make_unique(config.path_snapshots_visited, sort=True)
-        urls_visited = wh.list_from_file(config.path_snapshots_visited)
+        #urls_visited = wh.list_from_file(config.path_snapshots_visited)
 
         for count, abs_url in enumerate(urls):
                         
-            if (abs_url in urls_visited):
-                print("already visited:", wh.GRAY, abs_url, wh.RESET)    
-                continue
-            
             print()
             wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
             print()
             print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {abs_url} {wh.RESET}")
+
+            protocol, loc, path = wh.url_split(abs_url)
+            path_snap_base  = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(path)
+            path_snap       = path_snap_base + ".webp"  # webp avif png tif
+            path_snap_png   = path_snap_base + ".png"   # fallback for large dims
+            wh.log("path_snap", path_snap, filepath=config.path_log_params)
             
+            #if (abs_url in urls_visited) or wh.file_exists_and_valid(path_snap) or wh.file_exists_and_valid(path_snap_png) :
+            if wh.file_exists_and_valid(path_snap) or wh.file_exists_and_valid(path_snap_png) :
+                print("\t", wh.MAGENTA, "already visited:", wh.GRAY, abs_url, wh.RESET)    
+                continue
+                                  
             # driver GET
             max_tries = 10
             for i in range(max_tries):
@@ -114,26 +121,23 @@ if __name__ == "__main__":
                 
             # lossless
             # The maximum pixel dimensions of a WebP image is 16383 x 16383
-            protocol, loc, path = wh.url_split(abs_url)
-            path_snap = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(path) + ".webp" # webp avif png tif
-            wh.log("path_snap", path_snap, filepath=config.path_log_params)
             if not wh.file_exists_and_valid(path_snap):
                 wh.fullpage_screenshot(driver, path_snap, classes_to_hide=["navbar", "banner_header", "vw-100"])   
             else:
                 print("already exists:",  wh.GRAY, path_snap, wh.RESET)
                 
-            # visited to file       
-            urls_visited.append(abs_url)
-            try:
-                wh.string_to_file(abs_url + "\n", config.path_snapshots_visited, mode="a")
-            except Exception as e:
-                print(wh.RED, e, wh.RESET)     
+            # # visited to file       
+            # urls_visited.append(abs_url)
+            # try:
+            #     wh.string_to_file(abs_url + "\n", config.path_snapshots_visited, mode="a")
+            # except Exception as e:
+            #     print(wh.RED, e, wh.RESET)     
                        
         ### for url />      
             
         driver.close()
         driver.quit()
         
-        wh.file_make_unique(config.path_snapshots_visited, sort=True)
+        ####wh.file_make_unique(config.path_snapshots_visited, sort=True)
         wh.log("b_take_snapshot: all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         
