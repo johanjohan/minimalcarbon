@@ -28,20 +28,20 @@ import urllib.parse # selenium seems to urlencode results
 #-----------------------------------------
 if __name__ == "__main__":
         
+    base                = wh.add_trailing_slash("http://127.0.0.1") # config.base --> given arg
+    config.path_snapshots_visited = config.path_snapshots + wh.add_trailing_slash(wh.strip_protocol(base)) + wh.strip_protocol(base).rstrip('/') + "_300_image_snaps_visited.csv"
+
     start_secs          = time.time()
     urls_visited        = []
     b_take_snapshot     = True 
 
-    
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
     if b_take_snapshot:
         
-        wh.log("b_take_snapshot",       b_take_snapshot,    filepath=config.path_log_params)
-        
-        start_secs = time.time()
-        
+        wh.log("b_take_snapshot", b_take_snapshot, filepath=config.path_log_params)
+                
         # -----------------------------------------
         # chrome init
         # -----------------------------------------    
@@ -51,7 +51,7 @@ if __name__ == "__main__":
                 print(f"[{tries}] webdriver.Chrome()...")
                 print(f"[{tries}] {config.options}")
                 driver = webdriver.Chrome(options=config.options)
-                driver.implicitly_wait(config.implicit_wait) #  An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
+                driver.implicitly_wait(5) #  An implicit wait tells WebDriver to poll the DOM for a certain amount of time when trying to find any element (or elements) not immediately available. The default setting is 0 (zero). Once set, the implicit wait is set for the life of the WebDriver object.
                 break
             except Exception as e:
                 print(f"{wh.RED} {e} {wh.RESET}")
@@ -70,11 +70,10 @@ if __name__ == "__main__":
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
-        wh.file_make_unique(config.path_image_snaps_visited, sort=True)
-        urls_visited = wh.list_from_file(config.path_image_snaps_visited)
+        wh.make_dirs(config.path_snapshots_visited)
+        wh.file_make_unique(config.path_snapshots_visited, sort=True)
+        urls_visited = wh.list_from_file(config.path_snapshots_visited)
 
-        base = wh.add_trailing_slash("http://127.0.0.1") # config.base --> given arg
-        
         for count, url in enumerate(urls):
             
             if (url in urls_visited):
@@ -105,6 +104,7 @@ if __name__ == "__main__":
             ### max tries />
                 
             # lossless
+            # The maximum pixel dimensions of a WebP image is 16383 x 16383
             protocol, loc, path = wh.url_split(abs_url)
             path_snap = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(local_url) + ".webp" # webp avif png tif
             print("path_snap", path_snap)
@@ -115,9 +115,8 @@ if __name__ == "__main__":
                 
             # visited to file       
             urls_visited.append(url)
-            ####urls_visited = sorted(wh.links_make_unique(urls_visited))
             try:
-                wh.list_to_file(url, config.path_image_snaps_visited, mode="a")
+                wh.string_to_file(url + "\n", config.path_snapshots_visited, mode="a")
             except Exception as e:
                 print(wh.RED, e, wh.RESET)     
                        
@@ -126,6 +125,6 @@ if __name__ == "__main__":
         driver.close()
         driver.quit()
         
-        wh.file_make_unique(config.path_image_snaps_visited, sort=True)
+        wh.file_make_unique(config.path_snapshots_visited, sort=True)
         wh.log("b_take_snapshot: all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
         

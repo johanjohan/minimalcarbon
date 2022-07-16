@@ -117,7 +117,8 @@ path_script             = project_folder + "wp-content/themes/karlsruhe-digital/
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
-path_snapshots          = ats(project_folder + "../__snaps/" + base_netloc) 
+path_snapshots              = ats(project_folder + "../__snaps/" + base_netloc) 
+path_snapshots_visited      = path_snapshots + base_netloc + "_300_image_snaps_visited.csv"
 
 crawler_base                = path_stats + base_netloc + "_050" # crawler
 path_sitemap_links_internal = crawler_base + "_internal_links.csv"
@@ -138,7 +139,6 @@ path_image_tuples_written   = path_stats + base_netloc + "_150_images_written.cs
 path_asset_tuples_written   = path_stats + base_netloc + "_150_assets_written.csv"
 path_image_sizes            = path_stats + base_netloc + "_110_image_sizes.csv"
 path_image_sizes_visited    = path_stats + base_netloc + "_110_image_sizes_visited.csv"
-path_image_snaps_visited    = path_stats + base_netloc + "_300_image_snaps_visited.csv"
 
 #path_conversions            = data_folder + base_netloc + "_conversions.csv"
 path_conversions            = path_stats + base_netloc + "_200_conversions.csv"

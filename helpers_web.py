@@ -2219,16 +2219,28 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     classes_to_hide = list(classes_to_hide)
 
-    print(pre + "fullpage_screenshot:", YELLOW + file, RESET) # , RESET)
-    print(pre + "fullpage_screenshot:", "classes_to_hide:", classes_to_hide, GRAY) 
-
+    print(pre + "fullpage_screenshot:", CYAN + file, RESET) # , RESET)
+    print(pre + "fullpage_screenshot:", "classes_to_hide:", classes_to_hide) 
+    print(GRAY, end='')
+    
     total_width     = driver.execute_script("return document.body.offsetWidth")
     total_height    = driver.execute_script("return document.body.parentNode.scrollHeight")
     viewport_width  = driver.execute_script("return document.body.clientWidth")
     viewport_height = driver.execute_script("return window.innerHeight")
     print(pre + "\t", f"total: ({total_width}, {total_height}), Viewport: ({viewport_width},{viewport_height})")
-    rectangles = []
-
+    rectangles      = []
+    
+    # compare total_height and total_width vs max image filesize
+    name, ext   = os.path.splitext(file)
+    webp_max    = (16383, 16383)
+    if "webp" in ext.lower():
+        if total_width > webp_max[0] or total_height > webp_max[1]:
+            file = name + ".png"
+            print(pre + "\t", YELLOW + "file too large: will use png for file format:", RESET)         
+            print(pre + "\t", file)         
+    print(GRAY, end='')
+            
+    # create rects
     y = 0
     while y < total_height:
         x = 0
@@ -2251,9 +2263,9 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
         y = y + viewport_height
     ### while
 
-    stitched_image = Image.new('RGB', (total_width, total_height))
-    previous = None
-    part = 0
+    stitched_image  = Image.new('RGB', (total_width, total_height))
+    previous        = None
+    part            = 0
     
     for rectangle in rectangles:
         if not previous is None:
