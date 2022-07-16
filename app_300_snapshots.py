@@ -30,6 +30,7 @@ if __name__ == "__main__":
         
     base                = wh.add_trailing_slash("http://127.0.0.1") # config.base --> given arg
     config.path_snapshots_visited = config.path_snapshots + wh.add_trailing_slash(wh.strip_protocol(base)) + wh.strip_protocol(base).rstrip('/') + "_300_image_snaps_visited.csv"
+    excludes = ["media.karlsruhe.digital"]
 
     start_secs          = time.time()
     urls_visited        = []
@@ -64,26 +65,33 @@ if __name__ == "__main__":
         urls = config.path_sitemap_links_internal         
         urls = wh.list_from_file(urls)
         urls = wh.links_remove_comments(urls, '#')
+        urls = wh.links_remove_excludes(urls, excludes) # <<<
         urls = wh.links_replace(urls, config.replacements_pre)
         urls = wh.links_remove_externals(urls, config.base)
         urls = wh.links_strip_query_and_fragment(urls)
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
+        # change base here as necessary
+        if base != config.base:
+            new_urls = []
+            for url in urls:
+                protocol, loc, path = wh.url_split(url)
+                new_url = wh.get_path_local_root_subdomains(url, config.base)
+                new_url = base + new_url.lstrip('/')
+                new_urls.append(new_url)
+                print("\t", new_url, wh.GRAY, "[", url, "]", wh.RESET)
+            urls = new_urls
+        
         wh.make_dirs(config.path_snapshots_visited)
         wh.file_make_unique(config.path_snapshots_visited, sort=True)
         urls_visited = wh.list_from_file(config.path_snapshots_visited)
 
-        for count, url in enumerate(urls):
-            
-            if (url in urls_visited):
-                print("already visited:", wh.GRAY, url, wh.RESET)    
+        for count, abs_url in enumerate(urls):
+                        
+            if (abs_url in urls_visited):
+                print("already visited:", wh.GRAY, abs_url, wh.RESET)    
                 continue
-            
-            protocol, loc, path = wh.url_split(url)
-            local_url           = path.lstrip('/')
-            abs_url             = base + local_url
-            print("", "abs_url", abs_url)
             
             print()
             wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
@@ -106,7 +114,7 @@ if __name__ == "__main__":
             # lossless
             # The maximum pixel dimensions of a WebP image is 16383 x 16383
             protocol, loc, path = wh.url_split(abs_url)
-            path_snap = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(local_url) + ".webp" # webp avif png tif
+            path_snap = config.path_snapshots + loc + "/snap_full_" + wh.url_to_filename(path) + ".webp" # webp avif png tif
             print("path_snap", path_snap)
             if not wh.file_exists_and_valid(path_snap):
                 wh.fullpage_screenshot(driver, path_snap, classes_to_hide=["navbar", "banner_header", "vw-100"])   
@@ -114,9 +122,9 @@ if __name__ == "__main__":
                 print("already exists:",  wh.GRAY, path_snap, wh.RESET)
                 
             # visited to file       
-            urls_visited.append(url)
+            urls_visited.append(abs_url)
             try:
-                wh.string_to_file(url + "\n", config.path_snapshots_visited, mode="a")
+                wh.string_to_file(abs_url + "\n", config.path_snapshots_visited, mode="a")
             except Exception as e:
                 print(wh.RED, e, wh.RESET)     
                        

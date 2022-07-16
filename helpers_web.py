@@ -466,7 +466,7 @@ def links_make_absolute(links, base):
 def links_remove_excludes(links, excludes):
     if not links: return links
     
-    print("links_remove_excludes:", excludes)
+    print("links_remove_excludes:", MAGENTA, excludes, RESET)
     excludes = list(excludes)
     return [link for link in links if not any(exclude.strip() in link for exclude in excludes)]
 
@@ -475,7 +475,7 @@ def links_remove_excludes(links, excludes):
 def links_remove_invalids(links, invalids):
     if not links: return links
     
-    print("links_remove_invalids:", invalids)
+    print("links_remove_invalids:", MAGENTA, invalids, RESET)
     # TODO is same as links_remove_excludes???????????????????
     #print(YELLOW, *links, RESET, sep="\n\t")
     ret = []
@@ -2219,7 +2219,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     classes_to_hide = list(classes_to_hide)
 
-    print(pre + "fullpage_screenshot:", CYAN + file, RESET) # , RESET)
+    print(pre + "fullpage_screenshot:", CYAN + os.path.basename(file), RESET)
     print(pre + "fullpage_screenshot:", "classes_to_hide:", classes_to_hide) 
     print(GRAY, end='')
     
@@ -2313,6 +2313,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
         
     ### for rectangles
 
+    print(pre, "saving:", GRAY, file, RESET)
     make_dirs(file)
     stitched_image.save(file, optimize=True, lossless=True) # , quality=100
     #stitched_image.save(file, optimize=True, quality=50) # , quality=100
@@ -2337,7 +2338,7 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     
     
-    print(pre + "\t", "finishing chrome full page screenshot workaround...", RESET)
+    print(pre, "finishing chrome full page screenshot.", RESET)
     return True
 
 #-----------------------------------------
