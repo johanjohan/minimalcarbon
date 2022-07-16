@@ -1186,10 +1186,11 @@ if __name__ == "__main__":
         use_pdf=b_get_project_total_size_use_pdf
         )
        
-    wh.log(None,                                             filepath=config.path_log_params, echo=True)
-    wh.log("perc100_saved       :", perc100_saved,           filepath=config.path_log_params, echo=True)
-    wh.log("total_size_originals:", total_size_originals,    filepath=config.path_log_params, echo=True)
-    wh.log("total_size_unpowered:", total_size_unpowered,    filepath=config.path_log_params, echo=True)
+    wh.log("perc100_saved       :", round(perc100_saved, 1),                "%",        filepath=config.path_log_params, echo=True)
+    wh.log("total_size_originals:", total_size_originals,                   "bytes",    filepath=config.path_log_params, echo=True)
+    wh.log("total_size_unpowered:", total_size_unpowered,                   "bytes",    filepath=config.path_log_params, echo=True)
+    wh.log("total_size_originals:", round(total_size_originals / 1e6, 1),   "MB",       filepath=config.path_log_params, echo=True)
+    wh.log("total_size_unpowered:", round(total_size_unpowered / 1e6, 1),   "MB",       filepath=config.path_log_params, echo=True)
     #-----------------------------------------
     # 
     #-----------------------------------------   

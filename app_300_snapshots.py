@@ -31,8 +31,8 @@ if __name__ == "__main__":
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
     
-           
     # TODO make args ###########################
+    # args: take a list of urls file or string
     base                = wh.add_trailing_slash("http://127.0.0.1") # config.base --> given arg
     config.path_snapshots_visited = config.path_snapshots + wh.add_trailing_slash(wh.strip_protocol(base)) + wh.strip_protocol(base).rstrip('/') + "_300_image_snaps_visited.csv"
     excludes = ["media.karlsruhe.digital"]
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         urls = wh.links_remove_excludes(urls, excludes) # <<<
         urls = wh.links_replace(urls, config.replacements_pre)
         urls = wh.links_remove_externals(urls, config.base)
-        urls = wh.links_strip_query_and_fragment(urls)
+        urls = wh.links_strip_query_and_fragment(urls) # do not need for snaps
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
@@ -107,8 +107,8 @@ if __name__ == "__main__":
                 continue
                                   
             # driver GET
-            max_tries = 10
-            for i in range(max_tries):
+            #max_tries = 10
+            for i in range(max_tries:=10):
                 try:
                     driver.get(abs_url)
                     wh.wait_for_page_has_loaded_hash(driver)
