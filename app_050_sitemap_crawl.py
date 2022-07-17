@@ -58,28 +58,42 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
-    urls = set()
-
-    #global internal_urls, external_urls
     
+    global internal_urls, external_urls
+    urls = set()
+    
+    url = rectify(url, config.base)
+    
+    if wh.url_is_external(url, config.base):
+        print(RED, "get_all_website_links:", "is external:", url, RESET)
+        external_urls.add(url)     
+        return urls
+    
+     
     # get content
     for tries in range(10):
         print(MAGENTA + f"[{tries}] tries: {url}", RESET)
         wh.sleep_random(wait_secs, verbose_string=url) # NEW
         response    = wh.get_response(url, timeout=config.timeout)
-        url         = response.url
-        url         = rectify(url, config.base)
-        content     = response.read().decode('utf-8')
-        if content:
-            break
+        if response:
+            url         = response.url
+            url         = rectify(url, config.base)
+            content     = response.read().decode('utf-8')
+            if content:
+                break
         else:
             print(RED, "request failed...sleep and try again...", url, RESET)
-            time.sleep(3)
+            time.sleep(1)
+            
+    if not content:
+        print(RED, "get_all_website_links:", "not content:", url, RESET)
+        return urls
      
-    if wh.url_is_internal(url, config.base):       
-        internal_urls.add(url)
-    else:
-        external_urls.add(url)     
+    # # if wh.url_is_internal(url, config.base):       
+    # #     internal_urls.add(url)
+    # # else:
+    # #     external_urls.add(url) 
+    internal_urls.add(url)    
            
     soup = BeautifulSoup(content, "html.parser")
     
@@ -103,13 +117,14 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         #-----------------------------------------
         # external link
         #-----------------------------------------       
-        if wh.url_is_external(href,  config.base) and href not in external_urls:
-            print(
-                "\t\t",
-                f"{total_urls_visited}/{max_urls}", 
-                f"{GRAY}[!] External: {href}{RESET}"
-            )
-            external_urls.add(href)
+        if wh.url_is_external(href,  config.base):
+            if href not in external_urls:
+                print(
+                    "\t\t",
+                    f"{total_urls_visited}/{max_urls}", 
+                    f"{GRAY}[!] External: {href}{RESET}"
+                )
+                external_urls.add(href)
             continue
                 
         #-----------------------------------------
@@ -120,7 +135,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             continue
           
         # get_response: redirected, mime etc
-        for tries in range(10):
+        for tries in range(3):
             hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
             if hresponse:
                 break
@@ -130,7 +145,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             
         if not hresponse:
             print(f"{RED}[!] not hresponse: {href}{RESET}")
-            wh.string_to_file(href + '\n', config.path_links_errors)
+            wh.string_to_file(href + '\n', config.path_links_errors, mode="a")
             continue
         
         href = rectify(hresponse.url, config.base) # may be redirected
@@ -147,8 +162,8 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             mime_type, 
             f"{GREEN}[*] Internal: {hresponse.url}{RESET}"
         )
+        assert wh.url_is_internal(href, config.base), href
         internal_urls.add(href)
-        
         urls.add(href) # only store internals
         
     ### for a_tag
@@ -168,7 +183,7 @@ def crawl(url, max_urls):
         max_urls (int): number of max urls to crawl, default is 30.
     """
     
-    ###global internal_urls, external_urls
+    global internal_urls, external_urls
     global total_urls_visited
     total_urls_visited += 1
     
