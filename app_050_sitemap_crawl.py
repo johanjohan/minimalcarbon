@@ -44,6 +44,16 @@ args                = None
 
 date_time_crawler   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
+def rectify(url, base):
+    url = wh.replace_all(url, "http:// ",  "")
+    url = wh.replace_all(url, "https:// ", "")     
+          
+    url = wh.link_make_absolute(url, base)
+    #url, is_redirected = wh.get_redirected_url(url)
+    url = wh.strip_query_and_fragment(url) # not needed for collection of pages
+    url = wh.strip_trailing_slash(url)
+    return url
+        
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -54,7 +64,10 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     # all URLs of `url`
     urls = set()
     # domain name of the URL without the protocol
-    domain_name = urlparse(url).netloc
+    ##domain_name = urlparse(url).netloc
+    ##domain_name = config.base
+    
+    global internal_urls, external_urls
     
     # get content
     for tries in range(10):
@@ -62,73 +75,87 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         wh.sleep_random(wait_secs, verbose_string=url) # NEW
         response    = wh.get_response(url, timeout=config.timeout)
         url         = response.url
+        url         = rectify(url, config.base)
         content     = response.read().decode('utf-8')
         if content:
             break
         else:
             print(RED, "request failed...sleep and try again...", url, RESET)
             time.sleep(3)
-            
-    internal_urls.add(url)
+     
+    if wh.url_is_internal(url, config.base):       
+        internal_urls.add(url)
+    else:
+        external_urls.add(url)     
+           
     soup = BeautifulSoup(content, "html.parser")
     
     for a_tag in soup.findAll("a"):
         
         href = a_tag.attrs.get("href")
         
-        # this is specidifc !!! TODO generalize
+        # this is specific !!! TODO generalize
         #href = wh.replace_all(href, "http:// https://", "https://")
-        href = wh.replace_all(href, "http:// ",  "")
-        href = wh.replace_all(href, "https:// ", "")        
+        # # # href = wh.replace_all(href, "http:// ",  "")
+        # # # href = wh.replace_all(href, "https:// ", "")  
+        
+        href = rectify(href, config.base)      
         
         if href == "" or href is None:
-            # href empty tag
+            print("\t\t", "href is None:", RED, href, RESET)
             continue
         # join the URL if it's relative (not absolute link)
         
-        href        = urljoin(url, href)
-        parsed_href = urlparse(href)
-        # remove URL GET parameters, URL fragments, etc.
-        #href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
-        # keep frag
-        href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path # NEW
-        if parsed_href.fragment:
-            href += "#" + parsed_href.fragment
-            #print(YELLOW, "NEW keeping frag:", href, RESET)
-        href = href.rstrip('/')
+        if any(ex in href for ex in config.protocol_excludes):
+            print("\t\t", "skipping protocol:", RED, href, RESET)
+            continue
+                
+        # # # # # href        = urljoin(url, href)
+        # # # # # parsed_href = urlparse(href)
+        # # # # # # remove URL GET parameters, URL fragments, etc.
+        # # # # # #href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
+        # # # # # # keep frag
+        # # # # # href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path # NEW
+        # # # # # if parsed_href.fragment:
+        # # # # #     href += "#" + parsed_href.fragment
+        # # # # #     #print(YELLOW, "NEW keeping frag:", href, RESET)
+        # # # # # href = href.rstrip('/')
         
+        # # # href = wh.link_make_absolute(href,  config.base) # domain_name)
+        # # # #href = href.rstrip('/')
+        # # # href = wh.strip_query_and_fragment(href)
+        # # # href = wh.strip_trailing_slash(href)
+    
         if not wh.url_is_valid(href):
-            # not a valid URL
-            print(f"{RED}[!] bad url: {href}{RESET}")
+            print(f"{RED}[!] get_all_website_links: bad url: {href} {RESET}")
             continue
 
         #-----------------------------------------
         # external link
         #-----------------------------------------       
         #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
-        if wh.url_is_external(href, domain_name):
-            if href not in external_urls and wh.strip_trailing_slash(href) not in external_urls:
+        if wh.url_is_external(href,  config.base): # domain_name):
+            if href not in external_urls: #### and wh.strip_trailing_slash(href) not in external_urls:
                 print(
                     "\t\t",
                     f"{total_urls_visited}/{max_urls}", 
                     f"{GRAY}[!] External: {href}{RESET}"
                 )
                 external_urls.add(href)
-            else:
-                #print("\t\t", f"{YELLOW}skipping external_urls: {href}{RESET}")
-                pass
+            # # # # else:
+            # # # #     #print("\t\t", f"{YELLOW}skipping external_urls: {href}{RESET}")
+            # # # #     pass
             continue
                 
         #-----------------------------------------
         # internal link
         #-----------------------------------------     
-        if href in internal_urls or wh.strip_trailing_slash(href) in internal_urls:
-            # already in the internal_urls
-            #print("\t\t", f"{YELLOW}skipping internal_urls: {href}{RESET}")
+        if href in internal_urls: ### or wh.strip_trailing_slash(href) in internal_urls:
+            #print("\t\t", f"{YELLOW}skipping href in internal_urls: {href} {RESET}")
             continue
           
         # hresponse redirected, mime etc
-        for tries in range(3):
+        for tries in range(5):
             hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
             if hresponse:
                 break
@@ -139,47 +166,46 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         if not hresponse:
             print(f"{RED}[!] not hresponse: {href}{RESET}")
             continue
-
-        # get redirected href NEW
-        ####href, _ = wh.get_redirected_url(href, timeout=config.timeout)
-        # # # # # # # # # if hresponse.url != href:
-        # # # # # # # # #     internal_urls.add(hresponse.url)
-            
-        #href = hresponse.url
-          
-        # # # if href in internal_urls:
-        # # #     # already in the set
-        # # #     continue
         
-        ###mime_type =  wh.get_mime_type(href)
+        #####href = hresponse.url # may be redirected # see blow
+
         mime_type =  hresponse.headers.get_content_type()
         if not mime_type in mime_types_allowed:
             print("\t\t", f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
             continue
         
-        # internel url
-        if not href in internal_urls and not wh.strip_trailing_slash(href) in internal_urls:
-            print(
-                "\t\t",
-                f"{total_urls_visited}/{max_urls}", 
-                mime_type, 
-                f"{CYAN}[*] Internal: {href}{RESET}"
-            )
-            internal_urls.add(href)
-            
-            # add redirected as well
-            if hresponse.url != href:
-                internal_urls.add(hresponse.url)
+        href = rectify(hresponse.url, config.base)
+        
+        # internal url
+        # # # # if not href in internal_urls: #### and not wh.strip_trailing_slash(href) in internal_urls:
+        print(
+            "\t\t",
+            f"{total_urls_visited}/{max_urls}", 
+            mime_type, 
+            f"{GREEN}[*] Internal: {hresponse.url}{RESET}"
+        )
+        
+        internal_urls.add(href)
+        
+        
+        # # # add redirected as well
+        # # if hresponse.url != href:
+        # #     internal_urls.add(hresponse.url)
+        # # else:
+        # #     internal_urls.add(href)
                 
-        else:
-            #print("\t\t", f"{YELLOW}finally skipping internal_urls: {href}{RESET}")
-            pass
+        # # # # else:
+        # # # #     #print("\t\t", f"{YELLOW}finally skipping internal_urls: {href}{RESET}")
+        # # # #     pass
             
         urls.add(href) # only store internals
+        
     ### for a_tag
         
     return urls
-
+#-----------------------------------------
+# crawl
+#-----------------------------------------
 def crawl(url, max_urls):
     """
     https://faun.pub/extract-all-website-links-in-python-48f07619db95
@@ -190,14 +216,27 @@ def crawl(url, max_urls):
     params:
         max_urls (int): number of max urls to crawl, default is 30.
     """
+    
+    global internal_urls, external_urls
     global total_urls_visited
     total_urls_visited += 1
     
-    print("\n" + YELLOW + "-"*88 + RESET)
-    print(f"{YELLOW}[*] Crawling: {url}{RESET}")
-    print(f"{YELLOW}[*] {round((time.time() - start_secs)/60.0, 1)}m {RESET}")
+    # # # # url = wh.link_make_absolute(url, config.base)
+    # # # # url, is_redirected = wh.get_redirected_url(url)
+    # # # # url = wh.strip_query_and_fragment(url) # not needed for collection of pages
+    # # # # url = wh.strip_trailing_slash(url)
+    url = rectify(url, config.base)
+    
+    
+    print()
+    print("\n" + CYAN + "-"*88 + RESET)
+    print(f"{CYAN}[*] Crawling: {url}{RESET}")
+    print(f"{CYAN}[*] {round((time.time() - start_secs)/60.0, 1)}m {RESET}")
      
     links = get_all_website_links(url, max_urls)
+    
+    wh.list_to_file(internal_urls, config.path_sitemap_links_internal, mode="a")
+    
     for link in links:
         
         # app timeout?
@@ -210,6 +249,7 @@ def crawl(url, max_urls):
             print(f"{RED}[*] max_urls: {max_urls} {RESET}")
             break
         
+        ### if not link in internal_urls:
         crawl(link, max_urls=max_urls)
 
 #-----------------------------------------
@@ -219,7 +259,7 @@ if __name__ == "__main__":
     
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
-    
+        
     def_url = config.base 
     import argparse
     parser = argparse.ArgumentParser(description="Link Extractor Tool with Python")
@@ -237,12 +277,14 @@ if __name__ == "__main__":
     # crawl
     #-----------------------------------------
     
-    domain_name = urlparse(args.url).netloc
-    print("\n"*4, wh.CYAN)
-    print("domain_name                       :", domain_name)
+    ############domain_name = urlparse(args.url).netloc
+    #####print("\n"*4, wh.CYAN)
+    ######print("domain_name                       :", domain_name)
     print("\n"*4, wh.RESET)
-    print("config.path_sitemap_links_internal:", config.path_sitemap_links_internal)
-    print("config.path_sitemap_links_external:", config.path_sitemap_links_external)
+    # print("config.path_sitemap_links_internal:", config.path_sitemap_links_internal)
+    # print("config.path_sitemap_links_external:", config.path_sitemap_links_external)
+    wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
+    wh.file_make_unique(config.path_sitemap_links_external, sort=True)
  
     if not args.crawl:
         print(wh.RED, "args.crawl:", args.crawl, wh.RESET)
@@ -251,16 +293,19 @@ if __name__ == "__main__":
 
         # internal
         internal_urls = [s.replace('http://', 'https://') for s in internal_urls]
-        internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
-        internal_urls = wh.links_make_unique(internal_urls)
+        # internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
+        # internal_urls = wh.links_make_unique(internal_urls)
         internal_urls = wh.links_remove_excludes(internal_urls, excludes)
+        internal_urls = wh.strip_query_and_fragment(internal_urls) # NEW
         #internal_urls = wh.links_strip_trailing_slash(internal_urls)
+        internal_urls = wh.links_sanitize(internal_urls)
         internal_urls = sorted(internal_urls)
         
         # external
         external_urls = wh.links_remove_similar(external_urls)
         external_urls = wh.links_make_unique(external_urls )
         external_urls = wh.links_strip_trailing_slash(external_urls)
+        external_urls = wh.links_sanitize(external_urls)
         external_urls = sorted(external_urls)
         
         # save the internal links to a file

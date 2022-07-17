@@ -66,7 +66,7 @@ if __name__ == "__main__":
  
     
     valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
-    excludes        = ["whatsapp:", "mailto:", "javascript:"]
+    ###excludes        = ["whatsapp:", "mailto:", "javascript:"]
     
     wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
     
@@ -125,7 +125,7 @@ if __name__ == "__main__":
                 href = wh.link_make_absolute(href, config.base)
                 href = force_replace_karlsruhe_digital(href)
                 
-                if any(ex in href for ex in excludes): # exclude whatsapp: etc
+                if any(ex in href for ex in config.protocol_excludes): # exclude whatsapp: etc
                     #print("\t\t", "exclude:".ljust(n), YELLOW, href, RESET)
                     continue
                 
@@ -171,7 +171,8 @@ if __name__ == "__main__":
     #urls.extend(links_a_href)
     urls = links_a_href
     urls = wh.links_remove_externals(urls, config.base)
-    urls = wh.links_remove_excludes(urls, excludes)
+    urls = wh.links_remove_excludes(urls, config.protocol_excludes)
+    urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore) # NEW
     urls = wh.links_replace(urls, config.replacements_pre)
     urls = wh.links_strip_query_and_fragment(urls)
     urls = wh.links_make_absolute(urls, config.base)

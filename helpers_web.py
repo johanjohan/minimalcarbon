@@ -153,7 +153,7 @@ def url_split(url):
     
     if vb: print("url_split:", CYAN, dq(url), RESET, GRAY)
     
-    url         = url.strip()
+    url         = url.strip() if url else url
     exts        = ["html", "htm", "php", "php3", "js", "shtm", "shtml", "asp", "cfm", "cfml"]
     root        = '/'
     

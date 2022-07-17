@@ -119,6 +119,8 @@ path_script             = project_folder + "wp-content/themes/karlsruhe-digital/
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
+protocol_excludes       = ["whatsapp:", "mailto:", "javascript:"]
+
 path_snapshots              = ats(project_folder + "../__snaps/" + base_netloc) 
 path_snapshots_visited      = path_snapshots + base_netloc + "_300_image_snaps_visited.csv"
 
