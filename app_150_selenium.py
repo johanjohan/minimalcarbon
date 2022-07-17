@@ -125,7 +125,7 @@ verbose                 = True
 image_size_tuples       = []
 urls_visited            = []
 
-b_extend_rescan_urls    = False
+###b_extend_rescan_urls    = False
 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -635,7 +635,6 @@ if __name__ == "__main__":
     image_size_tuples = []
     image_sizes.file_image_sizes_make_unique()
     
-    
     wh.file_make_unique(config.path_image_sizes_visited, sort=True)
     urls_visited = wh.list_from_file(config.path_image_sizes_visited)
 
@@ -669,70 +668,69 @@ if __name__ == "__main__":
             time.sleep(3)
     print(wh.RESET)
 
-    # -----------------------------------------
-    # RE-scan for new links:
-    # -----------------------------------------     
-    if b_extend_rescan_urls:   
-        links_a_href    = []
-        valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
-        wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
+    # # # # # -----------------------------------------
+    # # # # # RE-scan for new links:
+    # # # # # -----------------------------------------     
+    # # # # if b_extend_rescan_urls:   
+    # # # #     links_a_href    = []
+    # # # #     valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
+    # # # #     wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
         
-        # rescan only links without frags
-        urls_no_frag = wh.links_strip_query_and_fragment(urls)
-        urls_no_frag = wh.links_make_unique(urls_no_frag)
-        for count, url in enumerate(urls_no_frag):
-            print()
-            name, ext = os.path.splitext(url)
-            print(name, ext)
-            if not ext in valid_exts:
-                print("\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
-                continue
+    # # # #     # rescan only links without frags
+    # # # #     urls_no_frag = wh.links_strip_query_and_fragment(urls)
+    # # # #     urls_no_frag = wh.links_make_unique(urls_no_frag)
+    # # # #     for count, url in enumerate(urls_no_frag):
+    # # # #         print()
+    # # # #         name, ext = os.path.splitext(url)
+    # # # #         print(name, ext)
+    # # # #         if not ext in valid_exts:
+    # # # #             print("\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
+    # # # #             continue
             
-            wh.progress(count / len(urls_no_frag), verbose_string="TOTAL", VT=CYAN, n=16)
-            print()
-            wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
+    # # # #         wh.progress(count / len(urls_no_frag), verbose_string="TOTAL", VT=CYAN, n=16)
+    # # # #         print()
+    # # # #         wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
             
-            if content := wh.get_content(url):
-                links_a_href.append(url)
-                tree    = lxml.html.fromstring(content)
-                hrefs   = tree.xpath('//a/@href')
-                #print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
-                for href in hrefs:
-                    href = href.strip()
-                    name, ext = os.path.splitext(href)
-                    if ext in valid_exts:
-                        if not href in links_a_href:
-                            print("\t\t append:", GREEN, href, RESET)
-                            links_a_href.append(href)
-            else:
-                print(RED, "error logged:", config.path_links_errors)
-                wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
-            ###break # debug
-        ### for />
+    # # # #         if content := wh.get_content(url):
+    # # # #             links_a_href.append(url)
+    # # # #             tree    = lxml.html.fromstring(content)
+    # # # #             hrefs   = tree.xpath('//a/@href')
+    # # # #             #print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
+    # # # #             for href in hrefs:
+    # # # #                 href = href.strip()
+    # # # #                 name, ext = os.path.splitext(href)
+    # # # #                 if ext in valid_exts:
+    # # # #                     if not href in links_a_href:
+    # # # #                         print("\t\t append:", GREEN, href, RESET)
+    # # # #                         links_a_href.append(href)
+    # # # #         else:
+    # # # #             print(RED, "error logged:", config.path_links_errors)
+    # # # #             wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
+    # # # #         ###break # debug
+    # # # #     ### for />
         
-        # errs
-        if os.path.isfile(config.path_links_errors):
-            wh.file_make_unique(config.path_links_errors, sort=True)    
+    # # # #     # errs
+    # # # #     if os.path.isfile(config.path_links_errors):
+    # # # #         wh.file_make_unique(config.path_links_errors, sort=True)    
 
-        # add to urls
-        print("len(links_a_href):", len(links_a_href))
-        print("urls_len_orig    :", urls_len_orig)
-        urls = links_a_href
-        urls = wh.links_remove_externals(urls, config.base)
-        urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
-        urls = wh.links_make_absolute(urls, config.base)
-        urls = wh.links_sanitize(urls)   
-        print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
-        time.sleep(3)
+    # # # #     # add to urls
+    # # # #     print("len(links_a_href):", len(links_a_href))
+    # # # #     print("urls_len_orig    :", urls_len_orig)
+    # # # #     urls = links_a_href
+    # # # #     urls = wh.links_remove_externals(urls, config.base)
+    # # # #     urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
+    # # # #     urls = wh.links_make_absolute(urls, config.base)
+    # # # #     urls = wh.links_sanitize(urls)   
+    # # # #     print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
+    # # # #     time.sleep(3)
         
-        # save back to file 
-        wh.list_to_file(urls, config.path_sitemap_links_internal)             
-    else:
-        pag.alert(text=f"not rescanning urls...", timeout=10000)  
+    # # # #     # save back to file 
+    # # # #     wh.list_to_file(urls, config.path_sitemap_links_internal)             
+    # # # # else:
+    # # # #     pag.alert(text=f"not rescanning urls...", timeout=10000)  
       
     print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))
-    
     #wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
 
     # -----------------------------------------
