@@ -50,57 +50,65 @@ start_secs              = time.time()
 
 b_extend_rescan_urls    = True
 
+valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
+# -----------------------------------------
+#
+# -----------------------------------------
+def force_replace_karlsruhe_digital(url):
+    url = wh.link_replace_pair(url, "http://karlsruhe.digital",     "https://karlsruhe.digital")
+    url = wh.link_replace_pair(url, "http://www.karlsruhe.digital", "https://karlsruhe.digital")
+    return url
+    
+def rectify_links(urls):
+    urls = wh.links_remove_comments(urls, '#')
+    urls = wh.links_replace(urls, config.replacements_pre)
+    urls = wh.links_remove_externals(urls, config.base)
+    urls = wh.links_remove_excludes(urls, config.protocol_excludes)
+    urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore)
+    urls = wh.links_strip_query_and_fragment(urls)
+    urls = wh.links_make_absolute(urls, config.base)
+    urls = wh.links_sanitize(urls)
+    return urls
 
+from app_050_sitemap_crawl import rectify
 # -----------------------------------------
 #
 # -----------------------------------------
 if __name__ == "__main__":
     
-
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
+    wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
 
     # -----------------------------------------
-    # RE-scan for new links:
+    # 
     # -----------------------------------------     
- 
-    
-    valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
-    ###excludes        = ["whatsapp:", "mailto:", "javascript:"]
-    
-    wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
-    
-    
     wh.file_make_unique(config.path_sitemap_links_internal, True)
     urls = wh.list_from_file(config.path_sitemap_links_internal)
     
-    urls = wh.links_remove_comments(urls, '#')
-    urls = wh.links_replace(urls, config.replacements_pre)
-    urls = wh.links_remove_externals(urls, config.base)
-    urls = wh.links_strip_query_and_fragment(urls)
-    urls = wh.links_make_absolute(urls, config.base)
-    urls = wh.links_sanitize(urls)
-    
+    # # # # # urls = wh.links_remove_comments(urls, '#')
+    # # # # # urls = wh.links_replace(urls, config.replacements_pre)
+    # # # # # urls = wh.links_remove_externals(urls, config.base)
+    # # # # # urls = wh.links_strip_query_and_fragment(urls)
+    # # # # # urls = wh.links_make_absolute(urls, config.base)
+    # # # # # urls = wh.links_sanitize(urls)
+    urls = rectify_links(urls)
     urls_len_orig   = len(urls)    
     urls_orig       = urls.copy()
-    
-    def force_replace_karlsruhe_digital(url):
-        url = wh.link_replace_pair(url, "http://karlsruhe.digital",     "https://karlsruhe.digital")
-        url = wh.link_replace_pair(url, "http://www.karlsruhe.digital", "https://karlsruhe.digital")
-        return url
-        
-    links_a_href = []
+    links_a_href    = []
     for count, url in enumerate(urls):
         
         url = force_replace_karlsruhe_digital(url)
+        url = rectify(url, config.base)
         
         print()
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16, prefix="\t")
         print()
         wh.sleep_random(config.wait_secs, verbose_string=url, n=16, prefix="\t") 
         
-        name, ext = os.path.splitext(url)
-        print("\t", name, ext)
+        protocol, loc, path = wh.url_split(url)
+        name, ext = os.path.splitext(path) # also splits the domain
+        #print("\t", "name", name, "ext", ext)
         if not ext in valid_exts:
             print("\t\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
             continue
@@ -110,6 +118,7 @@ if __name__ == "__main__":
             
             content = response.read().decode('utf-8')
             url     = response.url  # may be redirected
+            url     = rectify(url, config.base)
             
             if url in links_a_href:
                 continue
@@ -120,10 +129,10 @@ if __name__ == "__main__":
             hrefs = tree.xpath('//a/@href') # //a[@href and not(@disabled)]
             for href in hrefs:
                 
-                href = href.strip()
+                ###href = href.strip()
                 href = wh.link_replace(href, config.replacements_pre) # some are bad like "http:// http://www.xxx.com"
-                href = wh.link_make_absolute(href, config.base)
                 href = force_replace_karlsruhe_digital(href)
+                href = rectify(href, config.base)
                 
                 if any(ex in href for ex in config.protocol_excludes): # exclude whatsapp: etc
                     #print("\t\t", "exclude:".ljust(n), YELLOW, href, RESET)
@@ -170,13 +179,14 @@ if __name__ == "__main__":
     print("len(links_a_href):", len(links_a_href))
     #urls.extend(links_a_href)
     urls = links_a_href
-    urls = wh.links_remove_externals(urls, config.base)
-    urls = wh.links_remove_excludes(urls, config.protocol_excludes)
-    urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore) # NEW
-    urls = wh.links_replace(urls, config.replacements_pre)
-    urls = wh.links_strip_query_and_fragment(urls)
-    urls = wh.links_make_absolute(urls, config.base)
-    urls = wh.links_sanitize(urls)   
+    # # # urls = wh.links_remove_externals(urls, config.base)
+    # # # urls = wh.links_remove_excludes(urls, config.protocol_excludes)
+    # # # urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore) # NEW
+    # # # urls = wh.links_replace(urls, config.replacements_pre)
+    # # # urls = wh.links_strip_query_and_fragment(urls)
+    # # # urls = wh.links_make_absolute(urls, config.base)
+    # # # urls = wh.links_sanitize(urls)   
+    urls = rectify_links(urls)
     print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
     time.sleep(3)
     
