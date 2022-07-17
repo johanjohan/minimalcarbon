@@ -21,6 +21,7 @@
 
 
 from distutils.log import debug
+from selectors import BaseSelector
 from tkinter import font
 from urllib.parse import urlparse, urljoin
 import os
@@ -101,6 +102,7 @@ wait_secs               = (0.0, 0.001) # (0.1, 0.2) # simulate human reload
 #project_folder         = ats("page/__KD__09/") # os.path.abspath # raw has 
 project_folder          = ats("V:/00shared/dev8/XAMPP/xampp-php7/htdocs") # os.path.abspath # raw has 
 base                    = ats('https://karlsruhe.digital/')
+bases                   = [base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"]
 target_base             = ats('http://test.particles.de/') # check protocol # for sitemap etc
 base_netloc             = urlparse(base).netloc # for names
 data_folder             = ats("data/" + base_netloc)
@@ -310,48 +312,23 @@ for q in ['\"', '\'']:
     print("\t", "using", q)
     
 
-    replacements_pre.append(
-        (
-            'http:// ', # has a trailing space
-            ''
-        )
-    )
-    replacements_pre.append(
-        (
-            'https:// ', # has a trailing space
-            ''
-        )
-    )
-    
-    replacements_pre.append(
-        (
-            'http://karlsruhe.digital/ https', 
-            'http://karlsruhe.digital/'
-        )
-    )
-    replacements_pre.append(
-        (
-            ' https', 
-            ''
-        )
-    )
-    replacements_pre.append(
-        (
-            ' http', 
-            ''
-        )
-    )
-        
-    replacements_pre.append(
-        (
-            'http:// https://',
-            'https://'
-        )
-    )
+    # replacements_pre.append(
+    #     (
+    #         'http:// ', # has a trailing space
+    #         ''
+    #     )
+    # )
+    # replacements_pre.append(
+    #     (
+    #         'https:// ', # has a trailing space
+    #         ''
+    #     )
+    # )
+
     replacements_pre.append(
         (
             q + 'http:// ', # has a trailing space
-            q + 'http://'
+            q + 'https://'
         )
     )
     replacements_pre.append(
@@ -361,13 +338,40 @@ for q in ['\"', '\'']:
         )
     )
 
-    # no OLD protocols no more
+    
     replacements_pre.append(
         (
-            q + 'http://', # <<<<<<<<<<<<<
-            q + 'https://'
+            'http://karlsruhe.digital/ https', 
+            'https://karlsruhe.digital/'        # <<< s
         )
     )
+    # # replacements_pre.append(
+    # #     (
+    # #         ' https', 
+    # #         ''
+    # #     )
+    # # )
+    # # replacements_pre.append(
+    # #     (
+    # #         ' http', 
+    # #         ''
+    # #     )
+    # # )
+        
+    replacements_pre.append(
+        (
+            'http:// https://',
+            'https://'
+        )
+    )
+
+    # # no OLD protocols no more
+    # replacements_pre.append(
+    #     (
+    #         q + 'http://', # <<<<<<<<<<<<<
+    #         q + 'https://'
+    #     )
+    # )
     
     replacements_pre.append(
         (
@@ -393,10 +397,16 @@ for q in ['\"', '\'']:
             q + 'https://'
         )
     )
+    # # # replacements_pre.append(
+    # # #     (
+    # # #         q + 'wp-content/',  # no root
+    # # #         q + '/wp-content/'
+    # # #     )
+    # # # )
     replacements_pre.append(
         (
-            q + 'wp-content/',  # no root
-            q + '/wp-content/'
+            q + 'wp-content',  # no root
+            q + '/wp-content'
         )
     )
     replacements_pre.append(        # script escape "https:\/\/s.w.org\/images\/core\/emoji\/12.0.0-1\/72x72\/"

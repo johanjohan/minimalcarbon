@@ -379,7 +379,7 @@ def make_static(
             image_size_tuples, 
             driver, 
             config.base,
-            [config.base, "https://kadigital.s3-cdn.welocal.cloud/", "https://media.karlsruhe.digital/"], 
+            config.bases, 
             b_scan_srcset=False, 
             pre="\t\t"
         )
@@ -749,7 +749,7 @@ if __name__ == "__main__":
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
 
         #if not (url in config.sitemap_links_ignore):
-        if not any(ignore in url for ignore in config.sitemap_links_ignore): # sitemap/ wp-json/
+        if not any(ignore in url for ignore in config.sitemap_links_ignore): # sitemap/ wp-json/ 
             
             if not (url in urls_visited):
                 links_a_href_from_url = make_static(

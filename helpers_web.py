@@ -548,7 +548,7 @@ def __was_replaced(link, replacements):
         assert len(rep) >= 2
         new_link = link.replace(rep[0], rep[1])  
         if new_link != link:
-            #print("\t", "replaced:", YELLOW, dq(new_link), RESET)
+            print("\t", "replaced:", RED, rep[0], GREEN, rep[1], GRAY, dq(link), "-->", YELLOW, dq(new_link), RESET)
             return True, new_link
     return False, link
 
@@ -584,6 +584,18 @@ def links_replace(links, replacements):
             #print("\t", "adding  :", GREEN, dq(new_link), RESET)
             ret.append(new_link)
     return ret
+
+# # def link_replace_http(link):
+# #     new_link = link.replace("http://", "https://")
+# #     if new_link != link:
+# #         print("\t", YELLOW, "link_replace_http:", RED, link, GREEN, new_link, RESET)
+# #     return new_link
+
+def link_replace_pair(link, fr, to):
+    new_link = link.replace(fr, to)
+    if new_link != link:
+        print("\t", YELLOW, "link_replace:", RED, link, GREEN, new_link, RESET)
+    return new_link
     
 def links_sanitize(links):
     if not links: return links
@@ -867,6 +879,7 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         req         = _get_request(url, method=method)
         context     = ssl._create_unverified_context()
         response    = urllib.request.urlopen(req, context=context, timeout=timeout)
+        
         #print("get_response:", url)
         print(pre, vt_http_status_code(response.status), "|", vt_b(url != response.url), response.url)
         
@@ -879,6 +892,7 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
             print(CYAN, content, RESET) # content
             
         return response
+    
     except urllib.error.HTTPError as error:
         print(f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
         return None
@@ -908,12 +922,16 @@ def get_redirected_url(url, timeout=10):
     try:
         if True:
             res     = get_response(url, timeout=timeout, method='HEAD') # None 'HEAD'
-            new_url = res.url
-            #print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
-            return new_url, (new_url != url)
-        else:
-            r = requests.head(url, timeout=timeout) 
-            return r.url, (r.url != url)
+            if res:
+                new_url = res.url
+                #print("get_redirected_url:", vt_b(new_url != url), "|", url, "-->", new_url)   
+                return new_url, (new_url != url)
+            else:
+                print(f"{RED}[!] get_redirected_url: NOT RES: {url} {RESET}")
+                return url, False
+        # else:
+        #     r = requests.head(url, timeout=timeout) 
+        #     return r.url, (r.url != url)
     
     except Exception as e:
         print(f"{RED}[!] get_redirected_url: {url} Exception: {e}{RESET}")

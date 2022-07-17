@@ -70,6 +70,8 @@ if __name__ == "__main__":
     
     wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
     
+    
+    wh.file_make_unique(config.path_sitemap_links_internal, True)
     urls = wh.list_from_file(config.path_sitemap_links_internal)
     
     urls = wh.links_remove_comments(urls, '#')
@@ -81,51 +83,79 @@ if __name__ == "__main__":
     
     urls_len_orig   = len(urls)    
     urls_orig       = urls.copy()
+    
+    def force_replace_karlsruhe_digital(url):
+        url = wh.link_replace_pair(url, "http://karlsruhe.digital",     "https://karlsruhe.digital")
+        url = wh.link_replace_pair(url, "http://www.karlsruhe.digital", "https://karlsruhe.digital")
+        return url
         
     links_a_href = []
     for count, url in enumerate(urls):
+        
+        url = force_replace_karlsruhe_digital(url)
+        
         print()
+        wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16, prefix="\t")
+        print()
+        wh.sleep_random(config.wait_secs, verbose_string=url, n=16, prefix="\t") 
+        
         name, ext = os.path.splitext(url)
         print("\t", name, ext)
         if not ext in valid_exts:
             print("\t\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
             continue
-        
-        wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=16, prefix="\t")
-        print()
-        wh.sleep_random(config.wait_secs, verbose_string=url, n=16, prefix="\t") 
-        
-        if content := wh.get_content(url, pre="\t"):
+
+        n = 15
+        if response := wh.get_response(url, pre="\t"):
+            
+            content = response.read().decode('utf-8')
+            url     = response.url  # may be redirected
+            
+            if url in links_a_href:
+                continue
+            
             links_a_href.append(url)
-            tree    = lxml.html.fromstring(content)
-            hrefs   = tree.xpath('//a/@href') # //a[@href and not(@disabled)]
-            #print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
+            
+            tree  = lxml.html.fromstring(content)
+            hrefs = tree.xpath('//a/@href') # //a[@href and not(@disabled)]
             for href in hrefs:
                 
                 href = href.strip()
                 href = wh.link_replace(href, config.replacements_pre) # some are bad like "http:// http://www.xxx.com"
                 href = wh.link_make_absolute(href, config.base)
+                href = force_replace_karlsruhe_digital(href)
                 
-                n = 15
-                if any(ex in href for ex in excludes):
-                    print("\t\t", "exclude:".ljust(n), YELLOW, href, RESET)
+                if any(ex in href for ex in excludes): # exclude whatsapp: etc
+                    #print("\t\t", "exclude:".ljust(n), YELLOW, href, RESET)
                     continue
                 
                 if wh.url_is_external(href, config.base):
                     #print("\t\t", "external:".ljust(n), RED, href, RESET )
                     continue
                 
+                #href, is_redirected = wh.get_redirected_url(href)
+
                 if href in links_a_href:
                     continue
-                
-                status = wh.get_status_code(href)
-                if status and status < 400:
-                    name, ext = os.path.splitext(href)
-                    if ext in valid_exts:
-                        print("\t\t", "append:".ljust(n), GREEN, href, RESET)
-                        links_a_href.append(href)
-                else:
-                    print("\t\t", "bad status:".ljust(n), RED, status, href, RESET)
+
+                href, is_redirected = wh.get_redirected_url(href)
+
+                # proven status above: get_redirected_url  
+                name, ext = os.path.splitext(href)
+                if ext in valid_exts:
+                    print("\t\t", "append:".ljust(n), GREEN, href, RESET)
+                    links_a_href.append(href)
+                        
+                                        
+                # status = wh.get_status_code(href)
+                # if status and status < 400:
+                #     name, ext = os.path.splitext(href)
+                #     if ext in valid_exts:
+                #         print("\t\t", "append:".ljust(n), GREEN, href, RESET)
+                #         links_a_href.append(href)
+                # else:
+                #     print("\t\t", "bad status:".ljust(n), RED, status, href, RESET)
+                    
         else:
             print(RED, "error logged:".ljust(n), config.path_links_errors)
             wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
