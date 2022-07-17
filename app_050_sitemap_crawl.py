@@ -2,19 +2,15 @@
 # https://www.thepythoncode.com/code/extract-all-website-links-python
 # pip3 install requests bs4 colorama
 
-import requests
+"""
+strip trailing / so we can compare
+"""
+
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
-# import mimetypes
-# pip install python-magic
-# pip install python-magic-bin # win
-import magic
 import time
-
 import datetime
 import helpers_web as wh
-import sitemap
-
 import config
         
 # init the colorama module
@@ -36,7 +32,6 @@ external_urls       = set()
 
 total_urls_visited  = 0
 
-data_folder         = config.data_folder
 mime_types_allowed  = ["text/html", "text/plain"]
 excludes            = ["bunte-nacht-karlsruhe.digital"] # ["/category/", "/author/"]
 start_secs          = time.time()
@@ -44,14 +39,16 @@ args                = None
 
 date_time_crawler   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
+#-----------------------------------------
+# 
+#-----------------------------------------
 def rectify(url, base):
-    url = wh.replace_all(url, "http:// ",  "")
+    url = wh.replace_all(url, "http:// ",  "") # specific?
     url = wh.replace_all(url, "https:// ", "")     
           
     url = wh.link_make_absolute(url, base)
-    #url, is_redirected = wh.get_redirected_url(url)
     url = wh.strip_query_and_fragment(url) # not needed for collection of pages
-    url = wh.strip_trailing_slash(url)
+    url = wh.strip_trailing_slash(url) # so we can compare both valid versions
     return url
         
 #-----------------------------------------
@@ -61,13 +58,9 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     """
     Returns all URLs that is found on `url` in which it belongs to the same website
     """
-    # all URLs of `url`
     urls = set()
-    # domain name of the URL without the protocol
-    ##domain_name = urlparse(url).netloc
-    ##domain_name = config.base
-    
-    global internal_urls, external_urls
+
+    #global internal_urls, external_urls
     
     # get content
     for tries in range(10):
@@ -93,39 +86,16 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     for a_tag in soup.findAll("a"):
         
         href = a_tag.attrs.get("href")
-        
-        # this is specific !!! TODO generalize
-        #href = wh.replace_all(href, "http:// https://", "https://")
-        # # # href = wh.replace_all(href, "http:// ",  "")
-        # # # href = wh.replace_all(href, "https:// ", "")  
-        
         href = rectify(href, config.base)      
         
         if href == "" or href is None:
             print("\t\t", "href is None:", RED, href, RESET)
             continue
-        # join the URL if it's relative (not absolute link)
         
         if any(ex in href for ex in config.protocol_excludes):
             print("\t\t", "skipping protocol:", RED, href, RESET)
             continue
                 
-        # # # # # href        = urljoin(url, href)
-        # # # # # parsed_href = urlparse(href)
-        # # # # # # remove URL GET parameters, URL fragments, etc.
-        # # # # # #href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
-        # # # # # # keep frag
-        # # # # # href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path # NEW
-        # # # # # if parsed_href.fragment:
-        # # # # #     href += "#" + parsed_href.fragment
-        # # # # #     #print(YELLOW, "NEW keeping frag:", href, RESET)
-        # # # # # href = href.rstrip('/')
-        
-        # # # href = wh.link_make_absolute(href,  config.base) # domain_name)
-        # # # #href = href.rstrip('/')
-        # # # href = wh.strip_query_and_fragment(href)
-        # # # href = wh.strip_trailing_slash(href)
-    
         if not wh.url_is_valid(href):
             print(f"{RED}[!] get_all_website_links: bad url: {href} {RESET}")
             continue
@@ -133,18 +103,13 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         #-----------------------------------------
         # external link
         #-----------------------------------------       
-        #if domain_name not in urlparse(href).netloc :  #  in href # issue: https://www.facebook.com/karlsruhe.digital
-        if wh.url_is_external(href,  config.base): # domain_name):
-            if href not in external_urls: #### and wh.strip_trailing_slash(href) not in external_urls:
-                print(
-                    "\t\t",
-                    f"{total_urls_visited}/{max_urls}", 
-                    f"{GRAY}[!] External: {href}{RESET}"
-                )
-                external_urls.add(href)
-            # # # # else:
-            # # # #     #print("\t\t", f"{YELLOW}skipping external_urls: {href}{RESET}")
-            # # # #     pass
+        if wh.url_is_external(href,  config.base) and href not in external_urls:
+            print(
+                "\t\t",
+                f"{total_urls_visited}/{max_urls}", 
+                f"{GRAY}[!] External: {href}{RESET}"
+            )
+            external_urls.add(href)
             continue
                 
         #-----------------------------------------
@@ -154,8 +119,8 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             #print("\t\t", f"{YELLOW}skipping href in internal_urls: {href} {RESET}")
             continue
           
-        # hresponse redirected, mime etc
-        for tries in range(5):
+        # get_response: redirected, mime etc
+        for tries in range(10):
             hresponse = wh.get_response(href, timeout=config.timeout, method='HEAD') 
             if hresponse:
                 break
@@ -165,39 +130,25 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
             
         if not hresponse:
             print(f"{RED}[!] not hresponse: {href}{RESET}")
+            wh.string_to_file(href + '\n', config.path_links_errors)
             continue
         
-        #####href = hresponse.url # may be redirected # see blow
-
+        href = rectify(hresponse.url, config.base) # may be redirected
+         
         mime_type =  hresponse.headers.get_content_type()
         if not mime_type in mime_types_allowed:
             print("\t\t", f"{RED}[!] skipped mime_type: {mime_type}{RESET}")
             continue
         
-        href = rectify(hresponse.url, config.base)
-        
         # internal url
-        # # # # if not href in internal_urls: #### and not wh.strip_trailing_slash(href) in internal_urls:
         print(
             "\t\t",
             f"{total_urls_visited}/{max_urls}", 
             mime_type, 
             f"{GREEN}[*] Internal: {hresponse.url}{RESET}"
         )
-        
         internal_urls.add(href)
         
-        
-        # # # add redirected as well
-        # # if hresponse.url != href:
-        # #     internal_urls.add(hresponse.url)
-        # # else:
-        # #     internal_urls.add(href)
-                
-        # # # # else:
-        # # # #     #print("\t\t", f"{YELLOW}finally skipping internal_urls: {href}{RESET}")
-        # # # #     pass
-            
         urls.add(href) # only store internals
         
     ### for a_tag
@@ -217,16 +168,11 @@ def crawl(url, max_urls):
         max_urls (int): number of max urls to crawl, default is 30.
     """
     
-    global internal_urls, external_urls
+    ###global internal_urls, external_urls
     global total_urls_visited
     total_urls_visited += 1
     
-    # # # # url = wh.link_make_absolute(url, config.base)
-    # # # # url, is_redirected = wh.get_redirected_url(url)
-    # # # # url = wh.strip_query_and_fragment(url) # not needed for collection of pages
-    # # # # url = wh.strip_trailing_slash(url)
     url = rectify(url, config.base)
-    
     
     print()
     print("\n" + CYAN + "-"*88 + RESET)
@@ -235,7 +181,7 @@ def crawl(url, max_urls):
      
     links = get_all_website_links(url, max_urls)
     
-    wh.list_to_file(internal_urls, config.path_sitemap_links_internal, mode="a")
+    wh.list_to_file(internal_urls, config.path_sitemap_links_internal, mode="w") # save for safety
     
     for link in links:
         
