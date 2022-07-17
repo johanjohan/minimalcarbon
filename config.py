@@ -292,9 +292,13 @@ svg_leaf_img = _html_icon_img("leaf", "svg-leaf", "")
 #-----------------------------------------
 # 
 #-----------------------------------------
+# sitemap_links_ignore = [
+#     base + 'wp-json/', # is a file not a dir
+#     base + 'sitemap/', # is a file not a dir
+# ]
 sitemap_links_ignore = [
-    base + 'wp-json/', # is a file not a dir
-    base + 'sitemap/', # is a file not a dir
+    '/wp-json/', 
+    '/sitemap/', 
 ]
 print("sitemap_links_ignore", sitemap_links_ignore)
 # replace later with both qotes so we dont replace substrings
@@ -357,13 +361,14 @@ for q in ['\"', '\'']:
         )
     )
 
+    # no OLD protocols no more
+    replacements_pre.append(
+        (
+            q + 'http://', # <<<<<<<<<<<<<
+            q + 'https://'
+        )
+    )
     
-    # replacements_pre.append(
-    #     (
-    #         q + 'http://',
-    #         q + 'https://'
-    #     )
-    # )
     replacements_pre.append(
         (
             q + 'https://karlsruhe.digital'  + q,

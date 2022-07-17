@@ -748,7 +748,9 @@ if __name__ == "__main__":
         print()
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
 
-        if not (url in config.sitemap_links_ignore):
+        #if not (url in config.sitemap_links_ignore):
+        if not any(ignore in url for ignore in config.sitemap_links_ignore): # sitemap/ wp-json/
+            
             if not (url in urls_visited):
                 links_a_href_from_url = make_static(
                     driver,

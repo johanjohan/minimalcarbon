@@ -73,7 +73,9 @@ if __name__ == "__main__":
         urls = wh.links_make_absolute(urls, config.base)
         urls = wh.links_sanitize(urls)
         
-        # change base here as necessary
+        # -----------------------------------------
+        # assign new base?
+        # -----------------------------------------   
         if base != config.base:
             new_urls = []
             for url in urls:
