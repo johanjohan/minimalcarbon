@@ -21,10 +21,11 @@ if __name__ == "__main__":
     urls = wh.list_from_file(urls)
     urls = wh.links_remove_comments(urls, '#')
     urls = wh.links_remove_excludes(urls, excludes) # <<<
-    urls = wh.links_replace(urls, config.replacements_pre)
-    urls = wh.links_remove_externals(urls, config.base)
     urls = wh.links_strip_query_and_fragment(urls) # do not need for snaps
     urls = wh.links_make_absolute(urls, config.base)
+    urls = wh.links_replace(urls, config.replacements_pre) # is a specific issue besides general issues
+    urls = wh.links_remove_externals(urls, config.base) # is a specific issue besides general issues
+
     urls = wh.links_sanitize(urls)
         
     total_bytes = 0
