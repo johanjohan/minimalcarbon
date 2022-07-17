@@ -542,23 +542,44 @@ def links_strip(links):
     
     return [u.strip() for u in links]
 
+def __was_replaced(link, replacements):
+    link = link.strip()      
+    for rep in replacements:
+        assert len(rep) >= 2
+        new_link = link.replace(rep[0], rep[1])  
+        if new_link != link:
+            #print("\t", "replaced:", YELLOW, dq(new_link), RESET)
+            return True, new_link
+    return False, link
+
+
+def link_replace(link, replacements):
+    
+    if not link: 
+        return link
+    else:
+        b_replaced, new_link = __was_replaced(link, replacements)
+        return new_link
+    
+    
+    
 def links_replace(links, replacements):
+    
     if not links: return links
     
-    
-    def was_replaced(link, replacements):
-        link = link.strip()      
-        for rep in replacements:
-            assert len(rep) >= 2
-            new_link = link.replace(rep[0], rep[1])  
-            if new_link != link:
-                #print("\t", "replaced:", YELLOW, dq(new_link), RESET)
-                return True, new_link
-        return False, link
+    # # # def was_replaced(link, replacements):
+    # # #     link = link.strip()      
+    # # #     for rep in replacements:
+    # # #         assert len(rep) >= 2
+    # # #         new_link = link.replace(rep[0], rep[1])  
+    # # #         if new_link != link:
+    # # #             #print("\t", "replaced:", YELLOW, dq(new_link), RESET)
+    # # #             return True, new_link
+    # # #     return False, link
 
     ret = []
     for link in links:
-        b_replaced, new_link = was_replaced(link, replacements)
+        b_replaced, new_link = __was_replaced(link, replacements)
         if not new_link in ret:
             #print("\t", "adding  :", GREEN, dq(new_link), RESET)
             ret.append(new_link)
@@ -926,14 +947,14 @@ def get_status_code(url, timeout=10):
         print(f"{RED}[!] get_status_code: {url} Exception: {e} --> None {RESET}")
         status = None
     
-    print("get_status_code:", status, url)   
+    #print("get_status_code:", status, url)   
     return status
 
-def get_content(url, timeout=10):
+def get_content(url, timeout=10, pre=""):
     try:
         response =  get_response(url, timeout=timeout, method=None)
         content = response.read().decode('utf-8') # decode(response.headers.get_content_charset())
-        print("get_content: len(content):", len(content)) 
+        print(pre, "get_content: len(content):", len(content)) 
         #print("get_content:", CYAN, content, RESET) # content
         return content
     except Exception as e:
@@ -2067,7 +2088,17 @@ def format_dict(d, tab=""):
             s += indent + f"{key_rjust}: {ss}" + '\n'
     s += tab +"}"   
     return s
-    
+ 
+# https://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
+# 7-bit and 8-bit C1 ANSI sequences
+import re
+ansi_escape_8bit = re.compile(
+    br'(?:\x1B[@-Z\\-_]|[\x80-\x9A\x9C-\x9F]|(?:\x1B\[|\x9B)[0-?]*[ -/]*[@-~])'
+)
+ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+# result = ansi_escape.sub('', sometext)
+# result = ansi_escape_8bit.sub(b'', somebytesvalue)   
 
 def log(*values, filepath, mode="a", echo=True):
     
@@ -2106,6 +2137,7 @@ def log(*values, filepath, mode="a", echo=True):
                 line = f"{date}: {string}"
                 if echo: print(line)
         
+        line = ansi_escape.sub('', line)
         fp.write(line + '\n')
     
 #-----------------------------------------

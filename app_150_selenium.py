@@ -621,13 +621,13 @@ if __name__ == "__main__":
         # TODO style_path must be downloaded first....immediately change links to local......
         pass
 
-    # -----------------------------------------
-    # copy sitemap
-    # -----------------------------------------
-    import shutil
-    wh.make_dirs(config.project_folder)
-    shutil.copyfile(config.path_sitemap_xml,
-                    config.project_folder + "sitemap.xml")
+    # # # # # -----------------------------------------
+    # # # # # copy sitemap
+    # # # # # -----------------------------------------
+    # # # # import shutil
+    # # # # wh.make_dirs(config.project_folder)
+    # # # # shutil.copyfile(config.path_sitemap_xml,
+    # # # #                 config.project_folder + "sitemap.xml")
     
     # -----------------------------------------
     # 
