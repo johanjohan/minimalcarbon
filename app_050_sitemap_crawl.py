@@ -76,6 +76,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         
         href = a_tag.attrs.get("href")
         
+        # this is specidifc !!! TODO generalize
         #href = wh.replace_all(href, "http:// https://", "https://")
         href = wh.replace_all(href, "http:// ",  "")
         href = wh.replace_all(href, "https:// ", "")        
@@ -268,6 +269,7 @@ if __name__ == "__main__":
         # #     for internal_link in internal_urls:
         # #         f.write(internal_link.strip() + "\n")
         wh.list_to_file(internal_urls, config.path_sitemap_links_internal, mode="a")
+        wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
 
         # save the external links to a file
         print("save the external links to a file:", config.path_sitemap_links_external)
@@ -275,8 +277,6 @@ if __name__ == "__main__":
         #     for external_link in external_urls:
         #         f.write(external_link.strip() + "\n")
         wh.list_to_file(external_urls, config.path_sitemap_links_external, mode="a")
-        
-        wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
         wh.file_make_unique(config.path_sitemap_links_external, sort=True)
 
         wh.log("[+] Total Internal links:", len(internal_urls), filepath=config.path_log_params)

@@ -253,7 +253,6 @@ def make_static(
     ):
 
     ####url = wh.add_trailing_slash(url)  NO!!!
-    b_use_driver = True
 
     # -----------------------------------------
     # GET content
@@ -262,19 +261,14 @@ def make_static(
     for tries in range(10):
 
         print(f"{CYAN}[{tries}] GET url: {url} {RESET}")
-        print(f"{CYAN}\t b_use_driver: {b_use_driver} {RESET}")
         print(f"{CYAN}\t wait_secs   : {wait_secs} {RESET}")
         print(f"{CYAN}\t counter     : {make_static.counter} {RESET}")
         wh.sleep_random(wait_secs, verbose_string=url, prefix="\t ")  # verbose_string=url
 
         try:
-            if b_use_driver:
-                driver.get(url)
-                #wh.wait_for_page_has_loaded(driver)
-                wh.wait_for_page_has_loaded_hash(driver, max_tries=20)
-                content = driver.page_source
-            else:
-                content = wh.get_content(url)
+            driver.get(url)
+            wh.wait_for_page_has_loaded_hash(driver, max_tries=20)
+            content = driver.page_source
         except Exception as e:
             print(f"{RED}\t ERROR: GET url: {url} {RESET}")
             
@@ -317,7 +311,7 @@ def make_static(
     # make lists
     # -----------------------------------------
     h = lxml.html.fromstring(content)
-    
+      
     # -----------------------------------------
     # all urls a links
     # -----------------------------------------
@@ -374,7 +368,6 @@ def make_static(
                     url = urllib.parse.unquote(url) # !!!
                     links_img.append( url )
                     
-        assert b_use_driver
         image_sizes.find_all_image_size_tuples(
             image_size_tuples, 
             driver, 
