@@ -875,6 +875,29 @@ def _get_request(url, method=None): # 'HEAD'
 
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
+    
+    # https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
+    from urllib.parse import urlsplit, urlunsplit, quote
+    def iri2uri(iri):
+        """
+        Convert an IRI to a URI (Python 3).
+        """
+        uri = ''
+        if isinstance(iri, str):
+            (scheme, netloc, path, query, fragment) = urlsplit(iri)
+            scheme = quote(scheme)
+            netloc = netloc.encode('idna').decode('utf-8')
+            path = quote(path)
+            query = quote(query)
+            fragment = quote(fragment)
+            uri = urlunsplit((scheme, netloc, path, query, fragment))
+
+        return uri    
+    
+    url_orig    = url
+    url         = iri2uri(url)
+    #print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
+        
     try:
         req         = _get_request(url, method=method)
         context     = ssl._create_unverified_context()
@@ -2209,6 +2232,8 @@ def download_asset(
     
     # # # print(pre, "download_asset:", "abs_src   :", GRAY, abs_src,      RESET)
     # # # print(pre, "download_asset:", "local_path:", GRAY, local_path,   RESET)
+    
+    abs_src = link_make_absolute(abs_src, base)
     
     print(pre, "download_asset:")
     pre += "\t"

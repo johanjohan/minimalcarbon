@@ -69,7 +69,6 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         external_urls.add(url)     
         return urls
     
-     
     # get content
     for tries in range(10):
         print(MAGENTA + f"[{tries}] tries: {url}", RESET)

@@ -19,6 +19,8 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver  # pip install selenium
 from selenium.webdriver.chrome.options import Options
 
+from app_050_sitemap_crawl import rectify
+
 import jsbeautifier
 import cssbeautifier
 
@@ -70,7 +72,7 @@ def rectify_links(urls):
     urls = wh.links_sanitize(urls)
     return urls
 
-from app_050_sitemap_crawl import rectify
+
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -141,7 +143,6 @@ if __name__ == "__main__":
                     #print("\t\t", "external:".ljust(n), RED, href, RESET )
                     continue
                 
-
                 if href in links_a_href:
                     continue
 

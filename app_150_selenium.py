@@ -105,6 +105,9 @@ import pyautogui as pag
 import image_sizes
 import urllib.parse
 
+from app_050_sitemap_crawl import rectify
+
+
 import config
 GREEN = config.GREEN
 GRAY = config.GRAY
@@ -137,6 +140,8 @@ def assets_save_internals_locally(
     project_folder,
     b_strip_ver=True
 ):
+    
+    url = rectify(url, base)
 
     global images_written, assets_written
 
@@ -154,15 +159,8 @@ def assets_save_internals_locally(
     # loop the links
     for src in links:
         
-        src = wh.link_make_absolute(src, base) # ??????ß
+        # >>> do not change "src" for replacements happening later !!!!!!!!!!!
         
-        # re-direction ie ?p=1234
-        new_src, is_redirected = wh.get_redirected_url(src, timeout=10)  
-        if is_redirected:
-            print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, new_src, wh.RESET)
-            src = new_src
-            time.sleep(3)
-
         print()
         print(f"{CYAN}\t [{(time.time() - start_secs)/60.0:.1f} m] src: \'{src}\' {RESET}")
 
@@ -174,8 +172,14 @@ def assets_save_internals_locally(
             print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
             continue
 
-        abs_src = wh.link_make_absolute(src, base)
+        abs_src = wh.link_make_absolute(src, base) # from redirected
+        # re-direction ie ?p=1234
+        redirected_src, is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
+        if is_redirected:
+            abs_src = wh.link_make_absolute(redirected_src, base)
+            print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, abs_src, wh.RESET)
         new_src = wh.get_path_local_root_subdomains(abs_src, base)
+       
         if b_strip_ver:
             # http://mysite.com/some_page/file.css?my_var='foo'#frag
             if wh.url_has_ver(new_src):
@@ -190,19 +194,17 @@ def assets_save_internals_locally(
             #new_src = name + config.suffix_compressed + ext # use  config.suffix_compressed
             print(MAGENTA, "\t\t file:", RESET, new_src)
         else: # assumed dir
-            # dir CAN BE is_a_dir/#section
+            # dir CAN/MAY be is_a_dir/#section
             if not 'wp_json/' in wh.url_path(new_src) and not 'sitemap/' in wh.url_path(new_src):  # TODO check WP_SPECIAL_DIRS
-                
                 # ISSUE: /ueber-karlsruhe-digital/#section-4/index.html --> /ueber-karlsruhe-digital/index.html#section-4/
-                #new_src += get_page_name()  # index.html
                 index_src = ats(wh.url_path(new_src)) +  wh.get_page_name() + wh.url_qf(new_src)
                 new_src   = index_src
-    
                 print(MAGENTA, "\t\t dir :", RESET, new_src, "[added index.html]")
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
         new_src     = wh.sanitize_filepath_and_url(new_src)
+        new_src     = wh.strip_trailing_slash(new_src)                      # new <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         local_path  = ats(project_folder) + new_src.lstrip('/')
         local_path  = wh.strip_query_and_fragment(local_path) # has no ?# on disk
 
@@ -253,6 +255,8 @@ def make_static(
     ):
 
     ####url = wh.add_trailing_slash(url)  NO!!!
+    
+    url = rectify(url, base)
 
     # -----------------------------------------
     # GET content
