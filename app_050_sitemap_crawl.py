@@ -47,16 +47,18 @@ date_time_crawler   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 #-----------------------------------------
 # 
 #-----------------------------------------
-def rectify(url, base):
+def rectify(url, base, b_absolute=True):
     url = wh.replace_all(url, "http:// ",  "") # specific?
     url = wh.replace_all(url, "https:// ", "")     
-          
-    url = wh.link_make_absolute(url, base)
+    
+    if b_absolute:      
+        url = wh.link_make_absolute(url, base)
+        
     url = wh.strip_query_and_fragment(url) # not needed for collection of pages
     url = wh.strip_trailing_slash(url) # so we can compare both valid versions
     return url
         
-def rectify_local(url, base):
+def rectify_local(url):
     url = wh.strip_trailing_slash(url) # so we can compare both valid versions
     return url
         

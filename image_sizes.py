@@ -2,8 +2,6 @@
 TODO
 may better split image sizes files for keeping track of parent_urls
 the list is getting very large right now
-
-
 """
 
 import chromedriver_binary  # pip install chromedriver-binary-auto
@@ -31,12 +29,21 @@ import urllib.parse # selenium seems to urlencode results
 #-----------------------------------------
 # 
 #-----------------------------------------            
-def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA, pre="\t\t"):
+def __append_to_image_size_tuples(
+    _image_size_tuples, 
+    url, 
+    base, 
+    bases, 
+    e, 
+    vt=wh.MAGENTA, 
+    pre="\t\t"
+    ):
     
-    # print(pre, "__append_to_image_size_tuples:", "e    :", e)
-    # print(pre, "__append_to_image_size_tuples:", "url  :", url)
-    # print(pre, "__append_to_image_size_tuples:", "base :", base)
-    # print(pre, "__append_to_image_size_tuples:", "bases:", bases)
+    if False:
+        print(pre, "__append_to_image_size_tuples:", "e    :", e)
+        print(pre, "__append_to_image_size_tuples:", "url  :", url)
+        print(pre, "__append_to_image_size_tuples:", "base :", base)
+        print(pre, "__append_to_image_size_tuples:", "bases:", bases)
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
@@ -60,7 +67,7 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         # TODO should broken down to 
         ###local = '/' + path # no loc as we already have proven it is internal
         local           = wh.get_path_local_root_subdomains(url, base)
-        local           = rectify_local(url, base)
+        local           = rectify_local(local) # strip /
         local_name, ext = os.path.splitext(local)
         
         tpl  = [
@@ -75,17 +82,19 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         ]    
         
         if False:
-            print(wh.YELLOW, "url       :", url,        wh.RESET)
-            print(wh.YELLOW, "base      :", base,       wh.RESET)
-            print(wh.YELLOW, "   gplrs():", wh.get_path_local_root_subdomains(url, base),       wh.RESET)
-            print(wh.YELLOW, "bases     :", bases,      wh.RESET)
-            print(wh.YELLOW, "local     :", local,      wh.RESET)
-            print(wh.YELLOW, "local_name:", local_name, wh.RESET)
+            print(pre, wh.YELLOW, "url       :", url,        wh.RESET)
+            print(pre, wh.YELLOW, "base      :", base,       wh.RESET)
+            print(pre, wh.YELLOW, "   gplrs():", wh.get_path_local_root_subdomains(url, base),       wh.RESET)
+            print(pre, wh.YELLOW, "bases     :", bases,      wh.RESET)
+            print(pre, wh.YELLOW, "local     :", local,      wh.RESET)
+            print(pre, wh.YELLOW, "local_name:", local_name, wh.RESET)
             print()
+            
+        #print(wh.YELLOW, tpl, wh.RESET)
         
-        if not tpl in collected: 
+        if not tpl in _image_size_tuples: 
             print(pre, vt + str(url), e.size['width'], e.size['height'], wh.RESET)
-            collected.append(tpl)
+            _image_size_tuples.append(tpl)
         
     else:
         print(wh.RED, "e  :", e,    wh.RESET)
@@ -101,7 +110,7 @@ srcset="https://karlsruhe.digital/wp-content/uploads/2022/07/Bunte-Nacht-der-Dig
 <source srcset="/images/cereal-box.avif" type="image/avif" />
 """   
 def find_all_image_size_tuples(
-    collected, 
+    _image_size_tuples, 
     driver, 
     base, 
     bases, 
@@ -121,7 +130,7 @@ def find_all_image_size_tuples(
     bases   = list(bases)
     
     def __add(e, url, eu):
-        ##url = (url) # << !
+        ##url =  urllib.parse.unquote(url) # << !
         url = wh.iri_to_uri(url) 
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
@@ -204,7 +213,7 @@ def find_all_image_size_tuples(
     # append to image_tuples
     for e, url in eu:        
         __append_to_image_size_tuples(
-            collected,
+            _image_size_tuples,
             wh.iri_to_uri(url), # double safety...
             base,
             bases,
@@ -220,6 +229,35 @@ find_all_image_size_tuples.counter = 0
 #-----------------------------------------
 # 
 #-----------------------------------------
+
+def load_image_size_tuples(b_sort=True, b_reverse=True):
+    
+    res = []
+    if os.path.isfile(config.path_image_sizes):
+        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
+            lines = fp.readlines()[1:] # skip header
+            for line in lines:
+                subs = line.rstrip('\n').split(',')
+                res.append(list(subs))
+                
+        len_orig = len(res)    
+        print("load_image_size_tuples: len_orig:", len_orig)  
+        
+        # make unique       
+        res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
+        print("load_image_size_tuples: len(res) unique:",  wh.GREEN, len(res), wh.RESET)  
+        
+        if b_sort:
+            from natsort import natsorted, ns
+            res = natsorted(res, key=lambda x: x[2], reverse=b_reverse) # reverse we can skip searching after first hit which is highest size
+            print("load_image_size_tuples: len(res) natsorted:", wh.GREEN, len(res), wh.RESET)
+            
+        print("load_image_size_tuples: removed:", wh.GRAY, len_orig - len(res), "items", wh.RESET) 
+        
+    return res 
+            
+                
+    
 def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
 
     print("file_image_sizes_make_unique:", wh.GRAY + config.path_image_sizes, wh.RESET)
@@ -228,26 +266,11 @@ def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
         return
             
     if True:
-        res = []
-        with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-            for line in fp:
-                if line.startswith('/'): # hmmm, again an assumption.....bit bad TODO
-                    subs = line.rstrip('\n').split(',')
-                    res.append(list(subs))
-        len_orig = len(res)    
-        print("file_image_sizes_make_unique: len_orig:", len_orig)  
-        # make unique       
-        res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
-        print("file_image_sizes_make_unique: len(res):", len(res))  
-        
-        if b_sort:
-            from natsort import natsorted, ns
-            res = natsorted(res, key=lambda x: x[2], reverse=b_reverse) # reverse we can skip searching after first hit which is highest size
-            print("file_image_sizes_make_unique: len(res) natsorted:", len(res))  
+            
+        res = load_image_size_tuples(b_sort=b_sort, b_reverse=b_reverse)
             
         wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
         wh.list_to_file(res, config.path_image_sizes, mode="a")     
-        print("file_image_sizes_make_unique: removed:", wh.CYAN, len_orig - len(res), "items", wh.RESET) 
         
     else:
         wh.file_make_unique(config.path_image_sizes, sort=False)

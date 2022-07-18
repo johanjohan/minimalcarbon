@@ -883,7 +883,8 @@ def iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = 
         query       = quote(query) if uq_query else query           # quote(query) # issue: this also changes ?p= /?p%3D1838
         fragment    = quote(fragment) if uq_fragment else fragment  # quote(fragment)
         uri         = urlunsplit((scheme, netloc, path, query, fragment))
-
+        
+    #print(YELLOW, "iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
     return uri  
     
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.response

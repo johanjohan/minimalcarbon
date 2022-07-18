@@ -143,7 +143,7 @@ def assets_save_internals_locally(
     b_strip_ver=True
 ):
     
-    url = rectify(url, base)
+    url = rectify(url, base, b_absolute=True)
 
     global images_written, assets_written
 
@@ -259,7 +259,7 @@ def make_static(
 
     ####url = wh.add_trailing_slash(url)  NO!!!
     
-    url = rectify(url, base)
+    url = rectify(url, base, b_absolute=True)
 
     # -----------------------------------------
     # GET content
@@ -460,12 +460,12 @@ if __name__ == "__main__":
     # -----------------------------------------
     # 
     # -----------------------------------------
-    image_size_tuples = []
     image_sizes.file_image_sizes_make_unique()
+    image_size_tuples = image_sizes.load_image_size_tuples()
     
     wh.file_make_unique(config.path_image_sizes_visited, sort=True)
     urls_visited = wh.list_from_file(config.path_image_sizes_visited)
-
+    
     # -----------------------------------------
     # 
     # -----------------------------------------
@@ -515,10 +515,12 @@ if __name__ == "__main__":
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
+        ###########################
         # DEBUG TODO save some time
-        if count == 2:
+        if count == 3:
             print(YELLOW, "DEBUG BREAK", RESET)
             break
+        ###########################
 
         print()
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
@@ -558,7 +560,7 @@ if __name__ == "__main__":
     driver.close()
     driver.quit()
     
-    #image_sizes.file_image_sizes_make_unique()
+    image_sizes.file_image_sizes_make_unique()
 
     # save images written
     images_written = sorted(list(set(images_written)))
