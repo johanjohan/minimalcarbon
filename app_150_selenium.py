@@ -108,7 +108,7 @@ import urllib.parse
 from app_050_sitemap_crawl import rectify
 
 import datetime
-
+import sys
 
 import config
 GREEN = config.GREEN
@@ -496,34 +496,36 @@ if __name__ == "__main__":
             time.sleep(3)
     print(wh.RESET)
       
-    print("urls:", GREEN, *urls, RESET, sep="\n\t")
+    #print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))
     #wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
 
     # -----------------------------------------
     # stdout
     # -----------------------------------------  
-    import sys
-    path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
-    wh.make_dirs(path_log)
-    print(wh.YELLOW, "redirecting stdout to:", path_log)
-    sys.stdout = open(path_log, 'w', encoding="utf-8")      
+    b_redirect_stdout = False
+    if b_redirect_stdout:
+        path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
+        wh.make_dirs(path_log)
+        print(wh.YELLOW, "redirecting stdout to:", path_log)
+        sys.stdout = open(path_log, 'w', encoding="utf-8")      
     # -----------------------------------------
     # make_static
     # -----------------------------------------  
     # loop urls from internal_urls file
     for count, url in enumerate(urls):
 
-        # # # # DEBUG TODO save some time
-        # # # if count == 3:
-        # # #     break
+        # DEBUG TODO save some time
+        if count == 2:
+            print(YELLOW, "DEBUG BREAK", RESET)
+            break
 
         print()
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
         print()
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
         
-        if True:
+        if b_redirect_stdout:
             dts = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
             verbose_string = f"{dts} [{(time.time() - start_secs)/60.0:.1f} m] url: {os.path.basename(url)}"
             print(wh.progress_string(count / len(urls), verbose_string=verbose_string, VT=CYAN, n=66), file=sys.stderr)
@@ -556,7 +558,7 @@ if __name__ == "__main__":
     driver.close()
     driver.quit()
     
-    image_sizes.file_image_sizes_make_unique()
+    #image_sizes.file_image_sizes_make_unique()
 
     # save images written
     images_written = sorted(list(set(images_written)))

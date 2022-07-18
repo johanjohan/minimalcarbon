@@ -234,14 +234,17 @@ def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
                 if line.startswith('/'): # hmmm, again an assumption.....bit bad TODO
                     subs = line.rstrip('\n').split(',')
                     res.append(list(subs))
-        len_orig = len(res)     
+        len_orig = len(res)    
+        print("file_image_sizes_make_unique: len_orig:", len_orig)  
         # make unique       
         res = [list(x) for x in set(tuple(x) for x in res)] # https://stackoverflow.com/questions/3724551/python-uniqueness-for-list-of-lists
+        print("file_image_sizes_make_unique: len(res):", len(res))  
         
         if b_sort:
             from natsort import natsorted, ns
             res = natsorted(res, key=lambda x: x[2], reverse=b_reverse) # reverse we can skip searching after first hit which is highest size
-
+            print("file_image_sizes_make_unique: len(res) natsorted:", len(res))  
+            
         wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
         wh.list_to_file(res, config.path_image_sizes, mode="a")     
         print("file_image_sizes_make_unique: removed:", wh.CYAN, len_orig - len(res), "items", wh.RESET) 
