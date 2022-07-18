@@ -370,7 +370,8 @@ def make_static(
                 if imgpath != "none" and "url" in imgpath:
                     print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
-                    url = urllib.parse.unquote(url) # !!!
+                    ######url = urllib.parse.unquote(url) # !!!
+                    url = wh.iri_to_uri(url) 
                     links_img.append( url )
                     
         image_sizes.find_all_image_size_tuples(
@@ -449,184 +450,11 @@ make_static.counter = 0
 # -----------------------------------------
 if __name__ == "__main__":
     
-
     # print(__file__)
     # print(os.path.basename(__file__))
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
 
-    if False:
-        # LOG: "C:\Users\michaelsaup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
-
-        # assert os.path.exists("page/__KD__/")
-        # assert os.path.exists("page/__KD__/index.html")
-
-        # assert os.path.isdir("page/__KD__/")
-        # #assert os.path.isdir("page/__KD__/index.html") # err
-
-        # assert os.path.isfile("page/__KD__/") # err
-        # assert os.path.isfile("page/__KD__/index.html")
-        # exit(0)
-
-        # # assert wh.is_directory("page/__KD__/")
-        # # assert wh.is_directory("page/__KD__")
-        # # #assert wh.is_directory("page/__KD__/index.html") # err
-        # # #assert wh.is_directory("/index.html")# err
-        # # #assert wh.is_directory("index.html")# err
-        # # assert wh.is_directory("/")
-        # # assert wh.is_directory("dir")
-        # # assert wh.is_directory("/dir")
-        # # assert wh.is_directory("/dir/")
-        # # assert wh.is_directory("")
-        # # assert wh.is_directory(".")
-        # # assert wh.is_directory("./")
-
-        # wh.get_status_code("https://1001suns.com")
-        # wh.get_status_code("https://1001suns.com/")
-        # wh.get_status_code("https://1001suns.com/index.php")
-        # wh.get_status_code("https://1001suns.com/index.phpXXXXXXX")
-
-        # wh.get_mime_type("https://1001suns.com/empty/twitter.svg")
-        # wh.get_mime_type("https://1001suns.com/empty")
-        # wh.get_mime_type("https://1001suns.com/empty/")
-
-        # wh.get_redirected_url("https://1001suns.com")
-        # wh.get_redirected_url("https://1001suns.com/")
-        # wh.get_redirected_url("https://1001suns.com/index.php")
-
-        # wh.get_response_header_link(wh.get_response("https://1001suns.com"))
-        # wh.get_response_header_link(wh.get_response("https://karlsruhe.digital"))
-        # exit(0)
-
-        # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")
-        # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
-        # wh.url_exists("https://1001suns.com/empty")
-        # wh.url_exists("https://1001suns.com/empty/")
-        # wh.url_exists("https://1001suns.com/empty/twitter.svg")
-        # wh.url_exists("https://1001suns.com") # actually points to a file
-        # wh.url_exists("https://1001suns.com/")
-        # wh.url_exists("https://1001suns.com/index.php")
-
-        # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg"):
-        #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg")
-        # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4"):
-        #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4")
-
-        # wh.url_has_fragment("https://1001suns.com/empty/twitter.svg")
-        # wh.url_has_fragment("https://1001suns.com/empty/")
-        # wh.url_has_fragment("https://1001suns.com/empty/#frag123")
-        # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4")
-        # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4#frag655")
-
-        # wh.has_same_netloc("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
-        # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
-
-        # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
-        # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
-        # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
-        # get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
-        # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
-        # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
-        # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
-
-        # wh.url_is_absolute("https://www.karlsruhe.digital/path/image.jpg")
-        # wh.url_is_absolute("https://www.karlsruhe.digital")
-        # wh.url_is_absolute("http://www.karlsruhe.digital")
-        # wh.url_is_absolute("htt://www.karlsruhe.digital")
-        # wh.url_is_absolute("//www.karlsruhe.digital/path/image.jpg")
-        # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
-        # wh.url_is_absolute("/path/image.jpg")
-
-        # print("check substring:", "karlsruhe.digital" in "karlsruhe.digital")
-        # print("check substring:", "karlsruhe.digital" == "karlsruhe.digital")
-        # print("check substring:", "karlsruhe.digital" in "media.karlsruhe.digital")
-        # print("check substring:", "karlsruhe.digital" in "arlsruhe.digital")
-        # exit(0)
-
-        # base="https://karlsruhe.digital"
-        # links = [
-        #     "",
-        #     "index.html",
-        #     "path/image.jpg",
-        #     "/path/image.jpg",
-        #     "karlsruhe.digital",
-        #     "karlsruhe.digital/path/image.jpg",
-        #     "www.karlsruhe.digital/path/image.jpg",
-        #     "//www.karlsruhe.digital/path/image.jpg",
-        #     "http://www.karlsruhe.digital/path/image.jpg",
-        #     "https://www.karlsruhe.digital/path/image.jpg",
-        #     "xxxxx://www.karlsruhe.digital/path/image.jpg",
-        #     "facebook.de/test.html",
-        #     "http://facebook.de/test.html",
-        #     "http://facebook.de",
-        #     "facebook.de",
-        #     "facebook",
-        #     "facebook.html",
-        #     "facebook.php",
-        #     "facebook.com/facebook.php",
-        #     "facebook.com/facebook.com/facebook.php",
-        # ]
-        # for link in links:
-        #     print("_"*66)
-        #     #wh.url_is_absolute(link)
-        #     #wh.url_is_relative(link)
-        #     #wh.url_split(link)
-        #     #wh.url_is_internal(link, base)
-        #     wh.try_link_make_local(link, base)
-        #     #wh.link_make_absolute(link, base)
-        #     print()
-
-        # print("1", "".split('/'))
-        # print("2", "".split('/')[-1])
-        # print("3", "".split('/')[-1] + "_added")
-        # print("4", '.' in "".split('/')[-1])
-
-        # func = wh.url_is_assumed_folder
-        # func = wh.url_is_assumed_file
-        # print(func(None), "\n")
-        # print(func(""), "\n")
-        # print(func("https://"), "\n")
-        # print(func("https://domain.com"), "\n")
-        # print(func("https://domain.com/"), "\n")
-        # print(func("https://domain.com/folder"), "\n")
-        # print(func("https://domain.com/folder/"), "\n")
-        # print(func("https://domain.com/folder/nodot"), "\n")
-        # print(func("https://domain.com/folder/nodot#fragment"), "\n")
-        # print(func("https://domain.com/folder/nodot?p=123"), "\n")
-        # print(func("https://domain.com/folder/with.dot"), "\n")
-        # print(func("https://domain.com/folder/with.dot?p=123"), "\n")
-        # print(func("https://domain.com/folder/with.dot?p=12#frag3"), "\n")
-        # print(func("https://domain.com/folder/with.dot#frag3"), "\n")
-        # print(func("https://domain.com/folder/with.dot/"), "\n")
-
-        # exit(0)
-
-        # # css = wh.list_from_file(config.style_path)
-        # # css = cssbeautifier.beautify(wh.list_to_string(css))
-        # # wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
-
-        # image_links = wh.list_from_file(
-        #     #config.data_base_path + "links_img" + ".txt", 
-        #     config.image_tuples_written_path, 
-        #     sanitize=True
-        # )
-        
-        # #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
-        # image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
-        # wh.list_print(image_links)
-        # exit(0)
-
-        # TODO style_path must be downloaded first....immediately change links to local......
-        pass
-
-    # # # # # -----------------------------------------
-    # # # # # copy sitemap
-    # # # # # -----------------------------------------
-    # # # # import shutil
-    # # # # wh.make_dirs(config.project_folder)
-    # # # # shutil.copyfile(config.path_sitemap_xml,
-    # # # #                 config.project_folder + "sitemap.xml")
-    
     # -----------------------------------------
     # 
     # -----------------------------------------
@@ -665,67 +493,6 @@ if __name__ == "__main__":
             print(f"{RED} {e} {RESET}")
             time.sleep(3)
     print(wh.RESET)
-
-    # # # # # -----------------------------------------
-    # # # # # RE-scan for new links:
-    # # # # # -----------------------------------------     
-    # # # # if b_extend_rescan_urls:   
-    # # # #     links_a_href    = []
-    # # # #     valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
-    # # # #     wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
-        
-    # # # #     # rescan only links without frags
-    # # # #     urls_no_frag = wh.links_strip_query_and_fragment(urls)
-    # # # #     urls_no_frag = wh.links_make_unique(urls_no_frag)
-    # # # #     for count, url in enumerate(urls_no_frag):
-    # # # #         print()
-    # # # #         name, ext = os.path.splitext(url)
-    # # # #         print(name, ext)
-    # # # #         if not ext in valid_exts:
-    # # # #             print("\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
-    # # # #             continue
-            
-    # # # #         wh.progress(count / len(urls_no_frag), verbose_string="TOTAL", VT=CYAN, n=16)
-    # # # #         print()
-    # # # #         wh.sleep_random(config.wait_secs, verbose_string=url, n=16) 
-            
-    # # # #         if content := wh.get_content(url):
-    # # # #             links_a_href.append(url)
-    # # # #             tree    = lxml.html.fromstring(content)
-    # # # #             hrefs   = tree.xpath('//a/@href')
-    # # # #             #print("\t hrefs:", GRAY, "."*len(hrefs), RESET)
-    # # # #             for href in hrefs:
-    # # # #                 href = href.strip()
-    # # # #                 name, ext = os.path.splitext(href)
-    # # # #                 if ext in valid_exts:
-    # # # #                     if not href in links_a_href:
-    # # # #                         print("\t\t append:", GREEN, href, RESET)
-    # # # #                         links_a_href.append(href)
-    # # # #         else:
-    # # # #             print(RED, "error logged:", config.path_links_errors)
-    # # # #             wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
-    # # # #         ###break # debug
-    # # # #     ### for />
-        
-    # # # #     # errs
-    # # # #     if os.path.isfile(config.path_links_errors):
-    # # # #         wh.file_make_unique(config.path_links_errors, sort=True)    
-
-    # # # #     # add to urls
-    # # # #     print("len(links_a_href):", len(links_a_href))
-    # # # #     print("urls_len_orig    :", urls_len_orig)
-    # # # #     urls = links_a_href
-    # # # #     urls = wh.links_remove_externals(urls, config.base)
-    # # # #     urls = wh.links_remove_excludes(urls, ["whatsapp:", "mailto:", "javascript:"])
-    # # # #     urls = wh.links_make_absolute(urls, config.base)
-    # # # #     urls = wh.links_sanitize(urls)   
-    # # # #     print("len(urls) after:", len(urls), "added:", len(urls) - urls_len_orig)  
-    # # # #     time.sleep(3)
-        
-    # # # #     # save back to file 
-    # # # #     wh.list_to_file(urls, config.path_sitemap_links_internal)             
-    # # # # else:
-    # # # #     pag.alert(text=f"not rescanning urls...", timeout=10000)  
       
     print("urls:", GREEN, *urls, RESET, sep="\n\t")
     print("len(urls):", len(urls))

@@ -97,7 +97,7 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              55, # 66 55
@@ -885,12 +885,12 @@ if __name__ == "__main__":
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
-                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> This is the Minimal Carbon Site {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
-                banner_footer_text = f"unpowered by <a href='https://1001suns.com'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                banner_header_text = f"{config.svg_leaf_img}This is the Minimal Carbon Site {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
+                banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
-                banner_header_text = f"<a href='http://openresource.1001suns.com'>{config.svg_leaf_img}</a> Dies ist die Minimal Carbon Site {same_page_link}"
-                banner_footer_text = f"unpowered by <a href='https://1001suns.com'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                banner_header_text = f"{config.svg_leaf_img}Dies ist die Minimal Carbon Site {same_page_link}"
+                banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
                 
             #---------------------------
             # lxml

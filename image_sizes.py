@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver  # pip install selenium
 from selenium.webdriver.chrome.options import Options
+from app_050_sitemap_crawl import rectify, rectify_local
 
 ###from Screenshot import Screenshot_clipping # pip install Selenium-Screenshot
 # https://www.browserstack.com/guide/take-screenshot-with-selenium-python
@@ -32,6 +33,8 @@ import urllib.parse # selenium seems to urlencode results
 #-----------------------------------------            
 def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
+    print(pre, "__append_to_image_size_tuples")
+    
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
         return
@@ -48,6 +51,7 @@ def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA,
         # TODO should broken down to 
         ###local = '/' + path # no loc as we already have proven it is internal
         local           = wh.get_path_local_root_subdomains(url, base)
+        local           = rectify_local(url, base)
         local_name, ext = os.path.splitext(local)
         
         tpl  = [
@@ -108,13 +112,14 @@ def find_all_image_size_tuples(
     bases   = list(bases)
     
     def __add(e, url, eu):
-        url = urllib.parse.unquote(url) # << !
+        ##url = (url) # << !
+        url = wh.iri_to_uri(url) 
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
     # NOTE findElements waits for at least one element or until timeout which is defined by the implicit wait setting
     # find urls in driver 
-    # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url)
+    # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url) --> NEW wh.iri_to_uri(url)
     try:
         # regular images
         print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)
@@ -147,12 +152,12 @@ def find_all_image_size_tuples(
             for e in driver.find_elements(By.XPATH, xpath_css):
                 
                 imgpath = e.value_of_css_property("background-image") 
-                if imgpath != "none" and "url" in imgpath:
+                if "url" in imgpath: # imgpath != "none" and 
                     url = wh.extract_url(imgpath)
                     __add(e, url, eu)
                     
                 imgpath = e.value_of_css_property("content")
-                if imgpath != "none" and "url" in imgpath:
+                if "url" in imgpath: # imgpath != "none" and 
                     print(wh.YELLOW, "content", imgpath, wh.RESET) # <<<<<<<<<<<<< 
                     time.sleep(3)
                     url = wh.extract_url(imgpath)
@@ -191,7 +196,7 @@ def find_all_image_size_tuples(
     for e, url in eu:        
         __append_to_image_size_tuples(
             collected,
-            urllib.parse.unquote(url), # safety
+            wh.iri_to_uri(url), # double safety...
             base,
             bases,
             e,

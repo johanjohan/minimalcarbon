@@ -61,13 +61,13 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument("--headless") # options.headless = config.headless
 #options.add_argument('--start-maximized')
+options.add_argument("--window-size=1920,1080") # --window-size=1920,1080 # 1600,1080
 options.add_argument('--lang=de')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--incognito')
 options.add_argument('--log-level=3')
 options.add_argument("--disable-webgl")
 options.add_argument("--disable-popup-blocking")
-options.add_argument("--window-size=1600,1080") # --window-size=1920,1080
 options.add_argument("--no-sandbox")
 options.add_argument('user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36')
 options.add_argument('--disable-gpu')

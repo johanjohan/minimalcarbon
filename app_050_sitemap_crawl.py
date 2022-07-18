@@ -56,6 +56,10 @@ def rectify(url, base):
     url = wh.strip_trailing_slash(url) # so we can compare both valid versions
     return url
         
+def rectify_local(url, base):
+    url = wh.strip_trailing_slash(url) # so we can compare both valid versions
+    return url
+        
 #-----------------------------------------
 # 
 #-----------------------------------------

@@ -867,6 +867,25 @@ headers = {
 # # def get_encoding(url):
 # #     return get_content_part(url, 1)
 
+
+# https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
+from urllib.parse import urlsplit, urlunsplit, quote
+def iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = False):
+    """
+    Convert an IRI to a URI (Python 3).
+    """
+    uri = ''
+    if isinstance(iri, str):
+        (scheme, netloc, path, query, fragment) = urlsplit(iri)
+        scheme      = quote(scheme) if uq_scheme else scheme
+        netloc      = netloc.encode('idna').decode('utf-8')
+        path        = quote(path) if uq_path else path
+        query       = quote(query) if uq_query else query           # quote(query) # issue: this also changes ?p= /?p%3D1838
+        fragment    = quote(fragment) if uq_fragment else fragment  # quote(fragment)
+        uri         = urlunsplit((scheme, netloc, path, query, fragment))
+
+    return uri  
+    
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.response
 # https://docs.python.org/3/library/email.message.html#email.message.EmailMessage
 # https://www.w3.org/wiki/LinkHeader
@@ -876,26 +895,8 @@ def _get_request(url, method=None): # 'HEAD'
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
     
-    # https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
-    from urllib.parse import urlsplit, urlunsplit, quote
-    def iri2uri(iri):
-        """
-        Convert an IRI to a URI (Python 3).
-        """
-        uri = ''
-        if isinstance(iri, str):
-            (scheme, netloc, path, query, fragment) = urlsplit(iri)
-            scheme      = quote(scheme)
-            netloc      = netloc.encode('idna').decode('utf-8')
-            path        = quote(path)
-            query       = query     # quote(query) # issue: this also changes ?p= /?p%3D1838
-            fragment    = fragment  # quote(fragment)
-            uri         = urlunsplit((scheme, netloc, path, query, fragment))
-
-        return uri    
-    
     #url_orig    = url
-    url         = iri2uri(url)
+    url         = iri_to_uri(url)
     #print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
     
     try:

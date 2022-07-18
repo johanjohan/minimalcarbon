@@ -688,7 +688,182 @@ https://karlsruhe.digital/wp-json/wp/v2/categories
 
 
 
+    if False:
+        # LOG: "C:\Users\michaelsaup\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
 
+        # assert os.path.exists("page/__KD__/")
+        # assert os.path.exists("page/__KD__/index.html")
+
+        # assert os.path.isdir("page/__KD__/")
+        # #assert os.path.isdir("page/__KD__/index.html") # err
+
+        # assert os.path.isfile("page/__KD__/") # err
+        # assert os.path.isfile("page/__KD__/index.html")
+        # exit(0)
+
+        # # assert wh.is_directory("page/__KD__/")
+        # # assert wh.is_directory("page/__KD__")
+        # # #assert wh.is_directory("page/__KD__/index.html") # err
+        # # #assert wh.is_directory("/index.html")# err
+        # # #assert wh.is_directory("index.html")# err
+        # # assert wh.is_directory("/")
+        # # assert wh.is_directory("dir")
+        # # assert wh.is_directory("/dir")
+        # # assert wh.is_directory("/dir/")
+        # # assert wh.is_directory("")
+        # # assert wh.is_directory(".")
+        # # assert wh.is_directory("./")
+
+        # wh.get_status_code("https://1001suns.com")
+        # wh.get_status_code("https://1001suns.com/")
+        # wh.get_status_code("https://1001suns.com/index.php")
+        # wh.get_status_code("https://1001suns.com/index.phpXXXXXXX")
+
+        # wh.get_mime_type("https://1001suns.com/empty/twitter.svg")
+        # wh.get_mime_type("https://1001suns.com/empty")
+        # wh.get_mime_type("https://1001suns.com/empty/")
+
+        # wh.get_redirected_url("https://1001suns.com")
+        # wh.get_redirected_url("https://1001suns.com/")
+        # wh.get_redirected_url("https://1001suns.com/index.php")
+
+        # wh.get_response_header_link(wh.get_response("https://1001suns.com"))
+        # wh.get_response_header_link(wh.get_response("https://karlsruhe.digital"))
+        # exit(0)
+
+        # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist")
+        # wh.url_exists("https://1001suns.com/reallyBadDOESNOTexist.csv")
+        # wh.url_exists("https://1001suns.com/empty")
+        # wh.url_exists("https://1001suns.com/empty/")
+        # wh.url_exists("https://1001suns.com/empty/twitter.svg")
+        # wh.url_exists("https://1001suns.com") # actually points to a file
+        # wh.url_exists("https://1001suns.com/")
+        # wh.url_exists("https://1001suns.com/index.php")
+
+        # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg"):
+        #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg")
+        # if wh.url_has_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4"):
+        #     wh.url_get_ver("https://1001suns.com/empty/twitter.svg?ver=1.2.3.4")
+
+        # wh.url_has_fragment("https://1001suns.com/empty/twitter.svg")
+        # wh.url_has_fragment("https://1001suns.com/empty/")
+        # wh.url_has_fragment("https://1001suns.com/empty/#frag123")
+        # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4")
+        # wh.url_has_fragment("https://1001suns.com/empty/index.css?ver=1.2.3.4#frag655")
+
+        # wh.has_same_netloc("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
+        # wh.has_same_netloc("https://media.karlsruheXXX.digital/", "https://karlsruhe.digital")
+
+        # get_page_folder("https://www.karlsruhe.digital/", "https://karlsruhe.digital")
+        # get_page_folder("https://www.media.karlsruhe.digital/", "https://karlsruhe.digital")
+        # get_page_folder("https://media.karlsruhe.digital/", "https://karlsruhe.digital")
+        # get_page_folder("https://media.karlsruhe.digital/my/folder/this.jpeg", "https://karlsruhe.digital")
+        # get_page_folder("https://karlsruhe.digital/", "https://karlsruhe.digital")
+        # get_page_folder("https://karlsruhe.digital/index.html", "https://karlsruhe.digital")
+        # get_page_folder("https://karlsruhe.digital/some/folder/image.png", "https://karlsruhe.digital")
+
+        # wh.url_is_absolute("https://www.karlsruhe.digital/path/image.jpg")
+        # wh.url_is_absolute("https://www.karlsruhe.digital")
+        # wh.url_is_absolute("http://www.karlsruhe.digital")
+        # wh.url_is_absolute("htt://www.karlsruhe.digital")
+        # wh.url_is_absolute("//www.karlsruhe.digital/path/image.jpg")
+        # wh.url_is_absolute("www.karlsruhe.digital/path/image.jpg")
+        # wh.url_is_absolute("/path/image.jpg")
+
+        # print("check substring:", "karlsruhe.digital" in "karlsruhe.digital")
+        # print("check substring:", "karlsruhe.digital" == "karlsruhe.digital")
+        # print("check substring:", "karlsruhe.digital" in "media.karlsruhe.digital")
+        # print("check substring:", "karlsruhe.digital" in "arlsruhe.digital")
+        # exit(0)
+
+        # base="https://karlsruhe.digital"
+        # links = [
+        #     "",
+        #     "index.html",
+        #     "path/image.jpg",
+        #     "/path/image.jpg",
+        #     "karlsruhe.digital",
+        #     "karlsruhe.digital/path/image.jpg",
+        #     "www.karlsruhe.digital/path/image.jpg",
+        #     "//www.karlsruhe.digital/path/image.jpg",
+        #     "http://www.karlsruhe.digital/path/image.jpg",
+        #     "https://www.karlsruhe.digital/path/image.jpg",
+        #     "xxxxx://www.karlsruhe.digital/path/image.jpg",
+        #     "facebook.de/test.html",
+        #     "http://facebook.de/test.html",
+        #     "http://facebook.de",
+        #     "facebook.de",
+        #     "facebook",
+        #     "facebook.html",
+        #     "facebook.php",
+        #     "facebook.com/facebook.php",
+        #     "facebook.com/facebook.com/facebook.php",
+        # ]
+        # for link in links:
+        #     print("_"*66)
+        #     #wh.url_is_absolute(link)
+        #     #wh.url_is_relative(link)
+        #     #wh.url_split(link)
+        #     #wh.url_is_internal(link, base)
+        #     wh.try_link_make_local(link, base)
+        #     #wh.link_make_absolute(link, base)
+        #     print()
+
+        # print("1", "".split('/'))
+        # print("2", "".split('/')[-1])
+        # print("3", "".split('/')[-1] + "_added")
+        # print("4", '.' in "".split('/')[-1])
+
+        # func = wh.url_is_assumed_folder
+        # func = wh.url_is_assumed_file
+        # print(func(None), "\n")
+        # print(func(""), "\n")
+        # print(func("https://"), "\n")
+        # print(func("https://domain.com"), "\n")
+        # print(func("https://domain.com/"), "\n")
+        # print(func("https://domain.com/folder"), "\n")
+        # print(func("https://domain.com/folder/"), "\n")
+        # print(func("https://domain.com/folder/nodot"), "\n")
+        # print(func("https://domain.com/folder/nodot#fragment"), "\n")
+        # print(func("https://domain.com/folder/nodot?p=123"), "\n")
+        # print(func("https://domain.com/folder/with.dot"), "\n")
+        # print(func("https://domain.com/folder/with.dot?p=123"), "\n")
+        # print(func("https://domain.com/folder/with.dot?p=12#frag3"), "\n")
+        # print(func("https://domain.com/folder/with.dot#frag3"), "\n")
+        # print(func("https://domain.com/folder/with.dot/"), "\n")
+
+        # exit(0)
+
+        # # css = wh.list_from_file(config.style_path)
+        # # css = cssbeautifier.beautify(wh.list_to_string(css))
+        # # wh.list_to_file(wh.list_from_string(css), config.data_base_path + "test_XXXXXXX.css")
+
+        # image_links = wh.list_from_file(
+        #     #config.data_base_path + "links_img" + ".txt", 
+        #     config.image_tuples_written_path, 
+        #     sanitize=True
+        # )
+        
+        # #image_links = wh.list_exec(image_links, func=lambda s : tuple(s.split(',')))
+        # image_links = wh.list_exec(image_links, func=wh.list_func_to_tuple)
+        # wh.list_print(image_links)
+        # exit(0)
+
+        # TODO style_path must be downloaded first....immediately change links to local......
+        pass
+
+    # # # # # -----------------------------------------
+    # # # # # copy sitemap
+    # # # # # -----------------------------------------
+    # # # # import shutil
+    # # # # wh.make_dirs(config.project_folder)
+    # # # # shutil.copyfile(config.path_sitemap_xml,
+    # # # #                 config.project_folder + "sitemap.xml")
+    
+    
+    
+    
+    
 
 """
 
