@@ -78,6 +78,8 @@ def rectify_links(urls):
 # -----------------------------------------
 if __name__ == "__main__":
     
+    pag.alert(text=f"this may be not needed an more!", timeout=10000)  
+    
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
     wh.log("re-scanning for new links in given urls...", filepath=config.path_log_params)
