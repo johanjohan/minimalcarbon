@@ -1634,7 +1634,7 @@ def list_exec(items, func):
     
 """ 
 # -----------------------------------------
-#
+# cdone='■', crest='-'
 # -----------------------------------------
 
 def progress_string(perc, verbose_string="", VT=MAGENTA, n=16, cdone='■', crest='-'):

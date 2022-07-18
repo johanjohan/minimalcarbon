@@ -33,10 +33,19 @@ import urllib.parse # selenium seems to urlencode results
 #-----------------------------------------            
 def __append_to_image_size_tuples(collected, url, base, bases, e, vt=wh.MAGENTA, pre="\t\t"):
     
-    print(pre, "__append_to_image_size_tuples")
+    # print(pre, "__append_to_image_size_tuples:", "e    :", e)
+    # print(pre, "__append_to_image_size_tuples:", "url  :", url)
+    # print(pre, "__append_to_image_size_tuples:", "base :", base)
+    # print(pre, "__append_to_image_size_tuples:", "bases:", bases)
     
     if not url:
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
+        return
+    
+    # ignore certain protocols
+    if any([(exclude in url) for exclude in config.protocol_excludes]):
+        print(pre, "ignore:", "exclude:", wh.YELLOW, config.protocol_excludes, wh.RESET)
+        #time.sleep(11)
         return
     
     # ignore external? accept bases

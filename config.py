@@ -119,7 +119,7 @@ path_script             = project_folder + "wp-content/themes/karlsruhe-digital/
 path_new_script         = data_folder + "karlsruhe.digital_script.js"
 path_stats              = ats(project_folder + "__stats/" + base_netloc) 
 
-protocol_excludes       = ["whatsapp:", "mailto:", "javascript:"]
+protocol_excludes       = ["whatsapp:", "mailto:", "javascript:", "data:"]
 
 path_snapshots              = ats(project_folder + "../__snaps/" + base_netloc) 
 path_snapshots_visited      = path_snapshots + base_netloc + "_300_image_snaps_visited.csv"
@@ -151,6 +151,7 @@ folder_exported             = project_folder + "../__exported/"
 
 ###date_time                = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
 date_time_now               = datetime.datetime.now()
+dt_file_string              = date_time_now.strftime("%Y%m%d_%H%M%S")
 custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 svg_color                   = "darkseagreen"
 

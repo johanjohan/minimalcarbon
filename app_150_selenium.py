@@ -107,6 +107,8 @@ import urllib.parse
 
 from app_050_sitemap_crawl import rectify
 
+import datetime
+
 
 import config
 GREEN = config.GREEN
@@ -499,6 +501,14 @@ if __name__ == "__main__":
     #wh.log("urls:", *[f"\n\t{u}" for u in urls], filepath=config.path_log_params)
 
     # -----------------------------------------
+    # stdout
+    # -----------------------------------------  
+    import sys
+    path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
+    wh.make_dirs(path_log)
+    print(wh.YELLOW, "redirecting stdout to:", path_log)
+    sys.stdout = open(path_log, 'w', encoding="utf-8")      
+    # -----------------------------------------
     # make_static
     # -----------------------------------------  
     # loop urls from internal_urls file
@@ -512,6 +522,11 @@ if __name__ == "__main__":
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=CYAN, n=66)
         print()
         print(f"{CYAN}[{(time.time() - start_secs)/60.0:.1f} m] url: {url}{RESET}")
+        
+        if True:
+            dts = datetime.datetime.now().strftime("%Y %m %d %H:%M:%S")
+            verbose_string = f"{dts} [{(time.time() - start_secs)/60.0:.1f} m] url: {os.path.basename(url)}"
+            print(wh.progress_string(count / len(urls), verbose_string=verbose_string, VT=CYAN, n=66), file=sys.stderr)
 
         #if not (url in config.sitemap_links_ignore):
         if not any(ignore in url for ignore in config.sitemap_links_ignore): # sitemap/ wp-json/ 
@@ -565,4 +580,5 @@ if __name__ == "__main__":
     # all done
     wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
 
+    sys.stdout.close()
     exit(0)
