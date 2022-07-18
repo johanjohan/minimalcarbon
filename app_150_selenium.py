@@ -109,6 +109,8 @@ from app_050_sitemap_crawl import rectify
 
 import datetime
 import sys
+import signal
+import pyautogui as pag
 
 import config
 GREEN = config.GREEN
@@ -132,6 +134,12 @@ urls_visited            = []
 
 ###b_extend_rescan_urls    = False
 
+
+ 
+def handler(signum, frame):   
+    if "Yes" == pag.confirm(text=f"Ctrl-c was pressed. Do you really want to exit?", buttons=['Yes', 'No']):
+        exit(0)
+                
 # -----------------------------------------
 # TODO  /en/ or invent /de/
 # -----------------------------------------
@@ -458,6 +466,8 @@ if __name__ == "__main__":
     # print(os.path.basename(__file__))
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
+    
+    ###signal.signal(signal.SIGINT, handler)
 
     # -----------------------------------------
     # 
