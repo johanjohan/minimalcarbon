@@ -174,6 +174,7 @@ def assets_save_internals_locally(
 
         abs_src = wh.link_make_absolute(src, base) # from redirected
         # re-direction ie ?p=1234
+        # mostly adds a trailing /
         redirected_src, is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
         if is_redirected:
             abs_src = wh.link_make_absolute(redirected_src, base)
