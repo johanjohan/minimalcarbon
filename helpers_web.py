@@ -1670,8 +1670,8 @@ def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=M
 #-----------------------------------------
 def collect_files_endswith(project_folder, allowed_extensions, pre="\t\t"):
     allowed_extensions = [e.lower() for e in allowed_extensions]
-    print(pre, "collect_files:", project_folder)
-    print(pre, "collect_files:", allowed_extensions)
+    print(pre, "collect_files:", GRAY, project_folder, RESET)
+    print(pre, "collect_files:", GRAY, allowed_extensions, RESET)
     assets = []
     for root, dirs, files in os.walk(project_folder):
         for file in files:
@@ -1905,14 +1905,15 @@ def get_file_sizes(start_path, use_pdf):
         size_pdfs   = get_file_size_of_list(files_pdfs)
         size_total += size_pdfs
     
+    print()
     print("size_texts     :", size_texts,       "bytes", "|", size_texts / 1e6, "MB", "|",          round(size_texts / size_total * 100, 1), "%")
     print("size_images_old:", size_images_old,  "bytes", "|", size_images_old / 1e6, "MB", "|",     round(size_images_old / size_total * 100, 1), "%")
     print("size_images_new:", size_images_new,  "bytes", "|", size_images_new / 1e6, "MB", "|",     round(size_images_new / size_total * 100, 1), "%")
     if use_pdf:
-        print("size_pdfs  :", size_pdfs,    "bytes", "|", size_pdfs / 1e6, "MB", "|",       round(size_pdfs / size_total * 100, 1), "%")
+        print("size_pdfs      :", size_pdfs,    "bytes", "|", size_pdfs / 1e6, "MB", "|",       round(size_pdfs / size_total * 100, 1), "%")
     
     print("-"*44)
-    print("size_total :", size_total,   "bytes", "|", size_total / 1e6, "MB", "|")
+    print("size_total     :", size_total,   "bytes", "|", size_total / 1e6, "MB")
     
     print()
     
