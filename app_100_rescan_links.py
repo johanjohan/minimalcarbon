@@ -117,8 +117,7 @@ if __name__ == "__main__":
         if response := wh.get_response(url, pre="\t"):
             
             content = response.read().decode('utf-8')
-            url     = response.url  # may be redirected
-            url     = rectify(url, config.base)
+            url     = rectify(response.url, config.base)  # may be redirected
             
             if url in links_a_href:
                 continue
@@ -142,15 +141,19 @@ if __name__ == "__main__":
                     #print("\t\t", "external:".ljust(n), RED, href, RESET )
                     continue
                 
-                #href, is_redirected = wh.get_redirected_url(href)
 
                 if href in links_a_href:
                     continue
 
                 href, is_redirected = wh.get_redirected_url(href)
+                href = rectify(href, config.base)
+                
+                if href in links_a_href:
+                    continue
 
                 # proven status above: get_redirected_url  
-                name, ext = os.path.splitext(href)
+                protocol, loc, path = wh.url_split(href)
+                name, ext = os.path.splitext(path)
                 if ext in valid_exts:
                     print("\t\t", "append:".ljust(n), GREEN, href, RESET)
                     links_a_href.append(href)
