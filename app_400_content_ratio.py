@@ -84,4 +84,8 @@ if __name__ == "__main__":
     print("unique content-ratio: content_ratio_original :", round(content_ratio_original,  1), "%")
     print("unique content-ratio: content_ratio_unpowered:", round(content_ratio_unpowered, 1), "%")
     
+    # info
+    wh.get_file_sizes(config.folder_exported, use_pdf=True)
+    wh.get_file_sizes(config.folder_exported, use_pdf=False)
+    
     

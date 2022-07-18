@@ -1876,6 +1876,50 @@ def get_page_folder(url, base):
 #-----------------------------------------
 # 
 #-----------------------------------------
+def get_file_size_of_list(files):
+    total_size = 0
+    for file in files:
+        total_size += os.path.getsize(file)
+    return total_size
+        
+def get_file_sizes(start_path, use_pdf):
+    
+    print()
+    print("get_file_sizes:", CYAN, start_path, RESET)
+    print("get_file_sizes: use_pdf:", CYAN, use_pdf, RESET)
+    
+    files_texts         = collect_files_endswith(start_path, allowed_extensions=[".htm", ".html", ".php", ".xml", ".xml.gz", ".css", ".js"])
+    files_images_old    = collect_files_endswith(start_path, allowed_extensions=[".png", ".jpg", ".jpeg", ".gif"])
+    files_images_new    = collect_files_endswith(start_path, allowed_extensions=[".webp", ".avif"])
+    #files_images        = collect_files_endswith(start_path, allowed_extensions=[".webp", ".avif"]) # files_images_old+files_images_new)
+    
+    size_texts          = get_file_size_of_list(files_texts)
+    size_images_old     = get_file_size_of_list(files_images_old)
+    size_images_new     = get_file_size_of_list(files_images_new)
+
+    size_total      = size_texts + size_images_old + size_images_new
+    assert size_total > 0
+        
+    if use_pdf:
+        files_pdfs  = collect_files_endswith(start_path, allowed_extensions=[".pdf"])
+        size_pdfs   = get_file_size_of_list(files_pdfs)
+        size_total += size_pdfs
+    
+    print("size_texts     :", size_texts,       "bytes", "|", size_texts / 1e6, "MB", "|",          round(size_texts / size_total * 100, 1), "%")
+    print("size_images_old:", size_images_old,  "bytes", "|", size_images_old / 1e6, "MB", "|",     round(size_images_old / size_total * 100, 1), "%")
+    print("size_images_new:", size_images_new,  "bytes", "|", size_images_new / 1e6, "MB", "|",     round(size_images_new / size_total * 100, 1), "%")
+    if use_pdf:
+        print("size_pdfs  :", size_pdfs,    "bytes", "|", size_pdfs / 1e6, "MB", "|",       round(size_pdfs / size_total * 100, 1), "%")
+    
+    print("-"*44)
+    print("size_total :", size_total,   "bytes", "|", size_total / 1e6, "MB", "|")
+    
+    print()
+    
+    
+#-----------------------------------------
+# 
+#-----------------------------------------
 def get_directory_total_size(start_path):
     print("get_size:", CYAN, start_path, RESET)
     total_size = 0
@@ -2423,6 +2467,13 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
 if __name__ == "__main__":
     logo_filename(__file__)
     print("\n"*3 + "you started the wrong file..." + "\n"*3)
+    
+    
+    get_file_sizes("V:/00shared/dev8/XAMPP/xampp-php7/__exported", use_pdf=True)
+    get_file_sizes("V:/00shared/dev8/XAMPP/xampp-php7/__exported", use_pdf=False)    
+    get_file_sizes("V:/00shared/dev8/XAMPP/xampp-php7/htdocs", use_pdf=True)
+    get_file_sizes("V:/00shared/dev8/XAMPP/xampp-php7/htdocs", use_pdf=False)
+    exit(0)
     
     d = {
         "ssss": 1,
