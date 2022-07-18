@@ -888,15 +888,15 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
             scheme      = quote(scheme)
             netloc      = netloc.encode('idna').decode('utf-8')
             path        = quote(path)
-            query       = query # quote(query) # issue: this also changes ?p= /?p%3D1838
-            fragment    = fragment # quote(fragment)
+            query       = query     # quote(query) # issue: this also changes ?p= /?p%3D1838
+            fragment    = fragment  # quote(fragment)
             uri         = urlunsplit((scheme, netloc, path, query, fragment))
 
         return uri    
     
-    url_orig    = url
+    #url_orig    = url
     url         = iri2uri(url)
-    print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
+    #print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
     
     try:
         req         = _get_request(url, method=method)

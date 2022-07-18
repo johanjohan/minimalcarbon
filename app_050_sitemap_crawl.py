@@ -3,6 +3,11 @@
 # pip3 install requests bs4 colorama
 
 """
+TODO
+    get rid of /wp-json/ and sitemap/
+    in __export, could strip unneeded quotes...
+
+
 strip trailing / so we can compare
 """
 
@@ -88,12 +93,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         print(RED, "get_all_website_links:", "not content:", url, RESET)
         return urls
      
-    # # if wh.url_is_internal(url, config.base):       
-    # #     internal_urls.add(url)
-    # # else:
-    # #     external_urls.add(url) 
     internal_urls.add(url)    
-           
     soup = BeautifulSoup(content, "html.parser")
     
     for a_tag in soup.findAll("a"):
