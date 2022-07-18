@@ -159,7 +159,6 @@ def find_all_image_size_tuples(
                     url  = ' '.join(sub for sub in subs[:-1]) # except last
                     __add(e, url, eu)
             print(wh.RESET)
-
         
         # TODO these could only be traversed once or twice !!!!!!!!!!!!!!!!!!!!!!!!
         # traverse body: all elements for styles attached, a bit slow but effective
