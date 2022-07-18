@@ -236,9 +236,11 @@ def assets_save_internals_locally(
         # TODO would be better to set tags or change tags or rename tags
         # NOTE this happens as well in app_200
         #no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
+        import copy
         for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
+            content_orig =  copy.copy(content)
             content = content.replace(f(src), f(new_src))
-            if verbose:
+            if verbose and (content_orig != content):
                 print(f"{GRAY }\t\t\t replaced: {f(src)} {RESET}-->") 
                 print(f"{GREEN}\t\t\t           {f(new_src)} {RESET}") 
 
