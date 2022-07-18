@@ -17,34 +17,33 @@ if __name__ == "__main__":
     excludes = ["media.karlsruhe.digital"]
 
     wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
-    urls = config.path_sitemap_links_internal         
+    urls = config.path_sitemap_links_internal       
+      
     urls = wh.list_from_file(urls)
     urls = wh.links_remove_comments(urls, '#')
     urls = wh.links_remove_excludes(urls, excludes) # <<<
     urls = wh.links_strip_query_and_fragment(urls) # do not need for snaps
     urls = wh.links_make_absolute(urls, config.base)
     urls = wh.links_replace(urls, config.replacements_pre) # is a specific issue besides general issues
-    urls = wh.links_remove_externals(urls, config.base) # is a specific issue besides general issues
-
+    urls = wh.links_remove_externals(urls, config.base) 
     urls = wh.links_sanitize(urls)
         
-    total_bytes = 0
-    unique_strips = []
+    total_bytes     = 0
+    unique_strips   = []
     for count, url in enumerate(urls):
-        
         
         print("\n"*2)
         wh.progress(count / len(urls), verbose_string="TOTAL", VT=wh.CYAN, n=66)
         print()
         print(f"{wh.CYAN}[{(time.time() - start_secs)/60.0:.1f} m] abs_url: {url} {wh.RESET}")
             
-        
         html = wh.get_content(url)
         soup = BeautifulSoup(html, "lxml")
         
         # delete out tags
         for script in soup(["script", "style"]):
-            script.decompose()
+            print("\t", "script:", wh.GRAY, script, wh.RESET)
+            script.decompose() # get rid of each individual element
             
         strips = list(soup.stripped_strings)
         #print("\t", strips)

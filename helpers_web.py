@@ -1974,7 +1974,7 @@ def get_project_total_size(project_folder, prefix, use_pdf):
     
     total_size_unpowered = __get_sizes(
         config.f_unpowered, 
-        excludes=["font", "sub_media", "real3d-flipbook"], # some svg are fontawesome yakk
+        excludes=config.f_unpowered_excludes ### ["font", "sub_media", "real3d-flipbook"], # some svg are fontawesome yakk
         csv_out_path=config.path_stats + prefix + "_200_export_unpowered_files.csv"
     )
     
