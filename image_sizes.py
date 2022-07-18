@@ -231,7 +231,7 @@ def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
         res = []
         with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
             for line in fp:
-                if line.startswith('/'): # hmmm, again an assumption.....bit bad
+                if line.startswith('/'): # hmmm, again an assumption.....bit bad TODO
                     subs = line.rstrip('\n').split(',')
                     res.append(list(subs))
         len_orig = len(res)     

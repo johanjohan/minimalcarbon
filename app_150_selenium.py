@@ -151,7 +151,7 @@ def assets_save_internals_locally(
     # links = wh.links_make_absolute(links, base)  NO!!!
     links = wh.links_remove_externals(links, base)
     # links = wh.links_remove_folders(links) NO!!!
-    links = wh.links_remove_invalids(links, ["s.w.org", "mailto:", "javascript:", "whatsapp:"]) # "?p=", 
+    links = wh.links_remove_invalids(links, ["s.w.org", "mailto:", "javascript:", "whatsapp:", "data:"]) # "?p=", 
     # links = wh.links_remove_similar(links) # https://karlsruhe.digital/en/home
     links = wh.links_remove_nones(links)
     links = wh.links_make_unique(links)
