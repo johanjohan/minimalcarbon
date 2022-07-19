@@ -111,6 +111,7 @@ import datetime
 import sys
 import signal
 import pyautogui as pag
+import copy
 
 import config
 GREEN   = config.GREEN
@@ -132,11 +133,13 @@ verbose                 = True
 image_size_tuples       = []
 urls_visited            = []
 
-###b_extend_rescan_urls    = False
-
-def handler(signum, frame):   
-    if "Yes" == pag.confirm(text=f"Ctrl-c was pressed. Do you really want to exit?", buttons=['Yes', 'No']):
-        exit(0)
+b_redirect_stdout       = True
+# -----------------------------------------
+#
+# -----------------------------------------
+# def handler(signum, frame):   
+#     if "Yes" == pag.confirm(text=f"Ctrl-c was pressed. Do you really want to exit?", buttons=['Yes', 'No']):
+#         exit(0)
                 
 # -----------------------------------------
 # TODO  /en/ or invent /de/
@@ -174,7 +177,7 @@ def assets_save_internals_locally(
 
         # checks
         if not src:
-            print(f"{YELLOW}not src: src: {src} {RESET}")
+            print(f"{YELLOW}assets_save_internals_locally: not src: src: {src} {RESET}")
             continue
         elif wh.url_is_external(src, base):
             print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
@@ -190,10 +193,12 @@ def assets_save_internals_locally(
         # # # # # # # #     print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, abs_src, wh.RESET)
         # # # # # # # # new_src = wh.get_path_local_root_subdomains(abs_src, base)
         
-        abs_src, __is_redirected = wh.get_redirected_url(src, timeout=10)  
+        abs_src = copy.copy(src)
+        abs_src, __is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
         abs_src = wh.link_make_absolute(abs_src, base)
         # abs_src: do NOT change firtzher as it will download the asset
-        new_src = wh.get_path_local_root_subdomains(abs_src, base)
+        new_src = copy.copy(abs_src)
+        new_src = wh.get_path_local_root_subdomains(new_src, base)
        
         if b_strip_ver:
             # http://mysite.com/some_page/file.css?my_var='foo'#frag
@@ -249,7 +254,7 @@ def assets_save_internals_locally(
         # TODO would be better to set tags or change tags or rename tags
         # NOTE this happens as well in app_200
         #no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
-        import copy
+        
         for f in [dq, sq, pa, qu]: ###, no_f]: # dangerous! as quotes may be removed by html-minify
             content_orig =  copy.copy(content)
             content = content.replace(f(src), f(new_src))
@@ -428,7 +433,7 @@ def make_static(
     # perform
     #-----------
     # https://realpython.com/python-zip-function/
-    lists =     [links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
+    lists =    [ links_head_href,   links_body_href,   links_link_href,   links_img,   links_scripts]  # links_head_css,
     suffixes = ["links_head_href", "links_body_href", "links_link_href", "links_img", "links_scripts"]
 
     for links, suffix in zip(lists, suffixes):
@@ -522,7 +527,7 @@ if __name__ == "__main__":
     # -----------------------------------------
     # stdout
     # -----------------------------------------  
-    b_redirect_stdout = True
+
     if b_redirect_stdout:
         path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
         wh.make_dirs(path_log)

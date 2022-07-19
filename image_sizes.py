@@ -25,6 +25,7 @@ import requests
 
 import urllib
 import urllib.parse # selenium seems to urlencode results
+import copy
 
 #-----------------------------------------
 # 
@@ -64,7 +65,8 @@ def __append_to_image_size_tuples(
     if e and url:
 
         # TODO should broken down to 
-        local           = wh.url_transliterate(url)
+        local           = copy.copy(local)
+        local           = wh.url_transliterate(local)
         local           = wh.get_path_local_root_subdomains(local, base)
         local           = rectify_local(local) # strip /
         local_name, ext = os.path.splitext(local)
@@ -76,7 +78,7 @@ def __append_to_image_size_tuples(
             e.size['height'], 
             e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight"),
-            url, # remains unchanged for replacements, but how about iri_to_uri?
+            url,        # remains unchanged for replacements, but how about iri_to_uri?
             "x"
         ]    
         
@@ -126,7 +128,7 @@ def find_all_image_size_tuples(
     pre += "\t"
     
     eu      = set()   
-    bases   = list(bases)
+    #####bases   = list(bases)
     
     def __add(e, url, eu):
         #####url =  urllib.parse.unquote(url) # << !
@@ -264,31 +266,32 @@ def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
     if not os.path.isfile(config.path_image_sizes):
         return
             
-    if True:
+    ############if True:
             
-        res = load_image_size_tuples(b_sort=b_sort, b_reverse=b_reverse)
-            
-        wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
-        wh.list_to_file(res, config.path_image_sizes, mode="a")     
+    res = load_image_size_tuples(b_sort=b_sort, b_reverse=b_reverse)
         
-    else:
-        wh.file_make_unique(config.path_image_sizes, sort=False)
+    wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
+    wh.list_to_file(res, config.path_image_sizes, mode="a")     
         
-        import sys, csv   
-        data = csv.reader(open(config.path_image_sizes), delimiter=',')     
-        import operator
-        # from natsort import natsorted, ns
-        # sortedlist = natsorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)   
-        from natsort import os_sorted
-        sortedlist = os_sorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)
-        wh.list_to_file(sortedlist, config.path_image_sizes, mode="w")
+    # # # else:
+    # # #     pass
+    # # #     #########wh.file_make_unique(config.path_image_sizes, sort=False)
+        
+    # # #     # # # # import sys, csv   
+    # # #     # # # # data = csv.reader(open(config.path_image_sizes), delimiter=',')     
+    # # #     # # # # import operator
+    # # #     # # # # # from natsort import natsorted, ns
+    # # #     # # # # # sortedlist = natsorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)   
+    # # #     # # # # from natsort import os_sorted
+    # # #     # # # # sortedlist = os_sorted(data, key=operator.itemgetter(2), reverse=b_sort_reverse)
+    # # #     # # # # wh.list_to_file(sortedlist, config.path_image_sizes, mode="w")
 
-        """
-        import pandas
-        csvData = pandas.read_csv('myfile.csv')
-        csvData.sort_values(["date"], axis=0, ascending=[False], inplace=True)
-        print(csvData)
-        """
+    # # #     # # # # """
+    # # #     # # # # import pandas
+    # # #     # # # # csvData = pandas.read_csv('myfile.csv')
+    # # #     # # # # csvData.sort_values(["date"], axis=0, ascending=[False], inplace=True)
+    # # #     # # # # print(csvData)
+    # # #     # # # # """
 
     
 #-----------------------------------------
@@ -297,11 +300,11 @@ def file_image_sizes_get_index(index):
     
     if os.path.isfile(config.path_image_sizes):
         with open(config.path_image_sizes, mode="r", encoding="utf-8") as fp:
-            for line in fp:
-                if line.startswith('/'):
-                    subs = line.rstrip('\n').split(',')
-                    assert index < len(subs), f"{index} < {len(subs)}"
-                    res.append(subs[index])
+            lines = fp.readlines()[1:] # skip header
+            for line in lines:
+                subs = line.rstrip('\n').split(',')
+                assert index < len(subs), f"assert issue: {index} < {len(subs)}"
+                res.append(subs[index])
              
     res = wh.links_make_unique(res) 
     res = sorted(res)          
