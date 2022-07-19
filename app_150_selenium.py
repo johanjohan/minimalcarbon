@@ -133,7 +133,7 @@ verbose                 = True
 image_size_tuples       = []
 urls_visited            = []
 
-b_redirect_stdout       = True
+b_redirect_stdout       = False
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -194,8 +194,8 @@ def assets_save_internals_locally(
         # # # # # # # # new_src = wh.get_path_local_root_subdomains(abs_src, base)
         
         abs_src = copy.copy(src)
-        abs_src, __is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
         abs_src = wh.link_make_absolute(abs_src, base)
+        abs_src, __is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
         # abs_src: do NOT change firtzher as it will download the asset
         new_src = copy.copy(abs_src)
         new_src = wh.get_path_local_root_subdomains(new_src, base)
@@ -392,7 +392,7 @@ def make_static(
                 if imgpath != "none" and "url" in imgpath:
                     print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
-                    url = wh._iri_to_uri(url) # driver.find_elements does url encoding --> unquote
+                    url = urllib.parse.unquote(url) # driver.find_elements does url encoding --> unquote
                     links_img.append( url )
                     
     else:           

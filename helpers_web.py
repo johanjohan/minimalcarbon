@@ -894,9 +894,7 @@ def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fra
     """
     import copy
     url_orig = copy.copy(url)
-    
-    #url = unidecode(url)
-    
+        
     if isinstance(url, str):
         (scheme, netloc, path, query, fragment) = urlsplit(url)
         scheme      = unidecode(scheme) if uq_scheme else scheme
@@ -907,8 +905,9 @@ def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fra
         url         = urlunsplit((scheme, netloc, path, query, fragment))
     
     #  url = _iri_to_uri(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False)
-        
-    print(YELLOW, "url_transliterate:", GRAY, url_orig, "-->", YELLOW, url, RESET)
+    
+    if url_orig != url:   
+        print(YELLOW, "url_transliterate:", GRAY, url_orig, "-->", YELLOW, url, RESET)
     return url  
     
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.response
@@ -921,7 +920,7 @@ def _get_request(url, method=None): # 'HEAD'
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
     
     #url_orig    = url
-    url         = url_transliterate(url)
+    ########url         = url_transliterate(url)
     #print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
     
     try:

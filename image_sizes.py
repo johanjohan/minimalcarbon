@@ -4,7 +4,9 @@ may better split image sizes files for keeping track of parent_urls
 the list is getting very large right now
 """
 
-import chromedriver_binary  # pip install chromedriver-binary-auto
+from email.quoprimime import unquote
+import chromedriver_binary
+from dateparser import parse  # pip install chromedriver-binary-auto
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.expected_conditions import visibility_of_element_located
 from selenium.webdriver.support.ui import WebDriverWait
@@ -50,6 +52,8 @@ def __append_to_image_size_tuples(
         print(pre, "ignore:", "None:", wh.RED, url, wh.RESET)
         return
     
+    url = urllib.parse.unquote(url) # safety
+    
     # ignore certain protocols
     if any([(exclude in url) for exclude in config.protocol_excludes]):
         print(pre, "ignore:", "exclude:", wh.YELLOW, config.protocol_excludes, wh.RESET)
@@ -65,7 +69,7 @@ def __append_to_image_size_tuples(
     if e and url:
 
         # TODO should broken down to 
-        local           = copy.copy(local)
+        local           = copy.copy(url)
         local           = wh.url_transliterate(local)
         local           = wh.get_path_local_root_subdomains(local, base)
         local           = rectify_local(local) # strip /
@@ -131,9 +135,7 @@ def find_all_image_size_tuples(
     #####bases   = list(bases)
     
     def __add(e, url, eu):
-        #####url =  urllib.parse.unquote(url) # << !
-        #####url = wh.url_transliterate(url) 
-        url =  wh._iri_to_uri(url) # NEW for driver.find
+        url =  urllib.parse.unquote(url) # << !
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
