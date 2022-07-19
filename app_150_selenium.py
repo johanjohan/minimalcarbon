@@ -182,13 +182,20 @@ def assets_save_internals_locally(
             print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
             continue
 
-        abs_src = wh.link_make_absolute(src, base) # from redirected
-        # re-direction ie ?p=1234
-        # mostly adds a trailing /
-        redirected_src, is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
-        if is_redirected:
-            abs_src = wh.link_make_absolute(redirected_src, base)
-            print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, abs_src, wh.RESET)
+        # # # # # # # # abs_src = wh.url_transliterate(src) # NEW
+        # # # # # # # # abs_src = wh.link_make_absolute(abs_src, base) # from redirected
+        # # # # # # # # # re-direction ie ?p=1234
+        # # # # # # # # # mostly adds a trailing /
+        # # # # # # # # redirected_src, is_redirected = wh.get_redirected_url(abs_src, timeout=10)  
+        # # # # # # # # if is_redirected:
+        # # # # # # # #     abs_src = wh.link_make_absolute(redirected_src, base)
+        # # # # # # # #     print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, abs_src, wh.RESET)
+        # # # # # # # # new_src = wh.get_path_local_root_subdomains(abs_src, base)
+        
+        
+        abs_src, __is_redirected = wh.get_redirected_url(src, timeout=10)  
+        abs_src = wh.link_make_absolute(abs_src, base)
+        # abs_src: do NOT change firtzher as it will download the asset
         new_src = wh.get_path_local_root_subdomains(abs_src, base)
        
         if b_strip_ver:
@@ -214,8 +221,9 @@ def assets_save_internals_locally(
             else:
                 print(f"{YELLOW}\t\t WP_SPECIAL_DIR: new_src: {new_src} {RESET}")
 
-        new_src     = wh.sanitize_filepath_and_url(new_src)
-        new_src     = wh.strip_trailing_slash(new_src)                      # new <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        #new_src     = wh.sanitize_filepath_and_url(new_src)                 # transliterate
+        new_src     = wh.url_transliterate(new_src)                 # transliterate
+        new_src     = wh.strip_trailing_slash(new_src)                      # new rectify
         local_path  = ats(project_folder) + new_src.lstrip('/')
         local_path  = wh.strip_query_and_fragment(local_path) # has no ?# on disk
 
@@ -383,30 +391,33 @@ def make_static(
                     print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
                     ######url = urllib.parse.unquote(url) # !!!
-                    url = wh.iri_to_uri(url) 
+                    ####url = wh.url_transliterate(url) # driver.find_elements does url encoding
                     links_img.append( url )
                     
-        image_sizes.find_all_image_size_tuples(
-            image_size_tuples, 
-            driver, 
-            config.base,
-            config.bases, 
-            b_scan_srcset=False, 
-            pre="\t\t"
-        )
-        print("\t\t", "len(image_size_tuples):", len(image_size_tuples))
-        
-        # to file
-        try:
-            # TODO at the very end create header nd make unique
-            wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
-        except Exception as e:
-            print(wh.RED, e, wh.RESET)   
-            
     else:           
         # this loads ALL images in one go, not just the ones in each page  >> takes some extra time replacing links..
         links_img = image_sizes.file_image_sizes_get_urls()
         #print("links_img", wh.GRAY, *links_img, wh.RESET, sep="\n\t")
+        
+    #-----------
+    # image sizes
+    #-----------                    
+    image_sizes.find_all_image_size_tuples(
+        image_size_tuples, 
+        driver, 
+        config.base,
+        config.bases, 
+        b_scan_srcset=False, 
+        pre="\t\t"
+    )
+    print("\t\t", "len(image_size_tuples):", len(image_size_tuples))
+    
+    # to file
+    try:
+        # TODO at the very end create header nd make unique
+        wh.list_to_file(image_size_tuples, config.path_image_sizes, mode="a")
+    except Exception as e:
+        print(wh.RED, e, wh.RESET)          
             
     #-----------
     # fonts
@@ -515,7 +526,7 @@ if __name__ == "__main__":
     # -----------------------------------------
     # stdout
     # -----------------------------------------  
-    b_redirect_stdout = False
+    b_redirect_stdout = True
     if b_redirect_stdout:
         path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
         wh.make_dirs(path_log)

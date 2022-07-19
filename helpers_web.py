@@ -867,10 +867,8 @@ headers = {
 # # def get_encoding(url):
 # #     return get_content_part(url, 1)
 
-
-# https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
 from urllib.parse import urlsplit, urlunsplit, quote
-def iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = False):
+def _iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = False):
     """
     Convert an IRI to a URI (Python 3).
     """
@@ -885,7 +883,33 @@ def iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = 
         uri         = urlunsplit((scheme, netloc, path, query, fragment))
         
     #print(YELLOW, "iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
-    return uri  
+    return uri     
+
+# https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
+from unidecode import unidecode
+def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False):
+    """
+    urllib.parse.unquote(url)
+    unidecode('kožušček')
+    """
+    
+    url_orig = url.copy()
+    
+    #url = unidecode(url)
+    
+    if isinstance(url, str):
+        (scheme, netloc, path, query, fragment) = urlsplit(url)
+        scheme      = unidecode(scheme) if uq_scheme else scheme
+        netloc      = netloc.encode('idna').decode('utf-8')
+        path        = unidecode(path) if uq_path else path
+        query       = unidecode(query) if uq_query else query           # quote(query) # issue: this also changes ?p= /?p%3D1838
+        fragment    = unidecode(fragment) if uq_fragment else fragment  # quote(fragment)
+        url         = urlunsplit((scheme, netloc, path, query, fragment))
+    
+    #  url = _iri_to_uri(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False)
+        
+    print(YELLOW, "url_transliterate:", GRAY, url_orig, "-->", YELLOW, url, RESET)
+    return url  
     
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.response
 # https://docs.python.org/3/library/email.message.html#email.message.EmailMessage
@@ -897,7 +921,7 @@ def _get_request(url, method=None): # 'HEAD'
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
     
     #url_orig    = url
-    url         = iri_to_uri(url)
+    url         = url_transliterate(url)
     #print("get_response:",  url_orig, "-->", YELLOW, url, RESET)
     
     try:
@@ -1766,8 +1790,8 @@ def sanitize_filepath_and_url(_orig_path,  rep = '_'):
     
     
     from unidecode import unidecode
-    fixedpath = unidecode(fixedpath)        # 3j
-    
+    ######fixedpath = unidecode(fixedpath)        # 3j TRANS LITERATION
+    fixedpath = url_transliterate(fixedpath) # 3j TRANS LITERATION
     
     #fixedpath = fixedpath.replace('?',  rep) # is valid for url
     fixedpath = fixedpath.replace(' ',  rep)

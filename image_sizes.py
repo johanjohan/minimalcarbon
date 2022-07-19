@@ -55,18 +55,17 @@ def __append_to_image_size_tuples(
         #time.sleep(11)
         return
     
-    # ignore external? accept bases
+    # ignore external according to bases
     protocol, loc, path = wh.url_split(url)
-    bases               = list(bases)
-    if not any([(loc in b) for b in bases]):
+    if not any([(loc in b) for b in list(bases)]):
         print(pre, "ignore:", "external:", wh.RED, url, wh.RESET)
         return 
     
     if e and url:
 
         # TODO should broken down to 
-        ###local = '/' + path # no loc as we already have proven it is internal
-        local           = wh.get_path_local_root_subdomains(url, base)
+        local           = wh.url_transliterate(url)
+        local           = wh.get_path_local_root_subdomains(local, base)
         local           = rectify_local(local) # strip /
         local_name, ext = os.path.splitext(local)
         
@@ -77,7 +76,7 @@ def __append_to_image_size_tuples(
             e.size['height'], 
             e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight"),
-            url,
+            url, # remains unchanged for replacements
             "x"
         ]    
         
@@ -130,8 +129,8 @@ def find_all_image_size_tuples(
     bases   = list(bases)
     
     def __add(e, url, eu):
-        ##url =  urllib.parse.unquote(url) # << !
-        url = wh.iri_to_uri(url) 
+        #####url =  urllib.parse.unquote(url) # << !
+        #####url = wh.url_transliterate(url) 
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         
@@ -213,7 +212,7 @@ def find_all_image_size_tuples(
     for e, url in eu:        
         __append_to_image_size_tuples(
             _image_size_tuples,
-            wh.iri_to_uri(url), # double safety...
+            url, 
             base,
             bases,
             e,

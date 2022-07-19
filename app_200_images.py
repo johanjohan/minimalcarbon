@@ -504,7 +504,7 @@ if __name__ == "__main__":
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
                 # NEW put this in app_110 TODO
-                def func_size(path, csv_path, size_thresh, size_large, size_small):
+                def func_size_OLD(path, csv_path, size_thresh, size_large, size_small):
                     
                     # could read this to ram beforehand TODO
 
@@ -530,12 +530,51 @@ if __name__ == "__main__":
                                     
                     if not found:
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET)
-                    
+                                            
                     if (w >= size_thresh or h >= size_thresh) or (not found):
                         return size_large
                     else:
                         return size_small
-                                
+                ### func_size />
+
+                # NEW put this in app_110 TODO
+                def func_size(path, csv_path, size_thresh, size_large, size_small):
+            
+                    # could read this to ram beforehand TODO
+
+                    relpath         = wh.to_posix('/' + os.path.relpath(path, config.project_folder))
+                    relpath         = wh.get_path_local_root_subdomains(relpath, config.base)
+                    relname, ext    = os.path.splitext(relpath)
+                                        
+                    # look through all paths in csv and get size in page
+                    found   = False
+                    w,h     = 0,0
+                    with open(csv_path, mode="r", encoding="utf-8") as fp:
+                        lines = fp.readlines()[1:] # skip header
+                        for line in lines:
+                            c_base, c_path, c_w, c_h, c_nw, c_nh, c_url, c_url_parent = line.split(',')
+                            if relname == c_base:
+                                found = True
+                                w = max(int(c_w), w)
+                                h = max(int(c_h), h)
+                                print("\t\t", wh.GREEN, "found:", c_base, w, h, c_nw, c_nh, wh.RESET)
+                                break # now reverse by width sorted list so highest wh comes first  # can find multiple entries per image --> accumulate bigger w then
+                                    
+                    if not found:
+                        print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET) 
+                        
+                    if found and (w > 0 and h > 0):
+                        return (w, h) # size in page
+                    else:
+                        return size_large
+                                            
+                    if (w >= size_thresh or h >= size_thresh) or (not found):
+                        return size_large
+                    else:
+                        return size_small
+                    
+                ### func_size />
+                                                
                 new_dim = func_size(
                     path, 
                     csv_path=config.path_image_sizes, 
