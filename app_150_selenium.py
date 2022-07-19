@@ -358,43 +358,49 @@ def make_static(
     # images
     #-----------
     if True:
-        # driver.find_element_by_xpath('//a[@href="'+url+'"]')
-        links_img  = h.xpath('//img/@src')
-        links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
-        links_img += wh.get_background_images_from_style_attribute(driver)
-        # TODO need to replace these in css as well
-        links_img += wh.get_background_images_from_stylesheet_file(style_path)
-        
-        for text in h.xpath("//style/text()"):
-            links_img += wh.get_background_images_from_stylesheet_string(text)
-        
-        for text in  h.xpath("//div/@style"):
-            links_img += wh.get_background_images_from_inline_style_tag(text)
-        for text in  h.xpath("//video/@style"):
-            links_img += wh.get_background_images_from_inline_style_tag(text)        
-        # a lot of images in media.
-        for text in  h.xpath("//*/@style"):
-            links_img += wh.get_background_images_from_inline_style_tag(text)
-        
-        if True: 
-        # media.ka    
-            import json
-            for jstring in  h.xpath("//*/@data-vjs_setup"):
-                j = json.loads(jstring)
-                #print(json.dumps(j, indent=4), sep="\n\t\t")
-                print("\t\t\t", j.get("poster", None))
-                links_img.append(j.get("poster", None))
-          
-        if make_static.counter < turns_for_slow_funcs: 
-            print("\t\t", "driver.find_elements: By.XPATH <body>", flush=True)
-            for e in driver.find_elements(By.XPATH, "//body//*"):
-                imgpath = e.value_of_css_property("background-image")
-                if imgpath != "none" and "url" in imgpath:
-                    print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
-                    url = wh.extract_url(imgpath)
-                    url = urllib.parse.unquote(url) # driver.find_elements does url encoding --> unquote
-                    links_img.append( url )
-                    
+        try:
+            # driver.find_element_by_xpath('//a[@href="'+url+'"]')
+            links_img  = h.xpath('//img/@src')
+            links_img += h.xpath('//link[contains(@rel, "icon")]/@href')  # favicon
+            links_img += wh.get_background_images_from_style_attribute(driver)
+            # TODO need to replace these in css as well
+            links_img += wh.get_background_images_from_stylesheet_file(style_path)
+            
+            for text in h.xpath("//style/text()"):
+                links_img += wh.get_background_images_from_stylesheet_string(text)
+            
+            for text in  h.xpath("//div/@style"):
+                links_img += wh.get_background_images_from_inline_style_tag(text)
+            for text in  h.xpath("//video/@style"):
+                links_img += wh.get_background_images_from_inline_style_tag(text)        
+            # a lot of images in media.
+            for text in  h.xpath("//*/@style"):
+                links_img += wh.get_background_images_from_inline_style_tag(text)
+            
+            if False: 
+                # media.ka    
+                import json
+                for jstring in  h.xpath("//*/@data-vjs_setup"):
+                    j = json.loads(jstring)
+                    #print(json.dumps(j, indent=4), sep="\n\t\t")
+                    print("\t\t\t", j.get("poster", None))
+                    links_img.append(j.get("poster", None))
+            
+            if make_static.counter < turns_for_slow_funcs: 
+                print("\t\t", "driver.find_elements: By.XPATH <body>", flush=True)
+                for e in driver.find_elements(By.XPATH, "//body//*"):
+                    imgpath = e.value_of_css_property("background-image")
+                    if "url" in imgpath: # imgpath != "none" and 
+                        print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
+                        url = wh.extract_url(imgpath)
+                        url = urllib.parse.unquote(url) # driver.find_elements does url encoding --> unquote
+                        links_img.append( url )
+                        
+        except Exception as e:
+            print(wh.RED, e, wh.RESET)
+            # imgpath = e.value_of_css_property("background-image")
+            # selenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: element is not attached to the page document
+            exit(1)        
     else:           
         # this loads ALL images in one go, not just the ones in each page  >> takes some extra time replacing links..
         links_img = image_sizes.file_image_sizes_get_urls()
