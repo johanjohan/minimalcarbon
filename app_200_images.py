@@ -97,7 +97,7 @@ if __name__ == "__main__":
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
             "quality":              55, # 66 55
