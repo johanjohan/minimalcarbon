@@ -868,7 +868,7 @@ headers = {
 # #     return get_content_part(url, 1)
 
 from urllib.parse import urlsplit, urlunsplit, quote
-def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False):
+def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False):
     """
     Convert an IRI to a URI (Python 3).
     """
@@ -918,6 +918,8 @@ def _get_request(url, method=None): # 'HEAD'
 
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
+    
+    url = _iri_to_uri(url) # , uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False) # NEW, beware of false umlauts!
     
     #url_orig    = url
     ########url         = url_transliterate(url)
