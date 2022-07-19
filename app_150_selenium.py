@@ -133,7 +133,7 @@ verbose                 = True
 image_size_tuples       = []
 urls_visited            = []
 
-b_redirect_stdout       = False
+b_redirect_stdout       = True
 # -----------------------------------------
 #
 # -----------------------------------------

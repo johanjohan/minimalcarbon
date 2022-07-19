@@ -61,7 +61,7 @@ from selenium.webdriver.chrome.options import Options
 options = Options()
 options.add_argument("--headless") # options.headless = config.headless
 #options.add_argument('--start-maximized')
-options.add_argument("--window-size=1920,1080") # --window-size=1920,1080 # 1600,1080
+options.add_argument("--window-size=1600,1080") # --window-size=1920,1080 # 1600,1080
 options.add_argument('--lang=de')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--incognito')
