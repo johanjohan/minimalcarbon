@@ -76,7 +76,7 @@ def __append_to_image_size_tuples(
             e.size['height'], 
             e.get_attribute("naturalWidth"),    # size on disk
             e.get_attribute("naturalHeight"),
-            url, # remains unchanged for replacements
+            url, # remains unchanged for replacements, but how about iri_to_uri?
             "x"
         ]    
         
@@ -131,6 +131,7 @@ def find_all_image_size_tuples(
     def __add(e, url, eu):
         #####url =  urllib.parse.unquote(url) # << !
         #####url = wh.url_transliterate(url) 
+        url =  wh._iri_to_uri(url) # NEW for driver.find
         eu.add(tuple([e, url]))
         print(wh.CYAN + '.', end='', flush=True)
         

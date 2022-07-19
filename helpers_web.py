@@ -868,7 +868,7 @@ headers = {
 # #     return get_content_part(url, 1)
 
 from urllib.parse import urlsplit, urlunsplit, quote
-def _iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment = False):
+def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False):
     """
     Convert an IRI to a URI (Python 3).
     """
@@ -882,7 +882,7 @@ def _iri_to_uri(iri, uq_scheme=True, uq_path=True, uq_query=False, uq_fragment =
         fragment    = quote(fragment) if uq_fragment else fragment  # quote(fragment)
         uri         = urlunsplit((scheme, netloc, path, query, fragment))
         
-    #print(YELLOW, "iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
+    print(YELLOW, "_iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
     return uri     
 
 # https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
@@ -892,8 +892,8 @@ def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fra
     urllib.parse.unquote(url)
     unidecode('kožušček')
     """
-    
-    url_orig = url.copy()
+    import copy
+    url_orig = copy.copy(url)
     
     #url = unidecode(url)
     

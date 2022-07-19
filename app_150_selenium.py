@@ -113,12 +113,12 @@ import signal
 import pyautogui as pag
 
 import config
-GREEN = config.GREEN
-GRAY = config.GRAY
-RESET = config.RESET
-YELLOW = config.YELLOW
-RED = config.RED
-CYAN = config.CYAN
+GREEN   = config.GREEN
+GRAY    = config.GRAY
+RESET   = config.RESET
+YELLOW  = config.YELLOW
+RED     = config.RED
+CYAN    = config.CYAN
 MAGENTA = config.MAGENTA
 
 # -----------------------------------------
@@ -134,8 +134,6 @@ urls_visited            = []
 
 ###b_extend_rescan_urls    = False
 
-
- 
 def handler(signum, frame):   
     if "Yes" == pag.confirm(text=f"Ctrl-c was pressed. Do you really want to exit?", buttons=['Yes', 'No']):
         exit(0)
@@ -191,7 +189,6 @@ def assets_save_internals_locally(
         # # # # # # # #     abs_src = wh.link_make_absolute(redirected_src, base)
         # # # # # # # #     print("\t", wh.YELLOW, "redirected:", src, wh.RESET, "-->", wh.YELLOW, abs_src, wh.RESET)
         # # # # # # # # new_src = wh.get_path_local_root_subdomains(abs_src, base)
-        
         
         abs_src, __is_redirected = wh.get_redirected_url(src, timeout=10)  
         abs_src = wh.link_make_absolute(abs_src, base)
@@ -390,8 +387,7 @@ def make_static(
                 if imgpath != "none" and "url" in imgpath:
                     print("\t\t\t", wh.CYAN, wh.dq(imgpath), wh.RESET)
                     url = wh.extract_url(imgpath)
-                    ######url = urllib.parse.unquote(url) # !!!
-                    ####url = wh.url_transliterate(url) # driver.find_elements does url encoding
+                    url = wh._iri_to_uri(url) # driver.find_elements does url encoding --> unquote
                     links_img.append( url )
                     
     else:           
