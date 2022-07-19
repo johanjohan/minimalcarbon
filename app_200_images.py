@@ -5,7 +5,7 @@
 """
 import glob, os
 from posixpath import splitext
-from re import X
+#from re import X
 from urllib.parse import urljoin
 import PIL
 from PIL import Image, ImageOps
@@ -116,9 +116,9 @@ if __name__ == "__main__":
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
             "cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           True,
+            "b_colorize":           False,
             "blend_alpha":          0.5, # 0.666 0.8 0.75  
-            "b_enhance_transp":     True,         
+            "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
@@ -504,7 +504,7 @@ if __name__ == "__main__":
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
                 # NEW put this in app_110 TODO
-                def func_size_OLD(path, csv_path, size_thresh, size_large, size_small):
+                def func_size_low_high(path, csv_path, size_thresh, size_large, size_small):
                     
                     # could read this to ram beforehand TODO
 
@@ -538,7 +538,7 @@ if __name__ == "__main__":
                 ### func_size />
 
                 # NEW put this in app_110 TODO
-                def func_size(path, csv_path, size_thresh, size_large, size_small):
+                def func_max_size_in_page(path, csv_path, size_thresh, size_large, size_small):
             
                     # could read this to ram beforehand TODO
 
@@ -564,9 +564,9 @@ if __name__ == "__main__":
                         print("\t\t", wh.RED, "NOT found:", relname, w, h, wh.RESET) 
                         
                     if found and (w > 0 and h > 0):
-                        return (w, h) # size in page
+                        return (w, h) # real size in page
                     else:
-                        return size_large
+                        return size_large # optimistically donate image sizes
                                             
                     if (w >= size_thresh or h >= size_thresh) or (not found):
                         return size_large
@@ -575,7 +575,7 @@ if __name__ == "__main__":
                     
                 ### func_size />
                                                 
-                new_dim = func_size(
+                new_dim = func_max_size_in_page(
                     path, 
                     csv_path=config.path_image_sizes, 
                     size_thresh=pimages.get("size_thresh"), 

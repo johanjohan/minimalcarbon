@@ -868,7 +868,7 @@ headers = {
 # #     return get_content_part(url, 1)
 
 from urllib.parse import urlsplit, urlunsplit, quote
-def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False):
+def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False, pre="\t"):
     """
     Convert an IRI to a URI (Python 3).
     """
@@ -882,12 +882,12 @@ def _iri_to_uri(iri, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=
         fragment    = quote(fragment) if uq_fragment else fragment  # quote(fragment)
         uri         = urlunsplit((scheme, netloc, path, query, fragment))
         
-    print(YELLOW, "_iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
+    print(pre, YELLOW, "_iri_to_uri:", GRAY, iri, "-->", YELLOW, uri, RESET)
     return uri     
 
 # https://stackoverflow.com/questions/4389572/how-to-fetch-a-non-ascii-url-with-urlopen
 from unidecode import unidecode
-def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False):
+def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False, pre="\t"):
     """
     urllib.parse.unquote(url)
     unidecode('kožušček')
@@ -907,7 +907,7 @@ def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fra
     #  url = _iri_to_uri(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fragment = False)
     
     if url_orig != url:   
-        print(YELLOW, "url_transliterate:", GRAY, url_orig, "-->", YELLOW, url, RESET)
+        print(pre, YELLOW, "url_transliterate:", GRAY, url_orig, "-->", YELLOW, url, RESET)
     return url  
     
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.response
@@ -944,10 +944,10 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         return response
     
     except urllib.error.HTTPError as error:
-        print(f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
+        print(pre, f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
         return None
     except Exception as e:
-        print(f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
+        print(pre, f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
         return None
 
 
