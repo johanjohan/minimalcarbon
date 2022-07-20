@@ -90,42 +90,43 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   True,
+        "b_remove_fonts_css":                   False,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False, # <<<<<<<<<<<<<<<<<<<<      
         
         "b_perform_image_conversion":           True,
         "images": {
-            "b_force_write":        False,   # <<<<<<<<<<<<<<<<<<<<        
+            "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              55, # 66 55
+            "quality":              85, # 66 55 85
             
             "size_thresh":          1000, 
-            "size_large":           (1400, 1400), 
-            "size_small":           (553, 553),
+            "size_large":           (1600, 1600),   # (1400, 1400)
+            "size_small":           (553, 553),     # (553, 553)
             
             "resample":             Image.Resampling.LANCZOS, 
             "resample_comment":     "Image.Resampling.LANCZOS", # verbose only
             
             "halftone":             None, # (4, 30) or None # ht.euclid_dot(spacing=halftone[0], angle=halftone[1])
 
-            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", # may be empty string
-            "cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", # may be empty string
-            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", # may be empty string
-            #"cube_lut_path":        None, # may be empty string or None
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6750-STD.cube", # may be empty string
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-6730-STD.cube", 
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube", 
+            #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", 
+            "cube_lut_path":        None, # may be empty string or None
             
             "b_colorize":           False,
-            "blend_alpha":          0.5, # 0.666 0.8 0.75  
+            "blend_alpha":          0.5, # 0.666 0.8 0.75 0.5  
             "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
-            "b_greyscale":          True,
+            "b_greyscale":          False,
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                True, # <<<<<<<<<<<<<<<<<<<<      
+        "b_replace_conversions":                False,     
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -363,7 +364,7 @@ if __name__ == "__main__":
         
         b_force_write = params.get("b_perform_pdf_compression_force")
         
-        if b_force_write and "Cancel" == pag.confirm(text=f"PDF: b_force_write: {b_force_write}", timeout=2000):
+        if b_force_write and "Cancel" == pag.confirm(text=f"PDF: b_force_write: {b_force_write}", timeout=5000):
             exit(0)        
         
         wh.logo("b_perform_pdf_compression")
@@ -450,7 +451,7 @@ if __name__ == "__main__":
         if cube_lut_path:
             shutil.copy(cube_lut_path, config.path_stats)
         
-        if b_force_write and "Cancel" == pag.confirm(text=f"images: b_force_write: {b_force_write}", timeout=2000):
+        if b_force_write and "Cancel" == pag.confirm(text=f"IMAGES: b_force_write: {b_force_write}", timeout=2000):
             exit(0)
             
         print(wh.format_dict(params["images"]))
@@ -567,12 +568,6 @@ if __name__ == "__main__":
                         return (w, h) # real size in page
                     else:
                         return size_large # optimistically donate image sizes
-                                            
-                    if (w >= size_thresh or h >= size_thresh) or (not found):
-                        return size_large
-                    else:
-                        return size_small
-                    
                 ### func_size />
                                                 
                 new_dim = func_max_size_in_page(
@@ -586,7 +581,6 @@ if __name__ == "__main__":
                 image_orig = image.copy()
                 #image_orig  = ImageOps.autocontrast(image_orig.convert("RGB"))
                     
-     
                 if enhance_transp:
                     mask  = wh.get_mask_rgba(image) # after resizing
                     ###mask.save(path + "__mask__.png", 'png', optimize=True, lossless=True) # debug

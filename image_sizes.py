@@ -272,7 +272,7 @@ def file_image_sizes_make_unique(b_sort=True, b_reverse=True):
             
     res = load_image_size_tuples(b_sort=b_sort, b_reverse=b_reverse)
         
-    wh.string_to_file("localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
+    wh.string_to_file("#localbasename,localname,width,height,naturalWidth,naturalHeight,url,url_parent\n", config.path_image_sizes, mode="w")
     wh.list_to_file(res, config.path_image_sizes, mode="a")     
         
     # # # else:

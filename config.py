@@ -129,6 +129,7 @@ path_sitemap_links_internal = crawler_base + "_internal_links.csv"
 path_sitemap_links_external = crawler_base + "_external_links.csv"
 path_sitemap_xml            = crawler_base + "_sitemap.xml"
 path_links_errors           = crawler_base + "_error_links.csv"
+path_sitemap_links_int_diff = crawler_base + "_internal_diff_links.csv"
 
 filename_sitemap            = "sitemap.xml"
 filename_sitemap_gz         = filename_sitemap + ".gz"

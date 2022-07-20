@@ -133,7 +133,8 @@ verbose                 = True
 image_size_tuples       = []
 urls_visited            = []
 
-b_redirect_stdout       = True
+b_redirect_stdout       = False
+b_use_difference_links  = True # usually False
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -499,7 +500,12 @@ if __name__ == "__main__":
     # -----------------------------------------
     # 
     # -----------------------------------------
-    urls = wh.list_from_file(config.path_sitemap_links_internal)
+    if b_use_difference_links:
+        if "Cancel" == pag.confirm(text=f"using b_use_difference_links: {b_use_difference_links}", buttons=['Continue', 'Cancel']):
+            exit(0)
+        urls = wh.list_from_file(config.path_sitemap_links_int_diff)
+    else:
+        urls = wh.list_from_file(config.path_sitemap_links_internal) 
     
     urls = wh.links_remove_comments(urls, '#')
     urls = wh.links_strip_query_and_fragment(urls)

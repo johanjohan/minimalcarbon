@@ -72,13 +72,12 @@ def rectify_links(urls):
     urls = wh.links_sanitize(urls)
     return urls
 
-
 # -----------------------------------------
 #
 # -----------------------------------------
 if __name__ == "__main__":
     
-    pag.alert(text=f"this may be not needed an more!", timeout=10000)  
+    ###pag.alert(text=f"this may be not needed an more!", timeout=10000)  
     
     wh.logo_filename(__file__)
     wh.log("__file__", __file__, filepath=config.path_log_params)
@@ -89,17 +88,12 @@ if __name__ == "__main__":
     # -----------------------------------------     
     wh.file_make_unique(config.path_sitemap_links_internal, True)
     urls = wh.list_from_file(config.path_sitemap_links_internal)
-    
-    # # # # # urls = wh.links_remove_comments(urls, '#')
-    # # # # # urls = wh.links_replace(urls, config.replacements_pre)
-    # # # # # urls = wh.links_remove_externals(urls, config.base)
-    # # # # # urls = wh.links_strip_query_and_fragment(urls)
-    # # # # # urls = wh.links_make_absolute(urls, config.base)
-    # # # # # urls = wh.links_sanitize(urls)
     urls = rectify_links(urls)
+    
     urls_len_orig   = len(urls)    
     urls_orig       = urls.copy()
     links_a_href    = []
+    
     for count, url in enumerate(urls):
         
         url = force_replace_karlsruhe_digital(url)
@@ -154,14 +148,13 @@ if __name__ == "__main__":
                 if href in links_a_href:
                     continue
 
-                # proven status above: get_redirected_url  
                 protocol, loc, path = wh.url_split(href)
                 name, ext = os.path.splitext(path)
                 if ext in valid_exts:
                     print("\t\t", "append:".ljust(n), GREEN, href, RESET)
                     links_a_href.append(href)
                         
-                                        
+                # status also proven in get_redirected_url above                        
                 # status = wh.get_status_code(href)
                 # if status and status < 400:
                 #     name, ext = os.path.splitext(href)
@@ -210,6 +203,7 @@ if __name__ == "__main__":
     urls_diff = list(set(urls) - set(urls_orig))
     urls_diff = wh.links_sanitize(urls_diff)   
     print("len(urls_diff):", len(urls_diff))
+    wh.list_to_file(urls_diff, config.path_sitemap_links_int_diff)             
     
     print("", "additions:", wh.GREEN, *urls_diff, wh.RESET, sep="\n\t")
     wh.log("additions:", urls_diff, filepath=config.path_log_params, echo=False)
