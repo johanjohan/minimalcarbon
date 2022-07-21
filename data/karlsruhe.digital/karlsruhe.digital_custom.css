@@ -127,7 +127,7 @@ footer .footer-bottom {
     background-size: cover;
     filter: brightness(55%) contrast(97%);
     filter: brightness(45%) sepia(100%) saturate(100%) hue-rotate(77deg);
-    padding: 0 1vw
+    padding: 0 0vw
 }
 
 .icon-twitter:hover,
@@ -242,3 +242,13 @@ footer .footer-bottom {
     background-image: url(/wp-content/themes/karlsruhe-digital/images/suchergebnisse_hero_slider_up.webp) !important;
 }
 
+/* iphone overlaps logo with headline */
+
+.hero-swiper {
+    min-height: 650px;
+}
+
+/* statements where partially hidden */
+p.has-background {
+    padding: 20px 0.5vw;
+}

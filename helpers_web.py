@@ -32,6 +32,8 @@ import datetime
 from PIL import Image
 import pillow_avif
 
+from natsort import natsorted, ns
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -605,7 +607,10 @@ def links_sanitize(links):
     links = links_remove_nones(links)
     links = links_strip(links)
     links = links_make_unique(links)
-    links = sorted(links)
+    
+    #links = sorted(links)
+    links = natsorted(links)
+    
     return links
 
 # def links_make_absolute_internals_only(links, base):

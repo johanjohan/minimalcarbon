@@ -19,15 +19,15 @@ import helpers_web as wh
 import config
         
 # init the colorama module
-import colorama
-colorama.init()
-GREEN = colorama.Fore.GREEN
-GRAY = colorama.Fore.LIGHTBLACK_EX
-RESET = colorama.Fore.RESET
-YELLOW = colorama.Fore.YELLOW
-RED = colorama.Fore.RED
-MAGENTA = colorama.Fore.MAGENTA
-CYAN = colorama.Fore.CYAN
+# import colorama
+# colorama.init()
+GREEN = config.GREEN
+GRAY = config.GRAY
+RESET = config.RESET
+YELLOW = config.YELLOW
+RED = config.RED
+CYAN = config.CYAN
+MAGENTA = config.MAGENTA
 
 #-----------------------------------------
 # 

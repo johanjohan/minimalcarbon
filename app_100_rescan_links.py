@@ -50,9 +50,6 @@ start_secs              = time.time()
 # image_size_tuples       = []
 # urls_visited            = []
 
-b_extend_rescan_urls    = True
-
-valid_exts      = [".html", ".htm", ".php", ""] # ""!!!
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -107,12 +104,27 @@ if __name__ == "__main__":
         protocol, loc, path = wh.url_split(url)
         name, ext = os.path.splitext(path) # also splits the domain
         #print("\t", "name", name, "ext", ext)
-        if not ext in valid_exts:
+        if not ext in config.crawler_valid_exts:
             print("\t\t", YELLOW, "skipping:", RED, wh.dq(ext), RESET)
             continue
 
-        n = 15
-        if response := wh.get_response(url, pre="\t"):
+        
+        response = None
+        for i in range(tries := 5):
+            print("\t", f"[{i}] {url}")
+            response = wh.get_response(url, pre="\t")
+            if response:
+                break
+            else:
+                print(YELLOW, end='')
+                time.sleep(2)
+        print(RESET, end='')
+        ### for />
+        
+        
+        if response: ###### := wh.get_response(url, pre="\t"):
+            
+            slen = 15
             
             content = response.read().decode('utf-8')
             url     = rectify(response.url, config.base)  # may be redirected
@@ -150,8 +162,8 @@ if __name__ == "__main__":
 
                 protocol, loc, path = wh.url_split(href)
                 name, ext = os.path.splitext(path)
-                if ext in valid_exts:
-                    print("\t\t", "append:".ljust(n), GREEN, href, RESET)
+                if ext in config.crawler_valid_exts:
+                    print("\t\t", "append:".ljust(slen), GREEN, href, RESET)
                     links_a_href.append(href)
                         
                 # status also proven in get_redirected_url above                        
@@ -159,13 +171,13 @@ if __name__ == "__main__":
                 # if status and status < 400:
                 #     name, ext = os.path.splitext(href)
                 #     if ext in valid_exts:
-                #         print("\t\t", "append:".ljust(n), GREEN, href, RESET)
+                #         print("\t\t", "append:".ljust(slen), GREEN, href, RESET)
                 #         links_a_href.append(href)
                 # else:
-                #     print("\t\t", "bad status:".ljust(n), RED, status, href, RESET)
+                #     print("\t\t", "bad status:".ljust(slen), RED, status, href, RESET)
                     
         else:
-            print(RED, "error logged:".ljust(n), config.path_links_errors)
+            print(RED, "error logged:".ljust(slen), config.path_links_errors)
             wh.string_to_file(url + "\n", config.path_links_errors, mode="a")                
         ###break # debug
     ### for />

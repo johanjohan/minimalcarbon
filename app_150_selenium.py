@@ -134,7 +134,7 @@ image_size_tuples       = []
 urls_visited            = []
 
 b_redirect_stdout       = False
-b_use_difference_links  = True # usually False
+b_use_difference_links  = False # usually False
 # -----------------------------------------
 #
 # -----------------------------------------
