@@ -209,6 +209,7 @@ def color_from_string(value):
                 for key in ['rgb(', 'hsl(', 'hwb(']:
                     if key in value:
                         values = value.split(key)[1].replace('(','').split(')')[0]
+                        values = values.replace('%', '')
                         print(type(values), values)
                         values = tuple(map(float, values.split(',')))
                         print(type(values), values)
@@ -217,15 +218,18 @@ def color_from_string(value):
                             r,g,b = values
                             color = pack(r,g,b,255)
                         elif key == 'hsl(':
+                            print(wh.RED, "BUGGY", key)
                             h,s,l = values 
-                            r,g,b = colorsys.hls_to_rgb(h/360.0, l/100.0, s/100.0) # why is this reversed? Hue Lightness Saturation  
+                            h,s,l = h/360.0, s/100.0, l/100.0
+                            print("h,s,l", h,s,l)
+                            r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation  
                             color = unnormalize(r,g,b,1)
                         else:
                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
                             exit(1)   
                     
                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
-                        
+                        time.sleep(3)
                         break
                     
                     
@@ -233,6 +237,7 @@ def color_from_string(value):
                 for key in ['rgba(', 'hsla(']: # colorsys.hsv_to_rgb(1,1,1)
                     if key in value:
                         values = value.split(key)[1].replace('(','').split(')')[0]
+                        values = values.replace('%', '')
                         #print(type(values), values)
                         values = tuple(map(float, values.split(',')))
                         #print(type(values), values)
@@ -242,8 +247,11 @@ def color_from_string(value):
                             print("r,g,b,a", r,g,b,a)
                             color = pack(r,g,b,a*255.0)
                         elif key == "hsla(":
+                            print(wh.RED, "BUGGY", key)
                             h,s,l,a = values 
-                            r,g,b = colorsys.hls_to_rgb(h/360.0, l/100.0, s/100.0) # why is this reversed? Hue Lightness Saturation                  
+                            h,s,l = h/360.0, s/100.0, l/100.0
+                            print("h,s,l", h,s,l)
+                            r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation                  
                             color = unnormalize(r,g,b,a)
                         else:
                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
@@ -251,6 +259,7 @@ def color_from_string(value):
                             
                                                     
                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
+                        time.sleep(3)
                         break
 
                 
@@ -258,7 +267,7 @@ def color_from_string(value):
         color = None
         print(wh.RED, "ERR", e, wh.RESET)
         
-            
+    # named color?       
     if not color:
         # check for webcolors
         print("named", value)
