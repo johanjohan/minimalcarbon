@@ -935,29 +935,24 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         context     = ssl._create_unverified_context()
         response    = urllib.request.urlopen(req, context=context, timeout=timeout)
         
-        #print("get_response:", url)
         print(pre, vt_http_status_code(response.status), "|", vt_b(url != response.url), response.url)
         
-        if False:
-            #print(GRAY + "\t\t", response.getheaders(), RESET) # list of two-tuples
-            print(GRAY + "\t\t" + response.headers.as_string().replace("\n", "\n\t\t") + RESET)
-        if False:
-            #content = response.read().decode(response.headers.get_content_charset())
-            content = response.read().decode('utf-8')
-            print(CYAN, content, RESET) # content
-            
         return response
     
     except urllib.error.HTTPError as error:
-        print(pre, f"{RED}[!] get_response: {url} error.code: {error.code} --> None {RESET}")
+        print(pre, f"{RED}[!] get_response: {url} HTTPError error.code: {error.code} --> None {RESET}") # error.code is status
         return None
+    except urllib.error.URLError as error:
+        print(pre, f"{RED}[!] get_response: {url} URLError error.code: {error.code} --> None {RESET}")
+        return None        
     except Exception as e:
         print(pre, f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
         return None
 
 def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre="\t"):
     for t in range(tries):
-        print(pre, f"[{t}] get_response_tries: {GRAY}{url}")
+        #print(pre, f"[{t}] get_response_tries: {GRAY}{url}", end= ' ')
+        print(pre, f"[{t}] ", end= '')
         if response := get_response(url, timeout=timeout, method=method, pre=pre):
             break
         else:
@@ -968,14 +963,25 @@ def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre
     print(RESET, end='')
     return response
 
+#### response.headers.get_content_charset()
+
 def get_response_content(response):
     return response.read().decode('utf-8')
 
-def get_response_headers(response):
-    return response.headers
+# def get_response_headers(response):
+#     return response.headers
+
+def get_response_headers_as_string(response):
+    return response.headers.as_string() 
+
+def get_response_headers_tuples(response):
+    return response.getheaders() 
 
 def get_response_mime_type(response):
-    return get_response_headers(response).get_content_type()
+    return response.headers.get_content_type()
+
+def get_response_status(response):
+    return response.status
 
 def get_response_redirected_url(response):
     return response.url
