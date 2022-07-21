@@ -956,18 +956,30 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         return None
 
 def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre="\t"):
-    response = None
     for t in range(tries):
         print(pre, f"[{t}] get_response_tries: {GRAY}{url}")
-        response = get_response(url, timeout=timeout, method=method, pre=pre)
-        if response:
+        if response := get_response(url, timeout=timeout, method=method, pre=pre):
             break
         else:
             print(YELLOW, end='')
+            response = None
             time.sleep(sleep_secs)
     ### for />
     print(RESET, end='')
     return response
+
+def get_response_content(response):
+    return response.read().decode('utf-8')
+
+def get_response_headers(response):
+    return response.headers
+
+def get_response_mime_type(response):
+    return get_response_headers(response).get_content_type()
+
+def get_response_redirected_url(response):
+    return response.url
+
     
 """
     Date: Tue, 21 Jun 2022 07:10:21 GMT
@@ -1009,6 +1021,7 @@ def was_redirected(url, timeout=10):
     new_url =  get_redirected_url(url, timeout=timeout)
     return (new_url != url)
 
+
 def get_mime_type(url, timeout=10):
     try:
         contentType =  get_response(url, timeout=timeout, method='HEAD').headers.get_content_type()
@@ -1035,6 +1048,8 @@ def get_status_code(url, timeout=10):
     
     #print("get_status_code:", status, url)   
     return status
+
+
 
 def get_content(url, timeout=10, pre=""):
     try:
