@@ -81,20 +81,26 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
         return urls
     
     # get content
-    for tries in range(10):
-        print(MAGENTA + f"[{tries}] tries: {url}", RESET)
-        wh.sleep_random(wait_secs, verbose_string=url) # NEW
-        response    = wh.get_response(url, timeout=config.timeout)
-        if response:
-            url         = response.url
-            url         = rectify(url, config.base)
-            content     = response.read().decode('utf-8')
-            if content:
-                break
-        else:
-            print(RED, "request failed...sleep and try again...", url, RESET)
-            time.sleep(1)
+    # # # # for tries in range(10):
+    # # # #     print(MAGENTA + f"[{tries}] tries: {url}", RESET)
+    # # # #     wh.sleep_random(wait_secs, verbose_string=url) # NEW
+    # # # #     response    = wh.get_response(url, timeout=config.timeout)
+    # # # #     if response:
+    # # # #         url         = response.url
+    # # # #         url         = rectify(url, config.base)
+    # # # #         content     = response.read().decode('utf-8')
+    # # # #         if content:
+    # # # #             break
+    # # # #     else:
+    # # # #         print(RED, "request failed...sleep and try again...", url, RESET)
+    # # # #         time.sleep(1)
             
+    if response := wh.get_response_tries(url, timeout=config.timeout, tries=10, sleep_secs=2):
+        url         =wh.get_response_redirected_url(response) #  response.url  
+        url         = rectify(url, config.base)
+        content     = response.read().decode('utf-8')
+            
+                    
     if not content:
         print(RED, "get_all_website_links:", "not content:", url, RESET)
         return urls
