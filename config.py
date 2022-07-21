@@ -1,4 +1,7 @@
 """ 
+    use AI to analyse image tags
+
+
     the ratio tech vs content
         chars
         pixels

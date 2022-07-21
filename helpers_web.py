@@ -955,7 +955,20 @@ def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
         print(pre, f"{RED}[!] get_response: {url} Exception: {e} --> None {RESET}")
         return None
 
-
+def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre="\t"):
+    response = None
+    for t in range(tries):
+        print(pre, f"[{t}] get_response_tries: {GRAY}{url}")
+        response = get_response(url, timeout=timeout, method=method, pre=pre)
+        if response:
+            break
+        else:
+            print(YELLOW, end='')
+            time.sleep(sleep_secs)
+    ### for />
+    print(RESET, end='')
+    return response
+    
 """
     Date: Tue, 21 Jun 2022 07:10:21 GMT
     Server: Apache/2.4.54 (Unix)

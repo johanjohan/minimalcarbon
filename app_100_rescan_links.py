@@ -49,7 +49,7 @@ start_secs              = time.time()
 
 # image_size_tuples       = []
 # urls_visited            = []
-
+err_cnt = 0
 # -----------------------------------------
 #
 # -----------------------------------------
@@ -109,17 +109,20 @@ if __name__ == "__main__":
             continue
 
         
-        response = None
-        for i in range(tries := 5):
-            print("\t", f"[{i}] {url}")
-            response = wh.get_response(url, pre="\t")
-            if response:
-                break
-            else:
-                print(YELLOW, end='')
-                time.sleep(2)
-        print(RESET, end='')
-        ### for />
+        # response = None
+        # for i in range(tries := 5):
+        #     print("\t" + f"[{i}] {url}")
+        #     response = wh.get_response(url, pre="\t")
+        #     if response:
+        #         break
+        #     else:
+        #         print(RED, end='')
+        #         time.sleep(2)
+        #         err_cnt += 1
+        # print(RESET, end='')
+        # ### for />
+        
+        response = wh.get_response_tries(url, tries=5, sleep_secs=2, pre="\t")
         
         
         if response: ###### := wh.get_response(url, pre="\t"):
@@ -154,7 +157,8 @@ if __name__ == "__main__":
                 if href in links_a_href:
                     continue
 
-                href, is_redirected = wh.get_redirected_url(href)
+                ###href, is_redirected = wh.get_redirected_url(href)
+                href = response.url # may be redirected
                 href = rectify(href, config.base)
                 
                 if href in links_a_href:
@@ -166,7 +170,7 @@ if __name__ == "__main__":
                     print("\t\t", "append:".ljust(slen), GREEN, href, RESET)
                     links_a_href.append(href)
                         
-                # status also proven in get_redirected_url above                        
+                # status also proven in get_redirected_url above --> re_respsonse avove                       
                 # status = wh.get_status_code(href)
                 # if status and status < 400:
                 #     name, ext = os.path.splitext(href)
@@ -222,6 +226,8 @@ if __name__ == "__main__":
 
       
     # all done
-    wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
+    wh.log(f"err_cnt: {err_cnt}", filepath=config.path_log_params)
+    #wh.log("all done: duration: {:.1f}m".format((time.time() - start_secs)/60.0), filepath=config.path_log_params)
+    wh.log(f"all done: duration: {((time.time() - start_secs)/60.0):.1f}m", filepath=config.path_log_params)
 
     exit(0)
