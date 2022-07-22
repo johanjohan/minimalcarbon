@@ -1680,6 +1680,9 @@ def string_reverse(s):
 def string_remove_whitespace(s):
     return " ".join(s.split())
 
+def string_remove_multiple_spaces(s):
+    return " ".join(s.split())
+
 # -----------------------------------------
 #
 # -----------------------------------------    

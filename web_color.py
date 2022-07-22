@@ -1,4 +1,15 @@
 """
+
+import js2py
+
+squareofNum = "function f(x) {return x*x;}"
+
+result = js2py.eval_js(squareofNum)
+
+print(result(5))
+
+pip install js2py
+-------------------------------------------------------------------------
 https://docs.python.org/3/library/colorsys.html
 
 The colorsys module defines bidirectional conversions of color values between 
@@ -161,13 +172,132 @@ def lut_convert_rgb(lut, r,g,b):
 # image = image.filter(lut)
 
 # https://developer.mozilla.org/en-US/docs/Web/CSS/color
-def property_is_color_XXX1(property):
+def property_has_color(property):
     # inherit none transparent, variables
     return any(e in property.value for e in ['#', 'rgb', 'hsl', 'rgba', 'hsla', 'hwb']) # may as well be a named color
 
-def property_is_color(property):
-    b = any(e in property.name for e in ['color', 'border']) # may as well be a named color
+# https://www.w3.org/wiki/CSS/Properties/color/keywords
+# https://www.w3.org/TR/css-color-3/
+def property_has_color_OLD(property):
+    b = False
+    
+    # b = any(e in property.name for e in [
+    #     'color', 
+    #     'background', 
+    #     'border',
+    # ]) 
+    
+    # try named color
+    if not b:
+        for val in property.value.split(' '):
+            if any(key in val for key in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']) or is_named_color(val):
+                b = True
+                break            
+            
     return b
+
+def property_has_color(property):
+    value = property.value.replace('  ', ' ').replace(', ', ',').replace('( ', '(').replace(' )', ')')
+    #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
+    for val in value.split(' '):
+        #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
+        if any(key in val for key in ['#', 'rgb', 'hsl']) or is_named_color(val):
+           return True            
+    return False
+
+def get_parenthesis(s):
+    ret = s[s.find("(")+1:s.find(")")]
+    print(wh.YELLOW, "get_parenthesis:", s, "-->", ret, wh.RESET)
+    return ret
+
+def string_to_color(string):
+    
+    from selenium.webdriver.support.color import Color
+        
+    # TODO could be multiple cols in string
+    rgba = []
+    
+    value = string
+    value = wh.string_remove_control_characters(value)
+    value = wh.string_remove_multiple_spaces(value)
+    #value = value.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ')
+    value = value.replace(', ', ',').replace('( ', '(').replace(' )', ')').replace(';', ' ')
+    #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
+        
+    print("\t"*0, value)
+    for val in value.split(' '):
+        
+        #####r,g,b,a = 0,0,0,255
+        
+        ###print("\t"*1, val)
+        
+        try:
+            rgba.append(Color.from_string(val)) # selenium eats it all ! wow
+        except:
+            pass
+        
+        # # # if '#' in val:
+        # # #     color = Color.from_string(val)
+        # # #     # r,g,b = chromato.convert.hex_to_rgb(
+        # # #     #     chromato.parse.parse_hex(val)
+        # # #     # )
+        # # #     # rgba.append((r,g,b,a))
+        # # #     rgba.append(color)
+            
+        # # # elif 'rgba' in val:
+        # # #     # # OMG https://www.selenium.dev/documentation/webdriver/additional_features/colors/
+        # # #     # # https://github.com/sergius02/ulauncher-colorconverter/blob/2d5e2bc17e89f1f1dc561f73e68ea574e0be844a/converter.py
+        # # #     # values = get_parenthesis(val)
+        # # #     # r,g,b =  chromato.parse.parse_rgb(get_parenthesis(val))
+        # # #     # print("rgba: r,g,b", r,g,b)
+        # # #     # pass
+        # # #     color = Color.from_string(val)
+        # # #     rgba.append(color)
+            
+        # # # elif 'hsla' in val:
+        # # #     color = Color.from_string(val)
+        # # #     rgba.append(color)
+            
+        # # # elif 'rgb' in val:
+        # # #     color = Color.from_string(val)
+        # # #     rgba.append(color)
+            
+        # # # elif 'hsl' in val:
+        # # #     color = Color.from_string(val)
+        # # #     rgba.append(color)
+            
+        # # # elif 'hwb' in val:
+        # # #     color = Color.from_string(val)
+        # # #     rgba.append(color)
+    
+        # # # # elif is_named_color(val):
+        # # # # #    r,g,b = webcolors.name_to_rgb(val.strip())
+        # # # # #    rgba.append((r,g,b,a))
+        # # # #     color = Color.from_string(val)
+        
+        # # # else:
+        # # #     try:
+        # # #         color = Color.from_string(val)
+        # # #         rgba.append(color)
+        # # #     except:
+        # # #         color = None
+       
+    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n\t")  
+    ##print("selenium color", wh.GREEN, color, wh.RESET)  
+       
+                
+    return None
+
+def named_color_to_rgba(cstring):
+    try:
+        r,g,b = webcolors.name_to_rgb(cstring.strip())
+        return  (r,g,b,255)
+    except Exception as e:
+        #print(wh.RED, "is_named_color:", e, wh.RESET) 
+        return None    
+    
+def is_named_color(cstring):
+    return False if not named_color_to_rgba(cstring) else True
     
 def get_color_start(value):
     for start in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']: # could as well be a named webcolor!!!!
@@ -270,7 +400,7 @@ def color_from_string(value):
     # named color?       
     if not color:
         # check for webcolors
-        print("named", value)
+        print("named", value, is_named_color(value))
         try:
             values = value.split(' ')[-1]
             print(type(values), values)
@@ -283,7 +413,7 @@ def color_from_string(value):
 
     return color
 
-def property_to_color(property):
+def property_to_color_ORIG(property):
 
     # if 'color' in property.name:
     #     delim = get_color_start(property.value)
@@ -354,6 +484,34 @@ def property_to_color(property):
 # https://pythonhosted.org/cssutils/docs/utilities.html
 if __name__ == "__main__":
     
+    import chromato 
+    print( string_to_color("#ff0000") )
+    print( string_to_color("#ff0000") )
+    print( string_to_color("#f00") )
+    print( string_to_color("background: border-box #f00;") )
+    print( string_to_color("border-box #f00;") )
+    print( string_to_color("background: #f00;") )
+    print( string_to_color("background: purple;") )
+    print( string_to_color("background: red;") )
+    print( string_to_color("background: white;") )
+    print( string_to_color("background: blue;") )
+    print( string_to_color("background: rgba(0,0,255,1);") )
+    print( string_to_color("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
+
+    
+    exit(0)
+    
+    # https://pypi.org/project/Js2Py/
+    # https://github.com/PiotrDabkowski/Js2Py
+    import js2py
+    js2py.eval_js('console.log( "Hello World!" )')
+    add = js2py.eval_js('function add(a, b) {return a + b}')
+    result = add(1, 2) + 3
+    print("result", result)
+    squareofNum = js2py.eval_js("function f(x) {return x*x;}")
+    print("result", squareofNum(5))
+    #exit(0)
+    
     # lut = pillow_lut.load_cube_file(
     #     "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube" # xIWL_C-9730-STD.cube
     # )
@@ -375,6 +533,19 @@ if __name__ == "__main__":
     # def property_value_is_color(val):
     #     return any(e in val for e in ['#', 'rgb', 'hsl', 'rgba', 'hsla']) # may as well be a named color
     
+    # pip install chromato
+    # https://github.com/vikpe/chromato/blob/f11556bde953fd6999187774a3de1e978f32b06c/README.md
+    from chromato.spaces import Color
+    import chromato 
+    red = Color(255, 0, 0)
+    print(red.cmyk )   
+    print(red.hex )   
+    print(red.rgb, red.rgb.r )   
+    print(red.hsl )   
+    print(red.hsv )   
+    #exit(0)
+    
+    
     colors = []
     for file in files:
         print("\t"*0, wh.CYAN, file, wh.RESET)
@@ -384,20 +555,34 @@ if __name__ == "__main__":
             
             print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET)
             
-            for rule in sheet.cssRules:       
+            for rule in sheet: # .cssRules:       
                 print("\t"*2, rule.type, cssutils.css.CSSRule._typestrings[rule.type])
                 
-                if rule.type in [cssutils.css.CSSRule.STYLE_RULE, cssutils.css.CSSRule.STYLE_RULE]:
-                                
+                if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
+                    print("\t"*3,   rule.selectorText )       
                     for property in rule.style:
-                        print("\t"*3, wh.CYAN, property.name, wh.RESET, property.value, wh.RESET)
-                        if property_is_color(property):
-                            print("\t"*4, wh.YELLOW, property.value, wh.RESET)
-                            colors.append((property.name, property.value, color_from_string(property.value)))
+                        print("\t"*4,   property.name , end=' ')       
+                        if property_has_color(property):
+                            print(wh.GREEN, property.value, wh.RESET)
+                            pass
+                        else:
+                            print(wh.GRAY, property.value, wh.RESET)
+                            pass
                             
-                            ## now isolate that color, convert via lut and replace
+                        # if 'color' in property.name:
+                        #     color = property.value
+                        # elif property.name == 'background':
+                        #     values = property.value.split(' ')
+                        #     color = property.value
+                        
+                        # print("\t"*3, wh.CYAN, property.name, wh.RESET, property.value, wh.RESET)
+                        # if property_is_color(property):
+                        #     print("\t"*4, wh.YELLOW, property.value, wh.RESET)
+                        #     colors.append((property.name, property.value, color_from_string(property.value)))
                             
-                            property_to_color(property)
+                        #     ## now isolate that color, convert via lut and replace
+                            
+                        #     property_to_color(property)
                             
                             
  
