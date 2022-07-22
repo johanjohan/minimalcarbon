@@ -170,7 +170,7 @@ def lut_convert_rgb(lut, r,g,b):
 # https://www.selenium.dev/documentation/webdriver/additional_features/colors/
 def lut_convert_selenium_color(lut, color):
     l = lut_convert_rgb_tuple(lut, (color.red, color.green, color.blue))
-    return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # prev alpha
+    return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # preserve alpha
     
 # if is_transp:
 #     image = image.convert("RGBA")
@@ -232,69 +232,17 @@ def string_to_selenium_colors(string):
         
     print("\t"*0, value)
     for val in value.split(' '):
-        
-        #####r,g,b,a = 0,0,0,255
-        
-        ###print("\t"*1, val)
-        
         try:
-            rgba.append(Color.from_string(val)) # selenium eats it all ! wow
-            col = Color.from_string(val)
-            print(col.rgba, "|", col.red, col.green, col.blue, col.alpha, "|", col.hex)
+            col = Color.from_string(val) # selenium eats it all ! wow
+            rgba.append(col) 
+            print(col.rgba, "|", col.red, col.green, col.blue, col.alpha, "|", col.hex, "\n\n")
         except:
             pass
-        
-        # # # if '#' in val:
-        # # #     color = Color.from_string(val)
-        # # #     # r,g,b = chromato.convert.hex_to_rgb(
-        # # #     #     chromato.parse.parse_hex(val)
-        # # #     # )
-        # # #     # rgba.append((r,g,b,a))
-        # # #     rgba.append(color)
-            
-        # # # elif 'rgba' in val:
-        # # #     # # OMG https://www.selenium.dev/documentation/webdriver/additional_features/colors/
-        # # #     # # https://github.com/sergius02/ulauncher-colorconverter/blob/2d5e2bc17e89f1f1dc561f73e68ea574e0be844a/converter.py
-        # # #     # values = get_parenthesis(val)
-        # # #     # r,g,b =  chromato.parse.parse_rgb(get_parenthesis(val))
-        # # #     # print("rgba: r,g,b", r,g,b)
-        # # #     # pass
-        # # #     color = Color.from_string(val)
-        # # #     rgba.append(color)
-            
-        # # # elif 'hsla' in val:
-        # # #     color = Color.from_string(val)
-        # # #     rgba.append(color)
-            
-        # # # elif 'rgb' in val:
-        # # #     color = Color.from_string(val)
-        # # #     rgba.append(color)
-            
-        # # # elif 'hsl' in val:
-        # # #     color = Color.from_string(val)
-        # # #     rgba.append(color)
-            
-        # # # elif 'hwb' in val:
-        # # #     color = Color.from_string(val)
-        # # #     rgba.append(color)
-    
-        # # # # elif is_named_color(val):
-        # # # # #    r,g,b = webcolors.name_to_rgb(val.strip())
-        # # # # #    rgba.append((r,g,b,a))
-        # # # #     color = Color.from_string(val)
-        
-        # # # else:
-        # # #     try:
-        # # #         color = Color.from_string(val)
-        # # #         rgba.append(color)
-        # # #     except:
-        # # #         color = None
        
     print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n\t")  
     ##print("selenium color", wh.GREEN, color, wh.RESET)  
        
-                
-    return rgba
+    return rgba if rgba else None # TODO ??? or []
 
 def named_color_to_rgba(cstring):
     try:
@@ -465,6 +413,7 @@ def is_named_color(cstring):
 # https://pythonhosted.org/cssutils/docs/utilities.html
 if __name__ == "__main__":
     
+    
     import chromato 
     print( string_to_selenium_colors("#ff0000") )
     print( string_to_selenium_colors("#ff0000") )
@@ -482,6 +431,8 @@ if __name__ == "__main__":
     print( string_to_selenium_colors("#ff0000ff") )
     print( string_to_selenium_colors("#ff00007f") )
     print( string_to_selenium_colors("background: rgba(0,0,255,0.5);") )
+    print( string_to_selenium_colors("unknown_color") )
+    print( string_to_selenium_colors("some ramp: #f00 to #0f0 to #00f") )
     
     exit(0)
     
