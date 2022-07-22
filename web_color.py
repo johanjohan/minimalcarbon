@@ -203,8 +203,17 @@ def property_has_color_OLD(property):
             
     return b
 
+
+def __property_color_cleanup(value):
+    value = wh.string_remove_control_characters(value)
+    value = wh.string_remove_multiple_spaces(value)
+    for fr, to in [(', ', ','), (';', ' '), ('( ', '('), (' )', ')')]:
+        value = value.replace(fr, to)
+    # # # #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
+    return value
+    
 def property_has_color(property):
-    value = property.value.replace('  ', ' ').replace(', ', ',').replace('( ', '(').replace(' )', ')')
+    value = __property_color_cleanup(property.value)
     #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
     for val in value.split(' '):
         #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
@@ -212,24 +221,15 @@ def property_has_color(property):
            return True            
     return False
 
-def get_parenthesis(s):
+def string_extract_parenthesis(s):
     ret = s[s.find("(")+1:s.find(")")]
     print(wh.YELLOW, "get_parenthesis:", s, "-->", ret, wh.RESET)
     return ret
 
-
-def string_to_selenium_colors(string):
+def string_extract_selenium_colors(value):
     
-    # TODO could be multiple cols in string
-    rgba = []
-    
-    value = string
-    value = wh.string_remove_control_characters(value)
-    value = wh.string_remove_multiple_spaces(value)
-    #value = value.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ')
-    value = value.replace(', ', ',').replace('( ', '(').replace(' )', ')').replace(';', ' ')
-    #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
-        
+    rgba = []                           # TODO may be multiple cols in string
+    value = __property_color_cleanup(value)
     print("\t"*0, value)
     for val in value.split(' '):
         try:
@@ -244,9 +244,9 @@ def string_to_selenium_colors(string):
        
     return rgba if rgba else None # TODO ??? or []
 
-def named_color_to_rgba(cstring):
+def named_color_to_rgba(named_color_string):
     try:
-        r,g,b = webcolors.name_to_rgb(cstring.strip())
+        r,g,b = webcolors.name_to_rgb(named_color_string.strip())
         return (r,g,b,255)
     except Exception as e:
         #print(wh.RED, "is_named_color:", e, wh.RESET) 
@@ -415,24 +415,24 @@ if __name__ == "__main__":
     
     
     import chromato 
-    print( string_to_selenium_colors("#ff0000") )
-    print( string_to_selenium_colors("#ff0000") )
-    print( string_to_selenium_colors("#f00") )
-    print( string_to_selenium_colors("background: border-box #f00;") )
-    print( string_to_selenium_colors("border-box #f00;") )
-    print( string_to_selenium_colors("background: #f00;") )
-    print( string_to_selenium_colors("background: purple;") )
-    print( string_to_selenium_colors("background: red;") )
-    print( string_to_selenium_colors("background: white;") )
-    print( string_to_selenium_colors("background: blue;") )
-    print( string_to_selenium_colors("background: rgba(0,0,255,1);") )
-    print( string_to_selenium_colors("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
+    print( string_extract_selenium_colors("#ff0000") )
+    print( string_extract_selenium_colors("#ff0000") )
+    print( string_extract_selenium_colors("#f00") )
+    print( string_extract_selenium_colors("background: border-box #f00;") )
+    print( string_extract_selenium_colors("border-box #f00;") )
+    print( string_extract_selenium_colors("background: #f00;") )
+    print( string_extract_selenium_colors("background: purple;") )
+    print( string_extract_selenium_colors("background: red;") )
+    print( string_extract_selenium_colors("background: white;") )
+    print( string_extract_selenium_colors("background: blue;") )
+    print( string_extract_selenium_colors("background: rgba(0,0,255,1);") )
+    print( string_extract_selenium_colors("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
 
-    print( string_to_selenium_colors("#ff0000ff") )
-    print( string_to_selenium_colors("#ff00007f") )
-    print( string_to_selenium_colors("background: rgba(0,0,255,0.5);") )
-    print( string_to_selenium_colors("unknown_color") )
-    print( string_to_selenium_colors("some ramp: #f00 to #0f0 to #00f") )
+    print( string_extract_selenium_colors("#ff0000ff") )
+    print( string_extract_selenium_colors("#ff00007f") )
+    print( string_extract_selenium_colors("background: rgba(0,0,255,0.5);") )
+    print( string_extract_selenium_colors("unknown_color") )
+    print( string_extract_selenium_colors("some ramp: #f00 to #0f0 to #00f") )
     
     exit(0)
     
@@ -483,6 +483,9 @@ if __name__ == "__main__":
     
     colors = []
     for file in files:
+        
+        make copies of files with a date
+        
         print("\t"*0, wh.CYAN, file, wh.RESET)
         try:
             sheet = cssutils.parseFile(file)
