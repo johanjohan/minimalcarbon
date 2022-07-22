@@ -138,7 +138,9 @@ import cssutils
 import time
 import pillow_lut 
 import webcolors
-import colorsys
+#import colorsys
+from selenium.webdriver.support.color import Color
+
 
 #-----------------------------------------
 # 
@@ -164,6 +166,11 @@ def lut_convert_rgb_tuple(lut, rgb):
     
 def lut_convert_rgb(lut, r,g,b):
     return lut_convert_rgb_tuple(lut, (r,g,b))
+    
+# https://www.selenium.dev/documentation/webdriver/additional_features/colors/
+def lut_convert_selenium_color(lut, color):
+    l = lut_convert_rgb_tuple(lut, (color.red, color.green, color.blue))
+    return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # prev alpha
     
 # if is_transp:
 #     image = image.convert("RGBA")
@@ -210,10 +217,9 @@ def get_parenthesis(s):
     print(wh.YELLOW, "get_parenthesis:", s, "-->", ret, wh.RESET)
     return ret
 
-def string_to_color(string):
+
+def string_to_selenium_colors(string):
     
-    from selenium.webdriver.support.color import Color
-        
     # TODO could be multiple cols in string
     rgba = []
     
@@ -233,6 +239,8 @@ def string_to_color(string):
         
         try:
             rgba.append(Color.from_string(val)) # selenium eats it all ! wow
+            col = Color.from_string(val)
+            print(col.rgba, "|", col.red, col.green, col.blue, col.alpha, "|", col.hex)
         except:
             pass
         
@@ -286,160 +294,133 @@ def string_to_color(string):
     ##print("selenium color", wh.GREEN, color, wh.RESET)  
        
                 
-    return None
+    return rgba
 
 def named_color_to_rgba(cstring):
     try:
         r,g,b = webcolors.name_to_rgb(cstring.strip())
-        return  (r,g,b,255)
+        return (r,g,b,255)
     except Exception as e:
         #print(wh.RED, "is_named_color:", e, wh.RESET) 
         return None    
-    
+     
 def is_named_color(cstring):
     return False if not named_color_to_rgba(cstring) else True
     
-def get_color_start(value):
-    for start in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']: # could as well be a named webcolor!!!!
-        if start in value:
-            print("found:", start)
-            return start
-    return None
+# # def get_color_start(value):
+# #     for start in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']: # could as well be a named webcolor!!!!
+# #         if start in value:
+# #             print("found:", start)
+# #             return start
+# #     return None
 
-def color_from_string(value):
-    color = None
+# # # # def color_from_string(value):
+# # # #     color = None
     
     
-    #  rgba(43, 51, 63, 0.7)
-    def pack(r,g,b,a):
-        color = (round(r),round(g),round(b),round(a))
-        return color
+# # # #     #  rgba(43, 51, 63, 0.7)
+# # # #     def pack(r,g,b,a):
+# # # #         color = (round(r),round(g),round(b),round(a))
+# # # #         return color
     
-    def unnormalize(r,g,b,a):
-        color = pack(r,g,b,a)
-        color = tuple(round(c * 255.0) for c in color)
-        return color
+# # # #     def unnormalize(r,g,b,a):
+# # # #         color = pack(r,g,b,a)
+# # # #         color = tuple(round(c * 255.0) for c in color)
+# # # #         return color
     
-    try:
-        if '#' in value: # --> RGBA
-            hex = value.split('#')[1]
-            r,g,b = webcolors.hex_to_rgb('#' + hex)
-            color = (r,g,b, 255)
-            print(value, '#', type(color), wh.GREEN, color, wh.RESET)
+# # # #     try:
+# # # #         if '#' in value: # --> RGBA
+# # # #             hex = value.split('#')[1]
+# # # #             r,g,b = webcolors.hex_to_rgb('#' + hex)
+# # # #             color = (r,g,b, 255)
+# # # #             print(value, '#', type(color), wh.GREEN, color, wh.RESET)
             
-        #elif any(key in value for key in ['rgba(', 'hsla(', 'rgb(', 'hsl(']):
-        else:
-            color = None
+# # # #         #elif any(key in value for key in ['rgba(', 'hsla(', 'rgb(', 'hsl(']):
+# # # #         else:
+# # # #             color = None
             
-            # rgb Each parameter (red, green, and blue) defines the intensity of the color between 0 and 255.
-            # hsl: hsl(0, 100%, 50%)
+# # # #             # rgb Each parameter (red, green, and blue) defines the intensity of the color between 0 and 255.
+# # # #             # hsl: hsl(0, 100%, 50%)
 
-            if any(key in value for key in ['rgb(', 'hsl(', 'hwb(']):
+# # # #             if any(key in value for key in ['rgb(', 'hsl(', 'hwb(']):
                 
-                for key in ['rgb(', 'hsl(', 'hwb(']:
-                    if key in value:
-                        values = value.split(key)[1].replace('(','').split(')')[0]
-                        values = values.replace('%', '')
-                        print(type(values), values)
-                        values = tuple(map(float, values.split(',')))
-                        print(type(values), values)
+# # # #                 for key in ['rgb(', 'hsl(', 'hwb(']:
+# # # #                     if key in value:
+# # # #                         values = value.split(key)[1].replace('(','').split(')')[0]
+# # # #                         values = values.replace('%', '')
+# # # #                         print(type(values), values)
+# # # #                         values = tuple(map(float, values.split(',')))
+# # # #                         print(type(values), values)
 
-                        if key == 'rgb(':
-                            r,g,b = values
-                            color = pack(r,g,b,255)
-                        elif key == 'hsl(':
-                            print(wh.RED, "BUGGY", key)
-                            h,s,l = values 
-                            h,s,l = h/360.0, s/100.0, l/100.0
-                            print("h,s,l", h,s,l)
-                            r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation  
-                            color = unnormalize(r,g,b,1)
-                        else:
-                            print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
-                            exit(1)   
+# # # #                         if key == 'rgb(':
+# # # #                             r,g,b = values
+# # # #                             color = pack(r,g,b,255)
+# # # #                         elif key == 'hsl(':
+# # # #                             print(wh.RED, "BUGGY", key)
+# # # #                             h,s,l = values 
+# # # #                             h,s,l = h/360.0, s/100.0, l/100.0
+# # # #                             print("h,s,l", h,s,l)
+# # # #                             r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation  
+# # # #                             color = unnormalize(r,g,b,1)
+# # # #                         else:
+# # # #                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
+# # # #                             exit(1)   
                     
-                        print(value, key, type(color), wh.GREEN, color, wh.RESET)
-                        time.sleep(3)
-                        break
+# # # #                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
+# # # #                         time.sleep(3)
+# # # #                         break
                     
                     
-            elif any(key in value for key in ['rgba(', 'hsla(']):            
-                for key in ['rgba(', 'hsla(']: # colorsys.hsv_to_rgb(1,1,1)
-                    if key in value:
-                        values = value.split(key)[1].replace('(','').split(')')[0]
-                        values = values.replace('%', '')
-                        #print(type(values), values)
-                        values = tuple(map(float, values.split(',')))
-                        #print(type(values), values)
+# # # #             elif any(key in value for key in ['rgba(', 'hsla(']):            
+# # # #                 for key in ['rgba(', 'hsla(']: # colorsys.hsv_to_rgb(1,1,1)
+# # # #                     if key in value:
+# # # #                         values = value.split(key)[1].replace('(','').split(')')[0]
+# # # #                         values = values.replace('%', '')
+# # # #                         #print(type(values), values)
+# # # #                         values = tuple(map(float, values.split(',')))
+# # # #                         #print(type(values), values)
                         
-                        if key == 'rgba(':
-                            r,g,b,a = values
-                            print("r,g,b,a", r,g,b,a)
-                            color = pack(r,g,b,a*255.0)
-                        elif key == "hsla(":
-                            print(wh.RED, "BUGGY", key)
-                            h,s,l,a = values 
-                            h,s,l = h/360.0, s/100.0, l/100.0
-                            print("h,s,l", h,s,l)
-                            r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation                  
-                            color = unnormalize(r,g,b,a)
-                        else:
-                            print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
-                            exit(1)  
+# # # #                         if key == 'rgba(':
+# # # #                             r,g,b,a = values
+# # # #                             print("r,g,b,a", r,g,b,a)
+# # # #                             color = pack(r,g,b,a*255.0)
+# # # #                         elif key == "hsla(":
+# # # #                             print(wh.RED, "BUGGY", key)
+# # # #                             h,s,l,a = values 
+# # # #                             h,s,l = h/360.0, s/100.0, l/100.0
+# # # #                             print("h,s,l", h,s,l)
+# # # #                             r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation                  
+# # # #                             color = unnormalize(r,g,b,a)
+# # # #                         else:
+# # # #                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
+# # # #                             exit(1)  
                             
                                                     
-                        print(value, key, type(color), wh.GREEN, color, wh.RESET)
-                        time.sleep(3)
-                        break
+# # # #                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
+# # # #                         time.sleep(3)
+# # # #                         break
 
                 
-    except Exception as e:
-        color = None
-        print(wh.RED, "ERR", e, wh.RESET)
+# # # #     except Exception as e:
+# # # #         color = None
+# # # #         print(wh.RED, "ERR", e, wh.RESET)
         
-    # named color?       
-    if not color:
-        # check for webcolors
-        print("named", value, is_named_color(value))
-        try:
-            values = value.split(' ')[-1]
-            print(type(values), values)
-            r,g,b = webcolors.name_to_rgb(values.strip())
-            color = pack(r,g,b,255.0)
-            print(value, "named", type(color), wh.GREEN, color, wh.RESET)
-        except Exception as e:
-            color = None
-            print(wh.RED, "color_from_string:", e, wh.RESET)  
+# # # #     # named color?       
+# # # #     if not color:
+# # # #         # check for webcolors
+# # # #         print("named", value, is_named_color(value))
+# # # #         try:
+# # # #             values = value.split(' ')[-1]
+# # # #             print(type(values), values)
+# # # #             r,g,b = webcolors.name_to_rgb(values.strip())
+# # # #             color = pack(r,g,b,255.0)
+# # # #             print(value, "named", type(color), wh.GREEN, color, wh.RESET)
+# # # #         except Exception as e:
+# # # #             color = None
+# # # #             print(wh.RED, "color_from_string:", e, wh.RESET)  
 
-    return color
+# # # #     return color
 
-def property_to_color_ORIG(property):
-
-    # if 'color' in property.name:
-    #     delim = get_color_start(property.value)
-    # elif 'border' in property.name:
-    #     pass
-
-    
-        
-    # if '#' in property.value:
-    #     pass
-    # elif 'rgb' in property.value:
-    #     pass
-    # elif 'hsl' in property.value:
-    #     pass
-    # elif 'hwb' in property.value:
-    #     pass
-    # else:
-    #     pass
-    
-    # for hint in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']: # could as well be a named webcolor!!!!
-    #     if hint in property.value:
-    #         print("found:", hint)
-    #         break
-    # ### for
-    
-    pass
 
     
 
@@ -485,19 +466,22 @@ def property_to_color_ORIG(property):
 if __name__ == "__main__":
     
     import chromato 
-    print( string_to_color("#ff0000") )
-    print( string_to_color("#ff0000") )
-    print( string_to_color("#f00") )
-    print( string_to_color("background: border-box #f00;") )
-    print( string_to_color("border-box #f00;") )
-    print( string_to_color("background: #f00;") )
-    print( string_to_color("background: purple;") )
-    print( string_to_color("background: red;") )
-    print( string_to_color("background: white;") )
-    print( string_to_color("background: blue;") )
-    print( string_to_color("background: rgba(0,0,255,1);") )
-    print( string_to_color("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
+    print( string_to_selenium_colors("#ff0000") )
+    print( string_to_selenium_colors("#ff0000") )
+    print( string_to_selenium_colors("#f00") )
+    print( string_to_selenium_colors("background: border-box #f00;") )
+    print( string_to_selenium_colors("border-box #f00;") )
+    print( string_to_selenium_colors("background: #f00;") )
+    print( string_to_selenium_colors("background: purple;") )
+    print( string_to_selenium_colors("background: red;") )
+    print( string_to_selenium_colors("background: white;") )
+    print( string_to_selenium_colors("background: blue;") )
+    print( string_to_selenium_colors("background: rgba(0,0,255,1);") )
+    print( string_to_selenium_colors("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
 
+    print( string_to_selenium_colors("#ff0000ff") )
+    print( string_to_selenium_colors("#ff00007f") )
+    print( string_to_selenium_colors("background: rgba(0,0,255,0.5);") )
     
     exit(0)
     
