@@ -541,7 +541,7 @@ if __name__ == "__main__":
     # -----------------------------------------  
 
     if b_redirect_stdout:
-        path_log = config.path_stats + "__logs/" + "log_" + config.dt_file_string + ".log"
+        path_log = config.path_stats + "__logs/" + "log_" + config.dt_now_string + ".log"
         wh.make_dirs(path_log)
         print(wh.YELLOW, "redirecting stdout to:", path_log)
         sys.stdout = open(path_log, 'w', encoding="utf-8")      

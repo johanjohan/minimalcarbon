@@ -155,9 +155,8 @@ path_conversions            = path_stats + base_netloc + "_200_conversions.csv"
 path_log_params             = path_stats + base_netloc + "_params_log.txt"
 folder_exported             = project_folder + "../__exported/"
 
-###date_time                = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
-date_time_now               = datetime.datetime.now()
-dt_file_string              = date_time_now.strftime("%Y%m%d_%H%M%S")
+dt_now                      = datetime.datetime.now()
+dt_now_string                 = dt_now.strftime("%Y%m%d_%H%M%S")
 custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 svg_color                   = "darkseagreen"
 

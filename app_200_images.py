@@ -913,7 +913,7 @@ if __name__ == "__main__":
             """
             # https://babel.pocoo.org/en/latest/dates.html
             from babel.dates import format_date, format_datetime, format_time
-            dt = config.date_time_now
+            dt = config.dt_now
             format='full' # long
             saved_string = f"<span style=''>{perc100_saved:.1f}%</span>"
             if "/en/" in wp_path:
