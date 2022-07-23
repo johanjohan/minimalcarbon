@@ -506,6 +506,11 @@ if __name__ == "__main__":
                         
                         for i, v in enumerate(pv):
                             print("\t"*5, i, v.cssText, v)
+                            
+                            if v.type ==  cssutils.css.Value.COLOR_VALUE:
+                                print("\t"*6, "COLOR_VALUE")
+                                pass
+                            
                             # if string_is_color(v):
                             #     #lutted  = lut_convert_selenium_color(lut, v)
                             #     print("\t"*5, i, wh.GREEN, v, wh.RESET)
