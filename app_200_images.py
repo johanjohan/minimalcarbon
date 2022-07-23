@@ -22,6 +22,7 @@ import pyautogui as pag
 from bs4 import BeautifulSoup as bs
 
 import lxml.html
+from lxml import etree
 import helpers_lxml as hx
 import conversions as conv
 
@@ -199,7 +200,7 @@ if __name__ == "__main__":
         import cssutils
         import logging
         import cssbeautifier
-        from lxml import etree
+
 
         def save_css_changed(orig_path, text, conversions):
             name, ext = os.path.splitext(orig_path)
@@ -315,7 +316,7 @@ if __name__ == "__main__":
         # replace fonts in tag styles   
         #-----------------------------------------  
         files = wh.collect_files_endswith(params.get("project_folder"), ["index.htm","index.html"])
-        files = wh.links_remove_excludes(files, [config.suffix_compressed])
+        files = wh.links_remove_excludes(files, [config.suffix_compressed, config.postfix_bup, config.postfix_orig])
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
         
         for file in files:
@@ -357,6 +358,12 @@ if __name__ == "__main__":
         ### for file
         conv.save(params.get("path_conversions"), conversions)  
          
+    #-----------------------------------------
+    # TODO missing style : //style <<<<<<<<<<<<<<<<<<<<<<<<<<<<< internal stylesheets
+    #-----------------------------------------
+    
+    
+    
     #-----------------------------------------
     # 
     #-----------------------------------------

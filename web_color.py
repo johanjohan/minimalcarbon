@@ -158,28 +158,63 @@ import re
 import copy
 import cssbeautifier
 
+import lxml.html
+from lxml import etree
+import helpers_lxml as hx
 
 #-----------------------------------------
 # selenium 
 #-----------------------------------------
 """
-special case: 
+    .mick {
+        color: black;
+    }
 
-linear-gradient(direction, color-stop1, color-stop2, ...); 
-linear-gradient(red, yellow, green); 
-radial-gradient(shape size at position, start-color, ..., last-color);
-conic-gradient([from angle] [at position,] color [degree], color [degree], ...);
+    .mick2 {
+        color: #000;
+    }
+    .mick3 {
+        color: #000FFF;
+    }
 
-normal case
-color: currentcolor
-text-shadow: 2px 2px red;
-box-shadow: 10px 10px lightblue;
-["-gradient"]
+    .lucy {
+        color: red;
+        border:  1px solid purple;
+    }
 
-the combinators of the defined values which might simply be space or comma or slash.
+    .lucy2 {
+        color: white;
+        border-bottom:  1px solid green;
+    }
 
-color: lab(67.5345% -8.6911 -41.6019 / 100%);
-https://dev.to/alvaromontoro/the-ultimate-guide-to-css-colors-2020-edition-1bh1
+    .hsla {
+        color: hsla(100, 100%, 50%, 1)
+        /* #55ff00 rgb(85,255,0) */
+    }
+
+    .hsla2 {
+        color: hsla(235, 100%, 50%, .5)
+        /* #0015ff with 50% opacity  0, 21, 255 */
+    }
+
+    .hsl {
+        color: hsl(100, 100%, 50%)
+        /* #0015ff rgb(85,255,0) */
+    }
+
+    .ramp {
+        background-image: linear-gradient(to right top, rgba(123,234,210,1), #004d7a, #008793, #00bf72, #a8eb12);
+    }
+
+    .ramp {
+        background-image: repeating-radial-gradient(powderblue, powderblue 8px, white 8px, white 16px);
+    }
+
+    .ramp {
+        background-image: conic-gradient(from 90deg at 0 0, blue, red);
+    }
+
+
 """
 
 # the combinators of the defined values which might simply be space or comma or slash.
@@ -209,6 +244,19 @@ def string_is_named_color(cstring):
 def selenium_color_to_string(color):
     return f"rgba({color.red},{color.green},{color.blue},{color.alpha})"
 
+def string_to_selenium_color(string, pre="\t"*1):
+    try:
+        col = Color.from_string(string) # selenium eats it all ! wow
+        print(pre, wh.dq(string), "-->", wh.GREEN, col.rgba, "[", col.hex, "]", col.red, col.green, col.blue, col.alpha, "\n\n", wh.RESET)
+        return col
+    except Exception as e:
+        print(wh.RED, "string_to_selenium_color: e:", e, wh.RESET)
+        print(wh.RED, "string_to_selenium_color: string:", string, wh.RESET)
+        assert False
+        return None
+    
+def string_is_color(string):
+    return True if string_to_selenium_color(string) else False
 
 #-----------------------------------------
 # 
@@ -220,61 +268,17 @@ def string_extract_parenthesis(s):
     ret = s[s.find("(")+1:s.rfind(")")] 
     #print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
     return ret
-#-----------------------------------------
-# 
-#-----------------------------------------
-def string_to_selenium_color(string, pre="\t"*1):
-    try:
-        col = Color.from_string(string) # selenium eats it all ! wow
-        print(pre, wh.dq(string), "-->", wh.GREEN, col.rgba, "[", col.hex, "]", col.red, col.green, col.blue, col.alpha, "\n\n", wh.RESET)
-        return col
-    except Exception as e:
-        #print(wh.RED, "string_to_selenium_color:", e, wh.RESET)
-        # if string_has_color(string):
-        #     print(wh.RED, "string_to_selenium_color: STRANGE:", wh.dq(string), wh.RESET)
-        #     print(wh.RED, "string_to_selenium_color: STRANGE: has_color: ", e, wh.RESET)
-        #     exit(1)
-        return None
-    
-def string_is_color(string):
-    try:
-        col = Color.from_string(string) # selenium eats it all ! wow
-        return True
-    except:
-        return False
-
-#-----------------------------------------
-# 
-#-----------------------------------------
 
 # https://stackoverflow.com/questions/26633452/how-to-split-by-commas-that-are-not-within-parentheses
 def string_split_at_delim_outside_parenthesis(value, delim):
     #ret = re.split(r',\s*(?![^()]*\))', value) # ok"
     ret = re.split(rf"{delim}(?![^(]*\))", value)
-    print("string_split_at_comma_outside_parenthesis:", wh.dq(delim), wh.GREEN, ret, wh.RESET)
+    print("string_split_at_comma_outside_parenthesis:", wh.dq(delim), wh.MAGENTA, ret, wh.RESET)
     return ret
 
 def string_split_at_comma_outside_parenthesis(value):
     return string_split_at_delim_outside_parenthesis(value, delim=',')
         
-        
-# # # def string_extract_selenium_colors(__value):
-    
-# # #     # a useless function<<<<<<<<<<<<<<<<<<<<<<<<<
-
-# # #     rgba = [] 
-    
-# # #     for val in property_value_split(__value):
-# # #         if col := string_to_selenium_color(val):
-# # #              rgba.append(col) 
-# # #     print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
-    
-# # #     assert rgba # DEBUG
-    
-# # #     return rgba if rgba else None # TODO ??? or []
-
-
-
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -310,43 +314,49 @@ def function_split_traverse_apply_lut(__value, lut):
     
     #print("function_split_traverse_apply_lut:", __value)
     
-    assert string_has_parenthesis(__value)
-    
+    assert  string_has_parenthesis(__value)
     value   = __css_function_cleanup(__value)
     name    = value.split('(')[0]
     args    = string_split_at_delim_outside_parenthesis(
         string_extract_parenthesis(value), 
         ','
     )
-    # print("\t", "name:", name)
-    # print("\t", "args:", args)
+    print("\t\t\t", wh.GRAY, "name:", wh.MAGENTA, name, wh.RESET)
+    print("\t\t\t", wh.GRAY, "args:", wh.CYAN,    args, wh.RESET)
     
     # these are the comma-separated args: ['to right top', 'rgba(123,234,210,1)', '#004d7a', '#008793', '#00bf72', '#a8eb12']
     new_args = []
     for arg in args:
-        pv = cssutils.css.PropertyValue(arg)
-        #print("\t\t\t", "pv:", pv, pv.length)
-        if pv.length > 1:
-            new_args.append(pv.cssText) # all together 'to right top' (length 3)
-        elif pv.length == 1:
-            v = pv[0]
-            if v.type == cssutils.css.Value.COLOR_VALUE:
-                lut_col         = hl.lut_convert_rgb(lut, v.red, v.green, v.blue)
-                lut_col.alpha   = v.alpha # restore original
-                new_args.append( selenium_color_to_string(lut_col) ) # rgba(...)
+        try:
+            pv = cssutils.css.PropertyValue(arg)
+            #print("\t\t\t", "pv:", pv, pv.length)
+            if pv.length > 1:
+                new_args.append(pv.cssText) # all together 'to right top' (length 3)
+            elif pv.length == 1:
+                v = pv[0]
+                if v.type == cssutils.css.Value.COLOR_VALUE:
+                    lut_col         = hl.lut_convert_rgb(lut, v.red, v.green, v.blue)
+                    lut_col.alpha   = v.alpha # restore original
+                    new_args.append( selenium_color_to_string(lut_col) ) # rgba(...)
+                else:
+                    new_args.append(pv.cssText) # whatever
             else:
-                new_args.append(pv.cssText) # whatever
-        else:
-            assert False
+                assert False
+        except Exception as e: # cssutils.css.PropertyValue # can be MSValue...
+            print("\t\t\t", wh.RED, "ERROR:", e, wh.RESET, "--> will append arg directly:", wh.dq(arg))
+            new_args.append(arg)
+            time.sleep(3)
     ### for args />  
     
-    return f"{name}({', '.join(new_args)})" # the new function
+    return f"{name}({', '.join(new_args)})" # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
  
 def property_traverse_apply_lut(__value, __lut):
 
     #print("\t"*4, "property_traverse_apply_lut", wh.MAGENTA, __value, wh.RESET)
     ret = []
     for v in cssutils.css.PropertyValue(__value):
+        
+        #print("\t"*4, "v:", wh.MAGENTA, v, wh.RESET)
         
         if v.type == cssutils.css.Value.COLOR_VALUE:
             lut_col         = hl.lut_convert_rgb(__lut, v.red, v.green, v.blue)
@@ -425,29 +435,28 @@ if __name__ == "__main__":
     #               print(rgb, "-->", norm, "-->", cnorm, "-->",  crgb, "|", lut_convert_rgb(lut, r,g,b))    
     # exit(0)  
         
-    import chromato 
+    # # # import chromato 
     
-    assert string_has_parenthesis("s") == False
-    assert string_has_parenthesis("s(") == False
-    assert string_has_parenthesis("s)") == False
-    assert string_has_parenthesis("s()") == True
+    # # # assert string_has_parenthesis("s") == False
+    # # # assert string_has_parenthesis("s(") == False
+    # # # assert string_has_parenthesis("s)") == False
+    # # # assert string_has_parenthesis("s()") == True
 
-    
-    strings = [
-               "#ff0000",
-               "#f00",
-               "background: border-box #f00;",
-               "background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t",
-               "background: blue;",
-               "background: purple;",
-               "unknown_color",
-               "background: rgba(0,0,255,0.5);",
-               "some ramp: #f00 to #0f0 to #00f",
-               "background-image: url('paper.gif');",
-               "background-color: #cccccc;",
-               "linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0))",
-               "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); ",
-               ]
+    # # # strings = [
+    # # #            "#ff0000",
+    # # #            "#f00",
+    # # #            "background: border-box #f00;",
+    # # #            "background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t",
+    # # #            "background: blue;",
+    # # #            "background: purple;",
+    # # #            "unknown_color",
+    # # #            "background: rgba(0,0,255,0.5);",
+    # # #            "some ramp: #f00 to #0f0 to #00f",
+    # # #            "background-image: url('paper.gif');",
+    # # #            "background-color: #cccccc;",
+    # # #            "linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0))",
+    # # #            "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); ",
+    # # #            ]
 
     
     
@@ -473,68 +482,144 @@ if __name__ == "__main__":
     import logging
     cssutils.log.setLevel(logging.CRITICAL)
 
+    #-----------------------------------------
+    # 
+    #----------------------------------------- 
     files = wh.collect_files_endswith(config.project_folder, [".css"], pre="")
     files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
-    
-    print("files", *files, sep="\n\t")
-    
-    # def property_value_is_color(val):
-    #     return any(e in val for e in ['#', 'rgb', 'hsl', 'rgba', 'hsla']) # may as well be a named color
-    
-    # # pip install chromato
-    # # https://github.com/vikpe/chromato/blob/f11556bde953fd6999187774a3de1e978f32b06c/README.md
-    # from chromato.spaces import Color
-    # import chromato 
-    # red = Color(255, 0, 0)
-    # print(red.cmyk )   
-    # print(red.hex )   
-    # print(red.rgb, red.rgb.r )   
-    # print(red.hsl )   
-    # print(red.hsv )   
-    # #exit(0)
+    #print("files", *files, sep="\n\t")
     
     # https://pythonhosted.org/cssutils/docs/css.html#values
-    colors = []
+    if False:
+        for file in files:
+            
+            print("-"*88)
+                    
+            print("\t"*0, wh.CYAN, file, wh.RESET)
+            try:
+                sheet = cssutils.parseFile(file)
+                sheet = cssutils.resolveImports(sheet, target=None) # combine all linked sheets
+                
+                #print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET) # TODO CHECK NOTE cssutils.getUrls(sheet)
+                
+                for rule in sheet: # .cssRules:      
+                    print("\t"*2, ":"*66) 
+                    print("\t"*2, rule.type, cssutils.css.CSSRule._typestrings[rule.type])
+                    
+                    if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
+                        print("\t"*3, "rule.selectorText:", rule.selectorText )   
+                            
+                        for property in rule.style:
+                            print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
+                            print("\t"*4, "property.value   :", wh.CYAN, wh.dq(property.value),    wh.RESET)      
+                            print("\t"*4, "property.priority:", wh.CYAN, wh.dq(property.priority), wh.RESET)        
+
+                            new_pv = property_traverse_apply_lut(property.value, lut)
+                            print("\t"*4, wh.GRAY, wh.dq(property.value), "-->", wh.RESET)
+                            print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
+                            property.value = new_pv
+                            ##time.sleep(1)
+                                
+                ### for rule />                
+                                
+                print(wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
+                
+                # save back
+                if True:
+                    wh.string_to_file(
+                        cssbeautifier.beautify(sheet.cssText.decode("utf-8")), 
+                        file
+                    )
+                                                                
+            except Exception as e:
+                print(f"{wh.RED} css: {e} {wh.RESET}")
+                time.sleep(2)
+                exit(1)
+
+    #-----------------------------------------
+    # 
+    #-----------------------------------------             
+    files = wh.collect_files_endswith(config.project_folder, ["index.html"], pre="")
+    files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    #print("files", *files, sep="\n\t")
+    
+    # https://pythonhosted.org/cssutils/docs/css.html#values
     for file in files:
         
-        print("-"*88)
+        print("#"*99)
+        print("file:", file)
                 
-        print("\t"*0, wh.CYAN, file, wh.RESET)
-        try:
-            sheet = cssutils.parseFile(file)
-            sheet = cssutils.resolveImports(sheet, target=None) # combine all linked sheets
-            
-            #print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET) # try out cssutils.getUrls(sheet)
-            
-            for rule in sheet: # .cssRules:      
-                print("\t"*2, ":"*66) 
-                print("\t"*2, rule.type, cssutils.css.CSSRule._typestrings[rule.type])
+        content = wh.string_from_file(file)
+        tree    = lxml.html.fromstring(content)
+        
+        # all tags with style attributes
+        if True:
+            for node in  tree.xpath("//*[@style]"):
+                print("\t", ":"*88)
+                style_text = node.attrib['style']
+                print(wh.CYAN, cssbeautifier.beautify(style_text), wh.RESET)
                 
-                if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
-                    print("\t"*3, "rule.selectorText:", rule.selectorText )   
-                        
-                    for property in rule.style:
-                        print("\t"*4, "property.name", property.name) #  , end=' ')       
+                style = cssutils.parseStyle(style_text) 
+                print ("\t\t", "style.cssText:", wh.MAGENTA, style.cssText, wh.RESET)
+                
+                for property in style:
+                    print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
+                    print("\t"*4, "property.value   :", wh.CYAN, wh.dq(property.value),    wh.RESET)      
+                    print("\t"*4, "property.priority:", wh.CYAN, wh.dq(property.priority), wh.RESET)      
 
-                        new_pv = property_traverse_apply_lut(property.value, lut)
-                        print("\t"*4, wh.GRAY, property.value, "-->", wh.GREEN, wh.dq(new_pv), wh.RESET)
-                        property.value = new_pv
-                        ##time.sleep(1)
-                            
-            ### for rule />                
-                            
-            print(wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
+                    new_pv = property_traverse_apply_lut(property.value, lut)
+                    print("\t"*4, wh.GRAY,  wh.dq(property.value), "-->", wh.RESET)
+                    print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
+                    property.value = new_pv
+                        
+                # assign style back to lxml
+                node.attrib['style'] =  property.cssText.decode("utf-8")  
+                #print("\t\t", wh.GREEN, node.attrib['style'], wh.RESET)
             
-            # save back
-            if True:
-                wh.string_to_file(
-                    cssbeautifier.beautify(sheet.cssText.decode("utf-8")), 
-                    file
-                )
-                                                            
-        except Exception as e:
-            print(f"{wh.RED} css: {e} {wh.RESET}")
-            time.sleep(2)
-            exit(1)
+        ### for node
+        
+        # all internal style sheets
+        if False:
+            for node in tree.xpath("//style"):
+                print("\t", "|"*88)
+                style_text = node.text_content()
+                print(wh.CYAN, cssbeautifier.beautify(style_text), wh.RESET)
+                
+                sheet = cssutils.parseString(style_text) 
+                print ("\t\t", "style.cssText:", wh.MAGENTA, sheet.cssText, wh.RESET)
+                
+                for rule in sheet:
+                    if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
+                        for property in rule.style:
+                            print(property)
+                            print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
+                            print("\t"*4, "property.value   :", wh.CYAN, wh.dq(property.value),    wh.RESET)      
+                            print("\t"*4, "property.priority:", wh.CYAN, wh.dq(property.priority), wh.RESET)      
+
+                            new_pv = property_traverse_apply_lut(property.value, lut)
+                            print("\t"*4, wh.GRAY,  wh.dq(property.value), "-->", wh.RESET)
+                            print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
+                            property.value = new_pv
+                                
+                # assign style back to lxml
+                node.text =  sheet.cssText.decode("utf-8") 
+                print(wh.GREEN, cssbeautifier.beautify(node.text_content()), wh.RESET)
+            ### for node
+                
+        
+        content = etree.tostring(tree, pretty_print=True).decode("utf-8")
+        #print(wh.GREEN, content, wh.RESET)
+        if True:
+            print("string_to_file", wh.GRAY, file, wh.RESET)
+            wh.string_to_file(
+                content, 
+                file
+            )    
             
-    print("colors", *colors, sep="\n\t")
+    ### for file
+        
+    
+    
+    #-----------------------------------------
+    # 
+    #----------------------------------------- 
