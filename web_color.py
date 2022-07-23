@@ -138,6 +138,7 @@ pillow_lut.sample_lut_cubic(lut, point)
 
 
 #import colorsys
+import datetime
 import shutil
 import os
 
@@ -207,11 +208,14 @@ def lut_convert_image(lut, image):
 #-----------------------------------------
 """
 special case: 
+
 linear-gradient(direction, color-stop1, color-stop2, ...); 
 linear-gradient(red, yellow, green); 
 radial-gradient(shape size at position, start-color, ..., last-color);
 conic-gradient([from angle] [at position,] color [degree], color [degree], ...);
-currentcolor
+
+normal case
+color: currentcolor
 text-shadow: 2px 2px red;
 box-shadow: 10px 10px lightblue;
 ["-gradient"]
@@ -251,6 +255,7 @@ def string_is_named_color(cstring):
 def selenium_color_to_string(color):
     return f"rgba({color.red},{color.green},{color.blue},{color.alpha})"
 
+
 #-----------------------------------------
 # 
 #-----------------------------------------
@@ -270,8 +275,17 @@ def string_to_selenium_color(string, pre="\t"*1):
     except Exception as e:
         #print(wh.RED, "string_to_selenium_color:", e, wh.RESET)
         if string_has_color(string):
+            print(wh.RED, "string_to_selenium_color: STRANGE:", wh.dq(string), wh.RESET)
             print(wh.RED, "string_to_selenium_color: STRANGE: has_color: ", e, wh.RESET)
+            exit(1)
         return None
+    
+def string_is_color(string):
+    try:
+        col = Color.from_string(string) # selenium eats it all ! wow
+        return True
+    except:
+        return False
 
 #-----------------------------------------
 # 
@@ -287,6 +301,9 @@ def string_split_at_delim_outside_parenthesis(value, delim):
 def string_split_at_comma_outside_parenthesis(value):
     return string_split_at_delim_outside_parenthesis(value, delim=',')
         
+        
+# need to preserve all elements of string, just replace color
+
 def string_extract_selenium_colors(__value):
     
     # a useless function<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -302,13 +319,36 @@ def string_extract_selenium_colors(__value):
     
     return rgba if rgba else None # TODO ??? or []
 
+
+
+
+
+"""
+Q how to exactly rewrite the property with changed colors
+
+# the combinators of the defined values which might simply be space or comma or slash.
+"""
+# "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); "
 def property_value_split(__value):
+    ret = []
     value = __property_color_cleanup(__value)
     delim = ' '
     if any(key in value for key in ["-gradient"]):
+        
+        # store key
+        if string_has_parenthesis(__value):
+            key = __value.split('(')[0]
+            ret.append(key)
+                    
         value = string_extract_parenthesis(value) 
         delim = ','    
-    return string_split_at_delim_outside_parenthesis(value, delim=delim)
+        
+        values = string_split_at_delim_outside_parenthesis(string_extract_parenthesis(value), delim=',')
+
+        
+    ret.extend(string_split_at_delim_outside_parenthesis(value, delim=delim))
+    print("property_value_split:", wh.GRAY, __value, "-->", wh.RESET, ret)
+    return ret
     
 def property_value_apply_lut(__value, lut):
 
@@ -328,30 +368,8 @@ def property_value_apply_lut(__value, lut):
     
     
     
-#-----------------------------------------
-# 
-#-----------------------------------------
-def path_split(file):
-    file        = wh.to_posix(file)
-    dir         = os.path.dirname(file)
-    head, tail  = os.path.split(file)
-    base, ext   = os.path.splitext(tail)      
-
-    if True:
-        print("file:", file)
-        print("dir:", dir)
-        print("head:", head) # same as dir
-        print("tail:", tail)
-        print("base:", base)
-        print("ext:", ext)            
+   
     
-    return dir, base, ext
-        
-def path_file_add_postfix(file, postfix):
-    dir, base, ext = path_split(file)
-    ret = wh.add_trailing_slash(dir) + base + postfix + ext
-    print("ret:", ret)
-    return ret
 #-----------------------------------------
 # 
 #-----------------------------------------        
@@ -400,33 +418,31 @@ if __name__ == "__main__":
 
     
     
-    for s in strings:
-        print("-"*88)
-        #string_extract_selenium_colors(s)
-        property_value_apply_lut(s, lut)
-        print()
-    exit(0)
+    # for s in strings:
+    #     print("-"*88)
+    #     #string_extract_selenium_colors(s)
+    #     property_value_apply_lut(s, lut)
+    #     print()
+    # exit(0)
     
-    # https://pypi.org/project/Js2Py/
-    # https://github.com/PiotrDabkowski/Js2Py
-    import js2py
-    js2py.eval_js('console.log( "Hello World!" )')
-    add = js2py.eval_js('function add(a, b) {return a + b}')
-    result = add(1, 2) + 3
-    print("result", result)
-    squareofNum = js2py.eval_js("function f(x) {return x*x;}")
-    print("result", squareofNum(5))
-    #exit(0)
+    # # https://pypi.org/project/Js2Py/
+    # # https://github.com/PiotrDabkowski/Js2Py
+    # import js2py
+    # js2py.eval_js('console.log( "Hello World!" )')
+    # add = js2py.eval_js('function add(a, b) {return a + b}')
+    # result = add(1, 2) + 3
+    # print("result", result)
+    # squareofNum = js2py.eval_js("function f(x) {return x*x;}")
+    # print("result", squareofNum(5))
+    # #exit(0)
     
 
     import logging
     cssutils.log.setLevel(logging.CRITICAL)
+
+    files = wh.collect_files_endswith(config.project_folder, [".css"], pre="")
+    files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     
-    postfix_bup     = "_bup_"
-    postfix_orig    = "_orig_"
-    
-    files = wh.collect_files_endswith(config.project_folder, [".css"])
-    files = wh.links_remove_excludes(files, [postfix_bup, "202207"])
     print("files", *files, sep="\n\t")
     
     # def property_value_is_color(val):
@@ -444,49 +460,62 @@ if __name__ == "__main__":
     # print(red.hsv )   
     # #exit(0)
     
-    
+    # https://pythonhosted.org/cssutils/docs/css.html#values
     colors = []
     for file in files:
         
         print("-"*88)
-        
-        # orig: save or restore
-        orig_path = path_file_add_postfix(file, postfix_orig + config.dt_now_string)
-        if wh.file_exists_and_valid(orig_path):
-            shutil.copy(orig_path, file)
-        else:
-            shutil.copy(file, orig_path)
-        
-        # make a bup
-        bup_path = path_file_add_postfix(file, postfix_bup + config.dt_now_string)
-        shutil.copy(file, bup_path)
                 
         print("\t"*0, wh.CYAN, file, wh.RESET)
         try:
             sheet = cssutils.parseFile(file)
-            # combine all linked sheets
-            sheet = cssutils.resolveImports(sheet, target=None)
+            sheet = cssutils.resolveImports(sheet, target=None) # combine all linked sheets
             
-            print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET)
+            #print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET) # try out cssutils.getUrls(sheet)
             
-            for rule in sheet: # .cssRules:       
+            for rule in sheet: # .cssRules:      
+                print("\t"*2, ":"*66) 
                 print("\t"*2, rule.type, cssutils.css.CSSRule._typestrings[rule.type])
                 
                 if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
-                    print("\t"*3,   rule.selectorText )       
+                    print("\t"*3, "rule.selectorText:", rule.selectorText )       
                     for property in rule.style:
-                        print("\t"*4,   property.name , end=' ')       
-                        if property_has_color(property):
-                            print("property.value:",  wh.GREEN, property.value, wh.RESET)
-                            color   = string_extract_selenium_colors(property.value)[0] # TODO what about possible others? may be NONE TODO
-                            assert color
-                            print("color:",  wh.GREEN, color, wh.RESET)
-                            assert lut
-                            lutted  = lut_convert_selenium_color(lut, color)
-                            print("lutted:", property.value, wh.GRAY, color, "-->", wh.GREEN, lutted, wh.RESET)
-                        else:
-                            print(wh.GRAY, property.value, wh.RESET)
-                            pass
+                        # the combinators of the defined values which might simply be space or comma or slash.
+                        #property.priority = 'IMPORTANT'
+                        #print("\t"*4, property)
+                        print("\t"*4, "property.name", property.name) #  , end=' ')       
+                        # if property_has_color(property):
+                        #     print("property.value:",  wh.GREEN, property.value, wh.RESET)
+                        #     # color   = string_extract_selenium_colors(property.value)[0] # TODO what about possible others? may be NONE TODO
+                        #     # assert color
+                        #     # print("color:",  wh.GREEN, color, wh.RESET)
+                        #     # assert lut
+                        #     # lutted  = lut_convert_selenium_color(lut, color)
+                        #     # print("lutted:", property.value, wh.GRAY, color, "-->", wh.GREEN, lutted, wh.RESET)
+                        # else:
+                        #     print(wh.GRAY, property.value, wh.RESET)
+                        #     pass
+                        
+                        # for i, v in enumerate(property.value):
+                        #     print("\t"*5, i, v)
+                        
+                        print("\t"*4, "property.value", wh.MAGENTA, property.value, wh.RESET)
+                        pv = cssutils.css.PropertyValue(property.value)
+                        print("\t"*4, wh.CYAN, pv.cssText, wh.RESET)
+                        
+                        
+                        for i, v in enumerate(pv):
+                            print("\t"*5, i, v.cssText, v)
+                            # if string_is_color(v):
+                            #     #lutted  = lut_convert_selenium_color(lut, v)
+                            #     print("\t"*5, i, wh.GREEN, v, wh.RESET)
+                            # else:
+                            #     print("\t"*5, i, v)
+                            if string_is_color(v):
+                                v.cssText = "#999666"
+                                
+                        print("\t"*4, "changed?", wh.CYAN, pv.cssText, wh.RESET)
+                        print("\t"*4, "property.value", wh.MAGENTA, property.value, wh.RESET)
                             
                         # if 'color' in property.name:
                         #     color = property.value

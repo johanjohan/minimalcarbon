@@ -156,12 +156,19 @@ path_log_params             = path_stats + base_netloc + "_params_log.txt"
 folder_exported             = project_folder + "../__exported/"
 
 dt_now                      = datetime.datetime.now()
-dt_now_string                 = dt_now.strftime("%Y%m%d_%H%M%S")
+dt_now_string               = dt_now.strftime("%Y%m%d_%H%M%S")
 custom_css_marker           = "#marker_appended_for_custom_css" # a word in the file to mark it was updated
 svg_color                   = "darkseagreen"
 
 turns_for_slow_funcs        = math.inf # 4 # inf
 implicit_wait               = 0.1 # can be float, will be millis
+
+#-----------------------------------------
+# 
+#----------------------------------------- 
+postfix_bup     = "_pofx_BUP_"
+postfix_orig    = "_pofx_ORIG"
+    
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 

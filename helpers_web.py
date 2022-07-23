@@ -35,7 +35,7 @@ import pillow_avif
 
 from natsort import natsorted, ns
 import copy
-
+import shutil
 
 
 #-----------------------------------------
@@ -2536,6 +2536,88 @@ def fullpage_screenshot(driver, file, classes_to_hide=None, pre="\t"):
     
     print(pre, "finishing chrome full page screenshot.", RESET)
     return True
+
+
+#-----------------------------------------
+# files_backup_or_restore
+#-----------------------------------------
+def path_split(file):
+    file        = to_posix(file)
+    dir         = os.path.dirname(file)
+    head, tail  = os.path.split(file)
+    base, ext   = os.path.splitext(tail)      
+
+    if False:
+        print("file:", file)
+        print("dir:", dir)
+        print("head:", head) # same as dir
+        print("tail:", tail)
+        print("base:", base)
+        print("ext:", ext)            
+    
+    return dir, base, ext
+        
+def path_file_add_postfix(file, postfix):
+    dir, base, ext = path_split(file)
+    ret = add_trailing_slash(dir) + base + postfix + ext
+    #print("ret:", ret)
+    return ret
+
+def files_backup_or_restore_and_exclude(files, postfix_orig, postfix_bup):
+    
+    
+    excludes = []
+    if postfix_orig: excludes.append(postfix_orig)
+    if postfix_bup:  excludes.append(postfix_bup )
+    print("\t"*0 + "files_backup_or_restore_and_exclude:", MAGENTA, excludes, RESET)
+    files = links_remove_excludes(files, excludes)
+    
+    for file in files:
+        
+        if file_exists_and_valid(file):
+
+            if postfix_orig:
+                orig_path = path_file_add_postfix(file, postfix_orig)
+                if file_exists_and_valid(orig_path):
+                    fr, to = orig_path, file
+                else:
+                    fr, to = file, orig_path
+                print("\t"*1, f"copy {GRAY}{os.path.basename(fr)}{RESET} --> {CYAN}{os.path.basename(to)}{RESET}")
+                shutil.copy(fr, to)
+                                
+            # make a bup
+            if postfix_bup:
+                dts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                bup_path = path_file_add_postfix(file, postfix_bup + dts)
+                print("\t"*1, f"copy {GRAY}{os.path.basename(file)}{RESET} --> {MAGENTA}{os.path.basename(bup_path)}{RESET}")
+                shutil.copy(file, bup_path)    
+        else:
+            print("\t", RED, "bad file:", file, RESET)  
+    ### for />      
+    
+    return files
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#-----------------------------------------
+
+#-----------------------------------------
+# 
+#----------------------------------------- 
+
+
 
 #-----------------------------------------
 # 
