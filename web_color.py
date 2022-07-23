@@ -140,6 +140,8 @@ pillow_lut.sample_lut_cubic(lut, point)
 #import colorsys
 import shutil
 import os
+
+from pyrsistent import v
 #from distutils.cygwinccompiler import CygwinCCompiler
 import helpers_web as wh
 import helpers_web as hw
@@ -151,7 +153,7 @@ import webcolors
 #import colorsys
 from selenium.webdriver.support.color import Color
 import re
-
+import copy
 
 #-----------------------------------------
 # 
@@ -169,6 +171,9 @@ import re
                   crgb = tuple(round(c * 255.0) for c in cnorm) 
                   print(rgb, "-->", norm, "-->", cnorm, "-->",  crgb, "|", lut_convert_rgb(lut, r,g,b))  
 """
+# https://www.selenium.dev/documentation/webdriver/additional_features/colors/
+# rgba(255,255,255,1)
+
 def lut_convert_rgb_tuple(lut, rgb):
     print("lut_convert_rgb_tuple: rgb:", rgb)
     norm    = tuple(c/255.0 for c in rgb) 
@@ -177,16 +182,15 @@ def lut_convert_rgb_tuple(lut, rgb):
     return Color(red=crgb[0], green=crgb[1], blue=crgb[2], alpha=1) # .rgba # alpha: hmmmm
     
 def lut_convert_rgb(lut, r,g,b):
-    print("lut_convert_rgb: r,g,b:", r,g,b)
+    #print("lut_convert_rgb: r,g,b:", r,g,b)
     return lut_convert_rgb_tuple(lut, (r,g,b))
     
-# https://www.selenium.dev/documentation/webdriver/additional_features/colors/
-# rgba(255,255,255,1)
 def lut_convert_selenium_color(lut, color):
+    
     assert lut
     assert color
     
-    print("lut_convert_selenium_color: color:", color, "r,g,b:", color.red, color.green, color.blue)
+    #print("lut_convert_selenium_color: color:", color, "r,g,b:", color.red, color.green, color.blue)
     l = lut_convert_rgb(lut, color.red, color.green, color.blue)
     return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # .rgba     # preserve alpha
 
@@ -197,30 +201,43 @@ def lut_convert_image(lut, image):
         image = image.convert("RGB")
     image = image.filter(lut)
     return image
+
 #-----------------------------------------
-# 
+# selenium 
 #-----------------------------------------
+"""
+special case: 
+linear-gradient(direction, color-stop1, color-stop2, ...); 
+linear-gradient(red, yellow, green); 
+radial-gradient(shape size at position, start-color, ..., last-color);
+conic-gradient([from angle] [at position,] color [degree], color [degree], ...);
+currentcolor
+text-shadow: 2px 2px red;
+box-shadow: 10px 10px lightblue;
+["-gradient"]
+
+"""
+
 def __property_color_cleanup(value):
     value = wh.string_remove_control_characters(value)
     value = wh.string_remove_multiple_spaces(value)
-    for fr, to in [(', ', ','), (';', ' '), ('( ', '('), (' )', ')')]:
+    for fr, to in [(', ', ','), ('( ', '('), (' )', ')'), (';', ' ; ')]: # (';', ' '), 
         value = value.replace(fr, to)
     # # # #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
     return value
     
-def property_has_color(property):
-    value = __property_color_cleanup(property.value)
-    #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
-    for val in value.split(' '):
+
+def string_has_color(__value):
+    for val in property_value_split(__value):
         #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
-        if any(key in val for key in ['#', 'rgb', 'hsl', 'hwb']) or is_named_color(val):
+        if any(key in val for key in ['#', 'rgb', 'hsl', 'hwb']) or string_is_named_color(val):
            return True            
     return False
 
-#-----------------------------------------
-# seleniumm cannot 
-#-----------------------------------------
-def named_color_to_rgba(named_color_string):
+def property_has_color(property):
+    return string_has_color(property.value)
+
+def string_named_color_to_rgba(named_color_string):
     try:
         r,g,b = webcolors.name_to_rgb(named_color_string.strip())
         return (r,g,b,255)
@@ -228,18 +245,21 @@ def named_color_to_rgba(named_color_string):
         #print(wh.RED, "is_named_color:", e, wh.RESET) 
         return None    
      
-def is_named_color(cstring):
-    return False if not named_color_to_rgba(cstring) else True
+def string_is_named_color(cstring):
+    return False if not string_named_color_to_rgba(cstring) else True
+
+def selenium_color_to_string(color):
+    return f"rgba({color.red},{color.green},{color.blue},{color.alpha})"
+
 #-----------------------------------------
 # 
 #-----------------------------------------
 def string_has_parenthesis(s):
-    return any(key in s for key in ['(', ')'])
+    return all(key in s for key in ['(', ')'])
 
 def string_extract_parenthesis(s):
-    ###ret = s[s.find("(")+1:s.find(")")]
-    ret = s[s.find("(")+1:s.rfind(")")] # fix
-    print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
+    ret = s[s.find("(")+1:s.rfind(")")] 
+    #print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
     return ret
 
 def string_to_selenium_color(string, pre="\t"*1):
@@ -249,64 +269,62 @@ def string_to_selenium_color(string, pre="\t"*1):
         return col
     except Exception as e:
         #print(wh.RED, "string_to_selenium_color:", e, wh.RESET)
+        if string_has_color(string):
+            print(wh.RED, "string_to_selenium_color: STRANGE: has_color: ", e, wh.RESET)
         return None
-        
-def string_extract_selenium_colors(value):
-    
-    """
-    special case: 
-    linear-gradient(direction, color-stop1, color-stop2, ...); 
-    linear-gradient(red, yellow, green); 
-    radial-gradient(shape size at position, start-color, ..., last-color);
-    conic-gradient([from angle] [at position,] color [degree], color [degree], ...);
-    currentcolor
-    text-shadow: 2px 2px red;
-    box-shadow: 10px 10px lightblue;
-    ["-gradient"]
-    
-    """
-    rgba = [] # TODO may be multiple cols in string
-    value = __property_color_cleanup(value)
-    print("\t"*0, "string_extract_selenium_colors", wh.MAGENTA, value, wh.RESET)
-    for val in value.split(' '):
-        if col := string_to_selenium_color(val):
-             rgba.append(col) 
-       
-    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
-    ##print("selenium color", wh.GREEN, color, wh.RESET) 
-    
-    assert rgba # DEBUG
-       
-    return rgba if rgba else None # TODO ??? or []
+
+#-----------------------------------------
+# 
+#-----------------------------------------
 
 # https://stackoverflow.com/questions/26633452/how-to-split-by-commas-that-are-not-within-parentheses
 def string_split_at_delim_outside_parenthesis(value, delim):
-    #ret = re.split(r',\s*(?![^()]*\))', value) # ok
+    #ret = re.split(r',\s*(?![^()]*\))', value) # ok"
     ret = re.split(rf"{delim}(?![^(]*\))", value)
     print("string_split_at_comma_outside_parenthesis:", wh.dq(delim), wh.GREEN, ret, wh.RESET)
     return ret
 
 def string_split_at_comma_outside_parenthesis(value):
     return string_split_at_delim_outside_parenthesis(value, delim=',')
-
-def property_value_apply_lut(value, lut):
-    value = __property_color_cleanup(value)
-    print("\t"*0, "property_value_apply_lut", wh.MAGENTA, value, wh.RESET)
+        
+def string_extract_selenium_colors(__value):
     
+    # a useless function<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    rgba = [] 
+    
+    for val in property_value_split(__value):
+        if col := string_to_selenium_color(val):
+             rgba.append(col) 
+    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
+    
+    assert rgba # DEBUG
+    
+    return rgba if rgba else None # TODO ??? or []
+
+def property_value_split(__value):
+    value = __property_color_cleanup(__value)
     delim = ' '
     if any(key in value for key in ["-gradient"]):
-        value = string_extract_parenthesis(value) # 
-        delim = ','
+        value = string_extract_parenthesis(value) 
+        delim = ','    
+    return string_split_at_delim_outside_parenthesis(value, delim=delim)
+    
+def property_value_apply_lut(__value, lut):
 
-    values = string_split_at_delim_outside_parenthesis(value, delim=delim)
-        
-    for val in values:
+    s_out = ""
+    for val in property_value_split(__value):
         print("\t"*1, val)
         if col := string_to_selenium_color(val):
-            print(col)
+            lutted = lut_convert_selenium_color(lut, col)
+            print("property_value_apply_lut:", col, "-->", lutted)
+            s_out += selenium_color_to_string(lutted)
+        else:
+            s_out += val
              
+    print("property_value_apply_lut:", wh.GRAY, __value, wh.RESET, "-->", wh.GREEN, s_out, wh.RESET)
                 
-    return value
+    return s_out # a new property value
     
     
     
@@ -358,6 +376,12 @@ if __name__ == "__main__":
         
     import chromato 
     
+    assert string_has_parenthesis("s") == False
+    assert string_has_parenthesis("s(") == False
+    assert string_has_parenthesis("s)") == False
+    assert string_has_parenthesis("s()") == True
+
+    
     strings = [
                "#ff0000",
                "#f00",
@@ -377,7 +401,8 @@ if __name__ == "__main__":
     
     
     for s in strings:
-        #print( string_extract_selenium_colors(s) )
+        print("-"*88)
+        #string_extract_selenium_colors(s)
         property_value_apply_lut(s, lut)
         print()
     exit(0)
