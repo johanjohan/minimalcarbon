@@ -1,5 +1,13 @@
 """
 
+linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0))
+
+
+
+-------------------------------------------------------------------------
+
+
+
 import js2py
 
 squareofNum = "function f(x) {return x*x;}"
@@ -129,8 +137,10 @@ pillow_lut.sample_lut_cubic(lut, point)
 """
 
 
-import colorsys
-from distutils.cygwinccompiler import CygwinCCompiler
+#import colorsys
+import shutil
+import os
+#from distutils.cygwinccompiler import CygwinCCompiler
 import helpers_web as wh
 import helpers_web as hw
 import config
@@ -140,6 +150,7 @@ import pillow_lut
 import webcolors
 #import colorsys
 from selenium.webdriver.support.color import Color
+import re
 
 
 #-----------------------------------------
@@ -159,51 +170,36 @@ from selenium.webdriver.support.color import Color
                   print(rgb, "-->", norm, "-->", cnorm, "-->",  crgb, "|", lut_convert_rgb(lut, r,g,b))  
 """
 def lut_convert_rgb_tuple(lut, rgb):
+    print("lut_convert_rgb_tuple: rgb:", rgb)
     norm    = tuple(c/255.0 for c in rgb) 
     cnorm   = pillow_lut.sample_lut_cubic(lut, norm)
     crgb    = tuple(round(c * 255.0) for c in cnorm) 
-    return crgb
+    return Color(red=crgb[0], green=crgb[1], blue=crgb[2], alpha=1) # .rgba # alpha: hmmmm
     
 def lut_convert_rgb(lut, r,g,b):
+    print("lut_convert_rgb: r,g,b:", r,g,b)
     return lut_convert_rgb_tuple(lut, (r,g,b))
     
 # https://www.selenium.dev/documentation/webdriver/additional_features/colors/
+# rgba(255,255,255,1)
 def lut_convert_selenium_color(lut, color):
-    l = lut_convert_rgb_tuple(lut, (color.red, color.green, color.blue))
-    return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # preserve alpha
+    assert lut
+    assert color
     
-# if is_transp:
-#     image = image.convert("RGBA")
-# else:
-#     image = image.convert("RGB")
-# image = image.filter(lut)
+    print("lut_convert_selenium_color: color:", color, "r,g,b:", color.red, color.green, color.blue)
+    l = lut_convert_rgb(lut, color.red, color.green, color.blue)
+    return Color(red=l.red, green=l.green, blue=l.blue, alpha=color.alpha) # .rgba     # preserve alpha
 
-# https://developer.mozilla.org/en-US/docs/Web/CSS/color
-def property_has_color(property):
-    # inherit none transparent, variables
-    return any(e in property.value for e in ['#', 'rgb', 'hsl', 'rgba', 'hsla', 'hwb']) # may as well be a named color
-
-# https://www.w3.org/wiki/CSS/Properties/color/keywords
-# https://www.w3.org/TR/css-color-3/
-def property_has_color_OLD(property):
-    b = False
-    
-    # b = any(e in property.name for e in [
-    #     'color', 
-    #     'background', 
-    #     'border',
-    # ]) 
-    
-    # try named color
-    if not b:
-        for val in property.value.split(' '):
-            if any(key in val for key in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']) or is_named_color(val):
-                b = True
-                break            
-            
-    return b
-
-
+def lut_convert_image(lut, image):
+    if wh.image_has_transparency(image):
+        image = image.convert("RGBA")
+    else:
+        image = image.convert("RGB")
+    image = image.filter(lut)
+    return image
+#-----------------------------------------
+# 
+#-----------------------------------------
 def __property_color_cleanup(value):
     value = wh.string_remove_control_characters(value)
     value = wh.string_remove_multiple_spaces(value)
@@ -217,33 +213,13 @@ def property_has_color(property):
     #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
     for val in value.split(' '):
         #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
-        if any(key in val for key in ['#', 'rgb', 'hsl']) or is_named_color(val):
+        if any(key in val for key in ['#', 'rgb', 'hsl', 'hwb']) or is_named_color(val):
            return True            
     return False
 
-def string_extract_parenthesis(s):
-    ret = s[s.find("(")+1:s.find(")")]
-    print(wh.YELLOW, "get_parenthesis:", s, "-->", ret, wh.RESET)
-    return ret
-
-def string_extract_selenium_colors(value):
-    
-    rgba = []                           # TODO may be multiple cols in string
-    value = __property_color_cleanup(value)
-    print("\t"*0, value)
-    for val in value.split(' '):
-        try:
-            col = Color.from_string(val) # selenium eats it all ! wow
-            rgba.append(col) 
-            print(col.rgba, "|", col.red, col.green, col.blue, col.alpha, "|", col.hex, "\n\n")
-        except:
-            pass
-       
-    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n\t")  
-    ##print("selenium color", wh.GREEN, color, wh.RESET)  
-       
-    return rgba if rgba else None # TODO ??? or []
-
+#-----------------------------------------
+# seleniumm cannot 
+#-----------------------------------------
 def named_color_to_rgba(named_color_string):
     try:
         r,g,b = webcolors.name_to_rgb(named_color_string.strip())
@@ -254,186 +230,156 @@ def named_color_to_rgba(named_color_string):
      
 def is_named_color(cstring):
     return False if not named_color_to_rgba(cstring) else True
-    
-# # def get_color_start(value):
-# #     for start in ['#', 'rgba(', 'hsla(', 'rgb(', 'hsl(']: # could as well be a named webcolor!!!!
-# #         if start in value:
-# #             print("found:", start)
-# #             return start
-# #     return None
+#-----------------------------------------
+# 
+#-----------------------------------------
+def string_has_parenthesis(s):
+    return any(key in s for key in ['(', ')'])
 
-# # # # def color_from_string(value):
-# # # #     color = None
-    
-    
-# # # #     #  rgba(43, 51, 63, 0.7)
-# # # #     def pack(r,g,b,a):
-# # # #         color = (round(r),round(g),round(b),round(a))
-# # # #         return color
-    
-# # # #     def unnormalize(r,g,b,a):
-# # # #         color = pack(r,g,b,a)
-# # # #         color = tuple(round(c * 255.0) for c in color)
-# # # #         return color
-    
-# # # #     try:
-# # # #         if '#' in value: # --> RGBA
-# # # #             hex = value.split('#')[1]
-# # # #             r,g,b = webcolors.hex_to_rgb('#' + hex)
-# # # #             color = (r,g,b, 255)
-# # # #             print(value, '#', type(color), wh.GREEN, color, wh.RESET)
-            
-# # # #         #elif any(key in value for key in ['rgba(', 'hsla(', 'rgb(', 'hsl(']):
-# # # #         else:
-# # # #             color = None
-            
-# # # #             # rgb Each parameter (red, green, and blue) defines the intensity of the color between 0 and 255.
-# # # #             # hsl: hsl(0, 100%, 50%)
+def string_extract_parenthesis(s):
+    ###ret = s[s.find("(")+1:s.find(")")]
+    ret = s[s.find("(")+1:s.rfind(")")] # fix
+    print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
+    return ret
 
-# # # #             if any(key in value for key in ['rgb(', 'hsl(', 'hwb(']):
-                
-# # # #                 for key in ['rgb(', 'hsl(', 'hwb(']:
-# # # #                     if key in value:
-# # # #                         values = value.split(key)[1].replace('(','').split(')')[0]
-# # # #                         values = values.replace('%', '')
-# # # #                         print(type(values), values)
-# # # #                         values = tuple(map(float, values.split(',')))
-# # # #                         print(type(values), values)
-
-# # # #                         if key == 'rgb(':
-# # # #                             r,g,b = values
-# # # #                             color = pack(r,g,b,255)
-# # # #                         elif key == 'hsl(':
-# # # #                             print(wh.RED, "BUGGY", key)
-# # # #                             h,s,l = values 
-# # # #                             h,s,l = h/360.0, s/100.0, l/100.0
-# # # #                             print("h,s,l", h,s,l)
-# # # #                             r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation  
-# # # #                             color = unnormalize(r,g,b,1)
-# # # #                         else:
-# # # #                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
-# # # #                             exit(1)   
-                    
-# # # #                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
-# # # #                         time.sleep(3)
-# # # #                         break
-                    
-                    
-# # # #             elif any(key in value for key in ['rgba(', 'hsla(']):            
-# # # #                 for key in ['rgba(', 'hsla(']: # colorsys.hsv_to_rgb(1,1,1)
-# # # #                     if key in value:
-# # # #                         values = value.split(key)[1].replace('(','').split(')')[0]
-# # # #                         values = values.replace('%', '')
-# # # #                         #print(type(values), values)
-# # # #                         values = tuple(map(float, values.split(',')))
-# # # #                         #print(type(values), values)
-                        
-# # # #                         if key == 'rgba(':
-# # # #                             r,g,b,a = values
-# # # #                             print("r,g,b,a", r,g,b,a)
-# # # #                             color = pack(r,g,b,a*255.0)
-# # # #                         elif key == "hsla(":
-# # # #                             print(wh.RED, "BUGGY", key)
-# # # #                             h,s,l,a = values 
-# # # #                             h,s,l = h/360.0, s/100.0, l/100.0
-# # # #                             print("h,s,l", h,s,l)
-# # # #                             r,g,b = colorsys.hls_to_rgb(h,l,s) # why is this reversed? Hue Lightness Saturation                  
-# # # #                             color = unnormalize(r,g,b,a)
-# # # #                         else:
-# # # #                             print(wh.RED, "color_from_string: not supported: key", key, wh.RESET)  
-# # # #                             exit(1)  
-                            
-                                                    
-# # # #                         print(value, key, type(color), wh.GREEN, color, wh.RESET)
-# # # #                         time.sleep(3)
-# # # #                         break
-
-                
-# # # #     except Exception as e:
-# # # #         color = None
-# # # #         print(wh.RED, "ERR", e, wh.RESET)
+def string_to_selenium_color(string, pre="\t"*1):
+    try:
+        col = Color.from_string(string) # selenium eats it all ! wow
+        print(pre, wh.dq(string), "-->", wh.GREEN, col.rgba, "[", col.hex, "]", col.red, col.green, col.blue, col.alpha, "\n\n", wh.RESET)
+        return col
+    except Exception as e:
+        #print(wh.RED, "string_to_selenium_color:", e, wh.RESET)
+        return None
         
-# # # #     # named color?       
-# # # #     if not color:
-# # # #         # check for webcolors
-# # # #         print("named", value, is_named_color(value))
-# # # #         try:
-# # # #             values = value.split(' ')[-1]
-# # # #             print(type(values), values)
-# # # #             r,g,b = webcolors.name_to_rgb(values.strip())
-# # # #             color = pack(r,g,b,255.0)
-# # # #             print(value, "named", type(color), wh.GREEN, color, wh.RESET)
-# # # #         except Exception as e:
-# # # #             color = None
-# # # #             print(wh.RED, "color_from_string:", e, wh.RESET)  
-
-# # # #     return color
-
-
+def string_extract_selenium_colors(value):
     
+    """
+    special case: 
+    linear-gradient(direction, color-stop1, color-stop2, ...); 
+    linear-gradient(red, yellow, green); 
+    radial-gradient(shape size at position, start-color, ..., last-color);
+    conic-gradient([from angle] [at position,] color [degree], color [degree], ...);
+    currentcolor
+    text-shadow: 2px 2px red;
+    box-shadow: 10px 10px lightblue;
+    ["-gradient"]
+    
+    """
+    rgba = [] # TODO may be multiple cols in string
+    value = __property_color_cleanup(value)
+    print("\t"*0, "string_extract_selenium_colors", wh.MAGENTA, value, wh.RESET)
+    for val in value.split(' '):
+        if col := string_to_selenium_color(val):
+             rgba.append(col) 
+       
+    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
+    ##print("selenium color", wh.GREEN, color, wh.RESET) 
+    
+    assert rgba # DEBUG
+       
+    return rgba if rgba else None # TODO ??? or []
 
-#-----------------------------------------
-# 
-#-----------------------------------------
-#-----------------------------------------
-# 
-#-----------------------------------------
-#-----------------------------------------
-# 
-#-----------------------------------------    
+# https://stackoverflow.com/questions/26633452/how-to-split-by-commas-that-are-not-within-parentheses
+def string_split_at_delim_outside_parenthesis(value, delim):
+    #ret = re.split(r',\s*(?![^()]*\))', value) # ok
+    ret = re.split(rf"{delim}(?![^(]*\))", value)
+    print("string_split_at_comma_outside_parenthesis:", wh.dq(delim), wh.GREEN, ret, wh.RESET)
+    return ret
 
-# That function expects decimal for s (saturation) and v (value), not percent. Divide by 100.
-# test_color = colorsys.hsv_to_rgb(359,100,100)
-# --> colorsys.hsv_to_rgb(1,1,1)
-# test_color = colorsys.hsv_to_rgb(359/360.0, 1, 1)
+def string_split_at_comma_outside_parenthesis(value):
+    return string_split_at_delim_outside_parenthesis(value, delim=',')
 
-# def hsv2rgb(h,s,v):
-#     return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h,s,v))
+def property_value_apply_lut(value, lut):
+    value = __property_color_cleanup(value)
+    print("\t"*0, "property_value_apply_lut", wh.MAGENTA, value, wh.RESET)
+    
+    delim = ' '
+    if any(key in value for key in ["-gradient"]):
+        value = string_extract_parenthesis(value) # 
+        delim = ','
 
-# def hsv_to_rgb(h, s, v):
-#         if s == 0.0: return (v, v, v)
-#         i = int(h*6.) # XXX assume int() truncates!
-#         f = (h*6.)-i; p,q,t = v*(1.-s), v*(1.-s*f), v*(1.-s*(1.-f)); i%=6
-#         if i == 0: return (v, t, p)
-#         if i == 1: return (q, v, p)
-#         if i == 2: return (p, v, t)
-#         if i == 3: return (p, q, v)
-#         if i == 4: return (t, p, v)
-#         if i == 5: return (v, p, q)
+    values = string_split_at_delim_outside_parenthesis(value, delim=delim)
         
+    for val in values:
+        print("\t"*1, val)
+        if col := string_to_selenium_color(val):
+            print(col)
+             
+                
+    return value
+    
+    
+    
+#-----------------------------------------
+# 
+#-----------------------------------------
+def path_split(file):
+    file        = wh.to_posix(file)
+    dir         = os.path.dirname(file)
+    head, tail  = os.path.split(file)
+    base, ext   = os.path.splitext(tail)      
 
+    if True:
+        print("file:", file)
+        print("dir:", dir)
+        print("head:", head) # same as dir
+        print("tail:", tail)
+        print("base:", base)
+        print("ext:", ext)            
+    
+    return dir, base, ext
+        
+def path_file_add_postfix(file, postfix):
+    dir, base, ext = path_split(file)
+    ret = wh.add_trailing_slash(dir) + base + postfix + ext
+    print("ret:", ret)
+    return ret
 #-----------------------------------------
 # 
 #-----------------------------------------        
-# from matplotlib.colors import hsv_to_rgb
-# rgb = hsv_to_rgb(hsv)
-
 # https://colour.readthedocs.io/en/develop/generated/colour.LUT3D.html
 
 # https://pythonhosted.org/cssutils/docs/utilities.html
 if __name__ == "__main__":
     
-    
+    lut = None
+    lut = pillow_lut.load_cube_file(
+        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube" # xIWL_C-9730-STD.cube
+    )
+    # for r in range(256):
+    #      for g in range(256):      
+    #           for b in range(256):    
+    #               rgb =  (r,g,b)
+    #               norm = tuple(c/255.0 for c in rgb) 
+    #               cnorm = pillow_lut.sample_lut_cubic(lut, norm)      
+    #               crgb = tuple(round(c * 255.0) for c in cnorm) 
+    #               print(rgb, "-->", norm, "-->", cnorm, "-->",  crgb, "|", lut_convert_rgb(lut, r,g,b))    
+    # exit(0)  
+        
     import chromato 
-    print( string_extract_selenium_colors("#ff0000") )
-    print( string_extract_selenium_colors("#ff0000") )
-    print( string_extract_selenium_colors("#f00") )
-    print( string_extract_selenium_colors("background: border-box #f00;") )
-    print( string_extract_selenium_colors("border-box #f00;") )
-    print( string_extract_selenium_colors("background: #f00;") )
-    print( string_extract_selenium_colors("background: purple;") )
-    print( string_extract_selenium_colors("background: red;") )
-    print( string_extract_selenium_colors("background: white;") )
-    print( string_extract_selenium_colors("background: blue;") )
-    print( string_extract_selenium_colors("background: rgba(0,0,255,1);") )
-    print( string_extract_selenium_colors("background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t") )
-
-    print( string_extract_selenium_colors("#ff0000ff") )
-    print( string_extract_selenium_colors("#ff00007f") )
-    print( string_extract_selenium_colors("background: rgba(0,0,255,0.5);") )
-    print( string_extract_selenium_colors("unknown_color") )
-    print( string_extract_selenium_colors("some ramp: #f00 to #0f0 to #00f") )
     
+    strings = [
+               "#ff0000",
+               "#f00",
+               "background: border-box #f00;",
+               "background: \t rgba(0,0,\t  255,1);\n\t\t\t\t\t\t",
+               "background: blue;",
+               "background: purple;",
+               "unknown_color",
+               "background: rgba(0,0,255,0.5);",
+               "some ramp: #f00 to #0f0 to #00f",
+               "background-image: url('paper.gif');",
+               "background-color: #cccccc;",
+               "linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0))",
+               "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); ",
+               ]
+
+    
+    
+    for s in strings:
+        #print( string_extract_selenium_colors(s) )
+        property_value_apply_lut(s, lut)
+        print()
     exit(0)
     
     # https://pypi.org/project/Js2Py/
@@ -447,48 +393,53 @@ if __name__ == "__main__":
     print("result", squareofNum(5))
     #exit(0)
     
-    # lut = pillow_lut.load_cube_file(
-    #     "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_B-7040-STD.cube" # xIWL_C-9730-STD.cube
-    # )
-    # for r in range(256):
-    #      for g in range(256):      
-    #           for b in range(256):    
-    #               rgb =  (r,g,b)
-    #               norm = tuple(c/255.0 for c in rgb) 
-    #               cnorm = pillow_lut.sample_lut_cubic(lut, norm)      
-    #               crgb = tuple(round(c * 255.0) for c in cnorm) 
-    #               print(rgb, "-->", norm, "-->", cnorm, "-->",  crgb, "|", lut_convert_rgb(lut, r,g,b))    
-    # exit(0)  
-    
+
     import logging
     cssutils.log.setLevel(logging.CRITICAL)
     
+    postfix_bup     = "_bup_"
+    postfix_orig    = "_orig_"
+    
     files = wh.collect_files_endswith(config.project_folder, [".css"])
+    files = wh.links_remove_excludes(files, [postfix_bup, "202207"])
+    print("files", *files, sep="\n\t")
     
     # def property_value_is_color(val):
     #     return any(e in val for e in ['#', 'rgb', 'hsl', 'rgba', 'hsla']) # may as well be a named color
     
-    # pip install chromato
-    # https://github.com/vikpe/chromato/blob/f11556bde953fd6999187774a3de1e978f32b06c/README.md
-    from chromato.spaces import Color
-    import chromato 
-    red = Color(255, 0, 0)
-    print(red.cmyk )   
-    print(red.hex )   
-    print(red.rgb, red.rgb.r )   
-    print(red.hsl )   
-    print(red.hsv )   
-    #exit(0)
+    # # pip install chromato
+    # # https://github.com/vikpe/chromato/blob/f11556bde953fd6999187774a3de1e978f32b06c/README.md
+    # from chromato.spaces import Color
+    # import chromato 
+    # red = Color(255, 0, 0)
+    # print(red.cmyk )   
+    # print(red.hex )   
+    # print(red.rgb, red.rgb.r )   
+    # print(red.hsl )   
+    # print(red.hsv )   
+    # #exit(0)
     
     
     colors = []
     for file in files:
         
-        make copies of files with a date
+        print("-"*88)
         
+        # orig: save or restore
+        orig_path = path_file_add_postfix(file, postfix_orig + config.dt_now_string)
+        if wh.file_exists_and_valid(orig_path):
+            shutil.copy(orig_path, file)
+        else:
+            shutil.copy(file, orig_path)
+        
+        # make a bup
+        bup_path = path_file_add_postfix(file, postfix_bup + config.dt_now_string)
+        shutil.copy(file, bup_path)
+                
         print("\t"*0, wh.CYAN, file, wh.RESET)
         try:
             sheet = cssutils.parseFile(file)
+            # combine all linked sheets
             sheet = cssutils.resolveImports(sheet, target=None)
             
             print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET)
@@ -501,8 +452,13 @@ if __name__ == "__main__":
                     for property in rule.style:
                         print("\t"*4,   property.name , end=' ')       
                         if property_has_color(property):
-                            print(wh.GREEN, property.value, wh.RESET)
-                            pass
+                            print("property.value:",  wh.GREEN, property.value, wh.RESET)
+                            color   = string_extract_selenium_colors(property.value)[0] # TODO what about possible others? may be NONE TODO
+                            assert color
+                            print("color:",  wh.GREEN, color, wh.RESET)
+                            assert lut
+                            lutted  = lut_convert_selenium_color(lut, color)
+                            print("lutted:", property.value, wh.GRAY, color, "-->", wh.GREEN, lutted, wh.RESET)
                         else:
                             print(wh.GRAY, property.value, wh.RESET)
                             pass
@@ -528,5 +484,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{wh.RED} css: {e} {wh.RESET}")
             time.sleep(2)
+            exit(1)
             
     print("colors", *colors, sep="\n\t")
