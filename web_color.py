@@ -490,7 +490,7 @@ if __name__ == "__main__":
     #print("files", *files, sep="\n\t")
     
     # https://pythonhosted.org/cssutils/docs/css.html#values
-    if False:
+    if True:
         for file in files:
             
             print("-"*88)
@@ -557,10 +557,15 @@ if __name__ == "__main__":
             for node in  tree.xpath("//*[@style]"):
                 print("\t", ":"*88)
                 style_text = node.attrib['style']
+                if not style_text:
+                    continue
+                                
+                print(wh.MAGENTA, wh.dq(style_text), wh.RESET)
                 print(wh.CYAN, cssbeautifier.beautify(style_text), wh.RESET)
                 
                 style = cssutils.parseStyle(style_text) 
-                print ("\t\t", "style.cssText:", wh.MAGENTA, style.cssText, wh.RESET)
+                print(style)
+                print ("\t\t", "style.cssText:", wh.MAGENTA, wh.dq(style.cssText), wh.RESET)
                 
                 for property in style:
                     print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
@@ -573,13 +578,13 @@ if __name__ == "__main__":
                     property.value = new_pv
                         
                 # assign style back to lxml
-                node.attrib['style'] =  property.cssText.decode("utf-8")  
+                node.attrib['style'] =  property.cssText
                 #print("\t\t", wh.GREEN, node.attrib['style'], wh.RESET)
             
         ### for node
         
         # all internal style sheets
-        if False:
+        if True:
             for node in tree.xpath("//style"):
                 print("\t", "|"*88)
                 style_text = node.text_content()
