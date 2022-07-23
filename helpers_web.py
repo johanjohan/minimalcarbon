@@ -17,6 +17,7 @@ https://github.com/MickaelWalter/wp-json-scraper
 """
 
 
+
 from posixpath import join
 from urllib import response
 from urllib.parse import urlparse, urljoin, parse_qs
@@ -33,6 +34,9 @@ from PIL import Image
 import pillow_avif
 
 from natsort import natsorted, ns
+import copy
+
+
 
 #-----------------------------------------
 # 
@@ -897,7 +901,7 @@ def url_transliterate(url, uq_scheme=False, uq_path=True, uq_query=False, uq_fra
     urllib.parse.unquote(url)
     unidecode('kožušček')
     """
-    import copy
+    
     url_orig = copy.copy(url)
         
     if isinstance(url, str):
@@ -963,28 +967,30 @@ def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre
     print(RESET, end='')
     return response
 
-#### response.headers.get_content_charset()
 
-def get_response_content(response):
-    return response.read().decode('utf-8')
+# def get_response_content(response):
+#     return response.read().decode('utf-8')
 
-# def get_response_headers(response):
-#     return response.headers
+# def get_response_content_charset(response):
+#     return response.headers.get_content_charset()
 
-def get_response_headers_as_string(response):
-    return response.headers.as_string() 
+# # def get_response_headers(response):
+# #     return response.headers
 
-def get_response_headers_tuples(response):
-    return response.getheaders() 
+# def get_response_headers_as_string(response):
+#     return response.headers.as_string() 
 
-def get_response_mime_type(response):
-    return response.headers.get_content_type()
+# def get_response_headers_tuples(response):
+#     return response.getheaders() 
 
-def get_response_status(response):
-    return response.status
+# def get_response_mime_type(response):
+#     return response.headers.get_content_type()
 
-def get_response_redirected_url(response):
-    return response.url
+# def get_response_status(response):
+#     return response.status
+
+# def get_response_redirected_url(response):
+#     return response.url
 
     
 """
