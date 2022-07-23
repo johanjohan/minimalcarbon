@@ -188,7 +188,6 @@ def lut_convert_rgb(lut, r,g,b):
     
 def lut_convert_selenium_color(lut, color):
     
-    assert lut
     assert color
     
     #print("lut_convert_selenium_color: color:", color, "r,g,b:", color.red, color.green, color.blue)
