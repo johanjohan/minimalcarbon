@@ -176,7 +176,10 @@ import copy
 # rgba(255,255,255,1)
 
 def lut_convert_rgb_tuple(lut, rgb):
-    print("lut_convert_rgb_tuple: rgb:", rgb)
+    
+    assert lut
+
+    #print("lut_convert_rgb_tuple: rgb:", rgb)
     norm    = tuple(c/255.0 for c in rgb) 
     cnorm   = pillow_lut.sample_lut_cubic(lut, norm)
     crgb    = tuple(round(c * 255.0) for c in cnorm) 
@@ -219,26 +222,24 @@ text-shadow: 2px 2px red;
 box-shadow: 10px 10px lightblue;
 ["-gradient"]
 
+the combinators of the defined values which might simply be space or comma or slash.
+
+color: lab(67.5345% -8.6911 -41.6019 / 100%);
+https://dev.to/alvaromontoro/the-ultimate-guide-to-css-colors-2020-edition-1bh1
 """
 
-def __property_color_cleanup(value):
-    value = wh.string_remove_control_characters(value)
-    value = wh.string_remove_multiple_spaces(value)
-    for fr, to in [(', ', ','), ('( ', '('), (' )', ')'), (';', ' ; ')]: # (';', ' '), 
-        value = value.replace(fr, to)
-    # # # #print("\t\t\t\t", wh.CYAN, value, wh.RESET)
-    return value
-    
+# the combinators of the defined values which might simply be space or comma or slash.
 
-def string_has_color(__value):
-    for val in property_value_split(__value):
-        #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
-        if any(key in val for key in ['#', 'rgb', 'hsl', 'hwb']) or string_is_named_color(val):
-           return True            
-    return False
+# def string_has_color(__value):
+#     for val in property_value_split(__value):
+#         #print("\t\t\t\t\t", wh.GRAY, val, wh.RESET)
+#         # https://dev.to/alvaromontoro/the-ultimate-guide-to-css-colors-2020-edition-1bh1
+#         if any(key in val for key in ['#', 'rgb', 'hsl', 'hwb', 'lab', 'lch', 'device-cmyk', 'color']) or string_is_named_color(val):
+#            return True            
+#     return False
 
-def property_has_color(property):
-    return string_has_color(property.value)
+# def property_has_color(property):
+#     return string_has_color(property.value)
 
 def string_named_color_to_rgba(named_color_string):
     try:
@@ -265,7 +266,9 @@ def string_extract_parenthesis(s):
     ret = s[s.find("(")+1:s.rfind(")")] 
     #print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
     return ret
-
+#-----------------------------------------
+# 
+#-----------------------------------------
 def string_to_selenium_color(string, pre="\t"*1):
     try:
         col = Color.from_string(string) # selenium eats it all ! wow
@@ -301,36 +304,131 @@ def string_split_at_comma_outside_parenthesis(value):
     return string_split_at_delim_outside_parenthesis(value, delim=',')
         
         
-# need to preserve all elements of string, just replace color
 
-def string_extract_selenium_colors(__value):
+# # # def string_extract_selenium_colors(__value):
     
-    # a useless function<<<<<<<<<<<<<<<<<<<<<<<<<
+# # #     # a useless function<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    rgba = [] 
+# # #     rgba = [] 
     
-    for val in property_value_split(__value):
-        if col := string_to_selenium_color(val):
-             rgba.append(col) 
-    print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
+# # #     for val in property_value_split(__value):
+# # #         if col := string_to_selenium_color(val):
+# # #              rgba.append(col) 
+# # #     print("selenium *rgba[]", wh.GREEN, *rgba, wh.RESET, sep="\n"+"\t"*2)  
     
-    assert rgba # DEBUG
+# # #     assert rgba # DEBUG
     
-    return rgba if rgba else None # TODO ??? or []
+# # #     return rgba if rgba else None # TODO ??? or []
 
 
 
+#-----------------------------------------
+# 
+#-----------------------------------------
 
+#__combinators = [' ', ',', '/']
 
-"""
-Q how to exactly rewrite the property with changed colors
+def __css_function_cleanup(__value):
+    
+    value = wh.string_remove_control_characters(__value)
+    
+    for fr, to in [
+        (';', ' ; '),
+        ('/', ' / '),
+    ]: 
+        value = value.replace(fr, to)
+        
+    value = wh.string_remove_multiple_spaces(value)    
+    
+    for fr, to in [
+        (' ,', ','), 
+        (', ', ','), 
+        ('( ', '('), 
+        (' (', '('), 
+        (' )', ')'), 
+    ]: 
+        value = value.replace(fr, to)
+        
+    #print("\t\t\t\t", wh.GRAY, __value, "-->", wh.YELLOW, value, wh.RESET)
+    return value
+    
+# "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); "   
+def function_split_traverse_lut(__value, lut):   
+    
+    print("split_css_function:", __value)
+    
+    assert string_has_parenthesis(__value)
+    
+    value   = __css_function_cleanup(__value)
+    name    = value.split('(')[0]
+    print("\t", "name:", name)
+    
+    args = string_split_at_delim_outside_parenthesis(string_extract_parenthesis(value), ',')
+    print("\t\t", "args:", args)
+    
+    # these are the comma-separated args: ['to right top', 'rgba(123,234,210,1)', '#004d7a', '#008793', '#00bf72', '#a8eb12']
+    new_args = []
+    for arg in args:
+        pv = cssutils.css.PropertyValue(arg)
+        print("\t\t\t", "pv:", pv, pv.length)
+        
+        if pv.length > 1:
+            new_args.append(pv.cssText) # all together 'to right top' (length 3)
+        elif pv.length == 1:
+            v = pv[0]
+            if v.type == cssutils.css.Value.COLOR_VALUE:
+                lut_col         = lut_convert_rgb(lut, v.red, v.green, v.blue)
+                lut_col.alpha   = v.alpha # restore original
+                new_args.append( selenium_color_to_string(lut_col) )
+            else:
+                new_args.append(pv.cssText)
+        # else:
+        #     print("split_css_function: should NOT happen pv.length == 0")
+        #     exit(1)
+    ### for args />  
+    
+    ret_func = f"{name}( {','.join(new_args)} )"  
+    return ret_func
+ 
+ 
+def property_traverse_lut(__value, __lut):
 
-# the combinators of the defined values which might simply be space or comma or slash.
-"""
+    print("\t"*4, "property_traverse", wh.MAGENTA, __value, wh.RESET)
+    ret = []
+    for v in cssutils.css.PropertyValue(__value):
+        
+        print("\t"*4, "v:", wh.RESET, v, wh.RESET)
+        
+        if v.type == cssutils.css.Value.COLOR_VALUE:
+
+            lut_col         = lut_convert_rgb(__lut, v.red, v.green, v.blue)
+            lut_col.alpha   = v.alpha # restore original
+            ret.append(selenium_color_to_string(lut_col))
+                                                
+            # if v.colorType == cssutils.css.Value.IDENT:
+            #     pass
+            # elif v.colorType == cssutils.css.Value.FUNCTION:
+            #     pass
+            # elif v.colorType == cssutils.css.Value.HASH:
+            #     pass
+            # else:
+            #     print("\t"*7, wh.YELLOW, "unknown v.colorType:", v.colorType, wh.RESET)
+            #     exit(1)
+                
+        elif v.type == cssutils.css.Value.FUNCTION:
+            print("\t"*6, wh.MAGENTA, v.type, v, wh.RESET)
+            new_func = function_split_traverse_lut(v.value, __lut)
+            ret.append(new_func)
+        else:
+            ret.append(str(v.cssText)) # IDENT DIMENSION...
+        
+    ### for />                    
+    return ' '.join(ret)   
+   
 # "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); "
 def property_value_split(__value):
     ret = []
-    value = __property_color_cleanup(__value)
+    value = __css_function_cleanup(__value)
     delim = ' '
     if any(key in value for key in ["-gradient"]):
         
@@ -349,25 +447,23 @@ def property_value_split(__value):
     print("property_value_split:", wh.GRAY, __value, "-->", wh.RESET, ret)
     return ret
     
-def property_value_apply_lut(__value, lut):
+# # def property_value_apply_lut(__value, lut):
 
-    s_out = ""
-    for val in property_value_split(__value):
-        print("\t"*1, val)
-        if col := string_to_selenium_color(val):
-            lutted = lut_convert_selenium_color(lut, col)
-            print("property_value_apply_lut:", col, "-->", lutted)
-            s_out += selenium_color_to_string(lutted)
-        else:
-            s_out += val
+# #     s_out = ""
+# #     for val in property_value_split(__value):
+# #         print("\t"*1, val)
+# #         if col := string_to_selenium_color(val):
+# #             lutted = lut_convert_selenium_color(lut, col)
+# #             print("property_value_apply_lut:", col, "-->", lutted)
+# #             s_out += selenium_color_to_string(lutted)
+# #         else:
+# #             s_out += val
              
-    print("property_value_apply_lut:", wh.GRAY, __value, wh.RESET, "-->", wh.GREEN, s_out, wh.RESET)
+# #     print("property_value_apply_lut:", wh.GRAY, __value, wh.RESET, "-->", wh.GREEN, s_out, wh.RESET)
                 
-    return s_out # a new property value
-    
-    
-    
-   
+# #     return s_out # a new property value
+ 
+
     
 #-----------------------------------------
 # 
@@ -498,28 +594,12 @@ if __name__ == "__main__":
                         # for i, v in enumerate(property.value):
                         #     print("\t"*5, i, v)
                         
-                        print("\t"*4, "property.value", wh.MAGENTA, property.value, wh.RESET)
-                        pv = cssutils.css.PropertyValue(property.value)
-                        print("\t"*4, wh.CYAN, pv.cssText, wh.RESET)
-                        
-                        
-                        for i, v in enumerate(pv):
-                            print("\t"*5, i, v.cssText, v)
+
                             
-                            if v.type ==  cssutils.css.Value.COLOR_VALUE:
-                                print("\t"*6, "COLOR_VALUE")
-                                pass
-                            
-                            # if string_is_color(v):
-                            #     #lutted  = lut_convert_selenium_color(lut, v)
-                            #     print("\t"*5, i, wh.GREEN, v, wh.RESET)
-                            # else:
-                            #     print("\t"*5, i, v)
-                            if string_is_color(v):
-                                v.cssText = "#999666"
-                                
-                        print("\t"*4, "changed?", wh.CYAN, pv.cssText, wh.RESET)
-                        print("\t"*4, "property.value", wh.MAGENTA, property.value, wh.RESET)
+                        new_pv = property_traverse_lut(property.value)
+                        print("\t"*4, wh.GRAY, property.value, "-->", wh.GREEN, wh.dq(new_pv), wh.RESET)
+                        property.value
+                        ##time.sleep(1)
                             
                         # if 'color' in property.name:
                         #     color = property.value
