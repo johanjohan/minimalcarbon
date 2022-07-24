@@ -286,6 +286,18 @@ def string_extract_brackets(s):
 def string_extract_chevrons(s):
     return string_extract_fore_back(s, '<', '>')
 
+def string_embrace_fore_back(s, fore, back):
+    return fore + str(s) + back
+
+def string_get_head(s, delim):
+    if s is not None:
+        ret = s.split(delim)[0]
+        print("string_get_head: ret:", ret)
+        return ret
+    else:
+        print(wh.RED, "string_get_head: s is None", wh.RESET)
+        exit(1)
+
 # https://stackoverflow.com/questions/26633452/how-to-split-by-commas-that-are-not-within-parentheses
 def string_split_at_delim_outside_parenthesis(value, delim):
     #ret = re.split(r',\s*(?![^()]*\))', value) # ok"
@@ -326,7 +338,9 @@ def __css_function_cleanup(__value):
     #print("\t\t\t\t", wh.GRAY, __value, "-->", wh.YELLOW, value, wh.RESET)
     return value
     
-# function: "linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); "   
+# linear-gradient(red, yellow, green, purple, #123456, #987654, rgb(255,128,96), rgba(255,128,96,1)); 
+# linear-gradient(to right, #60c7f2 0%, #00a5e6 100%)
+#  args_comma:  ['to right', '#60c7f2 0%', '#00a5e6 100%']
 def function_split_traverse_apply_lut(__value, lut):   
     
     #print("function_split_traverse_apply_lut:", __value)
@@ -334,42 +348,64 @@ def function_split_traverse_apply_lut(__value, lut):
     assert  string_has_parenthesis(__value)
     value   = __css_function_cleanup(__value)
     name    = value.split('(')[0]
-    args    = string_split_at_delim_outside_parenthesis(
+    args_comma    = string_split_at_delim_outside_parenthesis(
         string_extract_parentheses(value), 
         ','
     )
     print("\t\t\t", wh.GRAY, "name:", wh.MAGENTA, name, wh.RESET)
-    print("\t\t\t", wh.GRAY, "args:", wh.CYAN,    args, wh.RESET)
+    print("\t\t\t", wh.GRAY, "args_comma:", wh.CYAN,    args_comma, wh.RESET)
     
-    # these are the comma-separated args: ['to right top', 'rgba(123,234,210,1)', '#004d7a', '#008793', '#00bf72', '#a8eb12']
-    new_args = []
-    for arg in args:
+    # these are the comma-separated args_comma: ['to right top', 'rgba(123,234,210,1)', '#004d7a', '#008793', '#00bf72', '#a8eb12']
+    new_args_comma = []
+    for arg in args_comma:
         try:
             pv = cssutils.css.PropertyValue(arg)
-            #print("\t\t\t", "pv:", pv, pv.length)
+            print("\t\t\t", "pv:", pv.length, pv)
             if pv.length > 1:
-                new_args.append(pv.cssText) # all together 'to right top' (length 3)
+                # split by space
+                args_space    = string_split_at_delim_outside_parenthesis(
+                    pv.cssText, 
+                    ' '
+                )    
+                print("\t\t\t\t", wh.GRAY, "args_space:", wh.CYAN, args_space, wh.RESET)
+                new_args_space = []
+                for arg_space in args_space:
+                    if v := string_to_selenium_color(arg_space):
+                        lut_col         = hl.lut_convert_rgb(lut, v.red, v.green, v.blue)
+                        lut_col.alpha   = v.alpha # restore original
+                        new_args_space.append( selenium_color_to_string(lut_col) ) # rgba(...)
+                    else:
+                        new_args_space.append(arg_space)
+                ## for args_space />
+                
+                # recombine space-split items
+                new_args_comma.append(
+                    ' '.join(new_args_space)
+                )
+                
+                
+                        
             elif pv.length == 1:
                 v = pv[0]
                 if v.type == cssutils.css.Value.COLOR_VALUE:
                     lut_col         = hl.lut_convert_rgb(lut, v.red, v.green, v.blue)
                     lut_col.alpha   = v.alpha # restore original
-                    new_args.append( selenium_color_to_string(lut_col) ) # rgba(...)
+                    new_args_comma.append( selenium_color_to_string(lut_col) ) # rgba(...)
                 else:
-                    new_args.append(pv.cssText) # whatever
+                    new_args_comma.append(pv.cssText) # whatever
             else:
                 assert False
         except Exception as e: # cssutils.css.PropertyValue # can be MSValue...
             print("\t\t\t", wh.YELLOW, "ISSUE:", e, wh.RESET, "--> will append arg directly:", wh.dq(arg))
-            new_args.append(arg)
+            new_args_comma.append(arg)
             time.sleep(0)
-    ### for args />  
+    ### for args_comma />  
     
-    return f"{name}({', '.join(new_args)})" # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
+    return f"{name}({','.join(new_args_comma)})" # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
  
 def property_traverse_apply_lut(__value, __lut):
 
-    #print("\t"*4, "property_traverse_apply_lut", wh.MAGENTA, __value, wh.RESET)
+    print("\t"*4, "property_traverse_apply_lut", wh.MAGENTA, __value, wh.RESET)
     ret = []
     for v in cssutils.css.PropertyValue(__value):
         
@@ -524,6 +560,24 @@ if __name__ == "__main__":
     # print("result", squareofNum(5))
     # #exit(0)
     
+    s = """
+@supports (-webkit-text-stroke: thin) {
+    .gradient-color {
+        background: linear-gradient(to right, #60c7f2 0%, #00a5e6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text
+        }
+    }    
+    
+    """
+    
+    # string_get_head(s, "{")
+    # string_get_head("xxx", "{")
+    # string_get_head("", "{")
+    # string_get_head(None, "{")
+    # exit(0)
+    
 
     import logging
     cssutils.log.setLevel(logging.CRITICAL)
@@ -601,6 +655,30 @@ if __name__ == "__main__":
                         
                     elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]:
                         print("\t"*3, "rule.cssText:", rule.cssText )   
+                        name0   = string_get_head(rule.cssText, "{")
+                        inner0  = string_extract_braces(rule.cssText)
+                        name1   = string_get_head(inner0, "{")
+                        inner1  = string_extract_braces(inner0)
+                        inner1_list = wh.string_remove_whitespace(inner1).split(';')
+                        
+                        print("name0 :", name0)
+                        print("inner0:", inner0)
+                        print("name1 :", name1)
+                        print("inner1:", inner1)
+                        print("inner1_list:", inner1_list)
+                        
+                        for cssText in inner1_list:
+                            #r = cssutils.css.CSSRule(item) # item
+                            style = cssutils.css.CSSStyleDeclaration(cssText=cssText) # item
+                            print(style)
+                            for key in style.keys():
+                                value = style.getPropertyValue(key)
+                                new_pv = property_traverse_apply_lut(value, lut)
+                                print("\t", key, value, "-->", new_pv)
+                                
+                            # # print("pv:", pv)
+                            # # for v in pv:
+                            # #     print("\t", v)
                                 
                 ### for rule />              
                                 
