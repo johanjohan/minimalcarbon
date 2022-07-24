@@ -254,9 +254,8 @@ def string_to_selenium_color(string, pre="\t"*1):
         print(pre, wh.dq(string), "-->", wh.GREEN, col.rgba, "[", col.hex, "]", col.red, col.green, col.blue, col.alpha, "\n\n", wh.RESET)
         return col
     except Exception as e:
-        print(wh.RED, "string_to_selenium_color: e:", e, wh.RESET)
-        print(wh.RED, "string_to_selenium_color: string:", string, wh.RESET)
-        assert False
+        # print(wh.RED, "string_to_selenium_color: e:", e, wh.RESET)
+        # print(wh.RED, "string_to_selenium_color: string:", string, wh.RESET)
         return None
     
 def string_is_color(string):
@@ -361,6 +360,7 @@ def function_split_traverse_apply_lut(__value, lut):
         try:
             pv = cssutils.css.PropertyValue(arg)
             print("\t\t\t", "pv:", pv.length, pv)
+            
             if pv.length > 1:
                 # split by space
                 args_space    = string_split_at_delim_outside_parenthesis(
@@ -378,13 +378,14 @@ def function_split_traverse_apply_lut(__value, lut):
                         new_args_space.append(arg_space)
                 ## for args_space />
                 
+                new_args_space_joined = ' '.join(new_args_space)
+                print("\t\t\t\t\t", wh.GRAY, "new_args_space_joined:", wh.CYAN, new_args_space_joined, wh.RESET)
+                
                 # recombine space-split items
                 new_args_comma.append(
-                    ' '.join(new_args_space)
+                    new_args_space_joined
                 )
-                
-                
-                        
+                  
             elif pv.length == 1:
                 v = pv[0]
                 if v.type == cssutils.css.Value.COLOR_VALUE:
@@ -401,7 +402,11 @@ def function_split_traverse_apply_lut(__value, lut):
             time.sleep(0)
     ### for args_comma />  
     
-    return f"{name}({','.join(new_args_comma)})" # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
+    ret = f"{name}({','.join(new_args_comma)})"
+    
+    print("function_split_traverse_apply_lut: ret:", ret)
+    
+    return ret # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
  
 def property_traverse_apply_lut(__value, __lut):
 
@@ -661,24 +666,32 @@ if __name__ == "__main__":
                         inner1  = string_extract_braces(inner0)
                         inner1_list = wh.string_remove_whitespace(inner1).split(';')
                         
-                        print("name0 :", name0)
-                        print("inner0:", inner0)
-                        print("name1 :", name1)
-                        print("inner1:", inner1)
+                        print("name0 :", name0)     # @supports (-webkit-text-stroke: thin)
+                        print("inner0:", inner0)    # . gradient-color {...}
+                        print("name1 :", name1)     # . gradient-color
+                        print("inner1:", inner1)    # ...
                         print("inner1_list:", inner1_list)
                         
-                        for cssText in inner1_list:
-                            #r = cssutils.css.CSSRule(item) # item
+                        for i, cssText in enumerate(inner1_list):
                             style = cssutils.css.CSSStyleDeclaration(cssText=cssText) # item
-                            print(style)
                             for key in style.keys():
-                                value = style.getPropertyValue(key)
-                                new_pv = property_traverse_apply_lut(value, lut)
-                                print("\t", key, value, "-->", new_pv)
+                                value           = style.getPropertyValue(key)
+                                inner1_list[i]  = f"{key}: " + property_traverse_apply_lut(value, lut) # https://stackoverflow.com/questions/4081217/how-to-modify-list-entries-during-for-loop
+                                #print("\t", key, ":",  value, "-->", inner1_list[i])
                                 
-                            # # print("pv:", pv)
-                            # # for v in pv:
-                            # #     print("\t", v)
+                        print("inner1_list: after:", inner1_list)
+                        
+                        rule_text = f"""
+                            {name0} {{
+                                {name1} {{
+                                    {'; '.join(inner1_list)}
+                                }}
+                            }}
+                        """
+                        
+                        print("rule_text", rule_text)
+                                
+                        
                                 
                 ### for rule />              
                                 
