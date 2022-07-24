@@ -621,7 +621,7 @@ if __name__ == "__main__":
                 
                 #print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET) # TODO CHECK NOTE cssutils.getUrls(sheet)
                 
-                for rule in sheet: # .cssRules:      
+                for rule in sheet.cssRules:      
                     print("\t"*2, wh.BLUE, "::", os.path.basename(file), ":"*66, wh.RESET) 
                     print("\t"*2, "rule     :", rule )   
                     print("\t"*2, "rule.type:", rule.type, cssutils.css.CSSRule._typestrings[rule.type])
@@ -659,7 +659,9 @@ if __name__ == "__main__":
                             property.value = new_pv                        
                         
                     elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]:
+                        
                         print("\t"*3, "rule.cssText:", rule.cssText )   
+                        
                         name0   = string_get_head(rule.cssText, "{")
                         inner0  = string_extract_braces(rule.cssText)
                         name1   = string_get_head(inner0, "{")
@@ -688,8 +690,20 @@ if __name__ == "__main__":
                                 }}
                             }}
                         """
-                        
                         print("rule_text", rule_text)
+                        
+                        ss = cssutils.css.CSSRule(rule_text)
+                        print("ss", ss)
+                        
+                       
+                        # https://github.com/jaraco/cssutils/issues/6
+                        
+                        
+                        # # # # new_rule = cssutils.css.CSSStyleDeclaration(cssText=rule_text)
+                        # # # # new_rule = cssutils.css.CSSMediaRuleRule(cssText=rule_text)
+                        # # # # print("new_rule", new_rule)
+                        
+                        rule.style = ss
                                 
                         
                                 
