@@ -207,8 +207,10 @@ f_unpowered_excludes = [
 #----------------------------------------- 
 # https://www.w3schools.com/css/css_font.asp
 #font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
-font_mono   =  "Monaco, Lucida Console, Courier New, monospace"
-font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
+#font_mono   =  "Monaco, Lucida Console, Courier New, monospace"
+font_mono   =  "monospace"
+#font_sans   =  "Verdana, Arial, Helvetica, sans-serif"
+font_sans   =  "sans-serif"
 #-----------------------------------------
 # html_infossil_link
 #----------------------------------------- 

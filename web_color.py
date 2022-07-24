@@ -2,7 +2,11 @@
 
 linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0))
 
-
+https://gist.github.com/mitchellrj/8472092
+take an HTML document and replace all CSS with inline styles, accounting
+for all precedence rules. Requires cssutils, cssselect and lxml.Does not
+work with pseudo-elements, @font-face, @page and CSS variables as these
+cannot be represented by inline CSS.
 
 -------------------------------------------------------------------------
 
@@ -264,10 +268,23 @@ def string_is_color(string):
 def string_has_parenthesis(s):
     return all(key in s for key in ['(', ')'])
 
-def string_extract_parenthesis(s):
-    ret = s[s.find("(")+1:s.rfind(")")] 
-    #print(wh.YELLOW, "string_extract_parenthesis:", s, "-->", ret, wh.RESET)
+# https://en.wikipedia.org/wiki/Bracket
+def string_extract_fore_back(s, fore, back):
+    ret = s[s.find(fore)+1:s.rfind(back)] 
+    print(wh.YELLOW, "string_extract_fore_back:", fore, back, ":", s, "-->", ret, wh.RESET)
     return ret
+
+def string_extract_parentheses(s):
+    return string_extract_fore_back(s, '(', ')')
+
+def string_extract_braces(s):
+    return string_extract_fore_back(s, '{', '}')
+
+def string_extract_brackets(s):
+    return string_extract_fore_back(s, '[', ']')
+
+def string_extract_chevrons(s):
+    return string_extract_fore_back(s, '<', '>')
 
 # https://stackoverflow.com/questions/26633452/how-to-split-by-commas-that-are-not-within-parentheses
 def string_split_at_delim_outside_parenthesis(value, delim):
@@ -318,7 +335,7 @@ def function_split_traverse_apply_lut(__value, lut):
     value   = __css_function_cleanup(__value)
     name    = value.split('(')[0]
     args    = string_split_at_delim_outside_parenthesis(
-        string_extract_parenthesis(value), 
+        string_extract_parentheses(value), 
         ','
     )
     print("\t\t\t", wh.GRAY, "name:", wh.MAGENTA, name, wh.RESET)
@@ -343,9 +360,9 @@ def function_split_traverse_apply_lut(__value, lut):
             else:
                 assert False
         except Exception as e: # cssutils.css.PropertyValue # can be MSValue...
-            print("\t\t\t", wh.RED, "ERROR:", e, wh.RESET, "--> will append arg directly:", wh.dq(arg))
+            print("\t\t\t", wh.YELLOW, "ISSUE:", e, wh.RESET, "--> will append arg directly:", wh.dq(arg))
             new_args.append(arg)
-            time.sleep(3)
+            time.sleep(0)
     ### for args />  
     
     return f"{name}({', '.join(new_args)})" # the new function: linear-gradient(to right top, rgba(123, 234, 210, 1), rgba(0, 77, 122, 1), rgba(0, 135, 147, 1), rgba(0, 191, 114, 1), rgba(168, 235, 18, 1))
@@ -437,10 +454,39 @@ if __name__ == "__main__":
         
     # # # import chromato 
     
-    # # # assert string_has_parenthesis("s") == False
-    # # # assert string_has_parenthesis("s(") == False
-    # # # assert string_has_parenthesis("s)") == False
-    # # # assert string_has_parenthesis("s()") == True
+    # # assert string_has_parenthesis("s") == False
+    # # assert string_has_parenthesis("s(") == False
+    # # assert string_has_parenthesis("s)") == False
+    # # assert string_has_parenthesis("s()") == True
+    
+    # # string_extract_braces("""
+                          
+    
+    # # "glossary": {
+    # #     "title": "example glossary",
+	# # 	"GlossDiv": {
+    # #         "title": "S",
+	# # 		"GlossList": {
+    # #             "GlossEntry": {
+    # #                 "ID": "SGML",
+	# # 				"SortAs": "SGML",
+	# # 				"GlossTerm": "Standard Generalized Markup Language",
+	# # 				"Acronym": "SGML",
+	# # 				"Abbrev": "ISO 8879:1986",
+	# # 				"GlossDef": {
+    # #                     "para": "A meta-markup language, used to create markup languages such as DocBook.",
+	# # 					"GlossSeeAlso": ["GML", "XML"]
+    # #                 },
+	# # 				"GlossSee": "markup"
+    # #             }
+    # #         }
+    # #     }
+    # # }
+                   
+                          
+                          
+    # #                       """)
+    # # exit(0)
 
     # # # strings = [
     # # #            "#ff0000",
@@ -487,9 +533,23 @@ if __name__ == "__main__":
     #----------------------------------------- 
     files = wh.collect_files_endswith(config.project_folder, [".css"], pre="")
     files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    #files = []
     #print("files", *files, sep="\n\t")
     
     # https://pythonhosted.org/cssutils/docs/css.html#values
+    #-----------------------------------------
+    # external stylesheets .css
+    #----------------------------------------- 
+    """
+    @supports (-webkit-text-stroke: thin) {
+        gradient-color {
+            background: linear-gradient(to right, #60c7f2 0%, #00a5e6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+    }
+    """
     if True:
         for file in files:
             
@@ -503,12 +563,15 @@ if __name__ == "__main__":
                 #print("\t"*1, wh.MAGENTA, cssutils.getUrls(sheet) , wh.RESET) # TODO CHECK NOTE cssutils.getUrls(sheet)
                 
                 for rule in sheet: # .cssRules:      
-                    print("\t"*2, ":"*66) 
-                    print("\t"*2, rule.type, cssutils.css.CSSRule._typestrings[rule.type])
+                    print("\t"*2, wh.BLUE, "::", os.path.basename(file), ":"*66, wh.RESET) 
+                    print("\t"*2, "rule     :", rule )   
+                    print("\t"*2, "rule.type:", rule.type, cssutils.css.CSSRule._typestrings[rule.type])
                     
                     if rule.type in [cssutils.css.CSSRule.STYLE_RULE]:
+                        
+                        print("\t"*3, "rule.style:", rule.style )   
                         print("\t"*3, "rule.selectorText:", rule.selectorText )   
-                            
+                    
                         for property in rule.style:
                             print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
                             print("\t"*4, "property.value   :", wh.CYAN, wh.dq(property.value),    wh.RESET)      
@@ -519,8 +582,27 @@ if __name__ == "__main__":
                             print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
                             property.value = new_pv
                             ##time.sleep(1)
+                            
+                    # ITERATIVE FOCUS POCUS FOCUS         
+                            
+                    elif rule.type in [cssutils.css.CSSRule.MEDIA_RULE]:
+                        print("\t"*3, "rule.cssText :", rule.cssText )   
+                        print("\t"*3, "rule.cssRules:", rule.cssRules )   
+                        
+                        for property in rule.cssRules[0].style:
+                            print("\t"*4, "property.name    :", wh.CYAN, wh.dq(property.name) ,    wh.RESET)     
+                            print("\t"*4, "property.value   :", wh.CYAN, wh.dq(property.value),    wh.RESET)      
+                            print("\t"*4, "property.priority:", wh.CYAN, wh.dq(property.priority), wh.RESET)        
+
+                            new_pv = property_traverse_apply_lut(property.value, lut)
+                            print("\t"*4, wh.GRAY, wh.dq(property.value), "-->", wh.RESET)
+                            print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
+                            property.value = new_pv                        
+                        
+                    elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]:
+                        print("\t"*3, "rule.cssText:", rule.cssText )   
                                 
-                ### for rule />                
+                ### for rule />              
                                 
                 print(wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
                 
@@ -530,6 +612,8 @@ if __name__ == "__main__":
                         cssbeautifier.beautify(sheet.cssText.decode("utf-8")), 
                         file
                     )
+                
+                exit(0)
                                                                 
             except Exception as e:
                 print(f"{wh.RED} css: {e} {wh.RESET}")
@@ -537,11 +621,12 @@ if __name__ == "__main__":
                 exit(1)
 
     #-----------------------------------------
-    # 
-    #-----------------------------------------             
+    # index.html: internal stylesheets and style-attributes
+    #-----------------------------------------  
     files = wh.collect_files_endswith(config.project_folder, ["index.html"], pre="")
     files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     #print("files", *files, sep="\n\t")
+    files = []           
     
     # https://pythonhosted.org/cssutils/docs/css.html#values
     for file in files:
@@ -554,11 +639,12 @@ if __name__ == "__main__":
         
         # all tags with style attributes
         if True:
-            for node in  tree.xpath("//*[@style]"):
+            for node in  tree.xpath("//*/@style[not(.="")]"): # all tages wth @style and not empty
+                
                 print("\t", ":"*88)
                 style_text = node.attrib['style']
-                if not style_text:
-                    continue
+                # if not style_text:
+                #     continue
                                 
                 print(wh.MAGENTA, wh.dq(style_text), wh.RESET)
                 print(wh.CYAN, cssbeautifier.beautify(style_text), wh.RESET)
@@ -584,7 +670,7 @@ if __name__ == "__main__":
         ### for node
         
         # all internal style sheets
-        if True:
+        if False:
             for node in tree.xpath("//style"):
                 print("\t", "|"*88)
                 style_text = node.text_content()
@@ -613,7 +699,7 @@ if __name__ == "__main__":
                 
         
         content = etree.tostring(tree, pretty_print=True).decode("utf-8")
-        #print(wh.GREEN, content, wh.RESET)
+        print(wh.GREEN, content, wh.RESET)
         if True:
             print("string_to_file", wh.GRAY, file, wh.RESET)
             wh.string_to_file(
@@ -623,7 +709,7 @@ if __name__ == "__main__":
             
     ### for file
         
-    
+    print("all done.")
     
     #-----------------------------------------
     # 

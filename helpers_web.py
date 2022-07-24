@@ -51,6 +51,7 @@ YELLOW  = colorama.Fore.YELLOW
 RED     = colorama.Fore.RED
 CYAN    = colorama.Fore.CYAN
 MAGENTA = colorama.Fore.MAGENTA
+BLUE    = colorama.Fore.BLUE
 
 
 #-----------------------------------------
