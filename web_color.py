@@ -270,7 +270,7 @@ def string_has_parenthesis(s):
 # https://en.wikipedia.org/wiki/Bracket
 def string_extract_fore_back(s, fore, back):
     ret = s[s.find(fore)+1:s.rfind(back)] 
-    print(wh.YELLOW, "string_extract_fore_back:", fore, back, ":", s, "-->", ret, wh.RESET)
+    #print(wh.YELLOW, "string_extract_fore_back:", fore, back, ":", s, "-->", ret, wh.RESET)
     return ret
 
 def string_extract_parentheses(s):
@@ -658,21 +658,28 @@ if __name__ == "__main__":
                             print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
                             property.value = new_pv                        
                         
-                    elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]:
+                    elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]: 
                         
-                        print("\t"*3, "rule.cssText:", rule.cssText )   
                         
-                        name0   = string_get_head(rule.cssText, "{")
-                        inner0  = string_extract_braces(rule.cssText)
-                        name1   = string_get_head(inner0, "{")
-                        inner1  = string_extract_braces(inner0)
+                        # <<<<<<<<< TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                        print(wh.YELLOW, "GLITCHY!!! bad {} {}")
+                        
+                        print("\t"*3, wh.YELLOW, "UNKNOWN_RULE: rule.cssText:", rule.cssText , wh.RESET)   
+                        time.sleep(1)
+                        
+                        name0       = string_get_head(rule.cssText, "{")
+                        inner0      = string_extract_braces(rule.cssText)
+                        name1       = string_get_head(inner0, "{")
+                        inner1      = string_extract_braces(inner0)
                         inner1_list = wh.string_remove_whitespace(inner1).split(';')
                         
+                        print(wh.MAGENTA)
                         print("name0 :", name0)     # @supports (-webkit-text-stroke: thin)
                         print("inner0:", inner0)    # . gradient-color {...}
                         print("name1 :", name1)     # . gradient-color
                         print("inner1:", inner1)    # ...
                         print("inner1_list:", inner1_list)
+                        print(wh.RESET)
                         
                         for i, cssText in enumerate(inner1_list):
                             style = cssutils.css.CSSStyleDeclaration(cssText=cssText) # item
@@ -690,10 +697,12 @@ if __name__ == "__main__":
                                 }}
                             }}
                         """
-                        print("rule_text", rule_text)
+                        print("rule_text", wh.MAGENTA, cssbeautifier.beautify(rule_text), wh.RESET)
                         
-                        ss = cssutils.css.CSSRule(rule_text)
-                        print("ss", ss)
+                        # # ss = cssutils.css.CSSRule(rule_text)
+                        # # print("ss", ss)
+                        
+                        
                         
                        
                         # https://github.com/jaraco/cssutils/issues/6
@@ -703,13 +712,16 @@ if __name__ == "__main__":
                         # # # # new_rule = cssutils.css.CSSMediaRuleRule(cssText=rule_text)
                         # # # # print("new_rule", new_rule)
                         
-                        rule.style = ss
+                        #######rule.style = ss
                                 
                         
                                 
-                ### for rule />              
+                ### for rule />      
+                
+                sheet.add(rule_text)        
                                 
                 print(wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
+                time.sleep(1)
                 
                 # save back
                 if True:
@@ -718,7 +730,7 @@ if __name__ == "__main__":
                         file
                     )
                 
-                exit(0)
+                ####exit(0)
                                                                 
             except Exception as e:
                 print(f"{wh.RED} css: {e} {wh.RESET}")
