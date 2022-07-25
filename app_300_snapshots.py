@@ -1,7 +1,7 @@
 """
 TODO
 may better split image sizes files for keeping track of parent_urls
-the list is getting very large right now
+the list is getting very large right now 
 
 
 """
