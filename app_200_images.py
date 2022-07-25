@@ -101,7 +101,7 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              75, # 66 55 85 95 75
+            "quality":              95, # 66 55 85 95 75
             
             "size_thresh":          1000, 
             "size_large":           (1500, 1500),   # (1400, 1400) # (1600, 1600)
@@ -118,9 +118,9 @@ if __name__ == "__main__":
             #"cube_lut_path":        "D:/__BUP_V_KOMPLETT/X/111_BUP/22luts/LUT cube/LUTs Cinematic Color Grading Pack by IWLTBAP/__xIWL_zM_Creative/Creative/xIWL_C-9730-STD.cube", 
             "cube_lut_path":        None, # may be empty string or None
             
-            "b_colorize":           True,
+            "b_colorize":           False,
             "blend_alpha":          0.5, # 0.666 0.8 0.75 0.5  
-            "b_enhance_transp":     True,         
+            "b_enhance_transp":     False,         
             
             ###"b_1bit":               False,  # very bad
             "b_greyscale":          False,
@@ -663,7 +663,9 @@ if __name__ == "__main__":
                         
                 format = new_ext.lstrip('.')    
                 if is_transp:
-                    image.save(out_path, format=format, optimize=True, lossless=True) # !!!
+                    #image.save(out_path, format=format, optimize=True, lossless=True) # !!! lossless TODO????
+                    image.save(out_path, format=format, optimize=True, quality=quality)
+                    print(wh.YELLOW, "NOTE: image.save is_transp compressed...TEST", wh.RESET)
                 else:
                     image.save(out_path, format=format, optimize=True, quality=quality) 
                     
