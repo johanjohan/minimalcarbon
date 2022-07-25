@@ -253,6 +253,11 @@ p.has-background {
     padding: 20px 0.5vw;
 }
 
+
+/*
+    re-adjust hero images heights, which were too small, because I unset a height ptoperty for fixing element heights
+
+*/
 /* specific pages */
 /* über uns  page-id-194 */
 /* digital standort page-id-23 */
@@ -262,5 +267,12 @@ p.has-background {
 .page-id-454 .hero-subpage 
 {
     height: 65vh !important;
+}
+
+/* menu show en/de on mobile (was cut off) */
+@media (max-width: 991px) {
+	header.scrolled .navbar-collapse {
+	    max-height: calc(100vh - 140px);
+	}
 }
 
