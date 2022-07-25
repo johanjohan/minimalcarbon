@@ -169,6 +169,7 @@ implicit_wait               = 0.1 # can be float, will be millis
 postfix_bup     = "_pofx_BUP_"
 postfix_orig    = "_pofx_ORIG"
     
+bup_excludes=[suffix_compressed, postfix_bup, postfix_orig]
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 

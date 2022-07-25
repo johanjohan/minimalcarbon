@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
         "b_append_custom_css":                  True,
         "b_copy_custom_script":                 True,
-        "b_remove_fonts_css":                   False,
+        "b_remove_fonts_css":                   True,
         
         "b_perform_pdf_compression":            True ,
         "b_perform_pdf_compression_force":            False, # <<<<<<<<<<<<<<<<<<<<      
@@ -101,10 +101,10 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              85, # 66 55 85 95
+            "quality":              75, # 66 55 85 95 75
             
             "size_thresh":          1000, 
-            "size_large":           (1600, 1600),   # (1400, 1400) # (1600, 1600)
+            "size_large":           (1500, 1500),   # (1400, 1400) # (1600, 1600)
             "size_small":           (553, 553),     # (553, 553)
             
             "resample":             Image.Resampling.LANCZOS, 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
             "b_use_palette":        False,
         },        
         
-        "b_replace_conversions":                False,     
+        "b_replace_conversions":                True,     
         
         "b_minify1":                            True,
         "b_fix_xml_elements":                   True,
@@ -219,8 +219,12 @@ if __name__ == "__main__":
         #-----------------------------------------
         # TODO save fonts locally
         print("downloading fonts...")
-        files = wh.collect_files_endswith(params.get("project_folder"), [".css"])
-        files = wh.links_remove_excludes(files, [config.suffix_compressed])
+        files = wh.collect_files_endswith(
+            params.get("project_folder"), 
+            [".css"], 
+            excludes=config.bup_excludes
+        )
+        #######files = wh.links_remove_excludes(files, config.bup_excludes)
         #print(wh.CYAN, *files, wh.RESET, sep="\n\t")
         
         font_urls = []
@@ -315,8 +319,12 @@ if __name__ == "__main__":
         #-----------------------------------------
         # replace fonts in tag styles   
         #-----------------------------------------  
-        files = wh.collect_files_endswith(params.get("project_folder"), ["index.htm","index.html"])
-        files = wh.links_remove_excludes(files, [config.suffix_compressed, config.postfix_bup, config.postfix_orig])
+        files = wh.collect_files_endswith(
+            params.get("project_folder"), 
+            ["index.htm","index.html"],
+            excludes=config.bup_excludes
+            )
+        ####files = wh.links_remove_excludes(files, config.bup_excludes)
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
         
         for file in files:
@@ -377,7 +385,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
         
-        pdfs = wh.collect_files_endswith(params.get("project_folder"), [".pdf"])
+        pdfs = wh.collect_files_endswith(params.get("project_folder"), [".pdf"], excludes=config.bup_excludes)
         pdfs = [pdf for pdf in pdfs if not config.pdf_compression_suffix in pdf] # remove already compressed
         print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
@@ -467,7 +475,7 @@ if __name__ == "__main__":
         #-----------------------------------------
         # 
         #-----------------------------------------
-        images = wh.collect_files_endswith(params.get("project_folder"), config.image_exts)        
+        images = wh.collect_files_endswith(params.get("project_folder"), config.image_exts, excludes=config.bup_excludes)        
         images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
         #wh.log("images", *[f"\n\t{x}" for x in images], filepath=config.path_log_params, echo=False)
@@ -758,7 +766,7 @@ if __name__ == "__main__":
         conversions = conv.load(params.get("path_conversions"))    
         #print(*conversions, sep="\n\t")     
                                 
-        html_files = wh.collect_files_endswith( params.get("project_folder") , ["index.html", ".css", ".js"])
+        html_files = wh.collect_files_endswith( params.get("project_folder") , ["index.html", ".css", ".js"], excludes=config.bup_excludes)
         for i, html_file in enumerate(html_files):
             verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
@@ -800,7 +808,7 @@ if __name__ == "__main__":
         wh.logo("sitemap")
         
         urls = []
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.bup_excludes):
             urls.append(
                 wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
             )
@@ -837,13 +845,13 @@ if __name__ == "__main__":
         
         wh.logo(title)
         
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"]):
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.bup_excludes):
             wh.html_minify_on_disk(file)
             
-        for file in wh.collect_files_endswith(config.project_folder, [".css"]):
+        for file in wh.collect_files_endswith(config.project_folder, [".css"], excludes=config.bup_excludes):
             wh.css_minify_on_disk(file)
             
-        for file in wh.collect_files_endswith(config.project_folder, [".js"]):
+        for file in wh.collect_files_endswith(config.project_folder, [".js"], excludes=config.bup_excludes):
             wh.js_minify_on_disk(file)
             
     if params.get("b_minify1"):
@@ -868,9 +876,10 @@ if __name__ == "__main__":
         # func=lambda s : True # finds all
         # func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
         func=lambda file : file.lower().endswith("index.html")
-        files_index_html = wh.collect_files_func(params.get("project_folder"), func=func)
+        files_index_html = wh.collect_files_func(params.get("project_folder"), func=func, excludes=config.bup_excludes)
         #print(*files_index_html, sep="\n\t")
         
+        # no dominant-baseline="middle" in <text>
         svg_percircle = f"""
         <div class="percircle"><svg viewBox="0 0 500 500" role="img" xmlns="http://www.w3.org/2000/svg">
             <g id="myid">
@@ -882,11 +891,10 @@ if __name__ == "__main__":
                         r="230" />
                 <text style="font: bold 11.1rem sans-serif;"
                     text-anchor="middle"
-                    dominant-baseline="central"
                     x="50%"
-                    y="50%"
+                    y="60%"
                     fill="{config.svg_color}">
-                    <tspan font-size="1.0em">{round(perc100_saved):.0f}</tspan><tspan font-size="0.9em">％</tspan>
+                    <tspan font-size="1.0em" >{round(perc100_saved):.0f}</tspan><tspan font-size="0.9em">％</tspan>
                 </text> 
             </g>     
         </svg>
@@ -1166,8 +1174,8 @@ if __name__ == "__main__":
             print("_export:", "b_export_site_force", b_export_site_force)
             wh.make_dirs(target_folder)
             
-            files = wh.collect_files_func(config.project_folder, func=func)
-            files = wh.links_remove_excludes(files, excludes)
+            files = wh.collect_files_func(config.project_folder, func=func, excludes=excludes)
+            ####files = wh.links_remove_excludes(files, excludes)
             files = wh.links_sanitize(files)
             total_size = 0
             

@@ -591,7 +591,7 @@ if __name__ == "__main__":
     # 
     #----------------------------------------- 
     files = wh.collect_files_endswith(config.project_folder, [".css"], pre="")
-    files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    ###files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     #files = []
     #print("files", *files, sep="\n\t")
     
@@ -741,7 +741,7 @@ if __name__ == "__main__":
     # index.html: internal stylesheets and style-attributes
     #-----------------------------------------  
     files = wh.collect_files_endswith(config.project_folder, ["index.html"], pre="")
-    files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    ###files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     #print("files", *files, sep="\n\t")
     files = []           
     

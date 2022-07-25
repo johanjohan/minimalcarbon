@@ -474,7 +474,7 @@ def links_make_absolute(links, base):
 def links_remove_excludes(links, excludes):
     if not links: return links
     
-    print("links_remove_excludes:", MAGENTA, excludes, RESET)
+    print("links_remove_excludes:", RED, excludes, RESET)
     excludes = list(excludes)
     return [link for link in links if not any(exclude.strip() in link for exclude in excludes)]
 
@@ -1744,10 +1744,10 @@ def sleep_random(wait_secs=(1, 2), verbose_string="", verbose_interval=0.5, VT=M
 #-----------------------------------------
 # 
 #-----------------------------------------
-def collect_files_endswith(project_folder, allowed_extensions, pre="\t\t"):
+def collect_files_endswith(project_folder, allowed_extensions, excludes=[], pre="\t\t"):
     allowed_extensions = [e.lower() for e in allowed_extensions]
-    print(pre, "collect_files:", GRAY, project_folder, RESET)
-    print(pre, "collect_files:", GRAY, allowed_extensions, RESET)
+    print(pre, "collect_files_endswith:", GRAY, project_folder, RESET)
+    print(pre, "collect_files_endswith:", GRAY, allowed_extensions, RESET)
     assets = []
     for root, dirs, files in os.walk(project_folder):
         for file in files:
@@ -1755,14 +1755,18 @@ def collect_files_endswith(project_folder, allowed_extensions, pre="\t\t"):
                 path = os.path.abspath(os.path.join(root, file))
                 #print("\t", os.path.basename(path))
                 assets.append(path)
-    print(pre, "collect_files:", len(assets), "assets found.")
+                
+    print(pre, "collect_files_endswith: remove:", RED, excludes, RESET )
+    assets = links_remove_excludes(assets, excludes)
+    
+    print(pre, "collect_files_endswith:", len(assets), "assets found.")
     return assets
 
 #-----------------------------------------
 # 
 #-----------------------------------------
-def collect_files_func(project_folder, func, pre="\t\t"):
-    print(pre, "collect_files:", project_folder)
+def collect_files_func(project_folder, func, excludes=[], pre="\t\t"):
+    print(pre, "collect_files_func:", project_folder)
     assets = []
     for root, dirs, files in os.walk(project_folder):
         
@@ -1778,7 +1782,10 @@ def collect_files_func(project_folder, func, pre="\t\t"):
                 #print("\t", os.path.basename(path))
                 assets.append(path)
                 
-    print(pre, "collect_files:", len(assets), "assets found.")
+    print(pre, "collect_files_func: remove:", RED, excludes, RESET )
+    assets = links_remove_excludes(assets, excludes)
+                
+    print(pre, "collect_files_func:", len(assets), "assets found.")
     return assets
 #-----------------------------------------
 # 
@@ -2573,7 +2580,10 @@ def files_backup_or_restore_and_exclude(files, postfix_orig, postfix_bup):
     print("\t"*0 + "files_backup_or_restore_and_exclude:", MAGENTA, excludes, RESET)
     files = links_remove_excludes(files, excludes)
     
-    for file in files:
+    for i, file in enumerate(files):
+        
+        if not (i%10):
+            print (progress_string(i / (len(files)-1), n=66) )
         
         if file_exists_and_valid(file):
 
@@ -2583,14 +2593,14 @@ def files_backup_or_restore_and_exclude(files, postfix_orig, postfix_bup):
                     fr, to = orig_path, file
                 else:
                     fr, to = file, orig_path
-                print("\t"*1, f"copy {GRAY}{os.path.basename(fr)}{RESET} --> {CYAN}{os.path.basename(to)}{RESET}")
+                print("\t"*1, i, f"copy {GRAY}{os.path.basename(fr)}{RESET} --> {CYAN}{os.path.basename(to)}{RESET}")
                 shutil.copy(fr, to)
                                 
             # make a bup
             if postfix_bup:
                 dts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 bup_path = path_file_add_postfix(file, postfix_bup + dts)
-                print("\t"*1, f"copy {GRAY}{os.path.basename(file)}{RESET} --> {MAGENTA}{os.path.basename(bup_path)}{RESET}")
+                print("\t"*1, i, f"copy {GRAY}{os.path.basename(file)}{RESET} --> {MAGENTA}{os.path.basename(bup_path)}{RESET}")
                 shutil.copy(file, bup_path)    
         else:
             print("\t", RED, "bad file:", file, RESET)  

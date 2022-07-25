@@ -252,3 +252,15 @@ footer .footer-bottom {
 p.has-background {
     padding: 20px 0.5vw;
 }
+
+/* specific pages */
+/* über uns  page-id-194 */
+/* digital standort page-id-23 */
+.page-id-194 .hero-subpage , 
+.page-id-23  .hero-subpage ,
+.page-id-439 .hero-subpage ,
+.page-id-454 .hero-subpage 
+{
+    height: 65vh !important;
+}
+
