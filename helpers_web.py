@@ -471,10 +471,10 @@ def links_make_absolute(links, base):
         ret.append(link_make_absolute(link, base))
     return ret
 
-def links_remove_excludes(links, excludes):
+def links_remove_excludes(links, excludes, pre=""):
     if not links: return links
     
-    print("links_remove_excludes:", RED, excludes, RESET)
+    print(pre, "links_remove_excludes:", RED, excludes, RESET)
     excludes = list(excludes)
     return [link for link in links if not any(exclude.strip() in link for exclude in excludes)]
 
