@@ -101,7 +101,7 @@ if __name__ == "__main__":
             "b_force_write":        True,   # <<<<<<<<<<<<<<<<<<<<        
             "show_nth_image":       37, # 0 is off, 1 all
             
-            "quality":              70, # 66 55 85 95 75
+            "quality":              60, # 66 55 85 95 75
             
             "size_thresh":          1000, 
             "size_large":           (1400, 1400),   # (1400, 1400) # (1600, 1600)
@@ -222,7 +222,7 @@ if __name__ == "__main__":
         files = wh.collect_files_endswith(
             params.get("project_folder"), 
             [".css"], 
-            excludes=config.bup_excludes
+            excludes=config.excludes_compressed_postfix
         )
         #######files = wh.links_remove_excludes(files, config.bup_excludes)
         #print(wh.CYAN, *files, wh.RESET, sep="\n\t")
@@ -322,7 +322,7 @@ if __name__ == "__main__":
         files = wh.collect_files_endswith(
             params.get("project_folder"), 
             ["index.htm","index.html"],
-            excludes=config.bup_excludes
+            excludes=config.excludes_compressed_postfix
             )
         ####files = wh.links_remove_excludes(files, config.bup_excludes)
         #print(wh.MAGENTA, *files, wh.RESET, sep="\n\t")
@@ -385,7 +385,7 @@ if __name__ == "__main__":
         wh.logo("b_perform_pdf_compression")
         import ghostscript as gs
         
-        pdfs = wh.collect_files_endswith(params.get("project_folder"), [".pdf"], excludes=config.bup_excludes)
+        pdfs = wh.collect_files_endswith(params.get("project_folder"), [".pdf"], excludes=config.excludes_compressed_postfix)
         pdfs = [pdf for pdf in pdfs if not config.pdf_compression_suffix in pdf] # remove already compressed
         print("pdfs", *pdfs, sep="\n\t")
         for i, pdf in enumerate(pdfs):
@@ -475,7 +475,7 @@ if __name__ == "__main__":
         #-----------------------------------------
         # 
         #-----------------------------------------
-        images = wh.collect_files_endswith(params.get("project_folder"), config.image_exts, excludes=config.bup_excludes)        
+        images = wh.collect_files_endswith(params.get("project_folder"), config.image_exts, excludes=config.excludes_compressed_postfix)        
         images = [img for img in images if not config.suffix_compressed in img]
         print("images",  hw.GRAY, *images, hw.RESET, sep = "\n\t")
         #wh.log("images", *[f"\n\t{x}" for x in images], filepath=config.path_log_params, echo=False)
@@ -666,6 +666,7 @@ if __name__ == "__main__":
                     #image.save(out_path, format=format, optimize=True, lossless=True) # !!! lossless TODO????
                     image.save(out_path, format=format, optimize=True, quality=quality)
                     print(wh.YELLOW, "NOTE: image.save is_transp compressed...TEST", wh.RESET)
+                    time.sleep(0.666)
                 else:
                     image.save(out_path, format=format, optimize=True, quality=quality) 
                     
@@ -768,7 +769,7 @@ if __name__ == "__main__":
         conversions = conv.load(params.get("path_conversions"))    
         #print(*conversions, sep="\n\t")     
                                 
-        html_files = wh.collect_files_endswith( params.get("project_folder") , ["index.html", ".css", ".js"], excludes=config.bup_excludes)
+        html_files = wh.collect_files_endswith( params.get("project_folder") , ["index.html", ".css", ".js"], excludes=config.excludes_compressed_postfix)
         for i, html_file in enumerate(html_files):
             verbose_string = f"\t {i+1}/{len(html_files)} {os.path.basename(html_file)}"
             wh.progress(i / len(html_files), verbose_string=verbose_string, VT=wh.CYAN, n=80, prefix="")
@@ -810,7 +811,7 @@ if __name__ == "__main__":
         wh.logo("sitemap")
         
         urls = []
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.bup_excludes):
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.excludes_compressed_postfix):
             urls.append(
                 wh.to_posix(config.target_base + os.path.relpath(file, config.project_folder))           
             )
@@ -847,13 +848,13 @@ if __name__ == "__main__":
         
         wh.logo(title)
         
-        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.bup_excludes):
+        for file in wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.excludes_compressed_postfix):
             wh.html_minify_on_disk(file)
             
-        for file in wh.collect_files_endswith(config.project_folder, [".css"], excludes=config.bup_excludes):
+        for file in wh.collect_files_endswith(config.project_folder, [".css"], excludes=config.excludes_compressed_postfix):
             wh.css_minify_on_disk(file)
             
-        for file in wh.collect_files_endswith(config.project_folder, [".js"], excludes=config.bup_excludes):
+        for file in wh.collect_files_endswith(config.project_folder, [".js"], excludes=config.excludes_compressed_postfix):
             wh.js_minify_on_disk(file)
             
     if params.get("b_minify1"):
@@ -878,7 +879,7 @@ if __name__ == "__main__":
         # func=lambda s : True # finds all
         # func=lambda file : any(file.lower().endswith(ext) for ext in config.image_exts)
         func=lambda file : file.lower().endswith("index.html")
-        files_index_html = wh.collect_files_func(params.get("project_folder"), func=func, excludes=config.bup_excludes)
+        files_index_html = wh.collect_files_func(params.get("project_folder"), func=func, excludes=config.excludes_compressed_postfix)
         #print(*files_index_html, sep="\n\t")
         
         # no dominant-baseline="middle" in <text>
@@ -1213,7 +1214,7 @@ if __name__ == "__main__":
                 
         total_size = _export(
             config.f_unpowered, 
-            [], 
+            config.excludes_postfix, ### ?
             config.folder_exported,
             b_export_site_force=params.get("b_export_site_force")
         )     

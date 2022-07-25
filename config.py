@@ -169,7 +169,8 @@ implicit_wait               = 0.1 # can be float, will be millis
 postfix_bup     = "_pofx_BUP_"
 postfix_orig    = "_pofx_ORIG"
     
-bup_excludes=[suffix_compressed, postfix_bup, postfix_orig]
+excludes_postfix=[postfix_bup, postfix_orig]
+excludes_compressed_postfix=[suffix_compressed, postfix_bup, postfix_orig]
 #-----------------------------------------
 # lambdas for collecting files
 #----------------------------------------- 
@@ -186,6 +187,9 @@ f_originals_excludes = [
     suffix_compressed       + target_image_ext, 
     pdf_compression_suffix  + ".pdf",
     ".mp4",
+    
+    postfix_bup, 
+    postfix_orig,
 ]
 
 f_unpowered=lambda file : any(file.lower().endswith(ext) for ext in [
@@ -202,6 +206,9 @@ f_unpowered_excludes = [
     "font", 
     "real3d-flipbook",
     ".mp4",
+    
+    postfix_bup, 
+    postfix_orig,
 ]
 #-----------------------------------------
 # font
