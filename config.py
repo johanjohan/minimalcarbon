@@ -19,6 +19,38 @@
             
     https://codegolf.stackexchange.com/questions/23362/sort-characters-by-darkness
 
+
+
+    total_size_originals: 606,034,501 bytes | 606.0 MB
+    total_size_unpowered: 30,003,159 bytes | 30.0 MB
+    get_project_total_size: +95.0%
+    20220726 02:44:36: perc100_saved       : 95.0 %
+    20220726 02:44:36: total_size_originals: 606034501 bytes
+    20220726 02:44:36: total_size_unpowered: 30003159 bytes
+    20220726 02:44:36: total_size_originals: 606.0 MB
+    20220726 02:44:36: total_size_unpowered: 30.0 MB
+
+
+    size_texts     : 19435563 bytes | 19.435563 MB | 28.7 %
+    size_images_old: 0 bytes | 0.0 MB | 0.0 %
+    size_images_new: 19951968 bytes | 19.951968 MB | 29.5 %
+    size_pdfs      : 28267224 bytes | 28.267224 MB | 41.8 %
+    --------------------------------------------
+    size_total     : 67654755 bytes | 67.654755 MB
+
+
+
+
+    size_texts     : 19435563 bytes | 19.435563 MB | 49.3 %
+    size_images_old: 0 bytes | 0.0 MB | 0.0 %
+    size_images_new: 19951968 bytes | 19.951968 MB | 50.7 %
+    --------------------------------------------
+    size_total     : 39387531 bytes | 39.387531 MB
+
+
+
+
+
     
 """
 

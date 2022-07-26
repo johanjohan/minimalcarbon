@@ -1966,7 +1966,7 @@ def get_file_size_of_list(files):
         total_size += os.path.getsize(file)
     return total_size
         
-def get_file_sizes(start_path, use_pdf):
+def get_file_sizes(start_path, use_pdf, vt=wh.CYAN):
     
     print()
     print("get_file_sizes:", CYAN, start_path, RESET)
@@ -1989,7 +1989,7 @@ def get_file_sizes(start_path, use_pdf):
         size_pdfs   = get_file_size_of_list(files_pdfs)
         size_total += size_pdfs
     
-    print(wh.GREEN)
+    print(vt)
     print("size_texts     :", size_texts,       "bytes", "|", size_texts / 1e6, "MB", "|",          round(size_texts / size_total * 100, 1), "%")
     print("size_images_old:", size_images_old,  "bytes", "|", size_images_old / 1e6, "MB", "|",     round(size_images_old / size_total * 100, 1), "%")
     print("size_images_new:", size_images_new,  "bytes", "|", size_images_new / 1e6, "MB", "|",     round(size_images_new / size_total * 100, 1), "%")

@@ -68,8 +68,8 @@ if __name__ == "__main__":
     
     content_ratio_original  = (total_bytes / total_size_originals) * 100
     content_ratio_unpowered = (total_bytes / total_size_unpowered) * 100
-    print("content-ratio: content_ratio_original :", round(content_ratio_original,  1), "%")
-    print("content-ratio: content_ratio_unpowered:", round(content_ratio_unpowered, 1), "%")
+    print("content-ratio: content_ratio_original :", round(content_ratio_original,  1), "%", f"in book-pages: 1 page in {100/content_ratio_original:.0f}" )
+    print("content-ratio: content_ratio_unpowered:", round(content_ratio_unpowered, 1), "%", f"in book-pages: 1 page in {100/content_ratio_unpowered:.0f}" )
     
     # unique ratio
     total_bytes = 0
