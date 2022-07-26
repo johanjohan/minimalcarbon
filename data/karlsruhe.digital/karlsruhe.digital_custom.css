@@ -34,13 +34,13 @@ header .navbar {
 }
 
 header .banner_header {
-    background-color: rgba(52, 142, 52, 0.85);
-    background-color: unset;
-    background-color: black
+    background-color: black;
+    transition: background-color 2.6s, transform 2.4s ease-in-out;
 }
 
 header.scrolled .banner_header {
-    background-color: unset
+    background-color: unset;
+    transition: background-color 0.9s, transform 0.6s ease-in-out;
 }
 
 footer .footer-bottom {
