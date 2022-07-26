@@ -35,7 +35,7 @@ header .navbar {
 
 header .banner_header {
     background-color: black;
-    transition: background-color 2.6s, transform 2.4s ease-in-out;
+    transition: background-color 0.9s, transform 0.6s ease-in-out;
 }
 
 header.scrolled .banner_header {
