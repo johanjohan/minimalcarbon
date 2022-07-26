@@ -270,10 +270,10 @@ p.has-background {
 }
 
 /* menu show en/de on mobile (was cut off) */
-@media (max-width: 991px) {
-	header.scrolled .navbar-collapse {
-	    /* max-height: calc(100vh - 140px); */
-	    max-height: calc(100vh - 130px);
-	}
+@media (max-width:991px) {
+    header.scrolled .navbar-collapse {
+        max-height: calc(100vh - 130px);
+        padding-bottom: 100px;
+    }
 }
 
