@@ -590,8 +590,8 @@ if __name__ == "__main__":
     #-----------------------------------------
     # 
     #----------------------------------------- 
-    files = wh.collect_files_endswith(config.project_folder, [".css"], pre="")
-    ###files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    files = wh.collect_files_endswith(config.project_folder, [".css"], excludes=config.excludes_postfix, pre="")
+    ######files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     #files = []
     #print("files", *files, sep="\n\t")
     
@@ -658,7 +658,7 @@ if __name__ == "__main__":
                             print("\t"*4, wh.GREEN, wh.dq(new_pv), wh.RESET)
                             property.value = new_pv                        
                         
-                    elif rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]: 
+                    elif False and rule.type in [cssutils.css.CSSRule.UNKNOWN_RULE]: 
                         
                         
                         # <<<<<<<<< TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -674,10 +674,10 @@ if __name__ == "__main__":
                         inner1_list = wh.string_remove_whitespace(inner1).split(';')
                         
                         print(wh.MAGENTA)
-                        print("name0 :", name0)     # @supports (-webkit-text-stroke: thin)
-                        print("inner0:", inner0)    # . gradient-color {...}
-                        print("name1 :", name1)     # . gradient-color
-                        print("inner1:", inner1)    # ...
+                        print("name0      :", name0)     # @supports (-webkit-text-stroke: thin)
+                        print("inner0     :", inner0)    # . gradient-color {...}
+                        print("name1      :", name1)     # . gradient-color
+                        print("inner1     :", inner1)    # ...
                         print("inner1_list:", inner1_list)
                         print(wh.RESET)
                         
@@ -714,11 +714,11 @@ if __name__ == "__main__":
                         
                         #######rule.style = ss
                                 
-                        
+                        sheet.add(rule_text)        
                                 
                 ### for rule />      
                 
-                sheet.add(rule_text)        
+                
                                 
                 print(wh.GREEN, cssbeautifier.beautify(sheet.cssText.decode("utf-8")), wh.RESET)
                 time.sleep(1)
@@ -740,10 +740,10 @@ if __name__ == "__main__":
     #-----------------------------------------
     # index.html: internal stylesheets and style-attributes
     #-----------------------------------------  
-    files = wh.collect_files_endswith(config.project_folder, ["index.html"], pre="")
-    ###files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
+    files = wh.collect_files_endswith(config.project_folder, ["index.html"], excludes=config.excludes_postfix, pre="")
+    ########files = wh.files_backup_or_restore_and_exclude(files, postfix_orig=config.postfix_orig, postfix_bup="")
     #print("files", *files, sep="\n\t")
-    files = []           
+    ##files = []           
     
     # https://pythonhosted.org/cssutils/docs/css.html#values
     for file in files:
@@ -756,12 +756,17 @@ if __name__ == "__main__":
         
         # all tags with style attributes
         if True:
-            for node in  tree.xpath("//*/@style[not(.="")]"): # all tages wth @style and not empty
+            #for node in  tree.xpath("//*/@style[not(.="")]"): # all tages with @style and not empty # ERR
+            for node in  tree.xpath("//*/@style"): # all tages with @style and not empty # ERR
                 
                 print("\t", ":"*88)
-                style_text = node.attrib['style']
-                # if not style_text:
-                #     continue
+                try:
+                    style_text = node.attrib['style'] ## TODO getProperty()
+                except:
+                    continue
+                
+                if not style_text:
+                    continue
                                 
                 print(wh.MAGENTA, wh.dq(style_text), wh.RESET)
                 print(wh.CYAN, cssbeautifier.beautify(style_text), wh.RESET)

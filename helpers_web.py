@@ -37,6 +37,7 @@ from natsort import natsorted, ns
 import copy
 import shutil
 
+import helpers_web as wh
 
 #-----------------------------------------
 # 
@@ -1988,7 +1989,7 @@ def get_file_sizes(start_path, use_pdf):
         size_pdfs   = get_file_size_of_list(files_pdfs)
         size_total += size_pdfs
     
-    print()
+    print(wh.GREEN)
     print("size_texts     :", size_texts,       "bytes", "|", size_texts / 1e6, "MB", "|",          round(size_texts / size_total * 100, 1), "%")
     print("size_images_old:", size_images_old,  "bytes", "|", size_images_old / 1e6, "MB", "|",     round(size_images_old / size_total * 100, 1), "%")
     print("size_images_new:", size_images_new,  "bytes", "|", size_images_new / 1e6, "MB", "|",     round(size_images_new / size_total * 100, 1), "%")
@@ -1998,7 +1999,7 @@ def get_file_sizes(start_path, use_pdf):
     print("-"*44)
     print("size_total     :", size_total,   "bytes", "|", size_total / 1e6, "MB")
     
-    print()
+    print(wh.RESET)
     
     
 #-----------------------------------------
