@@ -1919,10 +1919,10 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
         subdomain = add_trailing_slash(subdomain)
         
     # TODO could add relative path or given by config
-    rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
-    # # # import config # recursive NEW
-    # # # rooted = config.target_root + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
-    # # # del config
+    ###rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    import config # recursive NEW
+    rooted = config.target_root + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    del config
     
     if sanitize:
         rooted = sanitize_filepath_and_url(rooted)
