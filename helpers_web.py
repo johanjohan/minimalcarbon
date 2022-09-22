@@ -462,7 +462,7 @@ def try_link_make_local(url, base):
         print(RED, "try_link_make_local:", "not internal: {}".format(url), RESET)
         assert False
         
-    print("NEW try_link_make_local:", url, "-->", ret)
+    print("try_link_make_local:", url, "-->", ret)
     return ret
 
 def links_make_absolute(links, base):
@@ -931,7 +931,7 @@ def _get_request(url, method=None): # 'HEAD'
 # https://stackoverflow.com/questions/33309914/retrieving-the-headers-of-a-file-resource-using-urllib-in-python-3
 def get_response(url, timeout=10, method=None, pre="\t"): # 'HEAD'
     
-    url = _iri_to_uri(url) # , uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False) # NEW, beware of false umlauts!
+    url = _iri_to_uri(url) # , uq_scheme=False, uq_path=True, uq_query=False, uq_fragment=False) #  beware of false umlauts!
     
     #url_orig    = url
     ########url         = url_transliterate(url)
@@ -1280,7 +1280,7 @@ def get_background_images_from_style_attribute(driver, pre="\t\t"):
     for div in driver.find_elements(By.XPATH, "//*[@style]"): #  '//div[@style]'
         #print(f"{YELLOW}\t div: {div} {RESET}")
         style = div.get_attribute('style')
-        style = urllib.parse.unquote(style) # NEW
+        style = urllib.parse.unquote(style) 
         #print(f"{GRAY}\t style: {style} {RESET}")
         link = _parse_style_attribute(style)
         if not link in links:
@@ -1845,7 +1845,7 @@ def sanitize_filepath_and_url(_orig_path,  rep = '_'):
     
     fixedpath = _orig_path
     
-    #######fixedpath = slugify(fixedpath, allow_unicode=False) # <<<< NEW <<<< no no no
+    #######fixedpath = slugify(fixedpath, allow_unicode=False) # <<<<  <<<< no no no
     
     
     from unidecode import unidecode
@@ -1919,10 +1919,10 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
         subdomain = add_trailing_slash(subdomain)
         
     # TODO could add relative path or given by config
-    #rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
-    import config # recursive NEW
-    rooted = config.target_root + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
-    del config
+    rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    # # # import config # recursive NEW
+    # # # rooted = config.target_root + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    # # # del config
     
     if sanitize:
         rooted = sanitize_filepath_and_url(rooted)
@@ -1951,7 +1951,7 @@ get_page_folder    :  https://karlsruhe.digital/some/folder/image.png -->  some/
 def get_page_folder(url, base):
     
     path = get_path_local_root_subdomains(url, base).lstrip('/')
-    path = strip_query_and_fragment(path) # NEW
+    path = strip_query_and_fragment(path) 
     
     page_folder = ""
     subs = path.split('/')
