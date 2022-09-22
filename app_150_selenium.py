@@ -1,3 +1,30 @@
+""" 
+    ERROR
+    
+DevTools listening on ws://127.0.0.1:60159/devtools/browser/9edb20d1-1bd5-4ee4-a380-979f394658a9
+ Message: session not created: This version of ChromeDriver only supports Chrome version 102
+Current browser version is 105.0.5195.127 with binary path C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+Stacktrace:
+
+https://stackoverflow.com/questions/72111139/this-version-of-chromedriver-only-supports-chrome-version-102
+
+    One option is to use chromedriver-autoinstaller to do it all at once:
+
+    import chromedriver_autoinstaller as chromedriver
+    chromedriver.install()
+
+    Alternatively use chromedriver-binary-auto to find the required version and install the driver:
+
+    pip install --upgrade --force-reinstall chromedriver-binary-auto
+    import chromedriver_binary
+
+    No restarting is required.
+
+
+"""
+
+
+
 """
 # https://stackoverflow.com/questions/53729201/save-complete-web-page-incl-css-images-using-python-selenium
 
@@ -88,7 +115,8 @@ import os
 import requests
 import lxml.html
 import lxml
-import chromedriver_binary  # pip install chromedriver-binary-auto
+### --> pip install --upgrade --force-reinstall chromedriver-binary-auto
+import chromedriver_binary  # pip install chromedriver-binary-auto #  once there is an update
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.expected_conditions import visibility_of_element_located
 from selenium.webdriver.support.ui import WebDriverWait

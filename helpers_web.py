@@ -18,6 +18,7 @@ https://github.com/MickaelWalter/wp-json-scraper
 
 
 
+from distutils.command.config import config
 from posixpath import join
 from urllib import response
 from urllib.parse import urlparse, urljoin, parse_qs
@@ -991,8 +992,8 @@ def get_response_tries(url, timeout=10, method=None, tries=15, sleep_secs=2, pre
 # def get_response_status(response):
 #     return response.status
 
-# def get_response_redirected_url(response):
-#     return response.url
+def get_response_redirected_url(response):
+    return response.url
 
     
 """
@@ -1917,7 +1918,11 @@ def get_path_local_root_subdomains(url, base, sanitize=True):
         subdomain = "sub_" + subdomain
         subdomain = add_trailing_slash(subdomain)
         
-    rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url))
+    # TODO could add relative path or given by config
+    #rooted = '/' + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    import config # recursive NEW
+    rooted = config.target_root + subdomain + strip_leading_slash(url_ppqf(url)) ###  is that for the path?
+    del config
     
     if sanitize:
         rooted = sanitize_filepath_and_url(rooted)

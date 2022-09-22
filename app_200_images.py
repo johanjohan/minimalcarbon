@@ -937,11 +937,13 @@ if __name__ == "__main__":
             if "/en/" in wp_path:
                 dt_string = format_date(dt, format=format, locale='en')
                 banner_header_text = f"{config.svg_leaf_img}This is the Minimal Carbon Site {same_page_link}" # <br/>{svg_percircle}  <sup>{config.html_by_infossil_link}</sup>
-                banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                ###banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                banner_footer_text = f"unpowered by <a href='https://minimalcarbon.site'>minimalcarbon.site<br/>{svg_percircle}</a>" # <br/>{dt_string}
             else:
                 dt_string = format_date(dt, format=format, locale='de_DE')
                 banner_header_text = f"{config.svg_leaf_img}Dies ist die Minimal Carbon Site {same_page_link}"
-                banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                ###banner_footer_text = f"unpowered by <a href='https://infossil.org'>infossil<br/>{svg_percircle}</a>" # <br/>{dt_string}
+                banner_footer_text = f"unpowered by <a href='https://minimalcarbon.site'>minimalcarbon.site<br/>{svg_percircle}</a>" # <br/>{dt_string}
                 
             #---------------------------
             # lxml

@@ -49,7 +49,7 @@ date_time_crawler   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 #-----------------------------------------
 def rectify(url, base, b_absolute=True):
     url = wh.replace_all(url, "http:// ",  "") # specific?
-    url = wh.replace_all(url, "https:// ", "")     
+    url = wh.replace_all(url, "https:// ", "")      
     
     if b_absolute:      
         url = wh.link_make_absolute(url, base)
