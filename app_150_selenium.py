@@ -212,7 +212,7 @@ def assets_save_internals_locally(
             print(f"{YELLOW}assets_save_internals_locally: is external: src: {src} {RESET}")
             continue
 
-        # # # # # # # # abs_src = wh.url_transliterate(src) # NEW
+        # # # # # # # # abs_src = wh.url_transliterate(src)
         # # # # # # # # abs_src = wh.link_make_absolute(abs_src, base) # from redirected
         # # # # # # # # # re-direction ie ?p=1234
         # # # # # # # # # mostly adds a trailing /
@@ -233,7 +233,7 @@ def assets_save_internals_locally(
             # http://mysite.com/some_page/file.css?my_var='foo'#frag
             if wh.url_has_ver(new_src):
                 q = urlparse(new_src).query
-                new_src = wh.strip_query(new_src) # NEW
+                new_src = wh.strip_query(new_src) 
                 print("\t\t stripped:", q, "-->", new_src)
 
         # is a file? add index.html/get_page_name() to folder-links
@@ -342,8 +342,8 @@ def make_static(
     
     # NO NO NO make sure utf-8
     #assert content
-    # # # # # content = content.encode('utf-8') # NEW # .encode('ascii', 'ignore') no no no
-    # # # # # content = urllib.parse.unquote(content) # NEW  no no no
+    # # # # # content = content.encode('utf-8')  # .encode('ascii', 'ignore') no no no
+    # # # # # content = urllib.parse.unquote(content) #  no no no
  
     # -----------------------------------------
     #

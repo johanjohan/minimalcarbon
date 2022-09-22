@@ -83,7 +83,7 @@ def get_all_website_links(url, max_urls, wait_secs=(0.001, 0.002)):
     # get content
     # # # # for tries in range(10):
     # # # #     print(MAGENTA + f"[{tries}] tries: {url}", RESET)
-    # # # #     wh.sleep_random(wait_secs, verbose_string=url) # NEW
+    # # # #     wh.sleep_random(wait_secs, verbose_string=url) 
     # # # #     response    = wh.get_response(url, timeout=config.timeout)
     # # # #     if response:
     # # # #         url         = response.url
@@ -268,7 +268,7 @@ if __name__ == "__main__":
         # internal_urls = wh.links_remove_similar(internal_urls) # end vs end/
         # internal_urls = wh.links_make_unique(internal_urls)
         internal_urls = wh.links_remove_excludes(internal_urls, excludes)
-        internal_urls = wh.strip_query_and_fragment(internal_urls) # NEW
+        internal_urls = wh.strip_query_and_fragment(internal_urls) 
         #internal_urls = wh.links_strip_trailing_slash(internal_urls)
         internal_urls = wh.links_sanitize(internal_urls)
         internal_urls = sorted(internal_urls)

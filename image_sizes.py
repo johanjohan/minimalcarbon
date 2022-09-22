@@ -141,7 +141,7 @@ def find_all_image_size_tuples(
         
     # NOTE findElements waits for at least one element or until timeout which is defined by the implicit wait setting
     # find urls in driver 
-    # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url) --> NEW wh.iri_to_uri(url)
+    # NOTE selenium returns url encoded strings --> urllib.parse.unquote(url) --> wh.iri_to_uri(url)
     try:
         # regular images
         print(pre, "driver.find_elements: By.CSS_SELECTOR", flush=True)

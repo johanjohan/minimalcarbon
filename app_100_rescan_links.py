@@ -196,7 +196,7 @@ if __name__ == "__main__":
     urls = links_a_href
     # # # urls = wh.links_remove_externals(urls, config.base)
     # # # urls = wh.links_remove_excludes(urls, config.protocol_excludes)
-    # # # urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore) # NEW
+    # # # urls = wh.links_remove_excludes(urls, config.sitemap_links_ignore)
     # # # urls = wh.links_replace(urls, config.replacements_pre)
     # # # urls = wh.links_strip_query_and_fragment(urls)
     # # # urls = wh.links_make_absolute(urls, config.base)

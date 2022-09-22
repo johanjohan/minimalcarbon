@@ -519,7 +519,7 @@ if __name__ == "__main__":
                 print("\t\t", "enhance_transp:", wh.YELLOW, enhance_transp, wh.RESET)
                 #wh.log("enhance_transp:", enhance_transp, filepath=config.path_log_params, echo=False)
                 
-                # NEW put this in app_110 TODO
+                # put this in app_110 TODO
                 def func_size_low_high(path, csv_path, size_thresh, size_large, size_small):
                     
                     # could read this to ram beforehand TODO
@@ -553,7 +553,7 @@ if __name__ == "__main__":
                         return size_small
                 ### func_size />
 
-                # NEW put this in app_110 TODO
+                # put this in app_110 TODO
                 def func_max_size_in_page(path, csv_path, size_thresh, size_large, size_small):
             
                     # could read this to ram beforehand TODO
@@ -743,7 +743,7 @@ if __name__ == "__main__":
                     
                     # compressor for html may strip quotes....
                     no_f = lambda s: s # dangerous! as quotes may be removed by html-minify
-                    # NEW try all TODO with quotes
+                    # try all TODO with quotes
                     for f in [ wh.dq,  wh.sq,  wh.pa,  wh.qu]: ## , no_f]: # dangerous! as quotes may be removed by html-minify
                         #print(f"{ wh.GRAY}\t\t\t replace_all: {f(wp_fr)} {wh.RESET}") 
                         html = wh.replace_all(html,  f(wp_fr),  f(wp_to) )    
