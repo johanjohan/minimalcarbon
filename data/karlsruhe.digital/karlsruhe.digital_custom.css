@@ -277,3 +277,9 @@ p.has-background {
     }
 }
 
+/* home twitter */
+.home #section-4 {
+	display: none;
+}
+
+

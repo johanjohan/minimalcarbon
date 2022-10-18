@@ -2,6 +2,32 @@
 check wp-content for paths or rel path etc
 
 
+202210
+    manual kd fixes:
+.home  #section-4 {
+	/* display: none; */
+}
+
+/* home twitter */
+.home #section-4 {
+	display: none;
+}
+
+.home  .fts-feed-type-twitter {
+	/* display: none; */
+}    
+
+replace 
+    <a href="/blog/index.html">Blog</a>   
+    <a href="https://karlsruhe.digital/blog/">Blog</a>   
+    
+    
+    <a href="/en/blog-2/index.html" aria-current="page">Blog</a>
+    <a href="https://karlsruhe.digital/en/blog-2/" aria-current="page">Blog</a>
+    
+    <a href="/en/blog-2/index.html">Blog</a>
+    <a href="https://karlsruhe.digital/en/blog-2/">Blog</a>
+
 """
 
 

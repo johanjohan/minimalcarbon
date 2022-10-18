@@ -1,6 +1,17 @@
 /__infossil_kd_flavors/__exported_minimal/
 /openresource.cc/
 
+total_size_originals: 635,128,752 bytes | 635.1 MB
+total_size_unpowered: 31,996,536 bytes | 32.0 MB
+get_project_total_size: +95.0%
+20220922 22:38:12: perc100_saved       : 95.0 %
+20220922 22:38:12: total_size_originals: 635128752 bytes
+20220922 22:38:12: total_size_unpowered: 31996536 bytes
+20220922 22:38:12: total_size_originals: 635.1 MB
+20220922 22:38:12: total_size_unpowered: 32.0 MB
+
+CO2
+
 bionumerical.net
 bionumerical.org
 bionumerical.de
