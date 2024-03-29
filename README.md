@@ -9,3 +9,7 @@ This prototype experiment aims to establish energy as a teachable cultural pract
 
 Find a description here:
 https://minimalcarbon.net/
+
+## updates
+
+I will update this Readme as soon as I find time
