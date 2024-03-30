@@ -38,6 +38,7 @@ After trying out several other apps (httrack, wget,...) and WordPress Plugins (s
 	
 	
 ### app_200_images: 1h30
+
 many of these methods are site-specific to karlsruhe.digital 	
 
 	+ copy favicon
@@ -61,6 +62,7 @@ many of these methods are site-specific to karlsruhe.digital
 ## next steps
 
 partners:
+
 	+ need partner and scientific authority for online analysis of carbon usage per websit
 	+ domestic solar panel company
 		# experiment on the idea of a direct worldwide solar grid without using battery banks
@@ -68,6 +70,7 @@ partners:
 		# establish a solar equator on Earth
 
 code refactoring:
+
 	+ dividing the code and tasks into more dedicated individual apps
 	+ divide apps for general and for specific use
 	+ sql database per site instead of csv
