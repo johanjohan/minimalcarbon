@@ -15,17 +15,17 @@ https://minimalcarbon.net/
 minimalcarbon.site is a pipeline of programs, mostly written in python 3.10.
 After trying out several other apps (httrack, wget,...) and WordPress Plugins (simply static, WP2Static, Export WP Page to Static HTML/CSS, Staatic, Static HTML Output,..) I decided to start from scratch, since none of these apps was fit for the task or easily adaptable.
 
-Description of the pipeline:
-+ intermediate results are curtrently stored in csv files
+### description of the pipeline:
++ intermediate results are currently stored in csv files
 + all python code: ca 9000 lines [find . -maxdepth 1 -name '*.py' | xargs wc -l]
 
 ## apps
 
-app_050_sitemap_crawl: 20min
+### app_050_sitemap_crawl: 20min
 
 	+ crawl, extract all connected internal and external links from given URL
 	
-app_150_selenium: 1h
+### app_150_selenium: 1h
 	
 	+ save all files locally with headless browser
 		https://en.wikipedia.org/wiki/Headless_browser
@@ -37,7 +37,7 @@ app_150_selenium: 1h
 	+ extract all image- and backround-image-links from html
 	
 	
-app_200_images: 1h30
+### app_200_images: 1h30
 many of these methods are site-specific to karlsruhe.digital 	
 
 	+ copy favicon
