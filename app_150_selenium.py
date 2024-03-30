@@ -18,7 +18,7 @@ https://stackoverflow.com/questions/72111139/this-version-of-chromedriver-only-s
     pip install --upgrade --force-reinstall chromedriver-binary-auto
     import chromedriver_binary
 
-    No restarting is required.
+    No restarting is required. 
 
 
 """

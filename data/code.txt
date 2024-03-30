@@ -9,7 +9,7 @@ After trying out several other apps (httrack, wget,...) and WordPress Plugins (s
 
 ......................................
 Description of the pipeline:
-+ intermediate results are stored in csv files
++ intermediate results are curtrently stored in csv files
 + all python code: ca 9000 lines [find . -maxdepth 1 -name '*.py' | xargs wc -l]
 
 ......................................

@@ -26,7 +26,7 @@ def lut_convert_rgb_tuple(lut, rgb):
     #print("lut_convert_rgb_tuple: rgb:", rgb)
     norm    = tuple(c/255.0 for c in rgb) 
     cnorm   = pillow_lut.sample_lut_cubic(lut, norm)
-    crgb    = tuple(round(c * 255.0) for c in cnorm) 
+    crgb    = tuple(round(c * 255.0) for c in cnorm)  
     return  Color(red=crgb[0], green=crgb[1], blue=crgb[2], alpha=1) # .rgba # alpha: hmmmm
     
 def lut_convert_rgb(lut, r,g,b):

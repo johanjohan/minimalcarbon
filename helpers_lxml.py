@@ -26,7 +26,7 @@ def remove_attributes(tree, tag, attributes):
 
 """ 
 
-<div id="simple-banner" class="simple-banner">
+<div id="simple-banner" class="simple-banner"> 
     <div class="simple-banner-text">
         <span>This site is run on sustainable energy and reduces image quality &amp; quantity for a low carbon footprint. <br>Videos load after clicking to avoid tracking. <a href="http://openresource.1001suns.com/pyramis-niger.php">Why?</a><!--br/>Access the low carbon version of this site <a href="http://static.1001suns.com/">here</a--></span>
     </div>

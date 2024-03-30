@@ -25,7 +25,7 @@ replace
     <a href="/en/blog-2/index.html" aria-current="page">Blog</a>
     <a href="https://karlsruhe.digital/en/blog-2/" aria-current="page">Blog</a>
     
-    <a href="/en/blog-2/index.html">Blog</a>
+    <a href="/en/blog-2/index.html">Blog</a> 
     <a href="https://karlsruhe.digital/en/blog-2/">Blog</a>
 
 """

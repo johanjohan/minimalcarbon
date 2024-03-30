@@ -24,7 +24,7 @@ from app_050_sitemap_crawl import rectify
 import jsbeautifier
 import cssbeautifier
 
-from urllib.parse import urlparse
+from urllib.parse import urlparse 
 import pyautogui as pag
 
 import image_sizes

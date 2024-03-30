@@ -21,7 +21,7 @@ def save(path_conversions, conversions, mode='w'):
             for conversion in conversions:
                 fr, to = conversion        
                 fp.write(fr.strip() +  "," + to.strip() + "\n")    
-        print("save_conversions: len(conversions):", len(conversions))
+        print("save_conversions: len(conversions):", len(conversions)) 
         
 #-----------------------------------------
 # 

@@ -21,7 +21,7 @@ from PIL import Image, ImageOps
 gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " # 70 levels
 
 # 10 levels of gray
-gscale2 = '@%#*+=-:. '
+gscale2 = '@%#*+=-:. ' 
 gscale2 = 'MX#*+=-:. '
 
 def map(value, leftMin, leftMax, rightMin, rightMax):

@@ -18,7 +18,7 @@ from selenium import webdriver  # pip install selenium
 # https://www.browserstack.com/guide/take-screenshot-with-selenium-python
 
 import config
-import helpers_web as wh
+import helpers_web as wh 
 import helpers_web as hw
 import time
 import urllib.parse # selenium seems to urlencode results

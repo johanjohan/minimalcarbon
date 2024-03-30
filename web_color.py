@@ -20,7 +20,7 @@ result = js2py.eval_js(squareofNum)
 
 print(result(5))
 
-pip install js2py
+pip install js2py 
 -------------------------------------------------------------------------
 https://docs.python.org/3/library/colorsys.html
 

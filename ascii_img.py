@@ -22,7 +22,7 @@ def encode(text):
     return sub(r'(.)\1*', lambda m: str(len(m.group(0))) + m.group(1),
                text)
 
-def decode(text):
+def decode(text): 
     '''
     Doctest:
         >>> decode('12W1B12W3B24W1B14W')

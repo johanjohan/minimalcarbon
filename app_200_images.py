@@ -16,7 +16,7 @@ import helpers_web as wh
 import helpers_web as hw
 import time
 import pathlib
-import pyautogui as pag
+import pyautogui as pag 
 
 
 from bs4 import BeautifulSoup as bs

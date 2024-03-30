@@ -19,7 +19,7 @@ if __name__ == "__main__":
     wh.file_make_unique(config.path_sitemap_links_internal, sort=True)
     urls = config.path_sitemap_links_internal       
       
-    urls = wh.list_from_file(urls)
+    urls = wh.list_from_file(urls) 
     urls = wh.links_remove_comments(urls, '#')
     urls = wh.links_remove_excludes(urls, excludes) # <<<
     urls = wh.links_strip_query_and_fragment(urls) # do not need for snaps

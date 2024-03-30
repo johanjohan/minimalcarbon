@@ -22,7 +22,7 @@ def sitemap_xml_from_list(links, out_xml_path='sitemap.xml'):
     dt = datetime.datetime.now().strftime ("%Y-%m-%d")
     for link in links:
         #print("\t", "xml:", link)
-        doc = ET.SubElement(root, "url")
+        doc = ET.SubElement(root, "url") 
         ET.SubElement(doc, "loc").text = link
         ET.SubElement(doc, "lastmod").text = dt
         ET.SubElement(doc, "changefreq").text = "weekly"

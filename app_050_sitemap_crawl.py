@@ -27,7 +27,7 @@ RESET = config.RESET
 YELLOW = config.YELLOW
 RED = config.RED
 CYAN = config.CYAN
-MAGENTA = config.MAGENTA
+MAGENTA = config.MAGENTA 
 
 #-----------------------------------------
 # 

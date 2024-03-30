@@ -19,7 +19,7 @@ from app_050_sitemap_crawl import rectify, rectify_local
 # https://www.browserstack.com/guide/take-screenshot-with-selenium-python
 
 import config
-import helpers_web as wh
+import helpers_web as wh 
 import helpers_web as hw
 import time
 import os

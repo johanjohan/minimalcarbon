@@ -21,7 +21,7 @@ if __name__ == "__main__":
         for path in image_paths:
             for quality in range(0, 101, 10):
                 
-                print("\n"*4 + "#"*88)
+                print("\n"*4 + "#"*88) 
                 
                 image       = Image.open(path)
                 is_transp   = wh.image_has_transparency(image)
