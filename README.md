@@ -12,6 +12,16 @@ This prototype experiment aims to establish energy as a teachable cultural pract
 Find a description here:
 https://minimalcarbon.net/
 
-## updates
+# deutsch
 
-I will update this Readme as soon as I find time
+Minimalcarbon komprimiert Websites um bis zu 95%, ohne dabei Funktionalität oder Design zu beeinträchtigen.
+
+Minimalcarbon hat eine Technik entwickelt, um den Energieverbrauch von Websites zu reduzieren. Minimalcarbon bietet nicht nur eine technologische Lösung, sondern fördert auch das Bewusstsein für den Zusammenhang zwischen Information und Energie. 
+
+## Prototyp
+
+Dieses Prototypexperiment zielt darauf ab, Energie als erlernbare kulturelle Technik für alle zugänglich zu machen. Derzeit befindet sich der Code in seiner Rohform, ohne Kommentare und Verfeinerung. Dennoch zeigt er das Potenzial, Websites um bis zu 95% zu komprimieren, ohne dabei Funktionalität oder Design zu beeinträchtigen.
+
+Eine Beschreibung gibt es hier: https://minimalcarbon.net/
+
+
