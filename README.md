@@ -1,4 +1,6 @@
-# minimalcarbon
+# minimalcarbon proof of concept
+
+minimalcarbon is compressing websites by up to 95% without compromising functionality or design.
 
 minimalcarbon has created a technique to substantially reduce the power consumption of websites. minimalcarbon not only provides a technological solution, but also promotes awareness about the link between information and energy. The rising use of digital energy is a result of the decisions we all make on a daily basis as publishers, software developers, site designers, and Internet users.
 
