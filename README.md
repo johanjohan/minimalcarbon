@@ -63,10 +63,9 @@ many of these methods are site-specific to karlsruhe.digital
 
 partners:
 
-	+ need partner and scientific authority for online analysis of carbon usage per websit
+	+ need partner and scientific authority for online analysis of carbon usage per website
 	+ domestic solar panel company
 		# experiment on the idea of a direct worldwide solar grid without using battery banks
-	+ several international solar panel companies
 		# establish a solar equator on Earth
 
 code refactoring:
@@ -75,7 +74,8 @@ code refactoring:
 	+ divide apps for general and for specific use
 	+ sql database per site instead of csv
 	+ faster processing of blog listings, new concepts for large blogs and re-rendering
-  
+
+<img src="docs/markmap.svg" alt="mindmap" style="width:100%;height:600px;" />
 
 # deutsch
 
